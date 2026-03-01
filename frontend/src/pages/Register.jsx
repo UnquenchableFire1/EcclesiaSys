@@ -1,1 +1,122 @@
-﻿import { useState } from 'react';import { useNavigate, Link } from 'react-router-dom';import { register } from '../services/api';export default function Register() {    const [name, setName] = useState('');    const [password, setPassword] = useState('');    const [confirmPassword, setConfirmPassword] = useState('');    const [loading, setLoading] = useState(false);    const [error, setError] = useState('');    const [success, setSuccess] = useState('');    const [generatedEmail, setGeneratedEmail] = useState('');    const navigate = useNavigate();    const handleSubmit = async (e) => {        e.preventDefault();        setError('');        setSuccess('');        if (password !== confirmPassword) {            setError('Passwords do not match');            return;        }        if (password.length < 6) {            setError('Password must be at least 6 characters');            return;        }        setLoading(true);        try {            const response = await register(name, password);            if (response.data.success) {                setGeneratedEmail(response.data.email);                setSuccess(`Registration successful! Your email is: ${response.data.email}`);                setName('');                setPassword('');                setConfirmPassword('');                                setTimeout(() => {                    navigate('/login');                }, 3000);            }        } catch (err) {            setError(err.response?.data?.message || 'Registration failed. Please try again.');        } finally {            setLoading(false);        }    };    return (        <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-tealDeep to-teal-700 py-12 px-4'>            <div className='max-w-md w-full bg-white rounded-lg shadow-xl p-8'>                <div className="text-center mb-8">                    <div className="flex justify-center mb-4">                        <div className="w-12 h-12 bg-lemon rounded-full flex items-center justify-center">                            <span className="text-tealDeep text-2xl font-bold">✝</span>                        </div>                    </div>                    <h1 className='text-3xl font-bold text-tealDeep'>BBJ Church</h1>                    <p className='text-gray-600 mt-2'>Join Our Community</p>                </div>                {error && (                    <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4'>                        {error}                    </div>                )}                {success && (                    <div className='bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4'>                        <p className='font-semibold mb-2'>{success}</p>                        <p className='text-sm'>Redirecting to login...</p>                    </div>                )}                <form onSubmit={handleSubmit} className='space-y-4'>                    {/* Name */}                    <div className='space-y-2'>                        <label className='block text-sm font-semibold text-tealDeep'>Full Name</label>                        <input                             type='text'                            placeholder='John Doe'                             value={name}                            onChange={e => setName(e.target.value)}                            className='border-2 border-lemon focus:border-tealDeep w-full px-4 py-2 rounded focus:outline-none transition'                            required                        />                    </div>                    {/* Password */}                    <div className='space-y-2'>                        <label className='block text-sm font-semibold text-tealDeep'>Password</label>                        <input                             type='password'                            placeholder='Enter a strong password'                             value={password}                            onChange={e => setPassword(e.target.value)}                            className='border-2 border-lemon focus:border-tealDeep w-full px-4 py-2 rounded focus:outline-none transition'                            required                        />                        <p className='text-xs text-gray-600'>At least 6 characters</p>                    </div>                    {/* Confirm Password */}                    <div className='space-y-2'>                        <label className='block text-sm font-semibold text-tealDeep'>Confirm Password</label>                        <input                             type='password'                            placeholder='Confirm your password'                             value={confirmPassword}                            onChange={e => setConfirmPassword(e.target.value)}                            className='border-2 border-lemon focus:border-tealDeep w-full px-4 py-2 rounded focus:outline-none transition'                            required                        />                    </div>                    {/* Info Box */}                    <div className='bg-lemon bg-opacity-20 border border-lemon rounded p-3 text-sm text-tealDeep'>                        <p className='font-semibold mb-1'>📧 Your email will be auto-generated</p>                        <p>You can use it to log in along with your password</p>                    </div>                    {/* Submit Button */}                    <button                         type='submit'                        disabled={loading}                        className='w-full bg-lemon hover:bg-yellow-300 disabled:bg-gray-400 text-tealDeep font-bold py-2 rounded transition'                    >                        {loading ? 'Creating Account...' : 'Create Account'}                    </button>                </form>                {/* Login Link */}                <p className='text-center mt-6 text-gray-600'>                    Already have an account?{' '}                    <Link to='/login' className='text-tealDeep font-semibold hover:text-lemon transition'>                        Login here                    </Link>                </p>            </div>        </div>    );}
+﻿import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { register } from '../services/api';
+import Layout from '../layouts/Layout';
+
+export default function Register() {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        phone: ''
+    });
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        try {
+            const response = await register({
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
+                phone: formData.phone
+            });
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('role', response.role);
+            localStorage.setItem('memberId', response.memberId);
+            navigate('/home');
+        } catch (err) {
+            setError(err.message || 'Registration failed');
+        }
+    };
+
+    return (
+        <Layout>
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+                    <h2 className="text-3xl font-bold text-center text-green-600 mb-8">Register as Member</h2>
+                    {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 font-semibold mb-2">Full Name</label>
+                            <input 
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 font-semibold mb-2">Email</label>
+                            <input 
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 font-semibold mb-2">Phone</label>
+                            <input 
+                                type="tel"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 font-semibold mb-2">Password</label>
+                            <input 
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                            />
+                        </div>
+                        <div className="mb-6">
+                            <label className="block text-gray-700 font-semibold mb-2">Confirm Password</label>
+                            <input 
+                                type="password"
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
+                            />
+                        </div>
+                        <button 
+                            type="submit"
+                            className="w-full bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 transition"
+                        >
+                            Register
+                        </button>
+                    </form>
+                    <p className="text-center mt-4 text-gray-600">
+                        Already have an account? <a href="/login" className="text-green-600 hover:underline">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </Layout>
+    );
+}

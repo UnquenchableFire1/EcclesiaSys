@@ -1,1 +1,45 @@
-﻿import { useState, useEffect } from 'react';import { getEvents } from '../services/api';export default function Events() {    const [events, setEvents] = useState([]);    const [loading, setLoading] = useState(true);    useEffect(() => {        const fetchEvents = async () => {            try {                const response = await getEvents();                setEvents(response.data);            } catch (error) {                console.error('Error fetching events:', error);            } finally {                setLoading(false);            }        };        fetchEvents();    }, []);    return (        <div className="space-y-6">            <div className="mb-8">                <h1 className="text-4xl font-bold text-tealDeep mb-2">Church Events</h1>                <p className="text-gray-600">Don't miss important events and activities</p>            </div>            {loading ? (                <div className="text-center py-12">                    <p className="text-gray-600">Loading events...</p>                </div>            ) : events.length > 0 ? (                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">                    {events.map(event => (                        <div key={event.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden border border-lemon">                            <div className="bg-tealDeep text-white p-6">                                <h2 className="text-xl font-bold mb-2">{event.title}</h2>                            </div>                            <div className="p-6 space-y-4">                                <div>                                    <p className="text-sm text-gray-600 font-semibold">📅 Date & Time</p>                                    <p className="text-gray-700">{new Date(event.eventDate).toLocaleString()}</p>                                </div>                                <div>                                    <p className="text-sm text-gray-600 font-semibold">📍 Location</p>                                    <p className="text-gray-700">{event.location || 'TBD'}</p>                                </div>                                <div>                                    <p className="text-sm text-gray-600 font-semibold">📝 Description</p>                                    <p className="text-gray-700 line-clamp-3">{event.description}</p>                                </div>                            </div>                        </div>                    ))}                </div>            ) : (                <div className="text-center py-12 bg-white rounded-lg border border-gray-200">                    <p className="text-gray-600 text-lg">No events scheduled yet</p>                </div>            )}        </div>    );}
+﻿import { useEffect, useState } from 'react';
+import { getEvents } from '../services/api';
+import Layout from '../layouts/Layout';
+
+export default function Events() {
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getEvents().then(data => {
+            setEvents(data);
+            setLoading(false);
+        }).catch(err => {
+            console.error('Error fetching events:', err);
+            setLoading(false);
+        });
+    }, []);
+
+    if (loading) return <Layout><div className="text-center py-8">Loading...</div></Layout>;
+
+    return (
+        <Layout>
+            <div className="max-w-4xl mx-auto">
+                <h1 className="text-4xl font-bold mb-8">Church Events</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {events.map((event, index) => (
+                        <div key={event.id || index} className="bg-white p-6 rounded-lg border border-gray-300 shadow-md hover:shadow-lg transition">
+                            <h3 className="text-2xl font-semibold text-green-600 mb-2">{event.eventName}</h3>
+                            <p className="text-gray-600 mb-2">
+                                <span className="font-semibold">Date:</span> {new Date(event.eventDate).toLocaleDateString()}
+                            </p>
+                            <p className="text-gray-600 mb-2">
+                                <span className="font-semibold">Time:</span> {event.eventTime}
+                            </p>
+                            <p className="text-gray-600 mb-4">
+                                <span className="font-semibold">Location:</span> {event.eventLocation}
+                            </p>
+                            <p className="text-gray-700">{event.eventDescription}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </Layout>
+    );
+}

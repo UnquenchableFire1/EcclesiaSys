@@ -1,1 +1,71 @@
-﻿import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';import Layout from './layouts/Layout';import Home from './pages/Home';import Login from './pages/Login';import Register from './pages/Register';import Announcements from './pages/Announcements';import Events from './pages/Events';import Sermons from './pages/Sermons';import AdminDashboard from './pages/AdminDashboard';function App() {    const userType = localStorage.getItem('userType');    return (        <Router>            <Routes>                {/* Public Routes */}                <Route path="/login" element={<Layout><Login /></Layout>} />                <Route path="/register" element={<Layout><Register /></Layout>} />                {/* Protected Routes */}                <Route path="/" element={<Layout><Home /></Layout>} />                <Route path="/announcements" element={<Layout><Announcements /></Layout>} />                <Route path="/events" element={<Layout><Events /></Layout>} />                <Route path="/sermons" element={<Layout><Sermons /></Layout>} />                                {/* Admin Only Routes */}                <Route                     path="/admin-dashboard"                     element={                        userType === 'admin' ? (                            <Layout><AdminDashboard /></Layout>                        ) : (                            <Navigate to="/login" />                        )                    }                 />                {/* 404 Fallback */}                <Route path="*" element={<Navigate to="/" />} />            </Routes>        </Router>    );}export default App;
+﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Announcements from './pages/Announcements';
+import Events from './pages/Events';
+import Sermons from './pages/Sermons';
+import AdminDashboard from './pages/AdminDashboard';
+
+function ProtectedRoute({ role, requiredRole, children }) {
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('role');
+    
+    if (!token) return <Navigate to="/login" />;
+    if (requiredRole && userRole !== requiredRole) return <Navigate to="/home" />;
+    
+    return children;
+}
+
+export default function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Navigate to="/home" />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                
+                <Route 
+                    path="/home" 
+                    element={
+                        <ProtectedRoute>
+                            <Home />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/announcements" 
+                    element={
+                        <ProtectedRoute>
+                            <Announcements />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/events" 
+                    element={
+                        <ProtectedRoute>
+                            <Events />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/sermons" 
+                    element={
+                        <ProtectedRoute>
+                            <Sermons />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/admin" 
+                    element={
+                        <ProtectedRoute requiredRole="admin">
+                            <AdminDashboard />
+                        </ProtectedRoute>
+                    } 
+                />
+            </Routes>
+        </BrowserRouter>
+    );
+}

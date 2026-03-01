@@ -1,1 +1,67 @@
-﻿import { useState } from 'react';import { useNavigate, Link } from 'react-router-dom';import { login } from '../services/api';export default function Login() {    const [email, setEmail] = useState('');    const [password, setPassword] = useState('');    const [userType, setUserType] = useState('member');    const [loading, setLoading] = useState(false);    const [error, setError] = useState('');    const navigate = useNavigate();    const handleSubmit = async (e) => {        e.preventDefault();        setLoading(true);        setError('');        try {            const response = await login(email, password, userType);            if (response.data.success) {                localStorage.setItem('userId', response.data.userId);                localStorage.setItem('userType', response.data.userType);                localStorage.setItem('userName', response.data.name);                                if (response.data.userType === 'admin') {                    navigate('/admin-dashboard');                } else {                    navigate('/');                }            }        } catch (err) {            setError(err.response?.data?.message || 'Login failed. Please try again.');        } finally {            setLoading(false);        }    };    return (        <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-tealDeep to-teal-700 py-12 px-4'>            <div className='max-w-md w-full bg-white rounded-lg shadow-xl p-8'>                <div className="text-center mb-8">                    <div className="flex justify-center mb-4">                        <div className="w-12 h-12 bg-lemon rounded-full flex items-center justify-center">                            <span className="text-tealDeep text-2xl font-bold">✝</span>                        </div>                    </div>                    <h1 className='text-3xl font-bold text-tealDeep'>BBJ Church</h1>                    <p className='text-gray-600 mt-2'>Member Portal</p>                </div>                {error && (                    <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4'>                        {error}                    </div>                )}                <form onSubmit={handleSubmit} className='space-y-4'>                    {/* User Type Selector */}                    <div className='space-y-2'>                        <label className='block text-sm font-semibold text-tealDeep'>Login as</label>                        <div className='flex gap-4'>                            <label className='flex items-center space-x-2 cursor-pointer'>                                <input                                    type='radio'                                    value='member'                                    checked={userType === 'member'}                                    onChange={(e) => setUserType(e.target.value)}                                    className='w-4 h-4'                                />                                <span className='text-gray-700'>Member</span>                            </label>                            <label className='flex items-center space-x-2 cursor-pointer'>                                <input                                    type='radio'                                    value='admin'                                    checked={userType === 'admin'}                                    onChange={(e) => setUserType(e.target.value)}                                    className='w-4 h-4'                                />                                <span className='text-gray-700'>Admin</span>                            </label>                        </div>                    </div>                    {/* Email */}                    <div className='space-y-2'>                        <label className='block text-sm font-semibold text-tealDeep'>Email</label>                        <input                             type='email'                            placeholder='your@email.com'                             value={email}                            onChange={e => setEmail(e.target.value)}                            className='border-2 border-lemon focus:border-tealDeep w-full px-4 py-2 rounded focus:outline-none transition'                            required                        />                    </div>                    {/* Password */}                    <div className='space-y-2'>                        <label className='block text-sm font-semibold text-tealDeep'>Password</label>                        <input                             type='password'                            placeholder='Enter your password'                             value={password}                            onChange={e => setPassword(e.target.value)}                            className='border-2 border-lemon focus:border-tealDeep w-full px-4 py-2 rounded focus:outline-none transition'                            required                        />                    </div>                    {/* Submit Button */}                    <button                         type='submit'                        disabled={loading}                        className='w-full bg-lemon hover:bg-yellow-300 disabled:bg-gray-400 text-tealDeep font-bold py-2 rounded transition'                    >                        {loading ? 'Logging in...' : 'Login'}                    </button>                </form>                {/* Register Link */}                <p className='text-center mt-6 text-gray-600'>                    Don't have an account?{' '}                    <Link to='/register' className='text-tealDeep font-semibold hover:text-lemon transition'>                        Register here                    </Link>                </p>            </div>        </div>    );}
+﻿import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../services/api';
+import Layout from '../layouts/Layout';
+
+export default function Login() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        try {
+            const response = await login(email, password);
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('role', response.role);
+            localStorage.setItem('memberId', response.memberId);
+            navigate(response.role === 'admin' ? '/admin' : '/home');
+        } catch (err) {
+            setError(err.message || 'Login failed');
+        }
+    };
+
+    return (
+        <Layout>
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+                    <h2 className="text-3xl font-bold text-center text-blue-600 mb-8">Church Manager Login</h2>
+                    {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 font-semibold mb-2">Email</label>
+                            <input 
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                            />
+                        </div>
+                        <div className="mb-6">
+                            <label className="block text-gray-700 font-semibold mb-2">Password</label>
+                            <input 
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                            />
+                        </div>
+                        <button 
+                            type="submit"
+                            className="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 transition"
+                        >
+                            Login
+                        </button>
+                    </form>
+                    <p className="text-center mt-4 text-gray-600">
+                        Don''t have an account? <a href="/register" className="text-blue-600 hover:underline">Register here</a>
+                    </p>
+                </div>
+            </div>
+        </Layout>
+    );
+}

@@ -1,1 +1,58 @@
-﻿import { useState, useEffect } from 'react';import { getSermons } from '../services/api';export default function Sermons() {    const [sermons, setSermons] = useState([]);    const [loading, setLoading] = useState(true);    useEffect(() => {        const fetchSermons = async () => {            try {                const response = await getSermons();                setSermons(response.data);            } catch (error) {                console.error('Error fetching sermons:', error);            } finally {                setLoading(false);            }        };        fetchSermons();    }, []);    return (        <div className="space-y-6">            <div className="mb-8">                <h1 className="text-4xl font-bold text-tealDeep mb-2">Sermons</h1>                <p className="text-gray-600">Listen to our latest sermons and messages</p>            </div>            {loading ? (                <div className="text-center py-12">                    <p className="text-gray-600">Loading sermons...</p>                </div>            ) : sermons.length > 0 ? (                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">                    {sermons.map(sermon => (                        <div key={sermon.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 border border-lemon">                            <div className="flex items-start gap-4">                                <div className="text-4xl">                                    {sermon.fileType === 'mp3' ? '🎵' : '🎬'}                                </div>                                <div className="flex-1">                                    <h2 className="text-xl font-bold text-tealDeep mb-2">{sermon.title}</h2>                                    <p className="text-gray-600 mb-3 line-clamp-2">{sermon.description}</p>                                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">                                        <span className="bg-lemon bg-opacity-30 px-2 py-1 rounded">                                            {sermon.fileType.toUpperCase()}                                        </span>                                        <span>{new Date(sermon.uploadedDate).toLocaleDateString()}</span>                                    </div>                                    <a                                         href={sermon.filePath}                                         target="_blank"                                         rel="noopener noreferrer"                                        className="inline-block bg-tealDeep text-white px-4 py-2 rounded font-semibold hover:bg-teal-700 transition"                                    >                                        {sermon.fileType === 'mp3' ? '▶️ Listen' : '▶️ Watch'}                                    </a>                                </div>                            </div>                        </div>                    ))}                </div>            ) : (                <div className="text-center py-12 bg-white rounded-lg border border-gray-200">                    <p className="text-gray-600 text-lg">No sermons available yet</p>                </div>            )}        </div>    );}
+﻿import { useEffect, useState } from 'react';
+import { getSermons } from '../services/api';
+import Layout from '../layouts/Layout';
+
+export default function Sermons() {
+    const [sermons, setSermons] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getSermons().then(data => {
+            setSermons(data);
+            setLoading(false);
+        }).catch(err => {
+            console.error('Error fetching sermons:', err);
+            setLoading(false);
+        });
+    }, []);
+
+    if (loading) return <Layout><div className="text-center py-8">Loading...</div></Layout>;
+
+    return (
+        <Layout>
+            <div className="max-w-4xl mx-auto">
+                <h1 className="text-4xl font-bold mb-8">Sermons</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {sermons.map((sermon, index) => (
+                        <div key={sermon.id || index} className="bg-yellow-50 p-6 rounded-lg border border-yellow-300 shadow-md hover:shadow-lg transition">
+                            <h3 className="text-2xl font-semibold text-yellow-700 mb-2">{sermon.title}</h3>
+                            <p className="text-gray-700 mb-4">{sermon.description}</p>
+                            <p className="text-sm text-gray-600 mb-3">
+                                <span className="font-semibold">Speaker:</span> {sermon.speaker}
+                            </p>
+                            <p className="text-sm text-gray-600 mb-4">
+                                <span className="font-semibold">Date:</span> {new Date(sermon.sermonDate).toLocaleDateString()}
+                            </p>
+                            {sermon.audioUrl && (
+                                <div className="mb-3">
+                                    <audio controls className="w-full">
+                                        <source src={sermon.audioUrl} type="audio/mpeg" />
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>
+                            )}
+                            {sermon.videoUrl && (
+                                <div className="mb-3">
+                                    <video controls className="w-full max-h-48">
+                                        <source src={sermon.videoUrl} type="video/mp4" />
+                                        Your browser does not support the video element.
+                                    </video>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </Layout>
+    );
+}

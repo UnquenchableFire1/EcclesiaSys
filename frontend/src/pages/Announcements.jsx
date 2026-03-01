@@ -1,1 +1,37 @@
-﻿import { useState, useEffect } from 'react';import { getAnnouncements } from '../services/api';export default function Announcements() {    const [announcements, setAnnouncements] = useState([]);    const [loading, setLoading] = useState(true);    useEffect(() => {        const fetchAnnouncements = async () => {            try {                const response = await getAnnouncements();                setAnnouncements(response.data);            } catch (error) {                console.error('Error fetching announcements:', error);            } finally {                setLoading(false);            }        };        fetchAnnouncements();    }, []);    return (        <div className="space-y-6">            <div className="mb-8">                <h1 className="text-4xl font-bold text-tealDeep mb-2">Announcements</h1>                <p className="text-gray-600">Stay informed with the latest news from BBJ Church</p>            </div>            {loading ? (                <div className="text-center py-12">                    <p className="text-gray-600">Loading announcements...</p>                </div>            ) : announcements.length > 0 ? (                <div className="space-y-5">                    {announcements.map(announcement => (                        <div key={announcement.id} className="bg-white border-l-4 border-lemon rounded-lg shadow hover:shadow-lg transition p-6">                            <div className="flex items-start justify-between">                                <div className="flex-1">                                    <h2 className="text-2xl font-bold text-tealDeep mb-3">{announcement.title}</h2>                                    <p className="text-gray-700 leading-relaxed mb-3">{announcement.message}</p>                                </div>                            </div>                        </div>                    ))}                </div>            ) : (                <div className="text-center py-12 bg-white rounded-lg border border-gray-200">                    <p className="text-gray-600 text-lg">No announcements yet</p>                </div>            )}        </div>    );}
+﻿import { useEffect, useState } from 'react';
+import { getAnnouncements } from '../services/api';
+import Layout from '../layouts/Layout';
+
+export default function Announcements() {
+    const [announcements, setAnnouncements] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getAnnouncements().then(data => {
+            setAnnouncements(data);
+            setLoading(false);
+        }).catch(err => {
+            console.error('Error fetching announcements:', err);
+            setLoading(false);
+        });
+    }, []);
+
+    if (loading) return <Layout><div className="text-center py-8">Loading...</div></Layout>;
+
+    return (
+        <Layout>
+            <div className="max-w-4xl mx-auto">
+                <h1 className="text-4xl font-bold mb-8">Church Announcements</h1>
+                <div className="space-y-4">
+                    {announcements.map((announcement, index) => (
+                        <div key={announcement.id || index} className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-md transition">
+                            <h3 className="text-2xl font-semibold text-blue-600 mb-3">{announcement.title}</h3>
+                            <p className="text-gray-700">{announcement.message}</p>
+                            <p className="text-sm text-gray-500 mt-4">{new Date(announcement.createdAt).toLocaleDateString()}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </Layout>
+    );
+}
