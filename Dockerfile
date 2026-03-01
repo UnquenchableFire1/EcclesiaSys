@@ -7,6 +7,6 @@ RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=builder /app/target/bbj-church-manager-1.0.0.war app.war
+COPY --from=builder /app/target/bbj-church-manager.war app.war
 EXPOSE 8080
 CMD ["java", "-jar", "app.war"]
