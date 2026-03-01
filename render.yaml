@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: bbjdigital-frontend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && yarn install && yarn build
+    startCommand: cd frontend && yarn start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: NODE_ENV
+        value: production
