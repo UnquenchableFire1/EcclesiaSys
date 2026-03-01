@@ -1,16 +1,14 @@
 services:
   - type: web
     name: bbj-church-backend
-    env: java
+    env: docker
     region: oregon
     plan: free
-    buildCommand: cd backend && mvn clean package -DskipTests
-    startCommand: java -jar backend/target/bbj-church-manager-1.0.0.war
+    dockerfilePath: Dockerfile
+    healthCheckPath: /api/health
     envVars:
-      - key: JAVA_VERSION
-        value: 21
       - key: PORT
-        value: 8080
+        value: "8080"
       - key: JDBC_DATABASE_URL
         value: mysql://nrMPj1ECajN3NtY.root:LSTkYzHVTdplnF2X@gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/bbj
       - key: JDBC_DATABASE_USERNAME
@@ -23,3 +21,13 @@ services:
         value: Project
       - key: B2_BUCKET_NAME
         value: bbj1532
+
+  - type: static
+    name: bbj-church-frontend
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm ci && npm run build
+    publishPath: frontend/build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://bbjdigital-e62a.onrender.com/api
