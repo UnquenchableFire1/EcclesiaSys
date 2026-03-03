@@ -27,7 +27,7 @@ export default function Navbar({ isMobile = false }) {
                     {/* Logo */}
                     <Link to="/" className="text-white text-2xl font-bold flex items-center gap-2">
                         <div className="w-8 h-8 bg-lemon rounded-full flex items-center justify-center">
-                            <span className="text-tealDeep font-bold">âœ</span>
+                            <span className="text-tealDeep font-bold">✝</span>
                         </div>
                         BBJ
                     </Link>
@@ -60,8 +60,8 @@ export default function Navbar({ isMobile = false }) {
                                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                             className="text-white hover:text-lemon transition flex items-center gap-2"
                                         >
-                                            ðŸ'¤ {userName}
-                                            <span className={`transform transition ${isDropdownOpen ? 'rotate-180' : ''}`}>â–¼</span>
+                                            👤 {userName}
+                                            <span className={`transform transition ${isDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
                                         </button>
                                         {isDropdownOpen && (
                                             <div className="absolute right-0 mt-2 w-48 bg-white text-tealDeep rounded-lg shadow-lg py-2">
@@ -93,7 +93,7 @@ export default function Navbar({ isMobile = false }) {
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             className="text-white text-2xl"
                         >
-                            â˜°
+                            ☰
                         </button>
                     )}
                 </div>
