@@ -1,23 +1,26 @@
 services:
   - type: web
-    name: bbj-church-backend
+    name: bbj-church-manager
     env: docker
     region: oregon
     plan: free
     dockerfilePath: Dockerfile
     envVars:
-      - key: PORT
-        value: "8080"
-      - key: JDBC_DATABASE_URL
-        value: mysql://nrMPj1ECajN3NtY.root:LSTkYzHVTdplnF2X@gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/bbj
-      - key: JDBC_DATABASE_USERNAME
+      # Spring Boot will listen on Render's dynamically assigned PORT
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      # Database Configuration (use your TiDB Cloud credentials)
+      - key: DB_URL
+        value: jdbc:mysql://nrMPj1ECajN3NtY.root:LSTkYzHVTdplnF2X@gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/bbj?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - key: DB_USER
         value: nrMPj1ECajN3NtY.root
-      - key: JDBC_DATABASE_PASSWORD
+      - key: DB_PASSWORD
         value: LSTkYzHVTdplnF2X
+      # B2 File Upload Service Credentials
       - key: B2_KEY_ID
         value: 0055be753f9e33f0000000001
-      - key: B2_KEY_NAME
-        value: Project
+      - key: B2_APP_KEY
+        value: K005uAur9WX0YGfPwOwbdyCsVwKOhuA
       - key: B2_BUCKET_NAME
         value: bbj1532
 
