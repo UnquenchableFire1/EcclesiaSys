@@ -9,6 +9,7 @@ export default function Navbar() {
         <div className="space-x-6 text-white font-medium">
           <Link to="/" className="hover:text-accent transition">Home</Link>
           <Link to="/login" className="hover:text-accent transition">Login</Link>
+          <Link to="/register" className="hover:text-accent transition">Register</Link>
         </div>
       </div>
     </nav>

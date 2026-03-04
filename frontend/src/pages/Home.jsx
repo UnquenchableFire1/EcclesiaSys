@@ -9,9 +9,9 @@ export default function Home() {
         <p className="text-lg mb-8 text-gray-200">
           Growing in faith. Serving with love.
         </p>
-        <button className="bg-accent hover:bg-accent-hover text-primary font-bold px-8 py-3 rounded-lg transition">
-          Join Us This Sunday
-        </button>
+        <a href="/register" className="bg-accent hover:bg-accent-hover text-primary font-bold px-8 py-3 rounded-lg transition inline-block">
+          Register Now
+        </a>
       </section>
 
       <section className="bg-white py-16 text-center">
