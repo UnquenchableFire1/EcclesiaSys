@@ -46,75 +46,107 @@ export default function Register() {
 
     return (
         <Layout>
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-                    <h2 className="text-3xl font-bold text-center text-green-600 mb-8">Register as Member</h2>
-                    {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 font-semibold mb-2">Full Name</label>
-                            <input 
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                            />
+            <div className="min-h-screen flex items-center justify-center py-12 px-4">
+                <div className="w-full max-w-md">
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <div className="h-16 w-16 bg-lemon rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                            <span className="text-3xl font-bold text-tealDeep">+</span>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 font-semibold mb-2">Email</label>
-                            <input 
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                            />
+                        <h1 className="text-4xl font-bold text-tealDeep mb-2">Join BBJ Church</h1>
+                        <p className="text-gray-600">Create your member account</p>
+                    </div>
+
+                    {/* Card */}
+                    <div className="bg-white rounded-xl shadow-xl p-8 border-t-4 border-lemon">
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
+                                {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Full Name</label>
+                                <input 
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="John Doe"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Email Address</label>
+                                <input 
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="your@email.com"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Phone (Optional)</label>
+                                <input 
+                                    type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="+1 (555) 123-4567"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Password</label>
+                                <input 
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Confirm Password</label>
+                                <input 
+                                    type="password"
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+
+                            <button 
+                                type="submit"
+                                className="w-full bg-lemon text-tealDeep font-bold py-3 rounded-lg hover:bg-yellow-400 transition shadow-lg mt-6"
+                            >
+                                Create Account
+                            </button>
+                        </form>
+
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                            <p className="text-center text-gray-600 text-sm">
+                                Already have an account? <a href="/login" className="text-tealDeep font-semibold hover:text-lemon transition">Login here</a>
+                            </p>
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 font-semibold mb-2">Phone</label>
-                            <input 
-                                type="tel"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 font-semibold mb-2">Password</label>
-                            <input 
-                                type="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                            />
-                        </div>
-                        <div className="mb-6">
-                            <label className="block text-gray-700 font-semibold mb-2">Confirm Password</label>
-                            <input 
-                                type="password"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
-                                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-green-500"
-                            />
-                        </div>
-                        <button 
-                            type="submit"
-                            className="w-full bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 transition"
-                        >
-                            Register
-                        </button>
-                    </form>
-                    <p className="text-center mt-4 text-gray-600">
-                        Already have an account? <a href="/login" className="text-green-600 hover:underline">Login here</a>
-                    </p>
+                    </div>
+
+                    {/* Footer Info */}
+                    <p className="text-center text-gray-500 text-xs mt-6">© 2026 BBJ Church Manager</p>
                 </div>
             </div>
         </Layout>
