@@ -3,7 +3,7 @@ export default function Home() {
   return (
     <div>
       <section className="bg-primary text-white py-24 text-center">
-        <h1 className="text-5xl font-bold mb-6 animate-pulse">
+        <h1 className="text-5xl font-bold mb-6">
           Welcome to BBJ Church
         </h1>
         <p className="text-lg mb-8 text-gray-200">
