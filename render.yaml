@@ -6,9 +6,7 @@ services:
     plan: free
     dockerfilePath: Dockerfile
     envVars:
-      # Spring Boot will listen on Render's dynamically assigned PORT
-      - key: SPRING_PROFILES_ACTIVE
-        value: production
+      # PORT: Leave this unset - Render automatically assigns a port
       # Database Configuration (use your TiDB Cloud credentials)
       - key: DB_URL
         value: jdbc:mysql://nrMPj1ECajN3NtY.root:LSTkYzHVTdplnF2X@gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/bbj?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true

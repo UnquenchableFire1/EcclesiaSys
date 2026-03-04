@@ -23,8 +23,12 @@ WORKDIR /app
 # Copy compiled JAR from builder
 COPY --from=maven_builder /app/target/bbj-church-manager-1.0.0.jar app.jar
 
-# Expose port (Render may override)
+# Set production Spring profile to use application-production.properties
+ENV SPRING_PROFILES_ACTIVE=production
+
+# Expose port (Render will set PORT environment variable at runtime)
 EXPOSE 8080
 
 # Run the Spring Boot application with embedded Tomcat
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Spring will read server.port=${PORT:8080} from application-production.properties
+CMD ["java", "-jar", "app.jar"]
