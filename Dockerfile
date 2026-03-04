@@ -31,8 +31,8 @@ RUN mvn dependency:resolve
 # Copy backend source
 COPY backend/ .
 
-# Copy built React frontend into backend static resources
-COPY --from=node_builder /frontend/build ./src/main/resources/static
+# Copy built React frontend into backend static resources (Vite outputs to dist)
+COPY --from=node_builder /frontend/dist ./src/main/resources/static
 
 # Build the JAR (now includes React frontend)
 RUN mvn clean package -DskipTests
