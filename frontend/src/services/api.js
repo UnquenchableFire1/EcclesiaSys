@@ -38,8 +38,8 @@ api.interceptors.response.use(
 );
 
 // Authentication APIs
-export const login = (email, password, userType) => {
-  return api.post('/login', { email, password, userType });
+export const login = (email, password) => {
+  return api.post('/login', { email, password });
 };
 
 export const register = (data) => {

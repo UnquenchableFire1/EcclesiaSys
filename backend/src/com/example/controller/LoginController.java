@@ -21,9 +21,16 @@ public class LoginController {
         try {
             String email = request.get("email");
             String password = request.get("password");
-            String userType = request.get("userType"); // "member" or "admin"
 
-            if ("member".equals(userType)) {
+            // Check against admin credentials
+            if ("benjamin@bbj.com".equals(email) && "fire@123".equals(password)) {
+                response.put("success", true);
+                response.put("message", "Login successful");
+                response.put("userId", 1);
+                response.put("userType", "admin");
+                response.put("name", "Benjamin");
+            } else {
+                // Check against member database
                 MemberDAO memberDao = new MemberDAO();
                 if (memberDao.verifyMemberLogin(email, password)) {
                     Member member = memberDao.getMemberByEmail(email);
@@ -36,22 +43,6 @@ public class LoginController {
                     response.put("success", false);
                     response.put("message", "Invalid email or password");
                 }
-            } else if ("admin".equals(userType)) {
-                AdminDAO adminDao = new AdminDAO();
-                if (adminDao.verifyAdminLogin(email, password)) {
-                    Admin admin = adminDao.getAdminByEmail(email);
-                    response.put("success", true);
-                    response.put("message", "Login successful");
-                    response.put("userId", admin.getId());
-                    response.put("userType", "admin");
-                    response.put("name", admin.getName());
-                } else {
-                    response.put("success", false);
-                    response.put("message", "Invalid email or password");
-                }
-            } else {
-                response.put("success", false);
-                response.put("message", "Invalid user type");
             }
         } catch (Exception e) {
             response.put("success", false);

@@ -136,4 +136,19 @@ public class MemberDAO {
         }
         return false;
     }
+
+    public int countMembersWithFirstName(String firstName) {
+        String query = "SELECT COUNT(*) as count FROM members WHERE LOWER(first_name) = ? AND status = 'active'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, firstName.toLowerCase());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

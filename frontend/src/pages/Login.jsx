@@ -14,16 +14,16 @@ export default function Login() {
     e.preventDefault();
     setError('');
     try {
-      const response = await login(email, password, 'member');
+      const response = await login(email, password);
       if (response.data?.success) {
         const data = response.data;
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('userType', data.userType);
         localStorage.setItem('userName', data.name);
-        if (data.userType === 'member') {
-          navigate('/home');
-        } else {
+        if (data.userType === 'admin') {
           navigate('/admin');
+        } else if (data.userType === 'member') {
+          navigate('/home');
         }
       } else {
         setError(response.data?.message || 'Login failed');
@@ -37,8 +37,8 @@ export default function Login() {
     <Layout>
       <div className="min-h-screen flex items-center justify-center">
         <div className="bg-white text-gray-800 p-10 rounded-2xl shadow-2xl w-full max-w-md">
-          <h2 className="text-3xl font-bold text-blue-600 mb-6 text-center">
-            Member Login
+          <h2 className="text-3xl font-bold text-tealDeep mb-6 text-center">
+            Login
           </h2>
 
         <form onSubmit={handleSubmit}>
@@ -71,9 +71,9 @@ export default function Login() {
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-          <p className="text-gray-600 text-sm mb-2">Are you an admin?</p>
-          <a href="/admin-login" className="text-blue-600 font-semibold hover:text-blue-700 transition">
-            Admin Login
+          <p className="text-gray-600 text-sm mb-2">Don't have an account?</p>
+          <a href="/register" className="text-tealDeep font-semibold hover:text-lemon transition">
+            Register here
           </a>
         </div>
       </div>

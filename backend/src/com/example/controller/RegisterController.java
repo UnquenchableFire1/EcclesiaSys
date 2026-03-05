@@ -68,9 +68,20 @@ public class RegisterController {
     }
 
     private String generateAutoEmail(String name) {
-        String sanitized = name.toLowerCase().replaceAll("\\s+", ".");
-        // use corporate domain for church members
-        return sanitized + "@bbj.com";
+        String firstName = name.split(" ")[0].toLowerCase();
+        MemberDAO memberDao = new MemberDAO();
+        
+        // Check if first name is Benjamin or if first name already exists in database
+        int existingCount = memberDao.countMembersWithFirstName(firstName);
+        
+        if ("benjamin".equals(firstName) || existingCount > 0) {
+            // Index from 0 upward for Benjamin or duplicate first names
+            return firstName + existingCount + "@bbj.com";
+        } else {
+            // For unique first names, use full name with dot separator
+            String sanitized = name.toLowerCase().replaceAll("\\s+", ".");
+            return sanitized + "@bbj.com";
+        }
     }
 
     private String generatePassword() {
