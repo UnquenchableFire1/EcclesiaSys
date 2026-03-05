@@ -29,7 +29,9 @@ export default function Login() {
         setError(response.data?.message || 'Login failed');
       }
     } catch (err) {
-      setError(err.message || 'Network error');
+      console.error('Login error', err);
+      const msg = err.response?.data?.message || err.message || 'Network error';
+      setError(msg);
     }
   };
 

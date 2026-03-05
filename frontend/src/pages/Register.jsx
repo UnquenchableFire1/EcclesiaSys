@@ -47,7 +47,9 @@ export default function Register() {
                 setError(response.data?.message || 'Registration failed');
             }
         } catch (err) {
-            setError(err.message || 'Network error');
+            console.error('Registration error', err);
+            const msg = err.response?.data?.message || err.message || 'Network error';
+            setError(msg);
         }
     };
 
