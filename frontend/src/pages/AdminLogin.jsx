@@ -13,7 +13,7 @@ export default function AdminLogin() {
     e.preventDefault();
     setError('');
     try {
-      const response = await login(email, password, 'admin');
+      const response = await login(email, password);
       if (response.data?.success) {
         const data = response.data;
         localStorage.setItem('userId', data.userId);
@@ -32,17 +32,13 @@ export default function AdminLogin() {
     <Layout>
       <div className="min-h-screen flex items-center justify-center">
         <div className="bg-white text-gray-800 p-10 rounded-2xl shadow-2xl w-full max-w-md">
-          <h2 className="text-3xl font-bold text-blue-600 mb-6 text-center">
-            Admin Login
-          </h2>
-
           <form onSubmit={handleSubmit}>
             <input
               type="email"
               placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mb-4 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full mb-4 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-tealDeep"
               required
             />
 
@@ -51,7 +47,7 @@ export default function AdminLogin() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mb-6 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full mb-6 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-tealDeep"
               required
             />
 
@@ -59,16 +55,15 @@ export default function AdminLogin() {
 
             <button
               type="submit"
-              className="w-full bg-yellow-400 hover:bg-yellow-300 text-blue-600 font-semibold py-3 rounded-lg transition"
+              className="w-full bg-lemon hover:bg-yellow-300 text-tealDeep font-semibold py-3 rounded-lg transition"
             >
               Login
             </button>
           </form>
 
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <p className="text-gray-600 text-sm mb-2">Are you a member?</p>
-            <a href="/login" className="text-blue-600 font-semibold hover:text-blue-700 transition">
-              Member Login
+            <a href="/login" className="text-tealDeep font-semibold hover:text-lemon transition">
+              Back to Login
             </a>
           </div>
         </div>

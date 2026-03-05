@@ -37,10 +37,6 @@ export default function Login() {
     <Layout>
       <div className="min-h-screen flex items-center justify-center">
         <div className="bg-white text-gray-800 p-10 rounded-2xl shadow-2xl w-full max-w-md">
-          <h2 className="text-3xl font-bold text-tealDeep mb-6 text-center">
-            Login
-          </h2>
-
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -71,7 +67,6 @@ export default function Login() {
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-          <p className="text-gray-600 text-sm mb-2">Don't have an account?</p>
           <a href="/register" className="text-tealDeep font-semibold hover:text-lemon transition">
             Register here
           </a>
