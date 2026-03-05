@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
 import Register from "./pages/Register";
 import Announcements from "./pages/Announcements";
 import Events from "./pages/Events";
@@ -25,6 +26,7 @@ export default function App() {
       <Route path="/" element={<Layout><Home /></Layout>} />
       <Route path="/home" element={<Layout><Home /></Layout>} />
       <Route path="/login" element={<Login />} />
+      <Route path="/admin-login" element={<AdminLogin />} />
       <Route path="/register" element={<Register />} />
 
       <Route

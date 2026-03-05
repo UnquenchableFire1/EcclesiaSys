@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
+import Layout from '../layouts/Layout';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('member');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -14,7 +14,7 @@ export default function Login() {
     e.preventDefault();
     setError('');
     try {
-      const response = await login(email, password, userType);
+      const response = await login(email, password, 'member');
       if (response.data?.success) {
         const data = response.data;
         localStorage.setItem('userId', data.userId);
@@ -34,34 +34,12 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary">
-      <div className="bg-white text-gray-800 p-10 rounded-2xl shadow-2xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-primary mb-6 text-center">
-          {userType === 'member' ? 'Member Login' : 'Admin Login'}
-        </h2>
-
-        <div className="mb-4 flex justify-center space-x-4">
-          <label>
-            <input
-              type="radio"
-              name="userType"
-              value="member"
-              checked={userType === 'member'}
-              onChange={() => setUserType('member')}
-            />{' '}
-            Member
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="userType"
-              value="admin"
-              checked={userType === 'admin'}
-              onChange={() => setUserType('admin')}
-            />{' '}
-            Admin
-          </label>
-        </div>
+    <Layout>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-white text-gray-800 p-10 rounded-2xl shadow-2xl w-full max-w-md">
+          <h2 className="text-3xl font-bold text-blue-600 mb-6 text-center">
+            Member Login
+          </h2>
 
         <form onSubmit={handleSubmit}>
           <input
@@ -91,7 +69,15 @@ export default function Login() {
             Login
           </button>
         </form>
+
+        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+          <p className="text-gray-600 text-sm mb-2">Are you an admin?</p>
+          <a href="/admin-login" className="text-blue-600 font-semibold hover:text-blue-700 transition">
+            Admin Login
+          </a>
+        </div>
       </div>
     </div>
+    </Layout>
   );
 }
