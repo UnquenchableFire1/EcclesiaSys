@@ -7,7 +7,7 @@ export default function Home() {
     <div>
       <section className="bg-tealDeep text-white py-24 text-center">
         <h1 className="text-5xl font-bold mb-6">
-          Welcome to BBJ Church
+          Welcome to BBJ Digital Church Management System
         </h1>
         <p className="text-lg mb-8 text-gray-200">
           Growing in faith. Serving with love.

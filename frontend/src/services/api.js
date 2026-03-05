@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Environment-based API configuration
-export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+// default to relative path so frontend works when deployed alongside backend
+export const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_URL,

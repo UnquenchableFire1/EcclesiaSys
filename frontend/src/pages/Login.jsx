@@ -37,6 +37,9 @@ export default function Login() {
     <Layout>
       <div className="min-h-screen flex items-center justify-center">
         <div className="bg-white text-gray-800 p-10 rounded-2xl shadow-2xl w-full max-w-md">
+          <h2 className="text-2xl font-bold text-tealDeep mb-6 text-center">
+            Login to view your dashboard
+          </h2>
         <form onSubmit={handleSubmit}>
           <input
             type="email"
