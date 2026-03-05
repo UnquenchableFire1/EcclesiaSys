@@ -17,19 +17,32 @@ public class RegisterController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            String name = request.get("name");
+            String firstName = request.get("firstName");
+            String lastName = request.get("lastName");
+            String phoneNumber = request.get("phoneNumber");
+            String password = request.get("password");
+            String confirmPassword = request.get("confirmPassword");
             
-            if (name == null || name.trim().isEmpty()) {
+            if (firstName == null || firstName.trim().isEmpty() ||
+                lastName == null || lastName.trim().isEmpty() ||
+                phoneNumber == null || phoneNumber.trim().isEmpty() ||
+                password == null || password.trim().isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Name is required");
+                response.put("message", "All fields are required");
+                return response;
+            }
+
+            if (!password.equals(confirmPassword)) {
+                response.put("success", false);
+                response.put("message", "Passwords do not match");
                 return response;
             }
 
             // Generate auto email
+            String name = firstName + " " + lastName;
             String email = generateAutoEmail(name);
-            String password = generatePassword();
 
-            Member member = new Member(name, email, password);
+            Member member = new Member(firstName, lastName, phoneNumber, email, password);
             MemberDAO memberDao = new MemberDAO();
             
             if (memberDao.addMember(member)) {
@@ -38,7 +51,6 @@ public class RegisterController {
                 response.put("success", true);
                 response.put("message", "Registration successful");
                 response.put("email", email);
-                response.put("password", password);
                 if (saved != null) {
                     response.put("userId", saved.getId());
                 }

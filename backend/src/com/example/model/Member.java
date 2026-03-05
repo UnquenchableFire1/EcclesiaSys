@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 
 public class Member {
     private int id;
-    private String name;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
     private String email;
     private String password;
     private String status;
@@ -13,8 +15,21 @@ public class Member {
 
     public Member() {}
 
+    public Member(String firstName, String lastName, String phoneNumber, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.password = password;
+        this.status = "active";
+    }
+
+    // Legacy constructor for backward compatibility
     public Member(String name, String email, String password) {
-        this.name = name;
+        String[] parts = name.split(" ", 2);
+        this.firstName = parts[0];
+        this.lastName = parts.length > 1 ? parts[1] : "";
+        this.phoneNumber = "";
         this.email = email;
         this.password = password;
         this.status = "active";
@@ -23,8 +38,23 @@ public class Member {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() { return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : ""); }
+    public void setName(String name) { 
+        if (name != null) {
+            String[] parts = name.split(" ", 2);
+            this.firstName = parts[0];
+            this.lastName = parts.length > 1 ? parts[1] : "";
+        }
+    }
+
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

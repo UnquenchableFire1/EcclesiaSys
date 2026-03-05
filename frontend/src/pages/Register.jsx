@@ -5,7 +5,11 @@ import Layout from '../layouts/Layout';
 
 export default function Register() {
     const [formData, setFormData] = useState({
-        name: ''
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        password: '',
+        confirmPassword: ''
     });
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -19,20 +23,24 @@ export default function Register() {
         e.preventDefault();
         setError('');
         
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
 
         try {
-            // send only what backend expects; extras are ignored
-            const response = await register({ name: formData.name });
+            // send the form data
+            const response = await register(formData);
             if (response.data?.success) {
                 const generatedEmail = response.data.email;
-                // optionally save credentials
+                // save credentials
                 localStorage.setItem('memberEmail', generatedEmail);
                 // auto-login as member
                 if (response.data.userId) {
                     localStorage.setItem('userId', response.data.userId);
                     localStorage.setItem('userType', 'member');
                 }
-                alert(`WELCOME TO BBJ DIGITAL CHURCH SYSTEM. YOUR LOGIN EMAIL IS "${generatedEmail}" USE THIS ANYTIME LOGGING IN`);
+                alert(`WELCOME TO BBJ DIGITAL CHURCH MANAGEMENT SYSTEM. YOUR LOGIN EMAIL IS "${generatedEmail}" USE THIS ANYTIME LOGGING IN`);
                 // navigate to home/dashboard
                 navigate('/home');
             } else {
@@ -52,7 +60,7 @@ export default function Register() {
                         <div className="h-16 w-16 bg-lemon rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                             <span className="text-3xl font-bold text-tealDeep">+</span>
                         </div>
-                        <h1 className="text-4xl font-bold text-tealDeep mb-2">Join BBJ Church</h1>
+                        <h1 className="text-4xl font-bold text-tealDeep mb-2">Join BBJ Digital Church Management System</h1>
                         <p className="text-gray-600">Create your member account</p>
                     </div>
 
@@ -66,15 +74,63 @@ export default function Register() {
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-tealDeep mb-2">Full Name</label>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">First Name</label>
                                 <input 
                                     type="text"
-                                    name="name"
-                                    value={formData.name}
+                                    name="firstName"
+                                    value={formData.firstName}
                                     onChange={handleChange}
                                     required
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
-                                    placeholder="John Doe"
+                                    placeholder="John"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Last Name</label>
+                                <input 
+                                    type="text"
+                                    name="lastName"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="Doe"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Phone Number</label>
+                                <input 
+                                    type="tel"
+                                    name="phoneNumber"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="(123) 456-7890"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Password</label>
+                                <input 
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="Enter your password"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Confirm Password</label>
+                                <input 
+                                    type="password"
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="Confirm your password"
                                 />
                             </div>
 

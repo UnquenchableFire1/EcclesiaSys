@@ -28,7 +28,7 @@ export default function Navbar({ isMobile }) {
   return (
     <nav className="bg-blue-600 text-white fixed w-full z-20 shadow-lg">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">BBJ Church</h1>
+        <h1 className="text-2xl font-bold">BBJ Digital Church Management System</h1>
         <div className="flex items-center space-x-6">
           <Link to="/" className={`hover:text-yellow-300 transition ${isActive('/')}`}>Home</Link>
           {userType && (

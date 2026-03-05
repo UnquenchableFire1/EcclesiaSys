@@ -9,12 +9,14 @@ import com.example.db.DBConnection;
 public class MemberDAO {
     
     public boolean addMember(Member member) {
-        String query = "INSERT INTO members (name, email, password) VALUES (?, ?, ?)";
+        String query = "INSERT INTO members (first_name, last_name, phone_number, email, password) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, member.getName());
-            stmt.setString(2, member.getEmail());
-            stmt.setString(3, member.getPassword());
+            stmt.setString(1, member.getFirstName());
+            stmt.setString(2, member.getLastName());
+            stmt.setString(3, member.getPhoneNumber());
+            stmt.setString(4, member.getEmail());
+            stmt.setString(5, member.getPassword());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -31,7 +33,9 @@ public class MemberDAO {
             if (rs.next()) {
                 Member member = new Member();
                 member.setId(rs.getInt("id"));
-                member.setName(rs.getString("name"));
+                member.setFirstName(rs.getString("first_name"));
+                member.setLastName(rs.getString("last_name"));
+                member.setPhoneNumber(rs.getString("phone_number"));
                 member.setEmail(rs.getString("email"));
                 member.setPassword(rs.getString("password"));
                 member.setStatus(rs.getString("status"));
@@ -52,7 +56,9 @@ public class MemberDAO {
             if (rs.next()) {
                 Member member = new Member();
                 member.setId(rs.getInt("id"));
-                member.setName(rs.getString("name"));
+                member.setFirstName(rs.getString("first_name"));
+                member.setLastName(rs.getString("last_name"));
+                member.setPhoneNumber(rs.getString("phone_number"));
                 member.setEmail(rs.getString("email"));
                 member.setPassword(rs.getString("password"));
                 member.setStatus(rs.getString("status"));
@@ -73,7 +79,9 @@ public class MemberDAO {
             while (rs.next()) {
                 Member member = new Member();
                 member.setId(rs.getInt("id"));
-                member.setName(rs.getString("name"));
+                member.setFirstName(rs.getString("first_name"));
+                member.setLastName(rs.getString("last_name"));
+                member.setPhoneNumber(rs.getString("phone_number"));
                 member.setEmail(rs.getString("email"));
                 member.setPassword(rs.getString("password"));
                 member.setStatus(rs.getString("status"));
@@ -86,14 +94,16 @@ public class MemberDAO {
     }
 
     public boolean updateMember(Member member) {
-        String query = "UPDATE members SET name = ?, email = ?, password = ?, status = ? WHERE id = ?";
+        String query = "UPDATE members SET first_name = ?, last_name = ?, phone_number = ?, email = ?, password = ?, status = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, member.getName());
-            stmt.setString(2, member.getEmail());
-            stmt.setString(3, member.getPassword());
-            stmt.setString(4, member.getStatus());
-            stmt.setInt(5, member.getId());
+            stmt.setString(1, member.getFirstName());
+            stmt.setString(2, member.getLastName());
+            stmt.setString(3, member.getPhoneNumber());
+            stmt.setString(4, member.getEmail());
+            stmt.setString(5, member.getPassword());
+            stmt.setString(6, member.getStatus());
+            stmt.setInt(7, member.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
