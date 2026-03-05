@@ -18,7 +18,7 @@ export default function Layout({ children }) {
                     {children}
                 </div>
             </main>
-            <footer className="mt-12 bg-tealDeep text-white py-8">
+            <footer className="mt-12 bg-blue-600 text-white py-8">
                 <div className="container mx-auto px-4 text-center">
                     <p>&copy; 2026 BBJ Church Manager. All rights reserved.</p>
                 </div>

@@ -1,5 +1,4 @@
-
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -22,46 +21,44 @@ function ProtectedRoute({ requiredRole, children }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout><Home /></Layout>} />
-        <Route path="/home" element={<Layout><Home /></Layout>} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <Routes>
+      <Route path="/" element={<Layout><Home /></Layout>} />
+      <Route path="/home" element={<Layout><Home /></Layout>} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/announcements"
-          element={
-            <ProtectedRoute>
-              <Layout><Announcements /></Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/events"
-          element={
-            <ProtectedRoute>
-              <Layout><Events /></Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sermons"
-          element={
-            <ProtectedRoute>
-              <Layout><Sermons /></Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <Layout><AdminDashboard /></Layout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+      <Route
+        path="/announcements"
+        element={
+          <ProtectedRoute>
+            <Layout><Announcements /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events"
+        element={
+          <ProtectedRoute>
+            <Layout><Events /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/sermons"
+        element={
+          <ProtectedRoute>
+            <Layout><Sermons /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <Layout><AdminDashboard /></Layout>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
