@@ -16,6 +16,7 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [adminId] = useState(parseInt(localStorage.getItem('userId')));
+    const [adminName] = useState(localStorage.getItem('userName'));
     const navigate = useNavigate();
 
     // Form states
@@ -23,7 +24,12 @@ export default function AdminDashboard() {
     const [newEvent, setNewEvent] = useState({ title: '', description: '', eventDate: '', location: '' });
     const [newSermon, setNewSermon] = useState({ title: '', description: '', filePath: '', fileType: 'mp3' });
 
-    useEffect(() => {
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/login');
+    };
+
+    useEffect(() {
         const userType = localStorage.getItem('userType');
         if (userType !== 'admin') {
             navigate('/login');
@@ -134,10 +140,10 @@ export default function AdminDashboard() {
     const TabButton = ({ tab, label, icon }) => (
         <button
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-lg font-semibold transition ${
+            className={`px-6 py-3 font-semibold transition ${
                 activeTab === tab
-                    ? 'bg-tealDeep text-white'
-                    : 'bg-gray-200 text-tealDeep hover:bg-gray-300'
+                    ? 'bg-white text-tealDeep border-b-4 border-lemon'
+                    : 'text-white hover:bg-opacity-80'
             }`}
         >
             {icon} {label}
@@ -145,26 +151,39 @@ export default function AdminDashboard() {
     );
 
     return (
-        <div className="space-y-8">
-            <div className="mb-8">
-                <h1 className="text-4xl font-bold text-tealDeep mb-2">Admin Dashboard</h1>
-                <p className="text-gray-600">Manage all church resources</p>
-            </div>
+        <div className="min-h-screen bg-gray-50">
+            {/* Navigation Bar */}
+            <div className="bg-tealDeep text-white sticky top-0 z-10 shadow-lg">
+                <div className="max-w-7xl mx-auto px-4 md:px-6">
+                    {/* Top row with title and logout */}
+                    <div className="flex justify-between items-center py-3">
+                        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                        <button
+                            onClick={handleLogout}
+                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition font-semibold"
+                        >
+                            Logout ({adminName})
+                        </button>
+                    </div>
 
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
-                    <p className="font-semibold">Error:</p>
-                    <p>{error}</p>
+                    {/* Tabs row */}
+                    <div className="flex gap-0">
+                        <TabButton tab="members" label="Members" icon="👥" />
+                        <TabButton tab="announcements" label="Announcements" icon="📢" />
+                        <TabButton tab="events" label="Events" icon="📅" />
+                        <TabButton tab="sermons" label="Sermons" icon="🎵" />
+                    </div>
                 </div>
-            )}
-
-            {/* Tab Navigation */}
-            <div className="flex flex-wrap gap-2 bg-white p-4 rounded-lg shadow">
-                <TabButton tab="members" label="Members" icon="👥" />
-                <TabButton tab="announcements" label="Announcements" icon="📢" />
-                <TabButton tab="events" label="Events" icon="📅" />
-                <TabButton tab="sermons" label="Sermons" icon="🎵" />
             </div>
+
+            {/* Content Area */}
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+                        <p className="font-semibold">Error:</p>
+                        <p>{error}</p>
+                    </div>
+                )}
 
             {/* Loading State */}
             {loading && <p className="text-center text-gray-600">Loading...</p>}
@@ -360,7 +379,8 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
-        </div>
+            </div>  {/* End content area */}
+        </div>  {/* End min-h-screen */}
     );
 }
 
