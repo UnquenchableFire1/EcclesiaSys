@@ -377,8 +377,8 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
-            </div>  {/* End content area */}
-        </div>  {/* End min-h-screen */}
+            </div>
+        </div>
     );
 }
 
