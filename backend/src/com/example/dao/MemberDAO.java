@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public class MemberDAO {
     
     public boolean addMember(Member member) {
-        String query = "INSERT INTO members (first_name, last_name, phone_number, email, actual_email, password, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO members (first_name, last_name, phone_number, email, actual_email, password, status, is_profile_public, profile_picture_url, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
@@ -28,6 +28,9 @@ public class MemberDAO {
                 stmt.setString(5, member.getActualEmail());
                 stmt.setString(6, member.getPassword());
                 stmt.setString(7, "active");
+                stmt.setBoolean(8, true);
+                stmt.setString(9, null);
+                stmt.setString(10, null);
                 
                 System.out.println("MemberDAO: Executing INSERT for email: " + member.getEmail());
                 System.out.println("MemberDAO: firstName=" + member.getFirstName() + ", lastName=" + member.getLastName() + 
