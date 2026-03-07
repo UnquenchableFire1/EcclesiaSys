@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import com.example.model.Member;
 import com.example.db.DBConnection;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class MemberDAO {
     
     public boolean addMember(Member member) {
