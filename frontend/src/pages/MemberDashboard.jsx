@@ -12,6 +12,7 @@ export default function MemberDashboard() {
     const [error, setError] = useState('');
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [theme, setTheme] = useState(() => localStorage.getItem('appTheme') || 'light');
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -83,6 +84,13 @@ export default function MemberDashboard() {
         navigate('/login');
     };
 
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        localStorage.setItem('appTheme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
+
     const TabButton = ({ tab, label, icon }) => (
         <button
             onClick={() => {
@@ -125,6 +133,15 @@ export default function MemberDashboard() {
                             aria-label="Toggle menu"
                         >
                             {mobileMenuOpen ? '✕' : '☰'}
+                        </button>
+
+                        {/* Theme Toggle Button */}
+                        <button
+                            onClick={toggleTheme}
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm rounded-lg transition font-semibold"
+                            title="Toggle theme"
+                        >
+                            {theme === 'light' ? '🌙' : '☀️'}
                         </button>
                         
                         <button

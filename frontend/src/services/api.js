@@ -146,6 +146,14 @@ export const uploadProfilePicture = (formData) => {
   });
 };
 
+export const uploadEventDocument = (formData) => {
+  return api.post('/upload/event-document', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
 // Member Profile APIs
 export const getMemberProfile = (memberId) => {
   return api.get(`/member/${memberId}`);

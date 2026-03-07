@@ -4,8 +4,10 @@ import {
     getMembers, deleteMember,
     getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,
     getEvents, createEvent, updateEvent, deleteEvent,
-    getSermons, uploadSermon, deleteSermon
+    getSermons, uploadSermon, deleteSermon,
+    uploadEventDocument
 } from '../services/api';
+import { downloadMembersAsExcel } from '../services/excelExport';
 
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('members');
@@ -21,8 +23,9 @@ export default function AdminDashboard() {
 
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [theme, setTheme] = useState(() => localStorage.getItem('appTheme') || 'light');
     const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '' });
-    const [newEvent, setNewEvent] = useState({ title: '', description: '', eventDate: '', location: '' });
+    const [newEvent, setNewEvent] = useState({ title: '', description: '', eventDate: '', location: '', documentFile: null });
     const [newSermon, setNewSermon] = useState({ title: '', description: '', filePath: '', fileType: 'mp3' });
 
     useEffect(() => {
@@ -32,6 +35,13 @@ export default function AdminDashboard() {
     }, []);
 
     const isMobile = windowWidth < 768;
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        localStorage.setItem('appTheme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
 
     const handleLogout = () => {
         localStorage.clear();
@@ -104,11 +114,31 @@ export default function AdminDashboard() {
     // Event Management
     const handleAddEvent = async () => {
         try {
-            await createEvent({ ...newEvent, createdBy: adminId });
-            setNewEvent({ title: '', description: '', eventDate: '', location: '' });
+            let eventData = { ...newEvent, createdBy: adminId, documentUrl: null };
+            
+            // Upload document if provided
+            if (newEvent.documentFile) {
+                const formData = new FormData();
+                formData.append('file', newEvent.documentFile);
+                formData.append('eventId', 0); // Will be set after event creation
+                
+                try {
+                    const docResponse = await uploadEventDocument(formData);
+                    if (docResponse.data.success) {
+                        eventData.documentUrl = docResponse.data.fileUrl;
+                    }
+                } catch (error) {
+                    console.error('Error uploading document:', error);
+                    alert('Document upload failed, but event will be created');
+                }
+            }
+            
+            await createEvent(eventData);
+            setNewEvent({ title: '', description: '', eventDate: '', location: '', documentFile: null });
             await fetchAllData();
         } catch (error) {
             console.error('Error adding event:', error);
+            alert('Error creating event: ' + error.message);
         }
     };
 
@@ -181,6 +211,15 @@ export default function AdminDashboard() {
                         >
                             {mobileMenuOpen ? '✕' : '☰'}
                         </button>
+
+                        {/* Theme Toggle Button */}
+                        <button
+                            onClick={toggleTheme}
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm rounded-lg transition font-semibold"
+                            title="Toggle theme"
+                        >
+                            {theme === 'light' ? '🌙' : '☀️'}
+                        </button>
                         
                         <button
                             onClick={handleLogout}
@@ -215,7 +254,15 @@ export default function AdminDashboard() {
             {/* Members Tab */}
             {activeTab === 'members' && !loading && (
                 <div className="space-y-4 sm:space-y-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">Members</h2>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">Members</h2>
+                        <button
+                            onClick={() => downloadMembersAsExcel(members)}
+                            className="bg-green-500 hover:bg-green-600 text-white px-3 sm:px-6 py-2 rounded font-semibold transition text-sm sm:text-base whitespace-nowrap"
+                        >
+                            📥 Export to CSV
+                        </button>
+                    </div>
                     <div className="grid grid-cols-1 gap-4">
                         {members.map(member => (
                             <div key={member.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
@@ -313,6 +360,16 @@ export default function AdminDashboard() {
                             onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
                             className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
                         />
+                        <div>
+                            <label className="block text-sm font-semibold text-tealDeep mb-2">Upload Event Document (PDF, DOCX, etc.)</label>
+                            <input
+                                type="file"
+                                onChange={(e) => setNewEvent({ ...newEvent, documentFile: e.target.files[0] })}
+                                accept=".pdf,.doc,.docx,.txt,.xlsx,.xls"
+                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            />
+                            {newEvent.documentFile && <p className="text-sm text-green-600 mt-1">✓ {newEvent.documentFile.name}</p>}
+                        </div>
                         <button
                             onClick={handleAddEvent}
                             className="w-full sm:w-auto bg-tealDeep text-white px-4 sm:px-6 py-2 rounded font-semibold hover:bg-teal-700 transition text-sm sm:text-base"

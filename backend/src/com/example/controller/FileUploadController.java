@@ -148,4 +148,55 @@ public class FileUploadController {
 
         return response;
     }
+
+    @PostMapping("/event-document")
+    public Map<String, Object> uploadEventDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "eventId", required = false) Integer eventId) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Validate file type (PDF, DOCX, TXT, XLSX, etc.)
+            String fileName = file.getOriginalFilename();
+            if (!fileName.toLowerCase().matches(".*\\.(pdf|doc|docx|txt|xlsx|xls|ppt|pptx)$")) {
+                response.put("success", false);
+                response.put("message", "Only PDF, DOCX, TXT, XLSX, PPTX and similar files are allowed");
+                return response;
+            }
+
+            // Validate file size (50MB max for documents)
+            long maxSize = 52428800; // 50MB
+            if (file.getSize() > maxSize) {
+                response.put("success", false);
+                response.put("message", "File size exceeds 50MB limit");
+                return response;
+            }
+
+            // Create temporary file
+            File tempFile = File.createTempFile("event_doc_", fileName);
+            Files.write(tempFile.toPath(), file.getBytes());
+
+            // Upload to Backblaze B2
+            String fileUrl = B2FileUploadService.uploadFile(tempFile);
+
+            response.put("success", true);
+            response.put("message", "Document uploaded successfully");
+            response.put("fileUrl", fileUrl);
+
+            // Clean up temp file
+            tempFile.delete();
+
+        } catch (IOException e) {
+            response.put("success", false);
+            response.put("message", "File upload error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return response;
+    }
 }
