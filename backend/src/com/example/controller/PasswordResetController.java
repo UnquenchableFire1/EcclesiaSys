@@ -54,16 +54,17 @@ public class PasswordResetController {
                 passwordResetDAO.deleteByToken(existingReset.getToken());
             }
             
-            // Save new password reset token
-            PasswordReset reset = new PasswordReset(email, token, expiresAt);
+            // Save new password reset token with both generated email and actual email
+            PasswordReset reset = new PasswordReset(email, member.getActualEmail(), token, expiresAt);
             passwordResetDAO.save(reset);
             
-            // In production, you would send an email here with the reset link
+            // In production, you would send an email here with the reset link to member.getActualEmail()
             // For now, we'll include it in the response (for testing purposes)
             response.put("success", true);
             response.put("message", "If this email exists, you will receive a reset link");
             response.put("resetToken", token);  // For testing only - remove in production
             response.put("expiresAt", expiresAt.toString());
+            response.put("actualEmail", member.getActualEmail());  // For testing - shows where email would be sent
             
             return response;
         } catch (Exception e) {

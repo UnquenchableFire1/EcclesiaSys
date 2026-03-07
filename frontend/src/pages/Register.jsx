@@ -8,6 +8,7 @@ export default function Register() {
         firstName: '',
         lastName: '',
         phoneNumber: '',
+        actualEmail: '',
         password: '',
         confirmPassword: ''
     });
@@ -110,6 +111,19 @@ export default function Register() {
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
                                     placeholder="(123) 456-7890"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-tealDeep mb-2">Personal Email</label>
+                                <input 
+                                    type="email"
+                                    name="actualEmail"
+                                    value={formData.actualEmail}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="your.email@example.com"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">This email will be used to send you password reset links</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-tealDeep mb-2">Password</label>

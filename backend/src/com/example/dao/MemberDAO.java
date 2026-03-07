@@ -11,21 +11,22 @@ import org.springframework.stereotype.Repository;
 public class MemberDAO {
     
     public boolean addMember(Member member) {
-        String query = "INSERT INTO members (first_name, last_name, phone_number, email, password, status, joined_date, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO members (first_name, last_name, phone_number, email, actual_email, password, status, joined_date, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, member.getFirstName());
             stmt.setString(2, member.getLastName());
             stmt.setString(3, member.getPhoneNumber());
             stmt.setString(4, member.getEmail());
-            stmt.setString(5, member.getPassword());
-            stmt.setString(6, member.getStatus() != null ? member.getStatus() : "active");
-            stmt.setObject(7, member.getJoinedDate() != null ? member.getJoinedDate() : java.time.LocalDateTime.now());
-            stmt.setObject(8, member.getUpdatedAt() != null ? member.getUpdatedAt() : java.time.LocalDateTime.now());
+            stmt.setString(5, member.getActualEmail());
+            stmt.setString(6, member.getPassword());
+            stmt.setString(7, member.getStatus() != null ? member.getStatus() : "active");
+            stmt.setObject(8, member.getJoinedDate() != null ? member.getJoinedDate() : java.time.LocalDateTime.now());
+            stmt.setObject(9, member.getUpdatedAt() != null ? member.getUpdatedAt() : java.time.LocalDateTime.now());
             
             System.out.println("MemberDAO: Executing INSERT for email: " + member.getEmail());
             System.out.println("MemberDAO: firstName=" + member.getFirstName() + ", lastName=" + member.getLastName() + 
-                               ", phoneNumber=" + member.getPhoneNumber() + ", status=" + member.getStatus());
+                               ", phoneNumber=" + member.getPhoneNumber() + ", actualEmail=" + member.getActualEmail() + ", status=" + member.getStatus());
             
             int result = stmt.executeUpdate();
             System.out.println("MemberDAO: Insert result = " + result + " rows affected for email: " + member.getEmail());
@@ -51,6 +52,7 @@ public class MemberDAO {
                 member.setLastName(rs.getString("last_name"));
                 member.setPhoneNumber(rs.getString("phone_number"));
                 member.setEmail(rs.getString("email"));
+                member.setActualEmail(rs.getString("actual_email"));
                 member.setPassword(rs.getString("password"));
                 member.setStatus(rs.getString("status"));
                 return member;
@@ -74,6 +76,7 @@ public class MemberDAO {
                 member.setLastName(rs.getString("last_name"));
                 member.setPhoneNumber(rs.getString("phone_number"));
                 member.setEmail(rs.getString("email"));
+                member.setActualEmail(rs.getString("actual_email"));
                 member.setPassword(rs.getString("password"));
                 member.setStatus(rs.getString("status"));
                 return member;
@@ -97,6 +100,7 @@ public class MemberDAO {
                 member.setLastName(rs.getString("last_name"));
                 member.setPhoneNumber(rs.getString("phone_number"));
                 member.setEmail(rs.getString("email"));
+                member.setActualEmail(rs.getString("actual_email"));
                 member.setPassword(rs.getString("password"));
                 member.setStatus(rs.getString("status"));
                 members.add(member);
@@ -108,16 +112,17 @@ public class MemberDAO {
     }
 
     public boolean updateMember(Member member) {
-        String query = "UPDATE members SET first_name = ?, last_name = ?, phone_number = ?, email = ?, password = ?, status = ? WHERE id = ?";
+        String query = "UPDATE members SET first_name = ?, last_name = ?, phone_number = ?, email = ?, actual_email = ?, password = ?, status = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, member.getFirstName());
             stmt.setString(2, member.getLastName());
             stmt.setString(3, member.getPhoneNumber());
             stmt.setString(4, member.getEmail());
-            stmt.setString(5, member.getPassword());
-            stmt.setString(6, member.getStatus());
-            stmt.setInt(7, member.getId());
+            stmt.setString(5, member.getActualEmail());
+            stmt.setString(6, member.getPassword());
+            stmt.setString(7, member.getStatus());
+            stmt.setInt(8, member.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
