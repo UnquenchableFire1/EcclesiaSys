@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../services/api';
 import Layout from '../layouts/Layout';
 
@@ -72,9 +72,17 @@ export default function Login() {
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-          <a href="/register" className="text-tealDeep font-semibold hover:text-lemon transition">
-            Register here
-          </a>
+          <p className="text-gray-600 text-sm mb-3">
+            <a href="/forgot-password" className="text-tealDeep font-semibold hover:text-lemon transition">
+              Forgot Password?
+            </a>
+          </p>
+          <p className="text-gray-600 text-sm">
+            Don't have an account?{' '}
+            <a href="/register" className="text-tealDeep font-semibold hover:text-lemon transition">
+              Register here
+            </a>
+          </p>
         </div>
       </div>
     </div>
