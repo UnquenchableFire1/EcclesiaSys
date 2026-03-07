@@ -2,6 +2,8 @@ package com.example.model;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "members")
@@ -28,9 +30,11 @@ public class Member {
     @Column(name = "status", nullable = false, length = 10)
     private String status;
     
+    @CreationTimestamp
     @Column(name = "joined_date", nullable = false, updatable = false)
     private LocalDateTime joinedDate;
     
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
