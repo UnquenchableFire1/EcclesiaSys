@@ -7,8 +7,8 @@ export default function Events() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getEvents().then(data => {
-            setEvents(data);
+        getEvents().then(response => {
+            setEvents(response.data || []);
             setLoading(false);
         }).catch(err => {
             console.error('Error fetching events:', err);

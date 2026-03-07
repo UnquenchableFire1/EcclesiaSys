@@ -7,8 +7,8 @@ export default function Sermons() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getSermons().then(data => {
-            setSermons(data);
+        getSermons().then(response => {
+            setSermons(response.data || []);
             setLoading(false);
         }).catch(err => {
             console.error('Error fetching sermons:', err);

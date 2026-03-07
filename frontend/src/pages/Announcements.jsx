@@ -7,8 +7,8 @@ export default function Announcements() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getAnnouncements().then(data => {
-            setAnnouncements(data);
+        getAnnouncements().then(response => {
+            setAnnouncements(response.data || []);
             setLoading(false);
         }).catch(err => {
             console.error('Error fetching announcements:', err);
