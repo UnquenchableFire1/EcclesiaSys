@@ -27,7 +27,7 @@ export default function AdminDashboard() {
         localStorage.clear();
         navigate('/login');
     };
-    useEffect(() {
+    useEffect(() => {
         const userType = localStorage.getItem('userType');
         if (userType !== 'admin') {
             navigate('/login');
