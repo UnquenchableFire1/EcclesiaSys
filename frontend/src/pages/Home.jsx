@@ -1,4 +1,6 @@
 
+import { Link } from 'react-router-dom';
+
 export default function Home() {
   const userName = localStorage.getItem('userName');
   const userType = localStorage.getItem('userType');
@@ -20,6 +22,31 @@ export default function Home() {
             Welcome back, {userName}!
           </p>
         )}
+      </section>
+
+      {/* Navigation Cards Section */}
+      <section className="bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Link to="/announcements" className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition border-t-4 border-lemon cursor-pointer">
+              <div className="text-3xl mb-3">📢</div>
+              <h3 className="text-xl font-bold text-tealDeep mb-2">Announcements</h3>
+              <p className="text-gray-600">Stay updated with important church announcements</p>
+            </Link>
+
+            <Link to="/events" className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition border-t-4 border-lemon cursor-pointer">
+              <div className="text-3xl mb-3">📅</div>
+              <h3 className="text-xl font-bold text-tealDeep mb-2">Events</h3>
+              <p className="text-gray-600">Discover upcoming events and activities</p>
+            </Link>
+
+            <Link to="/sermons" className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition border-t-4 border-lemon cursor-pointer">
+              <div className="text-3xl mb-3">🎙️</div>
+              <h3 className="text-xl font-bold text-tealDeep mb-2">Sermons</h3>
+              <p className="text-gray-600">Listen to our latest sermons and teachings</p>
+            </Link>
+          </div>
+        </div>
       </section>
 
       <section className="bg-white py-16 text-center">
