@@ -8,6 +8,7 @@ export default function MemberDashboard() {
     const [memberData, setMemberData] = useState(null);
     const [announcements, setAnnouncements] = useState([]);
     const [events, setEvents] = useState([]);
+    const [sermons, setSermons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
@@ -72,8 +73,22 @@ export default function MemberDashboard() {
             }
         };
 
+        // Fetch sermons
+        const fetchSermons = async () => {
+            try {
+                const response = await fetch('/api/sermons');
+                if (response.ok) {
+                    const data = await response.json();
+                    setSermons((data.data || data).slice(0, 5));
+                }
+            } catch (err) {
+                console.error('Error fetching sermons:', err);
+            }
+        };
+
         fetchAnnouncements();
         fetchEvents();
+        fetchSermons();
         setLoading(false);
     }, [navigate]);
 
@@ -157,6 +172,7 @@ export default function MemberDashboard() {
                         <TabButton tab="home" label="Home" icon="🏠" />
                         <TabButton tab="announcements" label="Announcements" icon="📢" />
                         <TabButton tab="events" label="Events" icon="📅" />
+                        <TabButton tab="sermons" label="Sermons" icon="🎙️" />
                         <TabButton tab="profile" label="Profile" icon="👤" />
                     </div>
                 </div>
@@ -319,6 +335,35 @@ export default function MemberDashboard() {
                             </div>
                         ) : (
                             <p className="text-gray-600">No events at this time.</p>
+                        )}
+                    </div>
+                )}
+
+                {/* Sermons Tab */}
+                {activeTab === 'sermons' && (
+                    <div className="space-y-4 sm:space-y-6">
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">Sermon Library</h2>
+                        {sermons.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                {sermons.map((sermon) => (
+                                    <div key={sermon.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
+                                        <h3 className="font-bold text-base sm:text-lg text-tealDeep">{sermon.title}</h3>
+                                        <p className="text-gray-600 text-xs sm:text-sm mt-2 break-words">{sermon.description}</p>
+                                        {sermon.speaker && (
+                                            <p className="text-gray-600 text-xs mt-2">
+                                                <span className="font-semibold">Speaker:</span> {sermon.speaker}
+                                            </p>
+                                        )}
+                                        {sermon.sermonDate && (
+                                            <p className="text-gray-500 text-xs mt-2">
+                                                📅 {new Date(sermon.sermonDate).toLocaleDateString()}
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-gray-600">No sermons available yet.</p>
                         )}
                     </div>
                 )}
