@@ -359,7 +359,8 @@ export default function AdminDashboard() {
                                     <th className="px-4 py-3 text-left font-bold text-lemon">First Name</th>
                                     <th className="px-4 py-3 text-left font-bold text-lemon">Last Name</th>
                                     <th className="px-4 py-3 text-left font-bold text-lemon">Phone Number</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Email</th>
+                                    <th className=\"px-4 py-3 text-left font-bold text-lemon\">System Email</th>
+                                    <th className=\"px-4 py-3 text-left font-bold text-lemon\">Personal Email</th>
                                     <th className="px-4 py-3 text-left font-bold text-lemon">Date Joined</th>
                                     <th className="px-4 py-3 text-center font-bold text-lemon">Action</th>
                                 </tr>
@@ -370,7 +371,8 @@ export default function AdminDashboard() {
                                         <td className="px-4 py-3 text-white">{member.firstName || member.name?.split(' ')[0] || 'N/A'}</td>
                                         <td className="px-4 py-3 text-white">{member.lastName || member.name?.split(' ')[1] || 'N/A'}</td>
                                         <td className="px-4 py-3 text-white">{member.phoneNumber || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white truncate">{member.actualEmail || member.email || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-white truncate text-sm">{member.email || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-white truncate text-sm">{member.actualEmail || 'N/A'}</td>
                                         <td className="px-4 py-3 text-white text-sm">
                                             {member.joinedDate ? new Date(member.joinedDate).toLocaleString() : (member.createdAt ? new Date(member.createdAt).toLocaleString() : 'N/A')}
                                         </td>
