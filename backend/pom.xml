@@ -39,6 +39,12 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+        <!-- Spring Boot Mail Starter (for password reset emails) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <!-- Gson for JSON serialization -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
