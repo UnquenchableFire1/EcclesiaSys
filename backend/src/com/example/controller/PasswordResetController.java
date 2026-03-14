@@ -72,6 +72,7 @@ public class PasswordResetController {
             
             // Send password reset email with the reset link
             String resetLink = frontendUrl + "/reset-password?token=" + token;
+            logger.info("Sending password reset email to: {} with link: {}", member.getActualEmail(), resetLink);
             boolean emailSent = emailService.sendPasswordResetEmail(member.getActualEmail(), token, resetLink);
             
             if (emailSent) {
@@ -161,6 +162,46 @@ public class PasswordResetController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error resetting password: " + e.getMessage());
+            return response;
+        }
+    }
+    
+    @PostMapping("/test-email")
+    public Map<String, Object> testEmail(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        String recipientEmail = request.get("email");
+        
+        if (recipientEmail == null || recipientEmail.trim().isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Email is required for test");
+            return response;
+        }
+        
+        try {
+            logger.info("=== TEST EMAIL REQUEST ===");
+            logger.info("Recipient: {}", recipientEmail);
+            logger.info("Sender: {}", "benjaminbuckmanjunior@gmail.com");
+            
+            String testToken = "TEST-TOKEN-" + System.currentTimeMillis();
+            String testLink = frontendUrl + "/reset-password?token=" + testToken;
+            
+            boolean emailSent = emailService.sendPasswordResetEmail(recipientEmail, testToken, testLink);
+            
+            if (emailSent) {
+                logger.info("Test email sent successfully to: {}", recipientEmail);
+                response.put("success", true);
+                response.put("message", "Test email sent successfully to: " + recipientEmail);
+            } else {
+                logger.warn("Test email FAILED to send to: {}", recipientEmail);
+                response.put("success", false);
+                response.put("message", "Test email failed to send. Check server logs for details.");
+            }
+            
+            return response;
+        } catch (Exception e) {
+            logger.error("Test email endpoint error: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "Test email error: " + e.getMessage());
             return response;
         }
     }

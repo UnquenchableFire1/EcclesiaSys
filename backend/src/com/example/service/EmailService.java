@@ -24,6 +24,10 @@ public class EmailService {
     
     public boolean sendPasswordResetEmail(String recipientEmail, String resetToken, String resetLink) {
         try {
+            logger.info("Attempting to send password reset email to: {}", recipientEmail);
+            logger.info("Reset link: {}", resetLink);
+            logger.info("Using mail sender: {}", senderEmail);
+            
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(senderEmail);
             message.setTo(recipientEmail);
@@ -45,7 +49,9 @@ public class EmailService {
             logger.info("Password reset email sent successfully to: " + recipientEmail);
             return true;
         } catch (Exception e) {
-            logger.error("Failed to send password reset email to: " + recipientEmail, e);
+            logger.error("Failed to send password reset email to: " + recipientEmail + " | Error: " + e.getMessage());
+            logger.error("Exception type: " + e.getClass().getName());
+            logger.error("Full error details:", e);
             return false;
         }
     }
