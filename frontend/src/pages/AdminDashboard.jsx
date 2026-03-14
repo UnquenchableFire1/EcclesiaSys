@@ -23,6 +23,7 @@ export default function AdminDashboard() {
 
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '', file: null });
     const [newEvent, setNewEvent] = useState({ title: '', description: '', eventDate: '', location: '', documentFile: null });
     const [newSermon, setNewSermon] = useState({ title: '', description: '', speaker: '', sermonDate: '', file: null, fileType: 'mp3' });
@@ -36,6 +37,10 @@ export default function AdminDashboard() {
     const isMobile = windowWidth < 768;
 
     const handleLogout = () => {
+        setShowLogoutConfirm(true);
+    };
+
+    const confirmLogout = () => {
         localStorage.clear();
         navigate('/login');
     };
@@ -246,7 +251,30 @@ export default function AdminDashboard() {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-tealDeep">
+            {/* Logout Confirmation Modal */}
+            {showLogoutConfirm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-4">
+                        <h3 className="text-lg font-bold text-tealDeep mb-4">Confirm Logout</h3>
+                        <p className="text-gray-700 mb-6">Are you sure you want to logout?</p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowLogoutConfirm(false)}
+                                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 rounded-lg transition"
+                            >
+                                No
+                            </button>
+                            <button
+                                onClick={confirmLogout}
+                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition"
+                            >
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Navigation Bar */}
             <div className="bg-tealDeep text-white sticky top-0 z-50 shadow-lg">
                 <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
@@ -286,20 +314,20 @@ export default function AdminDashboard() {
             {/* Content Area */}
             <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
                 {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+                    <div className="bg-red-900 border border-red-400 text-red-100 px-4 py-3 rounded-lg mb-4">
                         <p className="font-semibold">Error:</p>
                         <p>{error}</p>
                     </div>
                 )}
 
             {/* Loading State */}
-            {loading && <p className="text-center text-gray-600">Loading...</p>}
+            {loading && <p className="text-center text-white text-lg">Loading...</p>}
 
             {/* Members Tab */}
             {activeTab === 'members' && !loading && (
                 <div className="space-y-4 sm:space-y-6">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">Members</h2>
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Members</h2>
                         <button
                             onClick={() => downloadMembersAsExcel(members)}
                             className="bg-green-500 hover:bg-green-600 text-white px-3 sm:px-6 py-2 rounded font-semibold transition text-sm sm:text-base whitespace-nowrap"
@@ -307,21 +335,45 @@ export default function AdminDashboard() {
                             📥 Export to Excel
                         </button>
                     </div>
-                    <div className="grid grid-cols-1 gap-4">
-                        {members.map(member => (
-                            <div key={member.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-base sm:text-lg text-tealDeep">{member.name}</p>
-                                    <p className="text-gray-600 text-xs sm:text-sm break-words">{member.email}</p>
-                                </div>
-                                <button
-                                    onClick={() => handleDeleteMember(member.id)}
-                                    className="bg-red-500 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-red-600 transition flex-shrink-0"
-                                >
-                                    Delete
-                                </button>
+                    <div className="overflow-x-auto bg-tealDeep rounded-lg shadow">
+                        <table className="w-full text-white">
+                            <thead className="bg-teal-800">
+                                <tr>
+                                    <th className="px-4 py-3 text-left font-bold text-lemon">First Name</th>
+                                    <th className="px-4 py-3 text-left font-bold text-lemon">Last Name</th>
+                                    <th className="px-4 py-3 text-left font-bold text-lemon">Phone Number</th>
+                                    <th className="px-4 py-3 text-left font-bold text-lemon">Email</th>
+                                    <th className="px-4 py-3 text-left font-bold text-lemon">Date Joined</th>
+                                    <th className="px-4 py-3 text-center font-bold text-lemon">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {members.map((member, index) => (
+                                    <tr key={member.id} className={`border-t border-teal-700 ${index % 2 === 0 ? 'bg-tealDeep' : 'bg-teal-900'} hover:bg-teal-700 transition`}>
+                                        <td className="px-4 py-3 text-white">{member.firstName || member.name?.split(' ')[0] || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-white">{member.lastName || member.name?.split(' ')[1] || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-white">{member.phoneNumber || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-white truncate">{member.actualEmail || member.email || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-white text-sm">
+                                            {member.joinedDate ? new Date(member.joinedDate).toLocaleString() : (member.createdAt ? new Date(member.createdAt).toLocaleString() : 'N/A')}
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <button
+                                                onClick={() => handleDeleteMember(member.id)}
+                                                className="bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded transition font-semibold"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {members.length === 0 && (
+                            <div className="text-center py-8 text-white">
+                                <p className="text-lg">No members registered yet</p>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
             )}
@@ -329,47 +381,47 @@ export default function AdminDashboard() {
             {/* Announcements Tab */}
             {activeTab === 'announcements' && !loading && (
                 <div className="space-y-4 sm:space-y-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">Create Announcement</h2>
-                    <div className="bg-white p-4 sm:p-6 rounded-lg shadow space-y-4">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Create Announcement</h2>
+                    <div className="bg-teal-800 p-4 sm:p-6 rounded-lg shadow space-y-4">
                         <input
                             type="text"
                             placeholder="Announcement Title"
                             value={newAnnouncement.title}
                             onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
                         />
                         <textarea
                             placeholder="Announcement Message"
                             value={newAnnouncement.message}
                             onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep h-24 sm:h-32 text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 h-24 sm:h-32 text-sm sm:text-base"
                         />
                         <div>
-                            <label className="block text-sm font-semibold text-tealDeep mb-2">Upload File (Optional)</label>
+                            <label className="block text-sm font-semibold text-lemon mb-2">Upload File (Optional)</label>
                             <input
                                 type="file"
                                 onChange={(e) => setNewAnnouncement({ ...newAnnouncement, file: e.target.files[0] })}
-                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded text-sm sm:text-base"
+                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded text-white bg-tealDeep text-sm sm:text-base"
                             />
                             {newAnnouncement.file && (
-                                <p className="text-sm text-gray-600 mt-1">Selected: {newAnnouncement.file.name}</p>
+                                <p className="text-sm text-lemon mt-1">Selected: {newAnnouncement.file.name}</p>
                             )}
                         </div>
                         <button
                             onClick={handleAddAnnouncement}
-                            className="w-full sm:w-auto bg-tealDeep text-white px-4 sm:px-6 py-2 rounded font-semibold hover:bg-teal-700 transition text-sm sm:text-base"
+                            className="w-full sm:w-auto bg-lemon text-tealDeep px-4 sm:px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition text-sm sm:text-base"
                         >
                             Post Announcement
                         </button>
                     </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep mt-6 sm:mt-8">Announcements</h2>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon mt-6 sm:mt-8">Announcements</h2>
                     <div className="space-y-4">
                         {announcements.map(ann => (
-                            <div key={ann.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
+                            <div key={ann.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-base sm:text-lg text-tealDeep">{ann.title}</p>
-                                        <p className="text-gray-700 text-sm sm:text-base mt-2 break-words">{ann.message}</p>
+                                        <p className="font-bold text-base sm:text-lg text-lemon">{ann.title}</p>
+                                        <p className="text-white text-sm sm:text-base mt-2 break-words">{ann.message}</p>
                                     </div>
                                     <button
                                         onClick={() => handleDeleteAnnouncement(ann.id)}
@@ -387,60 +439,60 @@ export default function AdminDashboard() {
             {/* Events Tab */}
             {activeTab === 'events' && !loading && (
                 <div className="space-y-4 sm:space-y-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">Create Event</h2>
-                    <div className="bg-white p-4 sm:p-6 rounded-lg shadow space-y-4">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Create Event</h2>
+                    <div className="bg-teal-800 p-4 sm:p-6 rounded-lg shadow space-y-4">
                         <input
                             type="text"
                             placeholder="Event Title"
                             value={newEvent.title}
                             onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
                         />
                         <textarea
                             placeholder="Event Description"
                             value={newEvent.description}
                             onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep h-20 sm:h-24 text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 h-20 sm:h-24 text-sm sm:text-base"
                         />
                         <input
                             type="datetime-local"
                             value={newEvent.eventDate}
                             onChange={(e) => setNewEvent({ ...newEvent, eventDate: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white text-sm sm:text-base"
                         />
                         <input
                             type="text"
                             placeholder="Event Location"
                             value={newEvent.location}
                             onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
                         />
                         <div>
-                            <label className="block text-sm font-semibold text-tealDeep mb-2">Upload Event Document (PDF, DOCX, etc.)</label>
+                            <label className="block text-sm font-semibold text-lemon mb-2">Upload Event Document (PDF, DOCX, etc.)</label>
                             <input
                                 type="file"
                                 onChange={(e) => setNewEvent({ ...newEvent, documentFile: e.target.files[0] })}
                                 accept=".pdf,.doc,.docx,.txt,.xlsx,.xls"
-                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white text-sm sm:text-base"
                             />
-                            {newEvent.documentFile && <p className="text-sm text-green-600 mt-1">✓ {newEvent.documentFile.name}</p>}
+                            {newEvent.documentFile && <p className="text-sm text-lemon mt-1">✓ {newEvent.documentFile.name}</p>}
                         </div>
                         <button
                             onClick={handleAddEvent}
-                            className="w-full sm:w-auto bg-tealDeep text-white px-4 sm:px-6 py-2 rounded font-semibold hover:bg-teal-700 transition text-sm sm:text-base"
+                            className="w-full sm:w-auto bg-lemon text-tealDeep px-4 sm:px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition text-sm sm:text-base"
                         >
                             Create Event
                         </button>
                     </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep mt-6 sm:mt-8">Events</h2>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon mt-6 sm:mt-8">Events</h2>
                     <div className="grid grid-cols-1 gap-4">
                         {events.map(event => (
-                            <div key={event.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
+                            <div key={event.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-base sm:text-lg text-tealDeep">{event.title}</p>
-                                        <p className="text-gray-600 text-xs sm:text-sm mt-1">{new Date(event.eventDate).toLocaleString()}</p>
-                                        <p className="text-gray-700 text-sm sm:text-base mt-2 break-words">{event.location}</p>
+                                        <p className="font-bold text-base sm:text-lg text-lemon">{event.title}</p>
+                                        <p className="text-yellow-200 text-xs sm:text-sm mt-1">{new Date(event.eventDate).toLocaleString()}</p>
+                                        <p className="text-white text-sm sm:text-base mt-2 break-words">{event.location}</p>
                                     </div>
                                     <button
                                         onClick={() => handleDeleteEvent(event.id)}
@@ -458,69 +510,69 @@ export default function AdminDashboard() {
             {/* Sermons Tab */}
             {activeTab === 'sermons' && !loading && (
                 <div className="space-y-4 sm:space-y-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">Upload Sermon</h2>
-                    <div className="bg-white p-4 sm:p-6 rounded-lg shadow space-y-4">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Upload Sermon</h2>
+                    <div className="bg-teal-800 p-4 sm:p-6 rounded-lg shadow space-y-4">
                         <input
                             type="text"
                             placeholder="Sermon Title"
                             value={newSermon.title}
                             onChange={(e) => setNewSermon({ ...newSermon, title: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
                         />
                         <textarea
                             placeholder="Sermon Description"
                             value={newSermon.description}
                             onChange={(e) => setNewSermon({ ...newSermon, description: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep h-20 sm:h-24 text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 h-20 sm:h-24 text-sm sm:text-base"
                         />
                         <input
                             type="text"
                             placeholder="Sermon Speaker"
                             value={newSermon.speaker}
                             onChange={(e) => setNewSermon({ ...newSermon, speaker: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
                         />
                         <input
                             type="date"
                             value={newSermon.sermonDate}
                             onChange={(e) => setNewSermon({ ...newSermon, sermonDate: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white text-sm sm:text-base"
                         />
                         <select
                             value={newSermon.fileType}
                             onChange={(e) => setNewSermon({ ...newSermon, fileType: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white text-sm sm:text-base"
                         >
-                            <option value="mp3">Audio (MP3)</option>
-                            <option value="mp4">Video (MP4)</option>
+                            <option value="mp3" style={{color: 'black'}}>Audio (MP3)</option>
+                            <option value="mp4" style={{color: 'black'}}>Video (MP4)</option>
                         </select>
                         <div>
-                            <label className="block text-sm font-semibold text-tealDeep mb-2">Upload Sermon File</label>
+                            <label className="block text-sm font-semibold text-lemon mb-2">Upload Sermon File</label>
                             <input
                                 type="file"
                                 accept="audio/*,video/*"
                                 onChange={(e) => setNewSermon({ ...newSermon, file: e.target.files[0] })}
-                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded text-sm sm:text-base"
+                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded text-white bg-tealDeep text-sm sm:text-base"
                             />
                             {newSermon.file && (
-                                <p className="text-sm text-gray-600 mt-1">Selected: {newSermon.file.name}</p>
+                                <p className="text-sm text-lemon mt-1">Selected: {newSermon.file.name}</p>
                             )}
                         </div>
                         <button
                             onClick={handleAddSermon}
-                            className="w-full sm:w-auto bg-tealDeep text-white px-4 sm:px-6 py-2 rounded font-semibold hover:bg-teal-700 transition text-sm sm:text-base"
+                            className="w-full sm:w-auto bg-lemon text-tealDeep px-4 sm:px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition text-sm sm:text-base"
                         >
                             Upload Sermon
                         </button>
                     </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep mt-6 sm:mt-8">Sermons</h2>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon mt-6 sm:mt-8">Sermons</h2>
                     <div className="grid grid-cols-1 gap-4">
                         {sermons.map(sermon => (
-                            <div key={sermon.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
+                            <div key={sermon.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-base sm:text-lg text-tealDeep">{sermon.title}</p>
-                                    <p className="text-gray-600 text-xs sm:text-sm">{sermon.fileType.toUpperCase()}</p>
-                                    <p className="text-gray-700 text-sm sm:text-base mt-2 break-words">{sermon.description}</p>
+                                    <p className="font-bold text-base sm:text-lg text-lemon">{sermon.title}</p>
+                                    <p className="text-yellow-200 text-xs sm:text-sm">{sermon.fileType.toUpperCase()}</p>
+                                    <p className="text-white text-sm sm:text-base mt-2 break-words">{sermon.description}</p>
                                 </div>
                                 <button
                                     onClick={() => handleDeleteSermon(sermon.id)}

@@ -9,6 +9,7 @@ export default function Navbar({ isMobile }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -28,6 +29,10 @@ export default function Navbar({ isMobile }) {
   const isActive = (path) => location.pathname === path ? 'text-lemon' : '';
 
   const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     localStorage.clear();
     window.location.href = '/login';
   };
@@ -132,6 +137,30 @@ export default function Navbar({ isMobile }) {
           </div>
         )}
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-4">
+            <h3 className="text-lg font-bold text-tealDeep mb-4">Confirm Logout</h3>
+            <p className="text-gray-700 mb-6">Are you sure you want to logout?</p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 rounded-lg transition"
+              >
+                No
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

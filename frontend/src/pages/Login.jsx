@@ -7,6 +7,7 @@ import Layout from '../layouts/Layout';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -20,18 +21,18 @@ export default function Login() {
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('userType', data.userType);
         localStorage.setItem('userName', data.name);
+        localStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
         if (data.userType === 'admin') {
           navigate('/admin');
         } else if (data.userType === 'member') {
           navigate('/member-dashboard');
         }
       } else {
-        setError(response.data?.message || 'Login failed');
+        setError('Account does not exist');
       }
     } catch (err) {
       console.error('Login error', err);
-      const msg = err.response?.data?.message || err.message || 'Network error';
-      setError(msg);
+      setError('Account does not exist');
     }
   };
 
@@ -52,16 +53,26 @@ export default function Login() {
             required
           />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full mb-6 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-            required
-          />
+          <div className="relative mb-6">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3.5 text-gray-600 hover:text-gray-800"
+              title={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? '👁️' : '👁️‍🗨️'}
+            </button>
+          </div>
 
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && <p className="text-red-500 mb-4 text-center font-semibold">{error}</p>}
 
           <button
             type="submit"

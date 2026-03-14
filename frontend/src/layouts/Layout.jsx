@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 export default function Layout({ children }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [lastActivity, setLastActivity] = useState(Date.now());
-    const inactivityTimeout = 5 * 60 * 1000; // 5 minutes
+    const inactivityTimeout = 10 * 60 * 1000; // 10 minutes
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -56,7 +56,7 @@ export default function Layout({ children }) {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
                         <div className="text-center">
                             <h3 className="text-lemon font-bold mb-2">EcclesiaSys</h3>
-                            <p className="text-white">A digital church designed to make you church management simple.</p>
+                            <p className="text-white">A digital church designed to make your church management simple.</p>
                         </div>
                         <div className="text-center">
                             <h3 className="text-lemon font-bold mb-2">Contact Us</h3>
@@ -69,13 +69,6 @@ export default function Layout({ children }) {
                                 <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="hover:text-lemon transition">
                                     📱 WhatsApp
                                 </a>
-                            </p>
-                        </div>
-                        <div className="text-center">
-                            <h3 className="text-lemon font-bold mb-2">Quick Links</h3>
-                            <p className="text-white">
-                                <a href="/" className="hover:text-lemon transition">Home</a> | 
-                                <a href="/announcements" className="hover:text-lemon transition"> Announcements</a>
                             </p>
                         </div>
                     </div>

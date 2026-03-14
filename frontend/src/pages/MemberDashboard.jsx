@@ -13,6 +13,7 @@ export default function MemberDashboard() {
     const [error, setError] = useState('');
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -96,6 +97,10 @@ export default function MemberDashboard() {
     }, [navigate]);
 
     const handleLogout = () => {
+        setShowLogoutConfirm(true);
+    };
+
+    const confirmLogout = () => {
         localStorage.removeItem('userId');
         localStorage.removeItem('userType');
         localStorage.removeItem('memberEmail');
@@ -124,14 +129,37 @@ export default function MemberDashboard() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-600">Loading...</p>
+            <div className="min-h-screen bg-tealDeep flex items-center justify-center">
+                <p className="text-white text-lg">Loading...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-tealDeep">
+            {/* Logout Confirmation Modal */}
+            {showLogoutConfirm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-4">
+                        <h3 className="text-lg font-bold text-tealDeep mb-4">Confirm Logout</h3>
+                        <p className="text-gray-700 mb-6">Are you sure you want to logout?</p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowLogoutConfirm(false)}
+                                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 rounded-lg transition"
+                            >
+                                No
+                            </button>
+                            <button
+                                onClick={confirmLogout}
+                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition"
+                            >
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Navigation Bar */}
             <div className="bg-tealDeep text-white sticky top-0 z-50 shadow-lg">
                 <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
@@ -190,11 +218,11 @@ export default function MemberDashboard() {
                                     setActiveTab('announcements');
                                     localStorage.setItem('memberActiveTab', 'announcements');
                                 }}
-                                className="bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:shadow-xl transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
+                                className="bg-teal-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:bg-teal-700 transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
                             >
                                 <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">📣</div>
-                                <p className="text-3xl sm:text-4xl font-bold text-tealDeep mb-1">{announcements.length}</p>
-                                <p className="text-xs sm:text-sm text-gray-600 text-center">Announcements</p>
+                                <p className="text-3xl sm:text-4xl font-bold text-lemon mb-1">{announcements.length}</p>
+                                <p className="text-xs sm:text-sm text-yellow-200 text-center">Announcements</p>
                             </button>
 
                             <button
@@ -202,11 +230,11 @@ export default function MemberDashboard() {
                                     setActiveTab('events');
                                     localStorage.setItem('memberActiveTab', 'events');
                                 }}
-                                className="bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:shadow-xl transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
+                                className="bg-teal-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:bg-teal-700 transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
                             >
                                 <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">📅</div>
-                                <p className="text-3xl sm:text-4xl font-bold text-tealDeep mb-1">{events.length}</p>
-                                <p className="text-xs sm:text-sm text-gray-600 text-center">Events</p>
+                                <p className="text-3xl sm:text-4xl font-bold text-lemon mb-1">{events.length}</p>
+                                <p className="text-xs sm:text-sm text-yellow-200 text-center">Events</p>
                             </button>
 
                             <button
@@ -214,11 +242,11 @@ export default function MemberDashboard() {
                                     setActiveTab('sermons');
                                     localStorage.setItem('memberActiveTab', 'sermons');
                                 }}
-                                className="bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:shadow-xl transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
+                                className="bg-teal-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:bg-teal-700 transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
                             >
                                 <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">🎙️</div>
-                                <p className="text-3xl sm:text-4xl font-bold text-tealDeep mb-1">{sermons.length}</p>
-                                <p className="text-xs sm:text-sm text-gray-600 text-center">Sermons</p>
+                                <p className="text-3xl sm:text-4xl font-bold text-lemon mb-1">{sermons.length}</p>
+                                <p className="text-xs sm:text-sm text-yellow-200 text-center">Sermons</p>
                             </button>
                         </div>
 
@@ -229,18 +257,18 @@ export default function MemberDashboard() {
                 {/* Announcements Tab */}
                 {activeTab === 'announcements' && (
                     <div className="space-y-4 sm:space-y-6">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">All Announcements</h2>
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">All Announcements</h2>
                         {announcements.length > 0 ? (
                             <div className="space-y-3 sm:space-y-4">
                                 {announcements.map((announcement) => (
-                                    <div key={announcement.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
-                                        <h3 className="font-bold text-base sm:text-lg text-tealDeep">{announcement.title}</h3>
-                                        <p className="text-gray-600 text-xs sm:text-sm mt-1 break-words">{announcement.message}</p>
+                                    <div key={announcement.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
+                                        <h3 className="font-bold text-base sm:text-lg text-lemon">{announcement.title}</h3>
+                                        <p className="text-white text-xs sm:text-sm mt-1 break-words">{announcement.message}</p>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-600">No announcements at this time.</p>
+                            <p className="text-yellow-200">No announcements at this time.</p>
                         )}
                     </div>
                 )}
@@ -248,15 +276,15 @@ export default function MemberDashboard() {
                 {/* Events Tab */}
                 {activeTab === 'events' && (
                     <div className="space-y-4 sm:space-y-6">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">All Events</h2>
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">All Events</h2>
                         {events.length > 0 ? (
                             <div className="space-y-3 sm:space-y-4">
                                 {events.map((event) => (
-                                    <div key={event.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
-                                        <h3 className="font-bold text-base sm:text-lg text-tealDeep">{event.title}</h3>
-                                        <p className="text-gray-600 text-xs sm:text-sm mt-1 break-words">{event.description}</p>
+                                    <div key={event.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
+                                        <h3 className="font-bold text-base sm:text-lg text-lemon">{event.title}</h3>
+                                        <p className="text-white text-xs sm:text-sm mt-1 break-words">{event.description}</p>
                                         {event.event_date && (
-                                            <p className="text-gray-500 text-xs mt-2">
+                                            <p className="text-yellow-200 text-xs mt-2">
                                                 📅 {new Date(event.event_date).toLocaleDateString()}
                                             </p>
                                         )}
@@ -264,7 +292,7 @@ export default function MemberDashboard() {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-600">No events at this time.</p>
+                            <p className="text-yellow-200">No events at this time.</p>
                         )}
                     </div>
                 )}
@@ -272,20 +300,20 @@ export default function MemberDashboard() {
                 {/* Sermons Tab */}
                 {activeTab === 'sermons' && (
                     <div className="space-y-4 sm:space-y-6">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-tealDeep">Sermon Library</h2>
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Sermon Library</h2>
                         {sermons.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 {sermons.map((sermon) => (
-                                    <div key={sermon.id} className="bg-white p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
-                                        <h3 className="font-bold text-base sm:text-lg text-tealDeep">{sermon.title}</h3>
-                                        <p className="text-gray-600 text-xs sm:text-sm mt-2 break-words">{sermon.description}</p>
+                                    <div key={sermon.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
+                                        <h3 className="font-bold text-base sm:text-lg text-lemon">{sermon.title}</h3>
+                                        <p className="text-white text-xs sm:text-sm mt-2 break-words">{sermon.description}</p>
                                         {sermon.speaker && (
-                                            <p className="text-gray-600 text-xs mt-2">
+                                            <p className="text-yellow-200 text-xs mt-2">
                                                 <span className="font-semibold">Speaker:</span> {sermon.speaker}
                                             </p>
                                         )}
                                         {sermon.sermonDate && (
-                                            <p className="text-gray-500 text-xs mt-2">
+                                            <p className="text-yellow-200 text-xs mt-2">
                                                 📅 {new Date(sermon.sermonDate).toLocaleDateString()}
                                             </p>
                                         )}
@@ -293,7 +321,7 @@ export default function MemberDashboard() {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-600">No sermons available yet.</p>
+                            <p className="text-yellow-200">No sermons available yet.</p>
                         )}
                     </div>
                 )}
