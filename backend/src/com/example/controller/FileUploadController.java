@@ -29,6 +29,10 @@ public class FileUploadController {
         Map<String, Object> response = new HashMap<>();
         
         try {
+            System.out.println("=== Sermon Upload Request ===");
+            System.out.println("File: " + file.getOriginalFilename());
+            System.out.println("Size: " + file.getSize() + " bytes");
+            
             // Validate file type
             String fileName = file.getOriginalFilename();
             if (!fileName.endsWith(".mp3") && !fileName.endsWith(".mp4")) {
@@ -50,32 +54,36 @@ public class FileUploadController {
             Files.write(tempFile.toPath(), file.getBytes());
 
             // Upload to Backblaze B2
-            String fileUrl = B2FileUploadService.uploadFile(tempFile);
+            String fileUrl = null;
+            try {
+                System.out.println("Uploading to B2...");
+                fileUrl = B2FileUploadService.uploadFile(tempFile);
+                System.out.println("B2 upload successful: " + fileUrl);
+            } catch (Exception b2Error) {
+                System.err.println("B2 upload failed: " + b2Error.getMessage());
+                b2Error.printStackTrace();
+                response.put("success", false);
+                response.put("message", "File upload to storage failed: " + b2Error.getMessage());
+                return response;
+            }
 
             // Extract file type
             String fileType = fileName.endsWith(".mp4") ? "mp4" : "mp3";
 
-            // Save to database
-            Sermon sermon = new Sermon(title, description, fileUrl, fileType, adminId);
-            SermonDAO dao = new SermonDAO();
-            
-            if (dao.addSermon(sermon)) {
-                response.put("success", true);
-                response.put("message", "Sermon uploaded successfully");
-                response.put("fileUrl", fileUrl);
-            } else {
-                response.put("success", false);
-                response.put("message", "Failed to save sermon metadata");
-            }
+            response.put("success", true);
+            response.put("message", "Sermon file uploaded successfully");
+            response.put("fileUrl", fileUrl);
 
             // Clean up temp file
             tempFile.delete();
 
         } catch (IOException e) {
+            System.err.println("IO Error during sermon upload: " + e.getMessage());
             response.put("success", false);
-            response.put("message", "File upload error: " + e.getMessage());
+            response.put("message", "File read error: " + e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
+            System.err.println("Unexpected error during sermon upload: " + e.getMessage());
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());
             e.printStackTrace();
@@ -207,6 +215,10 @@ public class FileUploadController {
         Map<String, Object> response = new HashMap<>();
         
         try {
+            System.out.println("=== Announcement File Upload Request ===");
+            System.out.println("File: " + file.getOriginalFilename());
+            System.out.println("Size: " + file.getSize() + " bytes");
+            
             // Validate file exists
             String fileName = file.getOriginalFilename();
             if (fileName == null || fileName.isEmpty()) {
@@ -228,7 +240,18 @@ public class FileUploadController {
             Files.write(tempFile.toPath(), file.getBytes());
 
             // Upload to Backblaze B2
-            String fileUrl = B2FileUploadService.uploadFile(tempFile);
+            String fileUrl = null;
+            try {
+                System.out.println("Uploading announcement to B2...");
+                fileUrl = B2FileUploadService.uploadFile(tempFile);
+                System.out.println("B2 upload successful: " + fileUrl);
+            } catch (Exception b2Error) {
+                System.err.println("B2 upload failed: " + b2Error.getMessage());
+                b2Error.printStackTrace();
+                response.put("success", false);
+                response.put("message", "File upload to storage failed: " + b2Error.getMessage());
+                return response;
+            }
 
             response.put("success", true);
             response.put("message", "File uploaded successfully");
@@ -238,10 +261,12 @@ public class FileUploadController {
             tempFile.delete();
 
         } catch (IOException e) {
+            System.err.println("IO Error during announcement upload: " + e.getMessage());
             response.put("success", false);
-            response.put("message", "File upload error: " + e.getMessage());
+            response.put("message", "File read error: " + e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
+            System.err.println("Unexpected error during announcement upload: " + e.getMessage());
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());
             e.printStackTrace();

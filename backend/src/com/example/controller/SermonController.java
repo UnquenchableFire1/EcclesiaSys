@@ -51,23 +51,62 @@ public class SermonController {
     public Map<String, Object> createSermon(@RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
+            // Log the incoming request for debugging
+            System.out.println("=== Sermon Creation Request ===");
+            System.out.println("Request data: " + request);
+            
             Sermon sermon = new Sermon();
             sermon.setTitle((String) request.get("title"));
             sermon.setDescription((String) request.get("description"));
             sermon.setSpeaker((String) request.get("speaker"));
             sermon.setFileType((String) request.get("fileType"));
             
-            // Handle both createdBy and uploadedBy for backward compatibility
+            // Handle uploadedBy/createdBy with proper null checking
             Object uploadedByObj = request.get("uploadedBy");
             Object createdByObj = request.get("createdBy");
-            int uploaderId = uploadedByObj != null ? 
-                ((Number) uploadedByObj).intValue() : 
-                ((Number) createdByObj).intValue();
+            
+            System.out.println("uploadedBy: " + uploadedByObj + " (type: " + (uploadedByObj != null ? uploadedByObj.getClass().getName() : "null") + ")");
+            System.out.println("createdBy: " + createdByObj + " (type: " + (createdByObj != null ? createdByObj.getClass().getName() : "null") + ")");
+            
+            int uploaderId = 0;
+            if (uploadedByObj != null && uploadedByObj instanceof Number) {
+                uploaderId = ((Number) uploadedByObj).intValue();
+            } else if (createdByObj != null && createdByObj instanceof Number) {
+                uploaderId = ((Number) createdByObj).intValue();
+            } else {
+                // Try parsing from string if needed
+                String createdByStr = createdByObj != null ? createdByObj.toString() : null;
+                String uploadedByStr = uploadedByObj != null ? uploadedByObj.toString() : null;
+                
+                if (createdByStr != null && !createdByStr.isEmpty() && !createdByStr.equals("NaN")) {
+                    try {
+                        uploaderId = Integer.parseInt(createdByStr);
+                    } catch (NumberFormatException e) {
+                        System.err.println("Could not parse createdBy: " + createdByStr);
+                    }
+                } else if (uploadedByStr != null && !uploadedByStr.isEmpty() && !uploadedByStr.equals("NaN")) {
+                    try {
+                        uploaderId = Integer.parseInt(uploadedByStr);
+                    } catch (NumberFormatException e) {
+                        System.err.println("Could not parse uploadedBy: " + uploadedByStr);
+                    }
+                }
+            }
+            
+            if (uploaderId <= 0) {
+                response.put("success", false);
+                response.put("message", "Error: Invalid or missing creator ID. uploadedBy=" + uploadedByObj + ", createdBy=" + createdByObj);
+                return response;
+            }
+            
             sermon.setUploadedBy(uploaderId);
             
             // Handle file URLs - either audioUrl or videoUrl
             String audioUrl = (String) request.get("audioUrl");
             String videoUrl = (String) request.get("videoUrl");
+            
+            System.out.println("audioUrl: " + audioUrl);
+            System.out.println("videoUrl: " + videoUrl);
             
             if (audioUrl != null && !audioUrl.isEmpty()) {
                 sermon.setAudioUrl(audioUrl);
@@ -79,10 +118,12 @@ public class SermonController {
                 // Fallback to filePath if provided
                 String filePath = (String) request.get("filePath");
                 sermon.setFilePath(filePath);
-                if ("mp3".equals(sermon.getFileType())) {
-                    sermon.setAudioUrl(filePath);
-                } else {
-                    sermon.setVideoUrl(filePath);
+                if (filePath != null && !filePath.isEmpty()) {
+                    if ("mp3".equals(sermon.getFileType())) {
+                        sermon.setAudioUrl(filePath);
+                    } else {
+                        sermon.setVideoUrl(filePath);
+                    }
                 }
             }
             
@@ -97,15 +138,21 @@ public class SermonController {
                 }
             }
             
+            System.out.println("Creating sermon: " + sermon.getTitle() + " by user " + uploaderId);
+            
             SermonDAO dao = new SermonDAO();
             if (dao.addSermon(sermon)) {
                 response.put("success", true);
-                response.put("message", "Sermon created");
+                response.put("message", "Sermon created successfully");
                 response.put("data", sermon);
             } else {
                 response.put("success", false);
-                response.put("message", "Failed to create sermon");
+                response.put("message", "Failed to save sermon to database");
             }
+        } catch (NumberFormatException e) {
+            response.put("success", false);
+            response.put("message", "Error: Invalid number format - " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());

@@ -186,6 +186,13 @@ export default function AdminDashboard() {
             return;
         }
 
+        // Validate adminId is valid
+        if (!adminId || adminId === 0 || isNaN(adminId)) {
+            alert('Error: Admin ID not found. Please log in again.');
+            console.error('Invalid adminId:', adminId, 'Type:', typeof adminId);
+            return;
+        }
+
         try {
             let sermonData = { 
                 title: newSermon.title.trim(),
@@ -196,6 +203,8 @@ export default function AdminDashboard() {
                 createdBy: adminId
             };
             
+            console.log('AdminId:', adminId, 'Type:', typeof adminId);
+            
             // Upload file if provided
             if (newSermon.file) {
                 const formData = new FormData();
@@ -203,25 +212,31 @@ export default function AdminDashboard() {
                 formData.append('fileType', newSermon.fileType);
                 
                 try {
+                    console.log('Uploading file to /api/upload/sermon...');
                     const fileResponse = await fetch('/api/upload/sermon', {
                         method: 'POST',
                         body: formData
                     });
                     
+                    console.log('File upload response status:', fileResponse.status);
+                    
                     if (fileResponse.ok) {
                         const fileData = await fileResponse.json();
+                        console.log('File upload response data:', fileData);
                         if (newSermon.fileType === 'mp3') {
                             sermonData.audioUrl = fileData.fileUrl || fileData.url;
                         } else {
                             sermonData.videoUrl = fileData.fileUrl || fileData.url;
                         }
+                        console.log('File URL set:', newSermon.fileType === 'mp3' ? sermonData.audioUrl : sermonData.videoUrl);
                     } else {
-                        console.warn('File upload returned status:', fileResponse.status);
-                        alert('File upload failed, but sermon will be created');
+                        const errText = await fileResponse.text();
+                        console.error('File upload failed with status:', fileResponse.status, 'Response:', errText);
+                        alert('File upload failed (status ' + fileResponse.status + '), but sermon will be created without file');
                     }
                 } catch (error) {
                     console.error('Error uploading file:', error);
-                    alert('File upload failed, but sermon will be created');
+                    alert('File upload error: ' + error.message + ' - but sermon will be created without file');
                 }
             }
             
