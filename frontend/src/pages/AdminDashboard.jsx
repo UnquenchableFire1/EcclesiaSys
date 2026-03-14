@@ -9,6 +9,7 @@ import {
 } from '../services/api';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import analytics from '../services/analyticsTracker';
+import Hero from '../components/Hero';
 
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState(() => localStorage.getItem('adminActiveTab') || 'members');
@@ -350,6 +351,11 @@ export default function AdminDashboard() {
             </div>
 
             {/* Content Area */}
+            <Hero
+                title={<>🛠️ Admin Dashboard</>}
+                subtitle="Manage members, content, and site resources"
+                bgImage="/hero-admin.jpg"
+            />
             <div className="max-w-7xl mx-auto px-4 py-8">
                 {error && (
                     <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg mb-6 shadow-sm">

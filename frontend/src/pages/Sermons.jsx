@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getSermons } from '../services/api';
 import Layout from '../layouts/Layout';
 import analytics from '../services/analyticsTracker';
+import Hero from '../components/Hero';
 
 export default function Sermons() {
     const [sermons, setSermons] = useState([]);
@@ -45,16 +46,14 @@ export default function Sermons() {
 
     return (
         <Layout>
+            <Hero
+                title={<><span className="text-lemon">🎤</span> Sermon Library</>}
+                subtitle="Watch and listen to inspiring messages from our pastoral team"
+                ctaText="Browse Sermons"
+                ctaLink="/sermons"
+                bgImage="/hero-sermons.jpg"
+            />
             <div className="max-w-6xl mx-auto px-4 py-8">
-                {/* Header Section */}
-                <div className="mb-12">
-                    <h1 className="text-5xl font-bold mb-3 text-white">
-                        <span className="text-lemon">🎤</span> Sermon Library
-                    </h1>
-                    <p className="text-xl text-gray-300">
-                        Watch and listen to inspiring messages from our pastoral team
-                    </p>
-                </div>
 
                 {sermons.length === 0 ? (
                     <div className="bg-gradient-to-r from-teal-700 to-teal-900 border-l-4 border-lemon p-12 rounded-lg text-center shadow-lg">
