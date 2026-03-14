@@ -441,6 +441,16 @@ export default function AdminDashboard() {
                                     <div className="flex-1 min-w-0">
                                         <p className="font-bold text-base sm:text-lg text-lemon">{ann.title}</p>
                                         <p className="text-white text-sm sm:text-base mt-2 break-words">{ann.message}</p>
+                                        {ann.fileUrl && (
+                                            <a 
+                                                href={ann.fileUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="text-yellow-300 text-sm mt-2 inline-block hover:text-yellow-100 transition underline"
+                                            >
+                                                📎 Download File
+                                            </a>
+                                        )}
                                     </div>
                                     <button
                                         onClick={() => handleDeleteAnnouncement(ann.id)}
@@ -512,6 +522,19 @@ export default function AdminDashboard() {
                                         <p className="font-bold text-base sm:text-lg text-lemon">{event.title}</p>
                                         <p className="text-yellow-200 text-xs sm:text-sm mt-1">{new Date(event.eventDate).toLocaleString()}</p>
                                         <p className="text-white text-sm sm:text-base mt-2 break-words">{event.location}</p>
+                                        {event.description && (
+                                            <p className="text-gray-200 text-sm mt-2">{event.description}</p>
+                                        )}
+                                        {event.documentFileUrl && (
+                                            <a 
+                                                href={event.documentFileUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="text-yellow-300 text-sm mt-2 inline-block hover:text-yellow-100 transition underline"
+                                            >
+                                                📄 Download Document
+                                            </a>
+                                        )}
                                     </div>
                                     <button
                                         onClick={() => handleDeleteEvent(event.id)}
@@ -590,8 +613,31 @@ export default function AdminDashboard() {
                             <div key={sermon.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
                                 <div className="flex-1 min-w-0">
                                     <p className="font-bold text-base sm:text-lg text-lemon">{sermon.title}</p>
-                                    <p className="text-yellow-200 text-xs sm:text-sm">{sermon.fileType.toUpperCase()}</p>
+                                    <p className="text-yellow-200 text-xs sm:text-sm">{sermon.fileType?.toUpperCase() || 'Audio'}</p>
                                     <p className="text-white text-sm sm:text-base mt-2 break-words">{sermon.description}</p>
+                                    <p className="text-gray-300 text-xs sm:text-sm mt-1">Speaker: {sermon.speaker}</p>
+                                    <div className="flex gap-2 mt-2">
+                                        {sermon.audioUrl && (
+                                            <a 
+                                                href={sermon.audioUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="text-yellow-300 text-sm hover:text-yellow-100 transition underline"
+                                            >
+                                                🎵 Listen
+                                            </a>
+                                        )}
+                                        {sermon.videoUrl && (
+                                            <a 
+                                                href={sermon.videoUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="text-yellow-300 text-sm hover:text-yellow-100 transition underline"
+                                            >
+                                                🎬 Watch
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
                                 <button
                                     onClick={() => handleDeleteSermon(sermon.id)}
@@ -600,7 +646,7 @@ export default function AdminDashboard() {
                                     Delete
                                 </button>
                             </div>
-                        ))}
+                        ))}}
                     </div>
                 </div>
             )}

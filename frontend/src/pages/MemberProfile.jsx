@@ -155,15 +155,20 @@ export default function MemberProfile() {
                                 </div>
                             )}
                             <label className="flex-1">
-                                <button className="bg-tealDeep text-white px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg hover:bg-teal-700 transition font-semibold cursor-pointer">
-                                    Upload Picture
-                                </button>
                                 <input 
                                     type="file" 
                                     accept="image/*" 
                                     onChange={handleProfilePictureUpload}
+                                    id="profilePictureInput"
                                     className="hidden"
                                 />
+                                <button 
+                                    type="button"
+                                    onClick={() => document.getElementById('profilePictureInput').click()}
+                                    className="bg-tealDeep text-white px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg hover:bg-teal-700 transition font-semibold cursor-pointer"
+                                >
+                                    Upload Picture
+                                </button>
                             </label>
                         </div>
                     </div>
