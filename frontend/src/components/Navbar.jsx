@@ -50,6 +50,10 @@ export default function Navbar({ isMobile }) {
           {/* Desktop Navigation */}
           {!isMobileView && (
             <div className="flex items-center space-x-6">
+              <a href="/giving" className="inline-flex items-center bg-accent text-primary px-3 py-2 rounded-md font-semibold hover:opacity-90 transition">
+                GIVE NOW
+              </a>
+              
               <Link to="/" className={`hover:text-lemon transition ${isActive('/')}`}>Home</Link>
               {userType && (
                 <>

@@ -1,5 +1,6 @@
 
 import { Link } from 'react-router-dom';
+import Hero from '../components/Hero';
 
 export default function Home() {
   const userName = localStorage.getItem('userName');
@@ -7,22 +8,13 @@ export default function Home() {
 
   return (
     <div>
-      <section className="bg-tealDeep text-white py-24 text-center">
-        <h1 className="text-5xl font-bold mb-6">
-          Welcome to EcclesiaSys
-        </h1>
-        <p className="text-lg mb-8 text-gray-100">
-          A digital church designed to make you church management simple.
-        </p>
-        <a href="/register" className="bg-lemon hover:bg-yellow-400 text-tealDeep font-bold px-8 py-3 rounded-lg transition inline-block">
-          Register Now
-        </a>
-        {userType && userName && (
-          <p className="mt-4 text-xl font-semibold text-lemon">
-            Welcome back, {userName}!
-          </p>
-        )}
-      </section>
+      <Hero
+        title={<><span className="text-lemon">📣</span> Welcome to EcclesiaSys</>}
+        subtitle="A digital church designed to make your church management simple."
+        ctaText="Register Now"
+        ctaLink="/register"
+        bgImage="/hero-home.jpg"
+      />
 
       {/* Navigation Cards Section */}
       <section className="bg-tealDeep py-12">

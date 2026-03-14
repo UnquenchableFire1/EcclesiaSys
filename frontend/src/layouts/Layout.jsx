@@ -70,22 +70,27 @@ export default function Layout({ children }) {
             <footer className="mt-12 bg-tealDeep text-white py-8">
                 <div className="container mx-auto px-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
-                        <div className="text-center">
+                        <div>
                             <h3 className="text-lemon font-bold mb-2">EcclesiaSys</h3>
                             <p className="text-white">A digital church designed to make your church management simple.</p>
                         </div>
-                        <div className="text-center">
-                            <h3 className="text-lemon font-bold mb-2">Contact Us</h3>
-                            <p className="text-white mb-2">
-                                <a href="mailto:benjaminbuckmanjunior@gmail.com" className="hover:text-lemon transition">
-                                    📧 benjaminbuckmanjunior@gmail.com
-                                </a>
-                            </p>
-                            <p className="text-white">
-                                <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="hover:text-lemon transition">
-                                    📱 WhatsApp
-                                </a>
-                            </p>
+
+                        <div>
+                            <h3 className="text-lemon font-bold mb-2">Locations & Service Times</h3>
+                            <ul className="text-white">
+                                <li className="mb-2"><strong>Park District</strong> — Sunday 10:00 AM</li>
+                                <li className="mb-2"><strong>Markham Woods</strong> — Sunday 9:00 AM & 11:00 AM</li>
+                                <li className="mb-2"><strong>Deltona</strong> — Sunday 10:00 AM</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 className="text-lemon font-bold mb-2">Newsletter</h3>
+                            <p className="text-white mb-2">Sign up to receive news and updates.</p>
+                            <form id="newsletter-form" onSubmit={(e) => { e.preventDefault(); const email = e.target.email.value; fetch('/api/newsletter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }).then(r => { if (r.ok) { alert('Thanks — check your inbox.'); e.target.reset(); } else { alert('Subscription failed.'); } }).catch(()=>{ alert('Subscription failed.'); }); }} className="flex flex-col sm:flex-row gap-2">
+                                <input aria-label="Email address" name="email" type="email" required placeholder="you@email.com" className="px-3 py-2 rounded-md text-tealDeep" />
+                                <button type="submit" className="bg-accent text-primary px-3 py-2 rounded-md font-semibold">Sign Up</button>
+                            </form>
                         </div>
                     </div>
                     <div className="text-center border-t border-teal-600 pt-4">

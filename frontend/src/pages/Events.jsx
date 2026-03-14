@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getEvents } from '../services/api';
 import Layout from '../layouts/Layout';
+import Hero from '../components/Hero';
 import analytics from '../services/analyticsTracker';
 
 export default function Events() {
@@ -23,10 +24,16 @@ export default function Events() {
 
     return (
         <Layout>
+            <Hero
+                title={<><span className="text-lemon">📅</span> Church Events</>}
+                subtitle="Join us for our upcoming services and community events"
+                ctaText="See All Events"
+                ctaLink="/events"
+                bgImage="/hero-events.jpg"
+            />
             <div className="max-w-6xl mx-auto px-4 py-8">
                 <div className="mb-12">
-                    <h1 className="text-5xl font-bold mb-3 text-white"><span className="text-lemon">📅</span> Church Events</h1>
-                    <p className="text-xl text-gray-300">Join us for our upcoming services and community events</p>
+                    {/* Hero */}
                 </div>
                 {events.length === 0 ? (
                     <div className="bg-gradient-to-r from-teal-700 to-teal-900 border-l-4 border-lemon p-12 rounded-lg text-center shadow-lg">
