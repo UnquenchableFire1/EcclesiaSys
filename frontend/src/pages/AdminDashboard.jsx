@@ -8,6 +8,7 @@ import {
     uploadEventDocument
 } from '../services/api';
 import { downloadMembersAsExcel } from '../services/excelExport';
+import analytics from '../services/analyticsTracker';
 
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState(() => localStorage.getItem('adminActiveTab') || 'members');
@@ -49,6 +50,7 @@ export default function AdminDashboard() {
         if (userType !== 'admin') {
             navigate('/login');
         }
+        analytics.trackPageView('Admin Dashboard');
         fetchAllData();
     }, [navigate]);
 
@@ -287,7 +289,7 @@ export default function AdminDashboard() {
     );
 
     return (
-        <div className="min-h-screen bg-tealDeep">
+        <div className="min-h-screen bg-gray-50">
             {/* Logout Confirmation Modal */}
             {showLogoutConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -312,18 +314,18 @@ export default function AdminDashboard() {
                 </div>
             )}
             {/* Navigation Bar */}
-            <div className="bg-tealDeep text-white sticky top-0 z-50 shadow-lg">
+            <div className="bg-gradient-to-r from-tealDeep to-teal-800 text-white sticky top-0 z-50 shadow-lg">
                 <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
                     {/* Top row with title, menu button, and logout */}
-                    <div className="flex justify-between items-center py-2 sm:py-3 gap-2">
-                        <h1 className="text-lg sm:text-xl md:text-2xl font-bold flex-1">
-                            Admin Dashboard
+                    <div className="flex justify-between items-center py-3 sm:py-4 gap-2">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold flex-1">
+                            🛠️ Admin Dashboard
                         </h1>
                         
                         {/* Hamburger Menu Button - Mobile Only */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-tealDeep hover:bg-teal-700 text-white px-3 py-2 rounded-lg transition"
+                            className="md:hidden bg-teal-700 hover:bg-teal-600 text-white px-3 py-2 rounded-lg transition"
                             aria-label="Toggle menu"
                         >
                             {mobileMenuOpen ? '✕' : '☰'}
@@ -331,14 +333,14 @@ export default function AdminDashboard() {
 
                         <button
                             onClick={handleLogout}
-                            className="bg-red-500 hover:bg-red-600 text-white px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm md:text-base rounded-lg transition font-semibold flex-shrink-0"
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 sm:py-2 text-sm sm:text-base rounded-lg transition font-semibold flex-shrink-0 shadow-md"
                         >
-                            {isMobile ? 'Logout' : `Logout (${adminName})`}
+                            Logout
                         </button>
                     </div>
 
                     {/* Tabs row - Desktop (visible), Mobile dropdown (hidden until menu open) */}
-                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-0 pb-2 md:pb-0`}>
+                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-0 pb-2 md:pb-0 border-t border-teal-700 md:border-t-0`}>
                         <TabButton tab="members" label="Members" icon="👥" />
                         <TabButton tab="announcements" label="Announcements" icon="📢" />
                         <TabButton tab="events" label="Events" icon="📅" />
@@ -348,68 +350,79 @@ export default function AdminDashboard() {
             </div>
 
             {/* Content Area */}
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+            <div className="max-w-7xl mx-auto px-4 py-8">
                 {error && (
-                    <div className="bg-red-900 border border-red-400 text-red-100 px-4 py-3 rounded-lg mb-4">
+                    <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg mb-6 shadow-sm">
                         <p className="font-semibold">Error:</p>
                         <p>{error}</p>
                     </div>
                 )}
 
             {/* Loading State */}
-            {loading && <p className="text-center text-white text-lg">Loading...</p>}
+            {loading && <p className="text-center text-tealDeep text-lg font-semibold">Loading...</p>}
 
             {/* Members Tab */}
             {activeTab === 'members' && !loading && (
-                <div className="space-y-4 sm:space-y-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Members</h2>
+                <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 className="text-5xl font-bold text-tealDeep mb-2">👥 Church Members</h2>
+                            <p className="text-xl text-gray-300">Manage and monitor member accounts</p>
+                        </div>
                         <button
-                            onClick={() => downloadMembersAsExcel(members)}
-                            className="bg-green-500 hover:bg-green-600 text-white px-3 sm:px-6 py-2 rounded font-semibold transition text-sm sm:text-base whitespace-nowrap"
+                            onClick={() => {
+                                downloadMembersAsExcel(members);
+                                analytics.trackUserAction('Export Members to Excel', { memberCount: members.length });
+                            }}
+                            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition shadow-md flex items-center gap-2 whitespace-nowrap"
                         >
                             📥 Export to Excel
                         </button>
                     </div>
-                    <div className="overflow-x-auto bg-tealDeep rounded-lg shadow">
-                        <table className="w-full text-white">
-                            <thead className="bg-teal-800">
-                                <tr>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">First Name</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Last Name</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Phone Number</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">System Email</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Personal Email</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Date Joined</th>
-                                    <th className="px-4 py-3 text-center font-bold text-lemon">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {members.map((member, index) => (
-                                    <tr key={member.id} className={`border-t border-teal-700 ${index % 2 === 0 ? 'bg-tealDeep' : 'bg-teal-900'} hover:bg-teal-700 transition`}>
-                                        <td className="px-4 py-3 text-white">{member.firstName || member.name?.split(' ')[0] || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white">{member.lastName || member.name?.split(' ')[1] || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white">{member.phoneNumber || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white truncate text-sm">{member.email || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white truncate text-sm">{member.actualEmail || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white text-sm">
-                                            {member.joinedDate ? new Date(member.joinedDate).toLocaleString() : (member.createdAt ? new Date(member.createdAt).toLocaleString() : 'N/A')}
-                                        </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <button
-                                                onClick={() => handleDeleteMember(member.id)}
-                                                className="bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded transition font-semibold"
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-gray-700">
+                                <thead className="bg-gradient-to-r from-tealDeep to-teal-700 text-white sticky top-0">
+                                    <tr>
+                                        <th className="px-6 py-4 text-left font-semibold">First Name</th>
+                                        <th className="px-6 py-4 text-left font-semibold">Last Name</th>
+                                        <th className="px-6 py-4 text-left font-semibold">Phone Number</th>
+                                        <th className="px-6 py-4 text-left font-semibold">System Email</th>
+                                        <th className="px-6 py-4 text-left font-semibold">Personal Email</th>
+                                        <th className="px-6 py-4 text-left font-semibold">Date Joined</th>
+                                        <th className="px-6 py-4 text-center font-semibold">Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {members.map((member) => (
+                                        <tr key={member.id} className="hover:bg-gray-50 transition">
+                                            <td className="px-6 py-4 text-gray-700 font-medium">{member.firstName || member.name?.split(' ')[0] || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-gray-700">{member.lastName || member.name?.split(' ')[1] || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-gray-700">{member.phoneNumber || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-gray-700 truncate text-sm">{member.email || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-gray-700 truncate text-sm">{member.actualEmail || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-gray-700 text-sm">
+                                                {member.joinedDate ? new Date(member.joinedDate).toLocaleString() : (member.createdAt ? new Date(member.createdAt).toLocaleString() : 'N/A')}
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <button
+                                                    onClick={() => {
+                                                        handleDeleteMember(member.id);
+                                                        analytics.trackUserAction('Delete Member', { memberId: member.id });
+                                                    }}
+                                                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 text-sm rounded-lg transition font-semibold shadow-sm"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                         {members.length === 0 && (
-                            <div className="text-center py-8 text-white">
-                                <p className="text-lg">No members registered yet</p>
+                            <div className="text-center py-8">
+                                <p className="text-gray-500 text-lg">No members registered yet</p>
                             </div>
                         )}
                     </div>
@@ -418,7 +431,7 @@ export default function AdminDashboard() {
 
             {/* Announcements Tab */}
             {activeTab === 'announcements' && !loading && (
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-6">
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Create Announcement</h2>
                     <div className="bg-teal-800 p-4 sm:p-6 rounded-lg shadow space-y-4">
                         <input
