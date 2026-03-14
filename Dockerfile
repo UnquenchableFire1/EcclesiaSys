@@ -1,7 +1,9 @@
-﻿# Multi-stage build: Node.js for React, Maven for Spring Boot
+# Multi-stage build: Node.js for React, Maven for Spring Boot
 
 # Stage 1: Build React frontend
-FROM node:18-alpine AS node_builder
+FROM node:18 AS node_builder
+
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 WORKDIR /frontend
 
@@ -10,6 +12,7 @@ COPY frontend/package*.json ./
 
 # Install dependencies with legacy peer deps support
 RUN npm install --legacy-peer-deps --prefer-offline --no-audit --verbose || npm install --legacy-peer-deps --force --prefer-offline
+
 
 # Copy source code
 COPY frontend/ .
