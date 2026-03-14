@@ -16,7 +16,10 @@ b2.bucketName=bbj-church-media
 upload.maxSize=524288000
 upload.dir=/tmp/uploads
 
-# Production TiDB Cloud Database
+# Production TiDB Cloud Database - Set these environment variables on Render
+#   DB_URL=jdbc:mysql://host:port/database?useSSL=true&serverTimezone=UTC
+#   DB_USERNAME=your-tidb-username
+#   DB_PASSWORD=your-tidb-password
 spring.datasource.url=${DB_URL}
 spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}
@@ -49,11 +52,15 @@ spring.jpa.properties.hibernate.format_sql=true
 spring.servlet.multipart.max-file-size=500MB
 spring.servlet.multipart.max-request-size=500MB
 
-# Email Configuration (Gmail SMTP)
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=benjaminbuckmanjunior@gmail.com
-spring.mail.password=vjmq iepu yhdd pjrx
+# Email Configuration (Gmail SMTP) - Set these environment variables on Render
+#   MAIL_HOST=smtp.gmail.com
+#   MAIL_PORT=587
+#   MAIL_USERNAME=your-email@gmail.com
+#   MAIL_PASSWORD=your-app-specific-password
+spring.mail.host=${MAIL_HOST:smtp.gmail.com}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME:your-email@gmail.com}
+spring.mail.password=${MAIL_PASSWORD:your-app-password}
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 spring.mail.properties.mail.smtp.starttls.required=true

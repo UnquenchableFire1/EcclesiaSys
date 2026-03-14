@@ -1,0 +1,67 @@
+# Application Configuration
+spring.application.name=bbj-church-manager
+server.port=${PORT:8080}
+server.servlet.context-path=/
+
+# Logging
+logging.level.root=INFO
+logging.level.com.example=DEBUG
+
+# B2 File Upload Service Configuration
+b2.keyId=5be753f9e33f
+b2.applicationKey=K005uAur9WX0YGfPwOwbdyCsVwKOhuA
+b2.bucketName=bbj-church-media
+
+# Upload Configuration
+upload.maxSize=524288000
+upload.dir=/tmp/uploads
+
+# Environment-based database configuration
+# Use environment variables for production, defaults for local development
+spring.datasource.url=${DB_URL:jdbc:mysql://localhost:1532/bbj?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:fire@1532}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Connection Pool
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.idle-timeout=600000
+spring.datasource.hikari.max-lifetime=1800000
+
+# Error Handling
+server.error.include-message=always
+server.error.include-binding-errors=always
+server.error.include-stacktrace=never
+server.error.include-exception=false
+
+# SQL Initialization (auto-create schema and seed data)
+spring.sql.init.mode=always
+spring.sql.init.continue-on-error=false
+spring.jpa.defer-datasource-initialization=true
+
+# Hibernate DDL Auto - Create schema on startup
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=true
+
+# Multipart File Upload
+spring.servlet.multipart.max-file-size=500MB
+spring.servlet.multipart.max-request-size=500MB
+
+# Email Configuration (Gmail SMTP) - Use environment variables for credentials
+# Set these environment variables:
+#   MAIL_HOST=smtp.gmail.com
+#   MAIL_PORT=587
+#   MAIL_USERNAME=your-email@gmail.com
+#   MAIL_PASSWORD=your-app-specific-password
+spring.mail.host=${MAIL_HOST:smtp.gmail.com}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME:your-email@gmail.com}
+spring.mail.password=${MAIL_PASSWORD:your-app-password}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+spring.mail.default-encoding=UTF-8
+
+# CORS (handled in Application.java)
