@@ -6,7 +6,11 @@ public class Sermon {
     private int id;
     private String title;
     private String description;
+    private String speaker;
+    private LocalDateTime sermonDate;
     private String filePath;
+    private String audioUrl;
+    private String videoUrl;
     private String fileType;
     private int uploadedBy;
     private LocalDateTime uploadedDate;
@@ -31,8 +35,20 @@ public class Sermon {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
+    public String getSpeaker() { return speaker; }
+    public void setSpeaker(String speaker) { this.speaker = speaker; }
+
+    public LocalDateTime getSermonDate() { return sermonDate; }
+    public void setSermonDate(LocalDateTime sermonDate) { this.sermonDate = sermonDate; }
+
     public String getFilePath() { return filePath; }
     public void setFilePath(String filePath) { this.filePath = filePath; }
+
+    public String getAudioUrl() { return audioUrl; }
+    public void setAudioUrl(String audioUrl) { this.audioUrl = audioUrl; }
+
+    public String getVideoUrl() { return videoUrl; }
+    public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
 
     public String getFileType() { return fileType; }
     public void setFileType(String fileType) { this.fileType = fileType; }

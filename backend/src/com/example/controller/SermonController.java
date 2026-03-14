@@ -51,18 +51,57 @@ public class SermonController {
     public Map<String, Object> createSermon(@RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Sermon sermon = new Sermon(
-                    (String) request.get("title"),
-                    (String) request.get("description"),
-                    (String) request.get("filePath"),
-                    (String) request.get("fileType"),
-                    ((Number) request.get("uploadedBy")).intValue()
-            );
+            Sermon sermon = new Sermon();
+            sermon.setTitle((String) request.get("title"));
+            sermon.setDescription((String) request.get("description"));
+            sermon.setSpeaker((String) request.get("speaker"));
+            sermon.setFileType((String) request.get("fileType"));
+            
+            // Handle both createdBy and uploadedBy for backward compatibility
+            Object uploadedByObj = request.get("uploadedBy");
+            Object createdByObj = request.get("createdBy");
+            int uploaderId = uploadedByObj != null ? 
+                ((Number) uploadedByObj).intValue() : 
+                ((Number) createdByObj).intValue();
+            sermon.setUploadedBy(uploaderId);
+            
+            // Handle file URLs - either audioUrl or videoUrl
+            String audioUrl = (String) request.get("audioUrl");
+            String videoUrl = (String) request.get("videoUrl");
+            
+            if (audioUrl != null && !audioUrl.isEmpty()) {
+                sermon.setAudioUrl(audioUrl);
+                sermon.setFilePath(audioUrl);
+            } else if (videoUrl != null && !videoUrl.isEmpty()) {
+                sermon.setVideoUrl(videoUrl);
+                sermon.setFilePath(videoUrl);
+            } else {
+                // Fallback to filePath if provided
+                String filePath = (String) request.get("filePath");
+                sermon.setFilePath(filePath);
+                if ("mp3".equals(sermon.getFileType())) {
+                    sermon.setAudioUrl(filePath);
+                } else {
+                    sermon.setVideoUrl(filePath);
+                }
+            }
+            
+            // Handle sermon date
+            Object dateObj = request.get("sermonDate");
+            if (dateObj != null) {
+                // Convert string date to LocalDateTime if needed
+                if (dateObj instanceof String) {
+                    sermon.setSermonDate(java.time.LocalDateTime.parse((String) dateObj));
+                } else if (dateObj instanceof java.time.LocalDateTime) {
+                    sermon.setSermonDate((java.time.LocalDateTime) dateObj);
+                }
+            }
             
             SermonDAO dao = new SermonDAO();
             if (dao.addSermon(sermon)) {
                 response.put("success", true);
                 response.put("message", "Sermon created");
+                response.put("data", sermon);
             } else {
                 response.put("success", false);
                 response.put("message", "Failed to create sermon");
@@ -70,6 +109,7 @@ public class SermonController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());
+            e.printStackTrace();
         }
         return response;
     }
