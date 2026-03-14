@@ -199,4 +199,54 @@ public class FileUploadController {
 
         return response;
     }
+
+    @PostMapping("/announcement")
+    public Map<String, Object> uploadAnnouncementFile(
+            @RequestParam("file") MultipartFile file) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Validate file exists
+            String fileName = file.getOriginalFilename();
+            if (fileName == null || fileName.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "File name is required");
+                return response;
+            }
+
+            // Validate file size (100MB max for announcements)
+            long maxSize = 104857600; // 100MB
+            if (file.getSize() > maxSize) {
+                response.put("success", false);
+                response.put("message", "File size exceeds 100MB limit");
+                return response;
+            }
+
+            // Create temporary file
+            File tempFile = File.createTempFile("announcement_", fileName);
+            Files.write(tempFile.toPath(), file.getBytes());
+
+            // Upload to Backblaze B2
+            String fileUrl = B2FileUploadService.uploadFile(tempFile);
+
+            response.put("success", true);
+            response.put("message", "File uploaded successfully");
+            response.put("fileUrl", fileUrl);
+
+            // Clean up temp file
+            tempFile.delete();
+
+        } catch (IOException e) {
+            response.put("success", false);
+            response.put("message", "File upload error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return response;
+    }
 }

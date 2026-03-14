@@ -97,7 +97,7 @@ export default function AdminDashboard() {
                 formData.append('file', newAnnouncement.file);
                 
                 try {
-                    const fileResponse = await fetch('/api/upload', {
+                    const fileResponse = await fetch('/api/upload/announcement', {
                         method: 'POST',
                         body: formData
                     });
@@ -144,9 +144,13 @@ export default function AdminDashboard() {
                 formData.append('eventId', 0); // Will be set after event creation
                 
                 try {
-                    const docResponse = await uploadEventDocument(formData);
-                    if (docResponse.data.success) {
-                        eventData.documentUrl = docResponse.data.fileUrl;
+                    const docResponse = await fetch('/api/upload/event-document', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (docResponse.ok) {
+                        const fileData = await docResponse.json();
+                        eventData.documentUrl = fileData.fileUrl;
                     }
                 } catch (error) {
                     console.error('Error uploading document:', error);
@@ -199,7 +203,7 @@ export default function AdminDashboard() {
                 formData.append('fileType', newSermon.fileType);
                 
                 try {
-                    const fileResponse = await fetch('/api/upload', {
+                    const fileResponse = await fetch('/api/upload/sermon', {
                         method: 'POST',
                         body: formData
                     });
