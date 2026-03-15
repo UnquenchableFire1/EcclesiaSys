@@ -54,5 +54,8 @@ ENV SPRING_PROFILES_ACTIVE=production
 # Expose port (Render assigns dynamically)
 EXPOSE 8080
 
+# Configure JVM memory limits for Render Free Tier (512MB)
+ENV JAVA_OPTS="-Xmx300m -Xms150m"
+
 # Run Spring Boot application
-CMD ["java", "-jar", "app.jar"]
+CMD sh -c "java $JAVA_OPTS -jar app.jar"
