@@ -34,7 +34,7 @@ Gmail has strict security policies that may block emails from:
 
 **Current Password in .env (local):**
 ```
-MAIL_PASSWORD=vjmq iepu yhdd pjrx
+MAIL_PASSWORD=[GMAIL_APP_PASSWORD]  # placeholder - do not commit real password
 ```
 
 ### Step 3: Test Email Configuration

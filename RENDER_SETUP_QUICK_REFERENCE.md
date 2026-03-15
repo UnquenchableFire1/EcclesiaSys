@@ -5,16 +5,17 @@
 ## Backend Service Environment Variables
 
 ```
-DB_URL=jdbc:mysql://gateway01.eu-central-1.prod.tidbcloud.com:4000/bbj?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true
-DB_USERNAME=3jxxxxxx4yyyyy@bbj
-DB_PASSWORD=your-tidb-password-here
+DB_URL=jdbc:mysql://[TIDB_HOST]:[TIDB_PORT]/[DATABASE_NAME]?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true
+DB_USERNAME=[TIDB_USERNAME]
+DB_PASSWORD=[TIDB_PASSWORD]
 PORT=8080
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=benjaminbuckmanjunior@gmail.com
-MAIL_PASSWORD=vjmq iepu yhdd pjrx
-B2_KEY_ID=5be753f9e33f
-B2_APP_KEY=K005uAur9WX0YGfPwOwbdyCsVwKOhuA
+# Use a Gmail App Password stored in Render environment variables (do not commit)
+MAIL_PASSWORD=[GMAIL_APP_PASSWORD]
+B2_KEY_ID=[B2_KEY_ID]
+B2_APP_KEY=[B2_APP_KEY]
 ```
 
 ## Instructions

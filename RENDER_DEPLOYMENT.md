@@ -47,7 +47,8 @@ Add these variables for Gmail SMTP (password reset functionality):
 MAIL_HOST = smtp.gmail.com
 MAIL_PORT = 587
 MAIL_USERNAME = benjaminbuckmanjunior@gmail.com
-MAIL_PASSWORD = vjmq iepu yhdd pjrx
+# MAIL_PASSWORD must be set via Render environment variables (Gmail App Password)
+MAIL_PASSWORD = [GMAIL_APP_PASSWORD]
 ```
 
 **Important**: Use a **Gmail App Password**, not your regular Gmail password.
@@ -65,8 +66,8 @@ To generate a Gmail App Password:
 Add these variables for cloud file storage:
 
 ```
-B2_KEY_ID = 5be753f9e33f
-B2_APP_KEY = K005uAur9WX0YGfPwOwbdyCsVwKOhuA
+B2_KEY_ID = [B2_KEY_ID]
+B2_APP_KEY = [B2_APP_KEY]
 ```
 
 *Get these from Backblaze B2 dashboard → Application Keys → Master Key*
@@ -187,16 +188,16 @@ For local testing before deploying:
 ### Create Local .env File
 
 ```bash
-# backend/.env (not committed to git)
+# backend/.env (not committed to git) - use placeholders for secrets
 DB_URL=jdbc:mysql://localhost:1532/bbj?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-DB_USERNAME=root
-DB_PASSWORD=fire@1532
+DB_USERNAME=[LOCAL_DB_USERNAME]
+DB_PASSWORD=[LOCAL_DB_PASSWORD]
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=benjaminbuckmanjunior@gmail.com
-MAIL_PASSWORD=vjmq iepu yhdd pjrx
-B2_KEY_ID=5be753f9e33f
-B2_APP_KEY=K005uAur9WX0YGfPwOwbdyCsVwKOhuA
+MAIL_PASSWORD=[GMAIL_APP_PASSWORD]
+B2_KEY_ID=[B2_KEY_ID]
+B2_APP_KEY=[B2_APP_KEY]
 ```
 
 ### Run Backend Locally
