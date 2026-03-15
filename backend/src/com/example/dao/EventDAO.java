@@ -9,16 +9,26 @@ import com.example.db.DBConnection;
 public class EventDAO {
 
     public boolean addEvent(Event event) {
-        String query = "INSERT INTO events (title, description, event_date, location, created_by) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO events (title, description, event_date, location, document_url, created_by) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, event.getTitle());
             stmt.setString(2, event.getDescription());
             stmt.setObject(3, event.getEventDate());
             stmt.setString(4, event.getLocation());
-            stmt.setInt(5, event.getCreatedBy());
+            stmt.setString(5, event.getDocumentFileUrl());
+            stmt.setInt(6, event.getCreatedBy());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Unknown column 'document_url'")) {
+                try (Connection conn = DBConnection.getConnection(); Statement alter = conn.createStatement()) {
+                    System.out.println("Applying schema patch: Adding document_url to events table");
+                    alter.execute("ALTER TABLE events ADD COLUMN document_url VARCHAR(500)");
+                    return addEvent(event); // retry
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
         }
         return false;
@@ -70,14 +80,15 @@ public class EventDAO {
     }
 
     public boolean updateEvent(Event event) {
-        String query = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ? WHERE id = ?";
+        String query = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, document_url = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, event.getTitle());
             stmt.setString(2, event.getDescription());
             stmt.setObject(3, event.getEventDate());
             stmt.setString(4, event.getLocation());
-            stmt.setInt(5, event.getId());
+            stmt.setString(5, event.getDocumentFileUrl());
+            stmt.setInt(6, event.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -104,6 +115,12 @@ public class EventDAO {
         event.setDescription(rs.getString("description"));
         event.setEventDate(rs.getTimestamp("event_date").toLocalDateTime());
         event.setLocation(rs.getString("location"));
+        // Safely map document_url in case the column doesn't exist yet
+        try {
+            event.setDocumentFileUrl(rs.getString("document_url"));
+        } catch (SQLException e) {
+            event.setDocumentFileUrl(null);
+        }
         event.setCreatedBy(rs.getInt("created_by"));
         return event;
     }

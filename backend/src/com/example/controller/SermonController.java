@@ -132,7 +132,11 @@ public class SermonController {
             if (dateObj != null) {
                 // Convert string date to LocalDateTime if needed
                 if (dateObj instanceof String) {
-                    sermon.setSermonDate(java.time.LocalDateTime.parse((String) dateObj));
+                    String dateStr = ((String) dateObj).trim();
+                    if (!dateStr.contains("T")) {
+                        dateStr += "T00:00:00";
+                    }
+                    sermon.setSermonDate(java.time.LocalDateTime.parse(dateStr));
                 } else if (dateObj instanceof java.time.LocalDateTime) {
                     sermon.setSermonDate((java.time.LocalDateTime) dateObj);
                 }

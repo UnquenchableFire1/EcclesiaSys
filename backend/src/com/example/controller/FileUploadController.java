@@ -22,9 +22,9 @@ public class FileUploadController {
     @PostMapping("/sermon")
     public Map<String, Object> uploadSermon(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("title") String title,
-            @RequestParam("description") String description,
-            @RequestParam("adminId") int adminId) {
+            @RequestParam(value = "title", required = false, defaultValue = "") String title,
+            @RequestParam(value = "description", required = false, defaultValue = "") String description,
+            @RequestParam(value = "adminId", required = false, defaultValue = "0") int adminId) {
         
         Map<String, Object> response = new HashMap<>();
         

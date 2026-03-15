@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS announcements(
     title VARCHAR(200) NOT NULL,
     message TEXT NOT NULL,
     created_by INT NOT NULL,
+    file_url VARCHAR(500),
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY(created_by) REFERENCES admins(id)
@@ -62,6 +63,7 @@ CREATE TABLE IF NOT EXISTS events(
     description TEXT NOT NULL,
     event_date DATETIME NOT NULL,
     location VARCHAR(300),
+    document_url VARCHAR(500),
     created_by INT NOT NULL,
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

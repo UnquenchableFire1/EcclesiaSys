@@ -83,20 +83,24 @@ public class RegisterController {
     }
 
     private String generateAutoEmail(String name) {
-        String firstName = name.split(" ")[0].toLowerCase();
+        String[] parts = name.trim().split("\\s+");
+        String firstName = parts[0].toLowerCase();
+        String lastName = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "";
+        
+        String baseEmail = lastName.isEmpty() ? firstName : firstName + "." + lastName;
+        String domain = "@ecclesiasys.com";
+        
         MemberDAO memberDao = new MemberDAO();
+        String generatedEmail = baseEmail + domain;
+        int count = 1;
         
-        // Check if first name is Benjamin or if first name already exists in database
-        int existingCount = memberDao.countMembersWithFirstName(firstName);
-        
-        if ("benjamin".equals(firstName) || existingCount > 0) {
-            // Index from 0 upward for Benjamin or duplicate first names
-            return firstName + existingCount + "@bbj.com";
-        } else {
-            // For unique first names, use full name with dot separator
-            String sanitized = name.toLowerCase().replaceAll("\\s+", ".");
-            return sanitized + "@bbj.com";
+        // Loop and index if the email already exists in the system
+        while (memberDao.getMemberByEmail(generatedEmail) != null) {
+            generatedEmail = baseEmail + count + domain;
+            count++;
         }
+        
+        return generatedEmail;
     }
 
     private String generatePassword() {

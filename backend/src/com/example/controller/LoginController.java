@@ -23,7 +23,7 @@ public class LoginController {
             String password = request.get("password");
 
             // Check against admin credentials
-            if ("benjamin@bbj.com".equals(email) && "fire@123".equals(password)) {
+            if ("benjamin@ecclesiasys.com".equals(email) && "fire@123".equals(password)) {
                 response.put("success", true);
                 response.put("message", "Login successful");
                 response.put("userId", 1);

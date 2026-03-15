@@ -18,6 +18,15 @@ public class AnnouncementDAO {
             stmt.setString(4, announcement.getFileUrl());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Unknown column 'file_url'")) {
+                try (Connection conn = DBConnection.getConnection(); Statement alter = conn.createStatement()) {
+                    System.out.println("Applying schema patch: Adding file_url to announcements table");
+                    alter.execute("ALTER TABLE announcements ADD COLUMN file_url VARCHAR(500)");
+                    return addAnnouncement(announcement); // retry
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
         }
         return false;

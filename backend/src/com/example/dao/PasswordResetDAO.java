@@ -20,7 +20,20 @@ public class PasswordResetDAO {
             stmt.setObject(5, passwordReset.getCreatedAt() != null ? passwordReset.getCreatedAt() : LocalDateTime.now());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save password reset token: " + e.getMessage());
+            // If the column actual_email is missing due to an older schema, add it dynamically and retry
+            if (e.getMessage() != null && e.getMessage().contains("Unknown column 'actual_email'")) {
+                try (Connection conn = DBConnection.getConnection();
+                     Statement alterStmt = conn.createStatement()) {
+                    System.out.println("Applying schema patch: Adding actual_email to password_resets table");
+                    alterStmt.execute("ALTER TABLE password_resets ADD COLUMN actual_email VARCHAR(100)");
+                    // Retry the save after altering table
+                    save(passwordReset);
+                } catch (SQLException ex) {
+                    throw new RuntimeException("Failed to patch schema and save password reset token: " + ex.getMessage());
+                }
+            } else {
+                throw new RuntimeException("Failed to save password reset token: " + e.getMessage());
+            }
         }
     }
     

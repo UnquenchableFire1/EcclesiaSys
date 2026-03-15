@@ -8,6 +8,7 @@ public class Event {
     private String description;
     private LocalDateTime eventDate;
     private String location;
+    private String documentFileUrl;
     private int createdBy;
     private LocalDateTime createdDate;
     private LocalDateTime updatedAt;
@@ -36,6 +37,9 @@ public class Event {
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+
+    public String getDocumentFileUrl() { return documentFileUrl; }
+    public void setDocumentFileUrl(String documentFileUrl) { this.documentFileUrl = documentFileUrl; }
 
     public int getCreatedBy() { return createdBy; }
     public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
