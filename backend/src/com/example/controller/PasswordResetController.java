@@ -58,11 +58,18 @@ public class PasswordResetController {
             }
             
             // Validate that the provided actualEmail matches the member's personal actualEmail in DB
-            if (member.getActualEmail() == null || !member.getActualEmail().equalsIgnoreCase(actualEmail.trim())) {
-                 // Don't reveal invalid details
-                response.put("success", true);
-                response.put("message", "If these details match our records, you will receive a 6-digit reset code at your Personal Email");
-                return response;
+            String targetEmail = member.getActualEmail();
+            
+            if (targetEmail != null && !targetEmail.trim().isEmpty()) {
+                if (!targetEmail.equalsIgnoreCase(actualEmail.trim())) {
+                    // Don't reveal invalid details
+                    response.put("success", true);
+                    response.put("message", "If these details match our records, you will receive a 6-digit reset code at your Personal Email");
+                    return response;
+                }
+            } else {
+                // Legacy account fallback: if no actualEmail in DB, we send the reset code to the system login email.
+                targetEmail = member.getEmail();
             }
             
             // Generate a 6-digit reset code (valid for 1 hour)
@@ -78,18 +85,18 @@ public class PasswordResetController {
             } catch (Exception ignored) {}
             
             // Save new password reset token with both generated email and actual email
-            PasswordReset reset = new PasswordReset(email, member.getActualEmail(), token, expiresAt);
+            PasswordReset reset = new PasswordReset(email, targetEmail, token, expiresAt);
             passwordResetDAO.save(reset);
             
             // Send password reset email with the reset code
             String resetLink = frontendUrl + "/reset-password";
-            logger.info("Sending 6-digit password reset email to: {}", member.getActualEmail());
-            boolean emailSent = emailService.sendPasswordResetEmail(member.getActualEmail(), token, resetLink);
+            logger.info("Sending 6-digit password reset email to: {}", targetEmail);
+            boolean emailSent = emailService.sendPasswordResetEmail(targetEmail, token, resetLink);
             
             if (emailSent) {
-                logger.info("Password reset 6-digit code sent successfully to: {}", member.getActualEmail());
+                logger.info("Password reset 6-digit code sent successfully to: {}", targetEmail);
             } else {
-                logger.warn("Failed to send password reset 6-digit code to: {}", member.getActualEmail());
+                logger.warn("Failed to send password reset 6-digit code to: {}", targetEmail);
             }
             
             // Always return success message
