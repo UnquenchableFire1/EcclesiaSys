@@ -9,6 +9,7 @@ public class Announcement {
     private int createdBy;
     private LocalDateTime createdDate;
     private LocalDateTime updatedAt;
+    private String fileUrl;
 
     public Announcement() {}
 
@@ -17,6 +18,9 @@ public class Announcement {
         this.message = message;
         this.createdBy = createdBy;
     }
+
+    public String getFileUrl() { return fileUrl; }
+    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -32,6 +36,9 @@ public class Announcement {
 
     public LocalDateTime getCreatedDate() { return createdDate; }
     public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }
+
+    // Jackson-friendly alias expected by frontend
+    public LocalDateTime getCreatedAt() { return createdDate; }
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }

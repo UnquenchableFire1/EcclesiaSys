@@ -75,6 +75,18 @@ public class MemberDAO {
                 member.setIsProfilePublic(rs.getBoolean("is_profile_public"));
                 member.setBio(rs.getString("bio"));
                 member.setStatus(rs.getString("status"));
+                try {
+                    Timestamp jd = rs.getTimestamp("joined_date");
+                    if (jd != null) member.setJoinedDate(jd.toLocalDateTime());
+                } catch (SQLException ex) {
+                    // ignore if column missing
+                }
+                try {
+                    Timestamp ua = rs.getTimestamp("updated_at");
+                    if (ua != null) member.setUpdatedAt(ua.toLocalDateTime());
+                } catch (SQLException ex) {
+                    // ignore
+                }
                 return member;
             }
         } catch (SQLException e) {
@@ -102,6 +114,16 @@ public class MemberDAO {
                 member.setIsProfilePublic(rs.getBoolean("is_profile_public"));
                 member.setBio(rs.getString("bio"));
                 member.setStatus(rs.getString("status"));
+                try {
+                    Timestamp jd = rs.getTimestamp("joined_date");
+                    if (jd != null) member.setJoinedDate(jd.toLocalDateTime());
+                } catch (SQLException ex) {
+                }
+                try {
+                    Timestamp ua = rs.getTimestamp("updated_at");
+                    if (ua != null) member.setUpdatedAt(ua.toLocalDateTime());
+                } catch (SQLException ex) {
+                }
                 return member;
             }
         } catch (SQLException e) {
@@ -129,6 +151,16 @@ public class MemberDAO {
                 member.setIsProfilePublic(rs.getBoolean("is_profile_public"));
                 member.setBio(rs.getString("bio"));
                 member.setStatus(rs.getString("status"));
+                try {
+                    Timestamp jd = rs.getTimestamp("joined_date");
+                    if (jd != null) member.setJoinedDate(jd.toLocalDateTime());
+                } catch (SQLException ex) {
+                }
+                try {
+                    Timestamp ua = rs.getTimestamp("updated_at");
+                    if (ua != null) member.setUpdatedAt(ua.toLocalDateTime());
+                } catch (SQLException ex) {
+                }
                 members.add(member);
             }
         } catch (SQLException e) {

@@ -9,12 +9,13 @@ import com.example.db.DBConnection;
 public class AnnouncementDAO {
 
     public boolean addAnnouncement(Announcement announcement) {
-        String query = "INSERT INTO announcements (title, message, created_by) VALUES (?, ?, ?)";
+        String query = "INSERT INTO announcements (title, message, created_by, file_url) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, announcement.getTitle());
             stmt.setString(2, announcement.getMessage());
             stmt.setInt(3, announcement.getCreatedBy());
+            stmt.setString(4, announcement.getFileUrl());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -84,6 +85,24 @@ public class AnnouncementDAO {
         announcement.setTitle(rs.getString("title"));
         announcement.setMessage(rs.getString("message"));
         announcement.setCreatedBy(rs.getInt("created_by"));
+        try {
+            Timestamp ts = rs.getTimestamp("created_date");
+            if (ts != null) announcement.setCreatedDate(ts.toLocalDateTime());
+        } catch (SQLException ex) {
+            // column may not exist in older schemas
+        }
+        try {
+            Timestamp ut = rs.getTimestamp("updated_at");
+            if (ut != null) announcement.setUpdatedAt(ut.toLocalDateTime());
+        } catch (SQLException ex) {
+            // ignore
+        }
+        try {
+            String fileUrl = rs.getString("file_url");
+            if (fileUrl != null) announcement.setFileUrl(fileUrl);
+        } catch (SQLException ex) {
+            // ignore if column missing
+        }
         return announcement;
     }
 }

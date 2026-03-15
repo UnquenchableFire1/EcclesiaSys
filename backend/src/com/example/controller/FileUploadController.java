@@ -6,7 +6,7 @@ import com.example.dao.SermonDAO;
 import com.example.dao.MemberDAO;
 import com.example.model.Sermon;
 import com.example.model.Member;
-import com.example.service.B2FileUploadService;
+import com.example.service.CloudinaryFileUploadService;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,17 +53,17 @@ public class FileUploadController {
             File tempFile = File.createTempFile("sermon_", fileName);
             Files.write(tempFile.toPath(), file.getBytes());
 
-            // Upload to Backblaze B2
+            // Upload to Cloudinary
             String fileUrl = null;
             try {
-                System.out.println("Uploading to B2...");
-                fileUrl = B2FileUploadService.uploadFile(tempFile);
-                System.out.println("B2 upload successful: " + fileUrl);
-            } catch (Exception b2Error) {
-                System.err.println("B2 upload failed: " + b2Error.getMessage());
-                b2Error.printStackTrace();
+                System.out.println("Uploading to Cloudinary...");
+                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+                System.out.println("Cloudinary upload successful: " + fileUrl);
+            } catch (Exception uploadError) {
+                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
+                uploadError.printStackTrace();
                 response.put("success", false);
-                response.put("message", "File upload to storage failed: " + b2Error.getMessage());
+                response.put("message", "File upload to storage failed: " + uploadError.getMessage());
                 return response;
             }
 
@@ -90,6 +90,16 @@ public class FileUploadController {
         }
 
         return response;
+    }
+
+    // Compatibility endpoint expected by frontend: POST /api/sermons/upload
+    @PostMapping("/sermons/upload")
+    public Map<String, Object> uploadSermonCompat(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "adminId", required = false, defaultValue = "0") int adminId) {
+        return uploadSermon(file, title != null ? title : "", description != null ? description : "", adminId);
     }
 
     @PostMapping("/profile-picture")
@@ -120,8 +130,17 @@ public class FileUploadController {
             File tempFile = File.createTempFile("profile_", fileName);
             Files.write(tempFile.toPath(), file.getBytes());
 
-            // Upload to Backblaze B2
-            String fileUrl = B2FileUploadService.uploadFile(tempFile);
+            // Upload to Cloudinary
+            String fileUrl = null;
+            try {
+                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+            } catch (Exception uploadError) {
+                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
+                uploadError.printStackTrace();
+                response.put("success", false);
+                response.put("message", "File upload to storage failed: " + uploadError.getMessage());
+                return response;
+            }
 
             // Update member profile picture in database
             MemberDAO memberDao = new MemberDAO();
@@ -185,12 +204,20 @@ public class FileUploadController {
             File tempFile = File.createTempFile("event_doc_", fileName);
             Files.write(tempFile.toPath(), file.getBytes());
 
-            // Upload to Backblaze B2
-            String fileUrl = B2FileUploadService.uploadFile(tempFile);
-
-            response.put("success", true);
-            response.put("message", "Document uploaded successfully");
-            response.put("fileUrl", fileUrl);
+            // Upload to Cloudinary
+            String fileUrl = null;
+            try {
+                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+                response.put("success", true);
+                response.put("message", "Document uploaded successfully");
+                response.put("fileUrl", fileUrl);
+            } catch (Exception uploadError) {
+                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
+                uploadError.printStackTrace();
+                response.put("success", false);
+                response.put("message", "File upload to storage failed: " + uploadError.getMessage());
+                return response;
+            }
 
             // Clean up temp file
             tempFile.delete();
@@ -241,17 +268,17 @@ public class FileUploadController {
 
             // Upload to Backblaze B2
             String fileUrl = null;
-            try {
-                System.out.println("Uploading announcement to B2...");
-                fileUrl = B2FileUploadService.uploadFile(tempFile);
-                System.out.println("B2 upload successful: " + fileUrl);
-            } catch (Exception b2Error) {
-                System.err.println("B2 upload failed: " + b2Error.getMessage());
-                b2Error.printStackTrace();
-                response.put("success", false);
-                response.put("message", "File upload to storage failed: " + b2Error.getMessage());
-                return response;
-            }
+                try {
+                    System.out.println("Uploading announcement to Cloudinary...");
+                    fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+                    System.out.println("Cloudinary upload successful: " + fileUrl);
+                } catch (Exception uploadError) {
+                    System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
+                    uploadError.printStackTrace();
+                    response.put("success", false);
+                    response.put("message", "File upload to storage failed: " + uploadError.getMessage());
+                    return response;
+                }
 
             response.put("success", true);
             response.put("message", "File uploaded successfully");

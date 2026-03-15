@@ -123,12 +123,7 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Info Box */}
-          <div className="mt-8 bg-gradient-to-r from-lemon to-yellow-200 rounded-lg p-6 text-center">
-            <p className="text-tealDeep font-semibold text-sm">
-              📱 For troubleshooting or account access issues, please contact admin@ecclesiasys.com
-            </p>
-          </div>
+          {/* Info Box removed - use in-app support or admin dashboard for support contact */}
         </div>
       </div>
     </Layout>

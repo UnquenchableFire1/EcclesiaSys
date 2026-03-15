@@ -56,6 +56,9 @@ public class AnnouncementController {
                     (String) request.get("message"),
                     ((Number) request.get("createdBy")).intValue()
             );
+            if (request.containsKey("fileUrl")) {
+                announcement.setFileUrl((String) request.get("fileUrl"));
+            }
             
             AnnouncementDAO dao = new AnnouncementDAO();
             if (dao.addAnnouncement(announcement)) {
