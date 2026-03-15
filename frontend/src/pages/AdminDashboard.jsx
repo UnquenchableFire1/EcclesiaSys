@@ -97,29 +97,8 @@ export default function AdminDashboard() {
         try {
             let announcementData = { ...newAnnouncement, createdBy: adminId };
             
-            // Upload file if provided
-            if (newAnnouncement.file) {
-                const formData = new FormData();
-                formData.append('file', newAnnouncement.file);
-                
-                try {
-                    const fileResponse = await fetch('/api/upload/announcement', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    if (fileResponse.ok) {
-                        const fileData = await fileResponse.json();
-                        announcementData.fileUrl = fileData.fileUrl || fileData.url;
-                    }
-                } catch (error) {
-                    console.error('Error uploading file:', error);
-                    setAlertDialog({ title: 'Upload Failed', message: 'File upload failed, but announcement will be created', isError: true });
-                }
-            }
-            
             await createAnnouncement(announcementData);
-            setNewAnnouncement({ title: '', message: '', file: null });
+            setNewAnnouncement({ title: '', message: '' });
             await fetchAllData();
         } catch (error) {
             console.error('Error adding announcement:', error);
@@ -147,29 +126,8 @@ export default function AdminDashboard() {
         try {
             let eventData = { ...newEvent, createdBy: adminId, documentUrl: null };
             
-            // Upload document if provided
-            if (newEvent.documentFile) {
-                const formData = new FormData();
-                formData.append('file', newEvent.documentFile);
-                formData.append('eventId', 0); // Will be set after event creation
-                
-                try {
-                    const docResponse = await fetch('/api/upload/event-document', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (docResponse.ok) {
-                        const fileData = await docResponse.json();
-                        eventData.documentUrl = fileData.fileUrl;
-                    }
-                } catch (error) {
-                    console.error('Error uploading document:', error);
-                    setAlertDialog({ title: 'Upload Failed', message: 'Document upload failed, but event will be created', isError: true });
-                }
-            }
-            
             await createEvent(eventData);
-            setNewEvent({ title: '', description: '', eventDate: '', location: '', documentFile: null });
+            setNewEvent({ title: '', description: '', eventDate: '', location: '' });
             await fetchAllData();
         } catch (error) {
             console.error('Error adding event:', error);
@@ -218,51 +176,12 @@ export default function AdminDashboard() {
             };
             
             console.log('AdminId:', adminId, 'Type:', typeof adminId);
-            
-            // Upload file if provided
-            if (newSermon.file) {
-                const formData = new FormData();
-                formData.append('file', newSermon.file);
-                formData.append('fileType', newSermon.fileType);
-                formData.append('title', newSermon.title.trim());
-                formData.append('description', newSermon.description.trim());
-                formData.append('adminId', adminId);
-                
-                try {
-                    console.log('Uploading file to /api/upload/sermon...');
-                    const fileResponse = await fetch('/api/upload/sermon', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    console.log('File upload response status:', fileResponse.status);
-                    
-                    if (fileResponse.ok) {
-                        const fileData = await fileResponse.json();
-                        console.log('File upload response data:', fileData);
-                        if (newSermon.fileType === 'mp3') {
-                            sermonData.audioUrl = fileData.fileUrl || fileData.url;
-                        } else {
-                            sermonData.videoUrl = fileData.fileUrl || fileData.url;
-                        }
-                        console.log('File URL set:', newSermon.fileType === 'mp3' ? sermonData.audioUrl : sermonData.videoUrl);
-                    } else {
-                        const errText = await fileResponse.text();
-                        console.error('File upload failed with status:', fileResponse.status, 'Response:', errText);
-                        setAlertDialog({ title: 'Upload Failed', message: 'File upload failed (status ' + fileResponse.status + '), but sermon will be created without file', isError: true });
-                    }
-                } catch (error) {
-                    console.error('Error uploading file:', error);
-                    setAlertDialog({ title: 'Upload Error', message: 'File upload error: ' + error.message + ' - but sermon will be created without file', isError: true });
-                }
-            }
-            
             console.log('Creating sermon with data:', sermonData);
             const response = await createSermon(sermonData);
             console.log('Sermon response:', response);
             
             if (response.data?.success || response.data?.data?.id) {
-                setNewSermon({ title: '', description: '', speaker: '', sermonDate: '', file: null, fileType: 'mp3' });
+                setNewSermon({ title: '', description: '', speaker: '', sermonDate: '', fileType: 'mp3' });
                 setAlertDialog({ title: 'Success', message: 'Sermon created successfully!' });
                 await fetchAllData();
             } else {
@@ -557,17 +476,7 @@ export default function AdminDashboard() {
                                     className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 min-h-[160px]"
                                 />
                             </div>
-                            <div className="bg-mdSurfaceVariant/20 p-6 rounded-2xl border border-mdOutline/30 border-dashed">
-                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2">Attachment (Optional)</label>
-                                <input
-                                    type="file"
-                                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, file: e.target.files[0] })}
-                                    className="w-full text-mdOnSurfaceVariant text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-mdPrimaryContainer file:text-mdPrimary hover:file:bg-mdPrimary hover:file:text-mdOnPrimary file:transition-colors file:cursor-pointer"
-                                />
-                                {newAnnouncement.file && (
-                                    <p className="text-sm font-bold text-mdPrimary mt-3">Selected file: {newAnnouncement.file.name}</p>
-                                )}
-                            </div>
+
                             <button
                                 onClick={handleAddAnnouncement}
                                 className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 px-8 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
@@ -587,16 +496,7 @@ export default function AdminDashboard() {
                                             <h3 className="font-extrabold text-xl text-mdOnSurface mb-2">{ann.title}</h3>
                                             <p className="text-mdOnSurfaceVariant text-base leading-relaxed whitespace-pre-line">{ann.message}</p>
                                             
-                                            {ann.fileUrl && (
-                                                <a 
-                                                    href={ann.fileUrl} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-2 mt-4 text-mdPrimary bg-mdPrimaryContainer/50 px-4 py-2 rounded-full text-sm font-bold hover:bg-mdPrimary hover:text-mdOnPrimary transition-colors"
-                                                >
-                                                    <span>📎</span> Download Attachment
-                                                </a>
-                                            )}
+
                                         </div>
                                         <button
                                             onClick={() => handleDeleteAnnouncement(ann.id)}
@@ -669,16 +569,7 @@ export default function AdminDashboard() {
                                 />
                             </div>
                             
-                            <div className="bg-mdSurfaceVariant/20 p-6 rounded-2xl border border-mdOutline/30 border-dashed">
-                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2">Event Document (PDF/DOCX - Optional)</label>
-                                <input
-                                    type="file"
-                                    onChange={(e) => setNewEvent({ ...newEvent, documentFile: e.target.files[0] })}
-                                    accept=".pdf,.doc,.docx,.txt,.xlsx,.xls"
-                                    className="w-full text-mdOnSurfaceVariant text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-mdSecondaryContainer file:text-mdSecondary hover:file:bg-mdSecondary hover:file:text-mdOnSecondary file:transition-colors file:cursor-pointer"
-                                />
-                                {newEvent.documentFile && <p className="text-sm font-bold text-mdSecondary mt-3">Selected: {newEvent.documentFile.name}</p>}
-                            </div>
+
                             
                             <button
                                 onClick={handleAddEvent}
@@ -728,18 +619,7 @@ export default function AdminDashboard() {
                                         </p>
                                     </div>
                                     
-                                    {event.documentFileUrl && (
-                                        <div className="mt-6 pt-4 border-t border-mdSurfaceVariant/50">
-                                            <a 
-                                                href={event.documentFileUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-2 text-mdSecondary bg-mdSecondaryContainer/30 px-4 py-2 rounded-full text-sm font-bold hover:bg-mdSecondary hover:text-mdOnSecondary transition-colors"
-                                            >
-                                                <span>📄</span> View Document
-                                            </a>
-                                        </div>
-                                    )}
+
                                 </div>
                             ))}
                             {events.length === 0 && (
@@ -818,18 +698,7 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                             
-                            <div className="bg-mdSurfaceVariant/20 p-6 rounded-2xl border border-mdOutline/30 border-dashed">
-                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2">Upload File</label>
-                                <input
-                                    type="file"
-                                    accept="audio/*,video/*"
-                                    onChange={(e) => setNewSermon({ ...newSermon, file: e.target.files[0] })}
-                                    className="w-full text-mdOnSurfaceVariant text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-mdPrimaryContainer file:text-mdPrimary hover:file:bg-mdPrimary hover:file:text-mdOnPrimary file:transition-colors file:cursor-pointer"
-                                />
-                                {newSermon.file && (
-                                    <p className="text-sm font-bold text-mdPrimary mt-3">Selected: {newSermon.file.name}</p>
-                                )}
-                            </div>
+
                             
                             <button
                                 onClick={handleAddSermon}

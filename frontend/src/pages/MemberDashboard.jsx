@@ -191,6 +191,7 @@ export default function MemberDashboard() {
                         <TabButton tab="announcements" label="Announcements" icon="📢" />
                         <TabButton tab="events" label="Events" icon="📅" />
                         <TabButton tab="sermons" label="Sermons" icon="🎙️" />
+                        <TabButton tab="support" label="Support" icon="🎧" />
                         <TabButton tab="profile" label="Profile" icon="👤" />
                     </div>
                 </div>
@@ -352,6 +353,45 @@ export default function MemberDashboard() {
                                 <p className="text-mdOnSurfaceVariant text-lg font-medium">No sermons available yet.</p>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {/* Support Tab */}
+                {activeTab === 'support' && (
+                    <div className="space-y-6 animate-fade-in">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
+                                <span className="text-2xl">🎧</span>
+                            </div>
+                            <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Help & Support</h2>
+                        </div>
+                        <div className="bg-mdSurface p-8 rounded-3xl shadow-sm border border-mdSurfaceVariant flex flex-col md:flex-row gap-8 items-center justify-between">
+                            <div className="flex-1 w-full max-w-xl">
+                                <h3 className="font-extrabold text-2xl text-mdOnSurface mb-4">Need Assistance?</h3>
+                                <p className="text-mdOnSurfaceVariant text-lg leading-relaxed mb-8">
+                                    Our support team is always here to help you. Whether you have questions about the digital church or need technical assistance, feel free to reach out to us.
+                                </p>
+                                <div className="space-y-4">
+                                    <a href="mailto:benjaminbuckmanjunior@gmail.com" className="flex items-center gap-4 p-4 bg-mdPrimaryContainer/20 hover:bg-mdPrimaryContainer/40 rounded-2xl transition-colors duration-300">
+                                        <div className="bg-mdPrimaryContainer text-mdPrimary w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0">📧</div>
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-bold text-mdOnSurfaceVariant mb-1 uppercase tracking-wider">Email Us</p>
+                                            <p className="text-mdPrimary font-bold truncate">benjaminbuckmanjunior@gmail.com</p>
+                                        </div>
+                                    </a>
+                                    <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-mdSecondaryContainer/20 hover:bg-mdSecondaryContainer/40 rounded-2xl transition-colors duration-300">
+                                        <div className="bg-mdSecondaryContainer text-mdSecondary w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0">📱</div>
+                                        <div>
+                                            <p className="text-xs font-bold text-mdOnSurfaceVariant mb-1 uppercase tracking-wider">WhatsApp</p>
+                                            <p className="text-mdSecondary font-bold truncate">Chat with Support</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="hidden md:flex flex-1 justify-center p-8">
+                                <div className="text-9xl opacity-10 filter drop-shadow-sm transition-transform hover:scale-110 duration-500">💬</div>
+                            </div>
+                        </div>
                     </div>
                 )}
 

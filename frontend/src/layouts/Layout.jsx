@@ -74,12 +74,12 @@ export default function Layout({ children }) {
             </main>
             <footer className="mt-12 bg-mdSurfaceVariant text-mdOnSurfaceVariant py-8 rounded-t-3xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-white/50">
                 <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
-                        <div className="text-center">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div className="text-center md:text-right">
                             <h3 className="text-mdPrimary font-bold mb-2 text-xl">EcclesiaSys</h3>
                             <p>A digital church designed to make your church management simple.</p>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center md:text-left">
                             <h3 className="text-mdPrimary font-bold mb-2 text-xl">Contact Us</h3>
                             <p className="mb-2">
                                 <a href="mailto:benjaminbuckmanjunior@gmail.com" className="hover:text-mdPrimary transition-colors duration-200 font-medium">
