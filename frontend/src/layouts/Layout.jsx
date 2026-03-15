@@ -12,12 +12,12 @@ export default function Layout({ children }) {
         const storedSessionId = sessionStorage.getItem('sessionId');
         
         if (sessionId && !storedSessionId) {
-            // This is a new tab/window, logout
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = '/login';
+            // This is a new tab/window, but a session exists.
+            // DO NOT logout immediately. Instead, create a new session ID
+            // or trust the existing localStorage.
+            // Let's just track this tab as well.
+            sessionStorage.setItem('sessionId', sessionId);
         } else if (sessionId) {
-            // Store in sessionStorage to track this tab
             sessionStorage.setItem('sessionId', sessionId);
         }
     }, []);
@@ -30,6 +30,9 @@ export default function Layout({ children }) {
 
     // Activity tracking for session timeout
     useEffect(() => {
+        // Only track if logged in
+        if (!localStorage.getItem('userId')) return;
+
         // Mark activity on user interactions
         const handleActivity = () => {
             setLastActivity(Date.now());
@@ -49,6 +52,8 @@ export default function Layout({ children }) {
                 localStorage.removeItem('userName');
                 localStorage.removeItem('adminActiveTab');
                 localStorage.removeItem('memberActiveTab');
+                localStorage.removeItem('sessionId');
+                sessionStorage.removeItem('sessionId');
                 window.location.href = '/login';
             }
         }, 30000); // Check every 30 seconds

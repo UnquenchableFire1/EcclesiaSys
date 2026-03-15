@@ -24,6 +24,8 @@ export default function AdminDashboard() {
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const [confirmDialog, setConfirmDialog] = useState(null);
+    const [alertDialog, setAlertDialog] = useState(null);
     const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '', file: null });
     const [newEvent, setNewEvent] = useState({ title: '', description: '', eventDate: '', location: '', documentFile: null });
     const [newSermon, setNewSermon] = useState({ title: '', description: '', speaker: '', sermonDate: '', file: null, fileType: 'mp3' });
@@ -76,14 +78,18 @@ export default function AdminDashboard() {
 
     // Member Management
     const handleDeleteMember = async (id) => {
-        if (window.confirm('Are you sure you want to delete this member?')) {
-            try {
-                await deleteMember(id);
-                setMembers(members.filter(m => m.id !== id));
-            } catch (error) {
-                console.error('Error deleting member:', error);
+        setConfirmDialog({
+            title: 'Delete Member',
+            message: 'Are you sure you want to delete this member?',
+            onConfirm: async () => {
+                try {
+                    await deleteMember(id);
+                    setMembers(members.filter(m => m.id !== id));
+                } catch (error) {
+                    console.error('Error deleting member:', error);
+                }
             }
-        }
+        });
     };
 
     // Announcement Management
@@ -108,7 +114,7 @@ export default function AdminDashboard() {
                     }
                 } catch (error) {
                     console.error('Error uploading file:', error);
-                    alert('File upload failed, but announcement will be created');
+                    setAlertDialog({ title: 'Upload Failed', message: 'File upload failed, but announcement will be created', isError: true });
                 }
             }
             
@@ -117,19 +123,23 @@ export default function AdminDashboard() {
             await fetchAllData();
         } catch (error) {
             console.error('Error adding announcement:', error);
-            alert('Error creating announcement: ' + error.message);
+            setAlertDialog({ title: 'Error', message: 'Error creating announcement: ' + error.message, isError: true });
         }
     };
 
     const handleDeleteAnnouncement = async (id) => {
-        if (window.confirm('Delete this announcement?')) {
-            try {
-                await deleteAnnouncement(id);
-                await fetchAllData();
-            } catch (error) {
-                console.error('Error deleting announcement:', error);
+        setConfirmDialog({
+            title: 'Delete Announcement',
+            message: 'Are you sure you want to delete this announcement?',
+            onConfirm: async () => {
+                try {
+                    await deleteAnnouncement(id);
+                    await fetchAllData();
+                } catch (error) {
+                    console.error('Error deleting announcement:', error);
+                }
             }
-        }
+        });
     };
 
     // Event Management
@@ -154,7 +164,7 @@ export default function AdminDashboard() {
                     }
                 } catch (error) {
                     console.error('Error uploading document:', error);
-                    alert('Document upload failed, but event will be created');
+                    setAlertDialog({ title: 'Upload Failed', message: 'Document upload failed, but event will be created', isError: true });
                 }
             }
             
@@ -163,32 +173,36 @@ export default function AdminDashboard() {
             await fetchAllData();
         } catch (error) {
             console.error('Error adding event:', error);
-            alert('Error creating event: ' + error.message);
+            setAlertDialog({ title: 'Error', message: 'Error creating event: ' + error.message, isError: true });
         }
     };
 
     const handleDeleteEvent = async (id) => {
-        if (window.confirm('Delete this event?')) {
-            try {
-                await deleteEvent(id);
-                await fetchAllData();
-            } catch (error) {
-                console.error('Error deleting event:', error);
+        setConfirmDialog({
+            title: 'Delete Event',
+            message: 'Are you sure you want to delete this event?',
+            onConfirm: async () => {
+                try {
+                    await deleteEvent(id);
+                    await fetchAllData();
+                } catch (error) {
+                    console.error('Error deleting event:', error);
+                }
             }
-        }
+        });
     };
 
     // Sermon Management
     const handleAddSermon = async () => {
         // Validate required fields
         if (!newSermon.title.trim() || !newSermon.speaker.trim() || !newSermon.sermonDate.trim()) {
-            alert('Please fill in Title, Speaker, and Date fields');
+            setAlertDialog({ title: 'Missing Info', message: 'Please fill in Title, Speaker, and Date fields', isError: true });
             return;
         }
 
         // Validate adminId is valid
         if (!adminId || adminId === 0 || isNaN(adminId)) {
-            alert('Error: Admin ID not found. Please log in again.');
+            setAlertDialog({ title: 'Error', message: 'Error: Admin ID not found. Please log in again.', isError: true });
             console.error('Invalid adminId:', adminId, 'Type:', typeof adminId);
             return;
         }
@@ -198,7 +212,7 @@ export default function AdminDashboard() {
                 title: newSermon.title.trim(),
                 description: newSermon.description.trim(),
                 speaker: newSermon.speaker.trim(),
-                sermonDate: newSermon.sermonDate,
+                sermonDate: newSermon.sermonDate.includes('T') ? newSermon.sermonDate : newSermon.sermonDate + 'T00:00:00',
                 fileType: newSermon.fileType,
                 createdBy: adminId
             };
@@ -210,6 +224,9 @@ export default function AdminDashboard() {
                 const formData = new FormData();
                 formData.append('file', newSermon.file);
                 formData.append('fileType', newSermon.fileType);
+                formData.append('title', newSermon.title.trim());
+                formData.append('description', newSermon.description.trim());
+                formData.append('adminId', adminId);
                 
                 try {
                     console.log('Uploading file to /api/upload/sermon...');
@@ -232,11 +249,11 @@ export default function AdminDashboard() {
                     } else {
                         const errText = await fileResponse.text();
                         console.error('File upload failed with status:', fileResponse.status, 'Response:', errText);
-                        alert('File upload failed (status ' + fileResponse.status + '), but sermon will be created without file');
+                        setAlertDialog({ title: 'Upload Failed', message: 'File upload failed (status ' + fileResponse.status + '), but sermon will be created without file', isError: true });
                     }
                 } catch (error) {
                     console.error('Error uploading file:', error);
-                    alert('File upload error: ' + error.message + ' - but sermon will be created without file');
+                    setAlertDialog({ title: 'Upload Error', message: 'File upload error: ' + error.message + ' - but sermon will be created without file', isError: true });
                 }
             }
             
@@ -246,26 +263,30 @@ export default function AdminDashboard() {
             
             if (response.data?.success || response.data?.data?.id) {
                 setNewSermon({ title: '', description: '', speaker: '', sermonDate: '', file: null, fileType: 'mp3' });
-                alert('Sermon created successfully!');
+                setAlertDialog({ title: 'Success', message: 'Sermon created successfully!' });
                 await fetchAllData();
             } else {
-                alert('Error creating sermon: ' + (response.data?.message || 'Unknown error'));
+                setAlertDialog({ title: 'Error', message: 'Error creating sermon: ' + (response.data?.message || 'Unknown error'), isError: true });
             }
         } catch (error) {
             console.error('Error adding sermon:', error);
-            alert('Error creating sermon: ' + error.message);
+            setAlertDialog({ title: 'Error', message: 'Error creating sermon: ' + error.message, isError: true });
         }
     };
 
     const handleDeleteSermon = async (id) => {
-        if (window.confirm('Delete this sermon?')) {
-            try {
-                await deleteSermon(id);
-                await fetchAllData();
-            } catch (error) {
-                console.error('Error deleting sermon:', error);
+        setConfirmDialog({
+            title: 'Delete Sermon',
+            message: 'Are you sure you want to delete this sermon?',
+            onConfirm: async () => {
+                try {
+                    await deleteSermon(id);
+                    await fetchAllData();
+                } catch (error) {
+                    console.error('Error deleting sermon:', error);
+                }
             }
-        }
+        });
     };
 
     const TabButton = ({ tab, label, icon }) => (
@@ -288,6 +309,59 @@ export default function AdminDashboard() {
 
     return (
         <div className="min-h-[80vh] bg-mdSurface outline-none animate-fade-in relative z-10 transition-colors duration-300 py-4">
+            {/* Custom Dialogs */}
+            
+            {/* Confirm Dialog */}
+            {confirmDialog && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-mdSurface rounded-3xl shadow-md3 p-8 max-w-sm w-full mx-auto animate-fade-in relative">
+                        <div className="absolute top-4 right-4 text-4xl leading-none text-mdError opacity-20 hover:opacity-100 cursor-pointer transition-opacity" onClick={() => setConfirmDialog(null)}>×</div>
+                        <h3 className="text-2xl font-bold text-mdOnSurface mb-4">{confirmDialog.title}</h3>
+                        <p className="text-mdOnSurfaceVariant mb-8 text-lg">{confirmDialog.message}</p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setConfirmDialog(null)}
+                                className="flex-1 bg-mdSurfaceVariant hover:bg-mdOutline/20 text-mdOnSurfaceVariant font-bold py-3 rounded-full transition-colors duration-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (confirmDialog.onConfirm) confirmDialog.onConfirm();
+                                    setConfirmDialog(null);
+                                }}
+                                className="flex-1 bg-mdError hover:bg-red-700 text-mdOnError font-bold py-3 rounded-full shadow-md1 transition-all duration-200"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Alert Dialog */}
+            {alertDialog && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-mdSurface rounded-3xl shadow-md3 p-8 max-w-sm w-full mx-auto animate-fade-in text-center relative">
+                        <div className={`mx-auto flex items-center justify-center p-4 rounded-full mb-4 w-16 h-16 ${alertDialog.isError ? 'bg-mdError/20 text-mdError' : 'bg-mdPrimaryContainer text-mdPrimary'}`}>
+                            {alertDialog.isError ? (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            ) : (
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            )}
+                        </div>
+                        <h3 className="text-2xl font-bold text-mdOnSurface mb-2">{alertDialog.title}</h3>
+                        <p className="text-mdOnSurfaceVariant mb-8 text-base">{alertDialog.message}</p>
+                        <button
+                            onClick={() => setAlertDialog(null)}
+                            className="w-full bg-mdSurfaceVariant hover:bg-mdOutline/20 text-mdOnSurface font-bold py-3 rounded-full transition-colors duration-200"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Logout Confirmation Modal */}
             {showLogoutConfirm && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">

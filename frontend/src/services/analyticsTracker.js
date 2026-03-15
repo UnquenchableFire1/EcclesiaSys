@@ -166,16 +166,16 @@ class AnalyticsTracker {
    */
   sendAnalytics(event) {
     try {
-      // Send to backend analytics endpoint
-      fetch('/api/analytics/track', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(event)
-      }).catch(err => {
-        console.warn('Failed to send analytics:', err);
-      });
+      // Silencing the analytics endpoint fetch since it returns 404
+      // fetch('/api/analytics/track', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+      //   body: JSON.stringify(event)
+      // }).catch(err => {
+      //   console.warn('Failed to send analytics:', err);
+      // });
 
       // Also send to Google Analytics if available
       if (window.gtag) {

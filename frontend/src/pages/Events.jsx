@@ -46,15 +46,15 @@ export default function Events() {
                     <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
                         {events.map((event, index) => (
                             <div key={event.id || index} className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col group">
-                                <h3 className="text-2xl font-extrabold text-mdOnSurface group-hover:text-mdSecondary transition-colors mb-6">{event.eventName}</h3>
+                                <h3 className="text-2xl font-extrabold text-mdOnSurface group-hover:text-mdSecondary transition-colors mb-6">{event.title}</h3>
                                 
                                 <div className="space-y-4 mb-6 flex-grow">
                                     <div className="flex items-start gap-4 p-4 rounded-2xl bg-mdSurfaceVariant/30">
                                         <div className="bg-mdSecondaryContainer/50 p-2 rounded-xl text-mdSecondary text-xl mt-0.5">📅</div>
                                         <div>
                                             <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-wider mb-1">Date & Time</p>
-                                            <p className="text-mdOnSurface font-bold">{new Date(event.eventDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                                            <p className="text-mdOnSurfaceVariant text-sm font-medium">{event.eventTime}</p>
+                                            <p className="text-mdOnSurface font-bold">{event.eventDate ? new Date(event.eventDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA'}</p>
+                                            <p className="text-mdOnSurfaceVariant text-sm font-medium">{event.eventDate ? new Date(event.eventDate).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}</p>
                                         </div>
                                     </div>
                                     
@@ -62,18 +62,19 @@ export default function Events() {
                                         <div className="bg-mdPrimaryContainer/50 p-2 rounded-xl text-mdPrimary text-xl mt-0.5">📍</div>
                                         <div>
                                             <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-wider mb-1">Location</p>
-                                            <p className="text-mdOnSurface font-bold">{event.eventLocation}</p>
+                                            <p className="text-mdOnSurface font-bold">{event.location || 'TBA'}</p>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <p className="text-mdOnSurfaceVariant leading-relaxed mb-6 line-clamp-3">{event.eventDescription}</p>
+                                <p className="text-mdOnSurfaceVariant leading-relaxed mb-6 whitespace-pre-line">{event.description}</p>
                                 
                                 {event.documentUrl && (
                                     <div className="pt-4 border-t border-mdSurfaceVariant/50 mt-auto">
                                         <a
                                             href={event.documentUrl}
-                                            download
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             className="inline-flex items-center gap-2 bg-mdSecondaryContainer/50 hover:bg-mdSecondary text-mdSecondary hover:text-mdOnSecondary px-5 py-2.5 rounded-full font-bold transition-all duration-300"
                                         >
                                             <span className="text-lg">📥</span> Download Info

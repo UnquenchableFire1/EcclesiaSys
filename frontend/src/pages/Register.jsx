@@ -16,6 +16,7 @@ export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [alertDialog, setAlertDialog] = useState(null);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -53,9 +54,11 @@ export default function Register() {
                     localStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
                     localStorage.setItem('isNewMember', 'true');
                 }
-                alert(`WELCOME TO ECCLESIASYS CHURCH MANAGEMENT SYSTEM. YOUR LOGIN EMAIL IS "${generatedEmail}" USE THIS ANYTIME LOGGING IN`);
-                // navigate to member dashboard
-                navigate('/member-dashboard');
+                setAlertDialog({
+                    title: 'Welcome!',
+                    message: `WELCOME TO ECCLESIASYS CHURCH MANAGEMENT SYSTEM. YOUR LOGIN EMAIL IS "${generatedEmail}" USE THIS ANYTIME LOGGING IN`,
+                    onConfirm: () => navigate('/member-dashboard')
+                });
             } else {
                 setError(response.data?.message || 'Registration failed');
             }
@@ -72,8 +75,11 @@ export default function Register() {
         <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 animate-fade-in">
             <div className="w-full max-w-md">
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm">
+                <div className="text-center mb-8 relative">
+                    <a href="/" className="absolute left-0 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-colors flex items-center gap-1 text-sm font-bold">
+                        <span>←</span> Home
+                    </a>
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm mx-auto">
                         <span className="text-3xl font-bold">+</span>
                     </div>
                     <h1 className="text-3xl font-extrabold text-mdPrimary tracking-tight mb-2">Join EcclesiaSys</h1>
@@ -207,6 +213,28 @@ export default function Register() {
                     </div>
                 </div>
             </div>
+
+            {/* Alert Dialog */}
+            {alertDialog && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-mdSurface rounded-3xl shadow-md3 p-8 max-w-sm w-full mx-auto animate-fade-in text-center relative">
+                        <div className={`mx-auto flex items-center justify-center p-4 rounded-full mb-4 w-16 h-16 bg-mdPrimaryContainer text-mdPrimary`}>
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h3 className="text-2xl font-bold text-mdOnSurface mb-2">{alertDialog.title}</h3>
+                        <p className="text-mdOnSurfaceVariant mb-8 text-base">{alertDialog.message}</p>
+                        <button
+                            onClick={() => {
+                                setAlertDialog(null);
+                                if (alertDialog.onConfirm) alertDialog.onConfirm();
+                            }}
+                            className="w-full bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-3 rounded-full transition-colors duration-200"
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
