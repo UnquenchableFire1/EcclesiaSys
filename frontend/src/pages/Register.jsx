@@ -69,145 +69,145 @@ export default function Register() {
     };
 
     return (
-        <Layout>
-            <div className="min-h-screen flex items-center justify-center py-12 px-4">
-                <div className="w-full max-w-md">
-                    {/* Header */}
-                    <div className="text-center mb-8">
-                        <div className="h-16 w-16 bg-lemon rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                            <span className="text-3xl font-bold text-tealDeep">+</span>
-                        </div>
-                        <h1 className="text-4xl font-bold text-tealDeep mb-2">Join EcclesiaSys Church Management System</h1>
-                        <p className="text-gray-600">Create your member account</p>
+        <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 animate-fade-in">
+            <div className="w-full max-w-md">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm">
+                        <span className="text-3xl font-bold">+</span>
                     </div>
+                    <h1 className="text-3xl font-extrabold text-mdPrimary tracking-tight mb-2">Join EcclesiaSys</h1>
+                    <p className="text-mdOnSurfaceVariant font-medium">Create your member account</p>
+                </div>
 
-                    {/* Card */}
-                    <div className="bg-white rounded-xl shadow-xl p-8 border-t-4 border-lemon">
-                        {error && (
-                            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
-                                {error}
-                            </div>
-                        )}
+                {/* Card */}
+                <div className="bg-mdSurface text-mdOnSurface rounded-3xl shadow-md2 p-8 md:p-10 border border-mdSurfaceVariant">
+                    {error && (
+                        <div className="mb-6 p-4 bg-mdErrorContainer text-mdError rounded-2xl text-center font-bold text-sm animate-pulse">
+                            {error}
+                        </div>
+                    )}
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-semibold text-tealDeep mb-2">First Name</label>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">First Name</label>
                                 <input 
                                     type="text"
                                     name="firstName"
                                     value={formData.firstName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                     placeholder="John"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-tealDeep mb-2">Last Name</label>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Last Name</label>
                                 <input 
                                     type="text"
                                     name="lastName"
                                     value={formData.lastName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                     placeholder="Doe"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-tealDeep mb-2">Phone Number</label>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Phone Number</label>
+                            <input 
+                                type="tel"
+                                name="phoneNumber"
+                                value={formData.phoneNumber}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                placeholder="(123) 456-7890"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Personal Email</label>
+                            <input 
+                                type="email"
+                                name="actualEmail"
+                                value={formData.actualEmail}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                placeholder="your.email@example.com"
+                            />
+                            <p className="text-xs text-mdOutline mt-2 ml-1">This email will be used to send you password reset links</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Password</label>
+                            <div className="relative">
                                 <input 
-                                    type="tel"
-                                    name="phoneNumber"
-                                    value={formData.phoneNumber}
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={formData.password}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
-                                    placeholder="(123) 456-7890"
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    placeholder="Enter your password"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-4 text-mdOutline hover:text-mdPrimary transition-colors duration-200"
+                                    title={showPassword ? 'Hide password' : 'Show password'}
+                                >
+                                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                                </button>
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-tealDeep mb-2">Personal Email</label>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Confirm Password</label>
+                            <div className="relative">
                                 <input 
-                                    type="email"
-                                    name="actualEmail"
-                                    value={formData.actualEmail}
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
-                                    placeholder="your.email@example.com"
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    placeholder="Confirm your password"
                                 />
-                                <p className="text-xs text-gray-500 mt-1">This email will be used to send you password reset links</p>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-4 top-4 text-mdOutline hover:text-mdPrimary transition-colors duration-200"
+                                    title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                                >
+                                    {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                                </button>
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-tealDeep mb-2">Password</label>
-                                <div className="relative">
-                                    <input 
-                                        type={showPassword ? "text" : "password"}
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
-                                        placeholder="Enter your password"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-3.5 text-gray-600 hover:text-gray-800"
-                                        title={showPassword ? 'Hide password' : 'Show password'}
-                                    >
-                                        {showPassword ? '👁️' : '👁️‍🗨️'}
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-tealDeep mb-2">Confirm Password</label>
-                                <div className="relative">
-                                    <input 
-                                        type={showConfirmPassword ? "text" : "password"}
-                                        name="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
-                                        placeholder="Confirm your password"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-3.5 text-gray-600 hover:text-gray-800"
-                                        title={showConfirmPassword ? 'Hide password' : 'Show password'}
-                                    >
-                                        {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
-                                    </button>
-                                </div>
-                            </div>
+                        </div>
 
-                            <p className="text-gray-600 text-sm">
+                        <div className="bg-mdPrimaryContainer/30 p-4 rounded-2xl border border-mdPrimaryContainer mt-4">
+                            <p className="text-mdOnSurfaceVariant text-xs font-medium leading-relaxed">
                                 An email will be automatically generated for you after registration. Please save it for logging in.
                             </p>
-
-                            <button 
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="w-full bg-lemon text-tealDeep font-bold py-3 rounded-lg hover:bg-yellow-400 transition shadow-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isSubmitting ? 'Creating Account...' : 'Create Account'}
-                            </button>
-                        </form>
-
-                        <div className="mt-6 pt-6 border-t border-gray-200">
-                            <p className="text-center text-gray-600 text-sm">
-                                Already have an account? <a href="/login" className="text-tealDeep font-semibold hover:text-lemon transition">Login here</a>
-                            </p>
                         </div>
-                    </div>
 
-                    {/* Footer Info */}
+                        <button 
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full bg-mdPrimary text-mdOnPrimary font-bold py-4 rounded-full hover:bg-mdSecondary hover:shadow-md2 transition-all duration-300 shadow-md1 mt-6 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
+                        >
+                            {isSubmitting ? 'Creating Account...' : 'Create Account'}
+                        </button>
+                    </form>
+
+                    <div className="mt-8 pt-6 border-t border-mdSurfaceVariant text-center">
+                        <p className="text-mdOnSurfaceVariant text-sm font-medium">
+                            Already have an account? <a href="/login" className="text-mdPrimary font-extrabold hover:text-mdSecondary transition-colors duration-200">Login here</a>
+                        </p>
+                    </div>
                 </div>
             </div>
-        </Layout>
+        </div>
     );
 }
 

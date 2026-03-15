@@ -60,36 +60,36 @@ export default function Layout({ children }) {
     }, [lastActivity, inactivityTimeout]);
 
     return (
-        <div className="min-h-screen bg-tealDeep">
+        <div className="min-h-screen bg-mdSurface text-mdOnSurface transition-colors duration-300">
             <Navbar isMobile={isMobile} />
             <main className='pt-16 md:pt-20'>
-                <div className='p-4 md:p-6 lg:p-8'>
+                <div className='p-4 md:p-6 lg:p-8 max-w-7xl mx-auto'>
                     {children}
                 </div>
             </main>
-            <footer className="mt-12 bg-tealDeep text-white py-8">
+            <footer className="mt-12 bg-mdSurfaceVariant text-mdOnSurfaceVariant py-8 rounded-t-3xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-white/50">
                 <div className="container mx-auto px-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
                         <div className="text-center">
-                            <h3 className="text-lemon font-bold mb-2">EcclesiaSys</h3>
-                            <p className="text-white">A digital church designed to make your church management simple.</p>
+                            <h3 className="text-mdPrimary font-bold mb-2 text-xl">EcclesiaSys</h3>
+                            <p>A digital church designed to make your church management simple.</p>
                         </div>
                         <div className="text-center">
-                            <h3 className="text-lemon font-bold mb-2">Contact Us</h3>
-                            <p className="text-white mb-2">
-                                <a href="mailto:benjaminbuckmanjunior@gmail.com" className="hover:text-lemon transition">
+                            <h3 className="text-mdPrimary font-bold mb-2 text-xl">Contact Us</h3>
+                            <p className="mb-2">
+                                <a href="mailto:benjaminbuckmanjunior@gmail.com" className="hover:text-mdPrimary transition-colors duration-200 font-medium">
                                     📧 benjaminbuckmanjunior@gmail.com
                                 </a>
                             </p>
-                            <p className="text-white">
-                                <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="hover:text-lemon transition">
+                            <p>
+                                <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="hover:text-mdPrimary transition-colors duration-200 font-medium">
                                     📱 WhatsApp
                                 </a>
                             </p>
                         </div>
                     </div>
-                    <div className="text-center border-t border-teal-600 pt-4">
-                        <p className="text-white">&copy; 2026 EcclesiaSys. All rights reserved.</p>
+                    <div className="text-center border-t border-mdOutline/20 pt-4 mt-4">
+                        <p>&copy; 2026 EcclesiaSys. All rights reserved.</p>
                     </div>
                 </div>
             </footer>

@@ -48,31 +48,35 @@ export default function ForgotPassword() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-2" style={{ color: '#0f4c5c' }}>
-          Reset Password
-        </h1>
-        <p className="text-center text-gray-600 mb-6">
-          Enter your email address and we'll send you a link to reset your password.
-        </p>
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 animate-fade-in">
+      <div className="bg-mdSurface text-mdOnSurface p-10 rounded-3xl shadow-md2 w-full max-w-md border border-mdSurfaceVariant">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+          </div>
+          <h1 className="text-3xl font-extrabold text-mdPrimary tracking-tight">
+            Reset Password
+          </h1>
+          <p className="text-mdOnSurfaceVariant mt-2">
+            Enter your email address and we'll send you a link to reset your password.
+          </p>
+        </div>
 
         {message && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          <div className="bg-mdPrimaryContainer/50 border border-mdPrimaryContainer text-mdPrimary px-4 py-3 rounded-2xl mb-6 text-sm font-medium text-center">
             {message}
           </div>
         )}
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-mdErrorContainer text-mdError px-4 py-3 rounded-2xl mb-6 text-sm font-bold text-center animate-pulse">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">
               Email Address
             </label>
             <input
@@ -80,8 +84,7 @@ export default function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
-              style={{ '--tw-ring-color': '#0f4c5c' }}
+              className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
               required
               disabled={loading}
             />
@@ -90,25 +93,21 @@ export default function ForgotPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 rounded-lg text-white font-bold transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: '#0f4c5c' }}
-            onMouseEnter={(e) => e.target.style.opacity = '0.8'}
-            onMouseLeave={(e) => e.target.style.opacity = '1'}
+            className="w-full bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Sending...' : 'Send Reset Link'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 text-sm">
+        <div className="mt-8 pt-6 border-t border-mdSurfaceVariant text-center">
+          <p className="text-mdOnSurfaceVariant text-sm">
             Remember your password?{' '}
-            <Link to="/login" className="font-bold" style={{ color: '#0f4c5c' }}>
+            <Link to="/login" className="text-mdPrimary font-extrabold hover:text-mdSecondary transition-colors duration-200">
               Back to Login
             </Link>
           </p>
         </div>
       </div>
     </div>
-    </Layout>
   );
 }

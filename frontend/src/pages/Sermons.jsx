@@ -41,39 +41,54 @@ export default function Sermons() {
 
     const uniqueSpeakers = [...new Set(sermons.map(s => s.speaker).filter(Boolean))];
 
-    if (loading) return <Layout><div className="text-center py-8 text-lemon font-semibold">Loading...</div></Layout>;
+    if (loading) return (
+        <Layout>
+            <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
+                <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin mb-4"></div>
+                <div className="text-mdOnSurfaceVariant font-bold tracking-wide">Loading sermons...</div>
+            </div>
+        </Layout>
+    );
 
     return (
         <Layout>
-            <div className="max-w-6xl mx-auto px-4 py-8">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 animate-fade-in">
                 {/* Header Section */}
-                <div className="mb-12">
-                    <h1 className="text-5xl font-bold mb-3 text-white">
-                        <span className="text-lemon">🎤</span> Sermon Library
-                    </h1>
-                    <p className="text-xl text-gray-300">
+                <div className="mb-10 sm:mb-14">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
+                            <span className="text-3xl sm:text-4xl">🎙️</span>
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mdOnSurface tracking-tight">
+                            Sermons
+                        </h1>
+                    </div>
+                    <p className="text-mdOnSurfaceVariant text-xl font-medium max-w-2xl">
                         Watch and listen to inspiring messages from our pastoral team
                     </p>
                 </div>
 
                 {sermons.length === 0 ? (
-                    <div className="bg-gradient-to-r from-teal-700 to-teal-900 border-l-4 border-lemon p-12 rounded-lg text-center shadow-lg">
-                        <p className="text-white text-xl mb-2">📚 No sermons available yet</p>
-                        <p className="text-gray-300">New sermons will be added soon. Check back soon!</p>
+                    <div className="bg-mdSurfaceVariant/30 border border-mdOutline/20 p-12 rounded-[2.5rem] text-center shadow-sm">
+                        <div className="text-6xl mb-6">💽</div>
+                        <h3 className="text-2xl font-bold text-mdOnSurface mb-3">No sermons available yet</h3>
+                        <p className="text-mdOnSurfaceVariant text-lg">New sermons will be added soon. Check back later!</p>
                     </div>
                 ) : (
                     <div>
                         {/* Filter Section */}
                         {uniqueSpeakers.length > 1 && (
-                            <div className="mb-8 bg-teal-800 p-6 rounded-lg">
-                                <h3 className="text-white font-semibold mb-4">Filter by Speaker</h3>
-                                <div className="flex flex-wrap gap-2">
+                            <div className="mb-10 bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm">
+                                <h3 className="text-mdOnSurface font-extrabold text-lg flex items-center gap-2 mb-5">
+                                    <span className="text-xl">🔍</span> Filter by Speaker
+                                </h3>
+                                <div className="flex flex-wrap gap-3">
                                     <button
                                         onClick={() => setFilterSpeaker('')}
-                                        className={`px-4 py-2 rounded-lg font-semibold transition ${
+                                        className={`px-6 py-2.5 rounded-full font-bold transition-all duration-300 ${
                                             filterSpeaker === ''
-                                                ? 'bg-lemon text-tealDeep'
-                                                : 'bg-teal-700 text-gray-300 hover:bg-teal-600'
+                                                ? 'bg-mdPrimary text-mdOnPrimary shadow-md1 transform -translate-y-0.5'
+                                                : 'bg-mdSurfaceVariant/50 text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant hover:text-mdOnSurface'
                                         }`}
                                     >
                                         All Speakers
@@ -82,130 +97,175 @@ export default function Sermons() {
                                         <button
                                             key={speaker}
                                             onClick={() => setFilterSpeaker(speaker)}
-                                            className={`px-4 py-2 rounded-lg font-semibold transition ${
+                                            className={`px-6 py-2.5 rounded-full font-bold transition-all duration-300 ${
                                                 filterSpeaker === speaker
-                                                    ? 'bg-lemon text-tealDeep'
-                                                    : 'bg-teal-700 text-gray-300 hover:bg-teal-600'
+                                                    ? 'bg-mdPrimary text-mdOnPrimary shadow-md1 transform -translate-y-0.5'
+                                                    : 'bg-mdSurfaceVariant/50 text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant hover:text-mdOnSurface'
                                             }`}
                                         >
                                             {speaker}
                                         </button>
                                     ))}
                                 </div>
-                                <p className="text-sm text-gray-300 mt-4">
-                                    Showing {filteredSermons.length} sermon{filteredSermons.length !== 1 ? 's' : ''} {filterSpeaker && `by ${filterSpeaker}`}
-                                </p>
+                                <div className="mt-5 pt-5 border-t border-mdSurfaceVariant/50 flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-mdPrimary animate-pulse"></span>
+                                    <p className="text-sm font-semibold text-mdOnSurfaceVariant uppercase tracking-wider">
+                                        Showing <span className="text-mdPrimary">{filteredSermons.length}</span> sermon{filteredSermons.length !== 1 ? 's' : ''} {filterSpeaker && `by ${filterSpeaker}`}
+                                    </p>
+                                </div>
                             </div>
                         )}
 
-                        {/* Sermons Grid */}
-                        <div className="grid grid-cols-1 gap-6">
+                        {/* Sermons List */}
+                        <div className="space-y-6">
                             {filteredSermons.map((sermon, index) => (
                                 <div 
                                     key={sermon.id || index} 
-                                    className="bg-gradient-to-br from-teal-800 to-teal-900 p-8 rounded-lg border-l-4 border-lemon shadow-md hover:shadow-xl transition cursor-pointer"
-                                    onClick={() => {
-                                        setExpandedSermon(expandedSermon === sermon.id ? null : sermon.id);
-                                        analytics.trackUserAction('SERMON_TOGGLE_EXPAND', { sermon: sermon.title });
-                                    }}
+                                    className={`bg-mdSurface p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 overflow-hidden ${
+                                        expandedSermon === sermon.id 
+                                        ? 'border-mdPrimary shadow-md2 bg-mdPrimaryContainer/5' 
+                                        : 'border-mdSurfaceVariant shadow-sm hover:shadow-md1 hover:border-mdOutline/30'
+                                    }`}
                                 >
-                                    {/* Header Info */}
-                                    <div className="flex items-start justify-between mb-4">
+                                    {/* Header Info - Clickable */}
+                                    <div 
+                                        className="flex items-start justify-between gap-4 cursor-pointer group"
+                                        onClick={() => {
+                                            setExpandedSermon(expandedSermon === sermon.id ? null : sermon.id);
+                                            // Only track expand, not collapse
+                                            if (expandedSermon !== sermon.id) {
+                                                analytics.trackUserAction('SERMON_TOGGLE_EXPAND', { sermon: sermon.title });
+                                            }
+                                        }}
+                                    >
                                         <div className="flex-1">
-                                            <h3 className="text-3xl font-bold text-lemon mb-2">{sermon.title}</h3>
-                                            <p className="text-gray-400 mb-2">{sermon.description}</p>
-                                            <div className="flex flex-wrap gap-4 text-sm text-gray-300">
-                                                <span>
-                                                    <span className="font-semibold text-lemon">🎤</span> {sermon.speaker}
+                                            <div className="flex flex-wrap items-center gap-3 mb-3">
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mdSecondaryContainer text-mdSecondary text-sm font-bold">
+                                                    <span>📅</span> {new Date(sermon.sermonDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                                                 </span>
-                                                <span>
-                                                    <span className="font-semibold text-lemon">📅</span> {new Date(sermon.sermonDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                                </span>
-                                                {sermon.audioUrl && <span className="text-lemon">🎧 Audio Available</span>}
-                                                {sermon.videoUrl && <span className="text-lemon">🎬 Video Available</span>}
+                                                {sermon.audioUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mdPrimaryContainer text-mdPrimary text-sm font-bold"><span>🎧</span> Audio</span>}
+                                                {sermon.videoUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFDAB9]/30 text-[#D2691E] text-sm font-bold"><span>🎬</span> Video</span>}
                                             </div>
+                                            
+                                            <h3 className={`text-2xl sm:text-3xl font-extrabold mb-2 transition-colors duration-300 ${expandedSermon === sermon.id ? 'text-mdPrimary' : 'text-mdOnSurface group-hover:text-mdPrimary/80'}`}>
+                                                {sermon.title}
+                                            </h3>
+                                            
+                                            <p className="text-mdOnSurface text-lg font-medium mb-3 flex items-center gap-2">
+                                                <span className="text-mdOnSurfaceVariant">by</span> {sermon.speaker}
+                                            </p>
+                                            
+                                            {sermon.description && (
+                                                <p className={`text-mdOnSurfaceVariant transition-all duration-300 ${expandedSermon === sermon.id ? 'line-clamp-none mb-6' : 'line-clamp-2'}`}>
+                                                    {sermon.description}
+                                                </p>
+                                            )}
                                         </div>
-                                        <span className="text-2xl ml-4">{expandedSermon === sermon.id ? '▼' : '▶'}</span>
+                                        
+                                        <div className={`flex items-center justify-center w-12 h-12 rounded-full bg-mdSurfaceVariant/30 text-mdOnSurface transition-all duration-500 shrink-0 ${expandedSermon === sermon.id ? 'bg-mdPrimaryContainer text-mdPrimary rotate-180' : 'group-hover:bg-mdSurfaceVariant'}`}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
                                     </div>
 
                                     {/* Expandable Media Section */}
-                                    {expandedSermon === sermon.id && (
-                                        <div className="mt-6 pt-6 border-t border-teal-600">
-                                            {/* Audio Player */}
-                                            {sermon.audioUrl && (
-                                                <div className="mb-6">
-                                                    <h4 className="text-lemon font-semibold mb-3 flex items-center">
-                                                        <span className="mr-2">🎧</span> Audio Message
-                                                    </h4>
-                                                    <audio 
-                                                        controls 
-                                                        className="w-full mb-3" 
-                                                        style={{accentColor: '#FDE047'}}
-                                                        onPlay={() => handleMediaPlay(sermon, 'AUDIO')}
-                                                    >
-                                                        <source src={sermon.audioUrl} type="audio/mpeg" />
-                                                        Your browser does not support the audio element.
-                                                    </audio>
-                                                    <a
-                                                        href={sermon.audioUrl}
-                                                        download
-                                                        onClick={() => handleDownload(sermon, 'AUDIO')}
-                                                        className="inline-flex items-center bg-lemon hover:bg-yellow-300 text-tealDeep px-4 py-2 rounded-lg font-semibold transition text-sm"
-                                                    >
-                                                        📥 Download Audio
-                                                    </a>
-                                                </div>
-                                            )}
+                                    <div 
+                                        className={`transition-all duration-500 ease-in-out ${
+                                            expandedSermon === sermon.id 
+                                            ? 'opacity-100 max-h-[1000px] mt-6 pt-6 border-t border-mdSurfaceVariant/70' 
+                                            : 'opacity-0 max-h-0 overflow-hidden'
+                                        }`}
+                                    >
+                                        {/* Audio Player */}
+                                        {sermon.audioUrl && (
+                                            <div className="mb-8 bg-mdSurfaceVariant/20 p-5 rounded-3xl border border-mdSurfaceVariant/50">
+                                                <h4 className="text-mdOnSurface font-bold mb-4 flex items-center gap-2">
+                                                    <span className="bg-mdPrimaryContainer text-mdPrimary p-1.5 rounded-lg">🎧</span> Listen to Audio
+                                                </h4>
+                                                <audio 
+                                                    controls 
+                                                    className="w-full mb-4 rounded-full" 
+                                                    onPlay={() => handleMediaPlay(sermon, 'AUDIO')}
+                                                >
+                                                    <source src={sermon.audioUrl} type="audio/mpeg" />
+                                                    Your browser does not support the audio element.
+                                                </audio>
+                                                <a
+                                                    href={sermon.audioUrl}
+                                                    download
+                                                    onClick={() => handleDownload(sermon, 'AUDIO')}
+                                                    className="inline-flex items-center gap-2 bg-mdPrimary hover:bg-mdPrimary/90 text-mdOnPrimary px-6 py-2.5 rounded-full font-bold transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                                                >
+                                                    <span>📥</span> Download Audio
+                                                </a>
+                                            </div>
+                                        )}
 
-                                            {/* Video Player */}
-                                            {sermon.videoUrl && (
-                                                <div className="mb-6">
-                                                    <h4 className="text-lemon font-semibold mb-3 flex items-center">
-                                                        <span className="mr-2">🎬</span> Video Message
-                                                    </h4>
+                                        {/* Video Player */}
+                                        {sermon.videoUrl && (
+                                            <div className="mb-8 bg-mdSurfaceVariant/20 p-5 rounded-3xl border border-mdSurfaceVariant/50">
+                                                <h4 className="text-mdOnSurface font-bold mb-4 flex items-center gap-2">
+                                                    <span className="bg-[#FFDAB9]/30 text-[#D2691E] p-1.5 rounded-lg">🎬</span> Watch Video
+                                                </h4>
+                                                <div className="rounded-2xl overflow-hidden shadow-sm mb-4 border border-mdOutline/20 bg-black aspect-video flex items-center justify-center">
                                                     <video 
                                                         controls 
-                                                        className="w-full max-h-96 rounded-lg mb-3"
+                                                        className="w-full max-h-[500px]"
                                                         onPlay={() => handleMediaPlay(sermon, 'VIDEO')}
                                                     >
                                                         <source src={sermon.videoUrl} type="video/mp4" />
                                                         Your browser does not support the video element.
                                                     </video>
-                                                    <a
-                                                        href={sermon.videoUrl}
-                                                        download
-                                                        onClick={() => handleDownload(sermon, 'VIDEO')}
-                                                        className="inline-flex items-center bg-lemon hover:bg-yellow-300 text-tealDeep px-4 py-2 rounded-lg font-semibold transition text-sm"
-                                                    >
-                                                        📥 Download Video
-                                                    </a>
                                                 </div>
-                                            )}
-
-                                            {/* Action Buttons */}
-                                            <div className="flex flex-wrap gap-3 border-t border-teal-600 pt-4">
-                                                <button 
-                                                    onClick={() => analytics.trackUserAction('SHARE_SERMON', { sermon: sermon.title })}
-                                                    className="bg-teal-700 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold transition text-sm"
+                                                <a
+                                                    href={sermon.videoUrl}
+                                                    download
+                                                    onClick={() => handleDownload(sermon, 'VIDEO')}
+                                                    className="inline-flex items-center gap-2 bg-[#D2691E] hover:bg-[#D2691E]/90 text-white px-6 py-2.5 rounded-full font-bold transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                                                 >
-                                                    🔗 Share
-                                                </button>
-                                                <button 
-                                                    onClick={() => analytics.trackUserAction('ADD_TO_PLAYLIST', { sermon: sermon.title })}
-                                                    className="bg-teal-700 hover:bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold transition text-sm"
-                                                >
-                                                    ⭐ Add to Favorites
-                                                </button>
+                                                    <span>📥</span> Download Video
+                                                </a>
                                             </div>
+                                        )}
+
+                                        {/* Action Buttons */}
+                                        <div className="flex flex-wrap gap-3 pt-6 border-t border-mdSurfaceVariant/50">
+                                            <button 
+                                                onClick={() => analytics.trackUserAction('SHARE_SERMON', { sermon: sermon.title })}
+                                                className="inline-flex items-center gap-2 bg-mdSurfaceVariant/50 hover:bg-mdSurfaceVariant text-mdOnSurfaceVariant hover:text-mdOnSurface px-5 py-2 rounded-full font-bold transition-all"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                                </svg>
+                                                Share
+                                            </button>
+                                            <button 
+                                                onClick={() => analytics.trackUserAction('ADD_TO_PLAYLIST', { sermon: sermon.title })}
+                                                className="inline-flex items-center gap-2 bg-mdSurfaceVariant/50 hover:bg-mdSurfaceVariant text-mdOnSurfaceVariant hover:text-mdOnSurface px-5 py-2 rounded-full font-bold transition-all"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                                </svg>
+                                                Add to Favorites
+                                            </button>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
 
-                        {filteredSermons.length === 0 && (
-                            <div className="text-center py-12">
-                                <p className="text-gray-300 text-lg">No sermons found by {filterSpeaker}</p>
+                        {filteredSermons.length === 0 && filterSpeaker && (
+                            <div className="text-center py-16 bg-mdSurfaceVariant/20 rounded-3xl border border-mdOutline/10 mt-6">
+                                <div className="text-4xl mb-4">🔍</div>
+                                <h3 className="text-xl font-bold text-mdOnSurface mb-1">No matches found</h3>
+                                <p className="text-mdOnSurfaceVariant">No sermons found by {filterSpeaker}</p>
+                                <button 
+                                    onClick={() => setFilterSpeaker('')}
+                                    className="mt-6 px-6 py-2 bg-mdPrimaryContainer text-mdPrimary rounded-full font-bold hover:bg-mdPrimary hover:text-mdOnPrimary transition-colors"
+                                >
+                                    Clear Filter
+                                </button>
                             </div>
                         )}
                     </div>
@@ -214,4 +274,3 @@ export default function Sermons() {
         </Layout>
     );
 }
-

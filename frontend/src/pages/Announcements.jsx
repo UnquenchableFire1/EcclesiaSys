@@ -16,36 +16,55 @@ export default function Announcements() {
         });
     }, []);
 
-    if (loading) return <Layout><div className="text-center py-8 text-tealDeep font-semibold">Loading...</div></Layout>;
+    if (loading) return (
+        <Layout>
+            <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
+                <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin mb-4"></div>
+                <div className="text-mdOnSurfaceVariant font-bold tracking-wide">Loading announcements...</div>
+            </div>
+        </Layout>
+    );
 
     return (
         <Layout>
-            <div className="max-w-4xl mx-auto py-8">
-                <h1 className="text-4xl font-bold mb-2 text-lemon">📢 Church Announcements</h1>
-                <p className="text-white mb-8">Latest news and updates from EcclesiaSys</p>
+            <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 animate-fade-in">
+                <div className="flex items-center gap-4 mb-2">
+                    <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
+                        <span className="text-3xl sm:text-4xl">📢</span>
+                    </div>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-mdOnSurface tracking-tight">Announcements</h1>
+                </div>
+                <p className="text-mdOnSurfaceVariant text-lg mb-8 sm:mb-12 font-medium">Latest news and updates from EcclesiaSys</p>
+                
                 {announcements.length === 0 ? (
-                    <div className="bg-teal-800 border-l-4 border-lemon p-8 rounded-lg text-center">
-                        <p className="text-white text-lg">No announcements yet.</p>
-                        <p className="text-gray-300 mt-2">Check back soon for updates from the church!</p>
+                    <div className="bg-mdSurfaceVariant/30 border border-mdOutline/20 p-10 rounded-3xl text-center">
+                        <div className="text-5xl mb-4">📭</div>
+                        <h3 className="text-xl font-bold text-mdOnSurface mb-2">No announcements yet</h3>
+                        <p className="text-mdOnSurfaceVariant">Check back soon for updates from the church!</p>
                     </div>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {announcements.map((announcement, index) => (
-                            <div key={announcement.id || index} className="bg-teal-800 p-6 rounded-lg border-l-4 border-lemon shadow-md hover:shadow-lg transition">
-                                <h3 className="text-2xl font-semibold text-lemon mb-3">{announcement.title}</h3>
-                                <p className="text-white">{announcement.message}</p>
-                                <p className="text-sm text-gray-400 mt-4">{new Date(announcement.createdAt).toLocaleDateString()}</p>
+                            <div key={announcement.id || index} className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 group">
+                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                                    <h3 className="text-2xl font-extrabold text-mdOnSurface group-hover:text-mdPrimary transition-colors">{announcement.title}</h3>
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-mdSurfaceVariant text-mdOnSurfaceVariant text-sm font-bold whitespace-nowrap">
+                                        {new Date(announcement.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </span>
+                                </div>
+                                <p className="text-mdOnSurfaceVariant leading-relaxed mb-6 whitespace-pre-wrap">{announcement.message}</p>
+                                
                                 {announcement.fileUrl && (
-                                    <div className="mt-4 pt-4 border-t border-teal-600">
+                                    <div className="pt-4 border-t border-mdSurfaceVariant/50">
                                         <a
                                             href={announcement.fileUrl}
                                             download
-                                            className="inline-block bg-lemon text-tealDeep px-4 py-2 rounded font-semibold hover:bg-yellow-400 transition text-sm"
+                                            className="inline-flex items-center gap-2 bg-mdPrimaryContainer/50 hover:bg-mdPrimary text-mdPrimary hover:text-mdOnPrimary px-5 py-2.5 rounded-full font-bold transition-all duration-300"
                                         >
-                                            📥 Download File
+                                            <span className="text-lg">📥</span> Download File
                                         </a>
                                     </div>
-                                )}}
+                                )}
                             </div>
                         ))}
                     </div>
@@ -54,4 +73,3 @@ export default function Announcements() {
         </Layout>
     );
 }
-

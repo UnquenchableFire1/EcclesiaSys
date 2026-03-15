@@ -37,66 +37,77 @@ export default function Login() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white text-gray-800 p-10 rounded-2xl shadow-2xl w-full max-w-md">
-          <h2 className="text-2xl font-bold text-tealDeep mb-6 text-center">
-            Login to view your dashboard
+    <div className="min-h-[80vh] flex items-center justify-center animate-fade-in py-12">
+      <div className="bg-mdSurface text-mdOnSurface p-10 rounded-3xl shadow-md2 w-full max-w-md border border-mdSurfaceVariant">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+          </div>
+          <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">
+            Welcome Back
           </h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full mb-4 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-            required
-          />
+          <p className="text-mdOnSurfaceVariant mt-2">Login to view your dashboard</p>
+        </div>
 
-          <div className="relative mb-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+              required
+            />
+          </div>
+
+          <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+              className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3.5 text-gray-600 hover:text-gray-800"
+              className="absolute right-4 top-4 text-mdOutline hover:text-mdPrimary transition-colors duration-200"
               title={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? '👁️' : '👁️‍🗨️'}
             </button>
           </div>
 
-          {error && <p className="text-red-500 mb-4 text-center font-semibold">{error}</p>}
+          {error && (
+            <div className="bg-mdErrorContainer text-mdError px-4 py-3 rounded-2xl text-center text-sm font-semibold animate-pulse">
+              {error}
+            </div>
+          )}
 
           <button
             type="submit"
-            className="w-full bg-accent hover:bg-accent-hover text-primary font-semibold py-3 rounded-lg transition"
+            className="w-full bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5 mt-2"
           >
             Login
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-          <p className="text-gray-600 text-sm mb-3">
-            <a href="/forgot-password" className="text-tealDeep font-semibold hover:text-lemon transition">
+        <div className="mt-8 pt-6 border-t border-mdSurfaceVariant text-center space-y-3">
+          <p className="text-mdOnSurfaceVariant text-sm">
+            <a href="/forgot-password" className="text-mdPrimary font-bold hover:text-mdSecondary transition-colors duration-200">
               Forgot Password?
             </a>
           </p>
-          <p className="text-gray-600 text-sm">
+          <p className="text-mdOnSurfaceVariant text-sm">
             Don't have an account?{' '}
-            <a href="/register" className="text-tealDeep font-semibold hover:text-lemon transition">
+            <a href="/register" className="text-mdPrimary font-bold hover:text-mdSecondary transition-colors duration-200">
               Register here
             </a>
           </p>
         </div>
       </div>
     </div>
-    </Layout>
   );
 }

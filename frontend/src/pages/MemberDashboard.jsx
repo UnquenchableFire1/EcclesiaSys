@@ -116,62 +116,62 @@ export default function MemberDashboard() {
                 localStorage.setItem('memberActiveTab', tab);
                 setMobileMenuOpen(false);
             }}
-            className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold transition whitespace-nowrap ${
+            className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
                 activeTab === tab
-                    ? 'bg-white text-tealDeep border-b-4 border-lemon'
-                    : 'text-white hover:bg-opacity-80'
+                    ? 'bg-mdSurface text-mdPrimary border-b-4 border-mdPrimary'
+                    : 'text-mdOnPrimary hover:bg-white/10'
             }`}
         >
-            <span className="hidden sm:inline">{icon} </span>
+            <span className="hidden sm:inline mr-2">{icon}</span>
             {label}
         </button>
     );
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-tealDeep flex items-center justify-center">
-                <p className="text-white text-lg">Loading...</p>
+            <div className="min-h-[80vh] flex items-center justify-center">
+                <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Loading your dashboard...</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-tealDeep">
+        <div className="min-h-[80vh] bg-mdSurface outline-none animate-fade-in relative z-10 transition-colors duration-300 py-4">
             {/* Logout Confirmation Modal */}
             {showLogoutConfirm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                    <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-4">
-                        <h3 className="text-lg font-bold text-tealDeep mb-4">Confirm Logout</h3>
-                        <p className="text-gray-700 mb-6">Are you sure you want to logout?</p>
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-mdSurface rounded-3xl shadow-md3 p-8 max-w-sm w-full mx-auto">
+                        <h3 className="text-2xl font-bold text-mdOnSurface mb-4">Confirm Logout</h3>
+                        <p className="text-mdOnSurfaceVariant mb-8 text-lg">Are you sure you want to logout?</p>
                         <div className="flex gap-4">
                             <button
                                 onClick={() => setShowLogoutConfirm(false)}
-                                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 rounded-lg transition"
+                                className="flex-1 bg-mdSurfaceVariant hover:bg-mdOutline/20 text-mdOnSurfaceVariant font-bold py-3 rounded-full transition-colors duration-200"
                             >
-                                No
+                                Cancel
                             </button>
                             <button
                                 onClick={confirmLogout}
-                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition"
+                                className="flex-1 bg-mdError hover:bg-red-700 text-mdOnError font-bold py-3 rounded-full shadow-md1 transition-all duration-200"
                             >
-                                Yes
+                                Logout
                             </button>
                         </div>
                     </div>
                 </div>
             )}
             {/* Navigation Bar */}
-            <div className="bg-tealDeep text-white sticky top-0 z-50 shadow-lg">
-                <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
-                    <div className="flex justify-between items-center py-2 sm:py-3 gap-2">
-                        <h1 className="text-lg sm:text-xl md:text-2xl font-bold flex-1">
+            <div className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 mx-4 md:mx-6 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 md:px-6">
+                    <div className="flex justify-between items-center py-4 gap-4">
+                        <h1 className="text-xl md:text-2xl font-extrabold flex-1 tracking-tight">
                             Member Dashboard
                         </h1>
                         
                         {/* Hamburger Menu Button - Mobile Only */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-tealDeep hover:bg-teal-700 text-white px-3 py-2 rounded-lg transition"
+                            className="md:hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-colors"
                             aria-label="Toggle menu"
                         >
                             {mobileMenuOpen ? '✕' : '☰'}
@@ -179,15 +179,15 @@ export default function MemberDashboard() {
 
                         <button
                             onClick={handleLogout}
-                            className="bg-red-500 hover:bg-red-600 text-white px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm md:text-base rounded-lg transition font-semibold flex-shrink-0"
+                            className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdPrimary px-4 py-2 sm:px-6 sm:py-2 text-sm md:text-base rounded-full shadow-md1 transition-all duration-200 font-bold flex-shrink-0"
                         >
                             {isMobile ? 'Logout' : `Logout (${memberName})`}
                         </button>
                     </div>
 
-                    {/* Tabs row - Desktop (visible), Mobile dropdown (hidden until menu open) */}
-                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-0 pb-2 md:pb-0`}>
-                        <TabButton tab="home" label="Home" icon="🏠" />
+                    {/* Tabs row */}
+                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
+                        <TabButton tab="home" label="Overview" icon="🏠" />
                         <TabButton tab="announcements" label="Announcements" icon="📢" />
                         <TabButton tab="events" label="Events" icon="📅" />
                         <TabButton tab="sermons" label="Sermons" icon="🎙️" />
@@ -197,131 +197,160 @@ export default function MemberDashboard() {
             </div>
 
             {/* Content Area */}
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 {/* Home Tab */}
                 {activeTab === 'home' && (
-                    <div className="space-y-4 sm:space-y-6">
+                    <div className="space-y-8 animate-fade-in">
                         {/* Welcome Section */}
-                        <div className="mb-2 sm:mb-4">
-                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon mb-1 sm:mb-2">
-                                {isNewMember ? '🎉 Welcome to EcclesiaSys' : 'Welcome back!'}
-                            </h2>
-                            <p className="text-sm sm:text-base text-white">
-                                {isNewMember ? 'Thank you for joining our church community! Explore the portal to stay connected.' : 'Welcome to your church community portal'}
-                            </p>
+                        <div className="bg-mdPrimaryContainer px-8 py-10 rounded-[2rem] shadow-sm mb-8 border border-white/40 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-mdPrimary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                            <div className="relative z-10">
+                                <h2 className="text-3xl md:text-4xl font-extrabold text-mdPrimary mb-3 tracking-tight">
+                                    {isNewMember ? '🎉 Welcome to EcclesiaSys' : 'Welcome back!'}
+                                </h2>
+                                <p className="text-lg text-mdOnPrimaryContainer/90 font-medium max-w-2xl">
+                                    {isNewMember ? 'Thank you for joining our church community! Explore the portal to stay connected.' : 'Your personalized church community portal. Here is a quick overview.'}
+                                </p>
+                            </div>
                         </div>
 
                         {/* Quick Links with Counts */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            {/* Card 1 */}
                             <button
-                                onClick={() => {
-                                    setActiveTab('announcements');
-                                    localStorage.setItem('memberActiveTab', 'announcements');
-                                }}
-                                className="bg-teal-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:bg-teal-700 transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
+                                onClick={() => { setActiveTab('announcements'); localStorage.setItem('memberActiveTab', 'announcements'); }}
+                                className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
-                                <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">📣</div>
-                                <p className="text-3xl sm:text-4xl font-bold text-lemon mb-1">{announcements.length}</p>
-                                <p className="text-xs sm:text-sm text-yellow-200 text-center">Announcements</p>
+                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">📣</div>
+                                <div>
+                                    <p className="text-4xl font-extrabold text-mdPrimary mb-1 tracking-tight">{announcements.length}</p>
+                                    <p className="text-mdOnSurfaceVariant font-semibold text-lg">Announcements</p>
+                                </div>
                             </button>
 
+                            {/* Card 2 */}
                             <button
-                                onClick={() => {
-                                    setActiveTab('events');
-                                    localStorage.setItem('memberActiveTab', 'events');
-                                }}
-                                className="bg-teal-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:bg-teal-700 transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
+                                onClick={() => { setActiveTab('events'); localStorage.setItem('memberActiveTab', 'events'); }}
+                                className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
-                                <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">📅</div>
-                                <p className="text-3xl sm:text-4xl font-bold text-lemon mb-1">{events.length}</p>
-                                <p className="text-xs sm:text-sm text-yellow-200 text-center">Events</p>
+                                <div className="bg-mdSecondaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">📅</div>
+                                <div>
+                                    <p className="text-4xl font-extrabold text-mdSecondary mb-1 tracking-tight">{events.length}</p>
+                                    <p className="text-mdOnSurfaceVariant font-semibold text-lg">Events</p>
+                                </div>
                             </button>
 
+                            {/* Card 3 */}
                             <button
-                                onClick={() => {
-                                    setActiveTab('sermons');
-                                    localStorage.setItem('memberActiveTab', 'sermons');
-                                }}
-                                className="bg-teal-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 hover:bg-teal-700 transition border-t-4 border-lemon cursor-pointer flex flex-col items-center justify-center"
+                                onClick={() => { setActiveTab('sermons'); localStorage.setItem('memberActiveTab', 'sermons'); }}
+                                className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
-                                <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">🎙️</div>
-                                <p className="text-3xl sm:text-4xl font-bold text-lemon mb-1">{sermons.length}</p>
-                                <p className="text-xs sm:text-sm text-yellow-200 text-center">Sermons</p>
+                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">🎙️</div>
+                                <div>
+                                    <p className="text-4xl font-extrabold text-mdPrimary mb-1 tracking-tight">{sermons.length}</p>
+                                    <p className="text-mdOnSurfaceVariant font-semibold text-lg">Sermons</p>
+                                </div>
                             </button>
                         </div>
-
-
                     </div>
                 )}
 
                 {/* Announcements Tab */}
                 {activeTab === 'announcements' && (
-                    <div className="space-y-4 sm:space-y-6">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">All Announcements</h2>
+                    <div className="space-y-6 animate-fade-in">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
+                                <span className="text-2xl">📢</span>
+                            </div>
+                            <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Recent Announcements</h2>
+                        </div>
                         {announcements.length > 0 ? (
-                            <div className="space-y-3 sm:space-y-4">
+                            <div className="grid gap-6">
                                 {announcements.map((announcement) => (
-                                    <div key={announcement.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
-                                        <h3 className="font-bold text-base sm:text-lg text-lemon">{announcement.title}</h3>
-                                        <p className="text-white text-xs sm:text-sm mt-1 break-words">{announcement.message}</p>
+                                    <div key={announcement.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300">
+                                        <h3 className="font-extrabold text-xl text-mdOnSurface mb-2">{announcement.title}</h3>
+                                        <p className="text-mdOnSurfaceVariant text-base leading-relaxed whitespace-pre-line">{announcement.message}</p>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-yellow-200">No announcements at this time.</p>
+                            <div className="bg-mdSurfaceVariant/30 border border-mdSurfaceVariant rounded-3xl p-12 text-center">
+                                <p className="text-mdOnSurfaceVariant text-lg font-medium">No announcements at this time.</p>
+                            </div>
                         )}
                     </div>
                 )}
 
                 {/* Events Tab */}
                 {activeTab === 'events' && (
-                    <div className="space-y-4 sm:space-y-6">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">All Events</h2>
+                    <div className="space-y-6 animate-fade-in">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
+                                <span className="text-2xl">📅</span>
+                            </div>
+                            <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Upcoming Events</h2>
+                        </div>
                         {events.length > 0 ? (
-                            <div className="space-y-3 sm:space-y-4">
+                            <div className="grid md:grid-cols-2 gap-6">
                                 {events.map((event) => (
-                                    <div key={event.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
-                                        <h3 className="font-bold text-base sm:text-lg text-lemon">{event.title}</h3>
-                                        <p className="text-white text-xs sm:text-sm mt-1 break-words">{event.description}</p>
+                                    <div key={event.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col h-full">
+                                        <div className="flex-1">
+                                            <h3 className="font-extrabold text-xl text-mdOnSurface mb-3">{event.title}</h3>
+                                            <p className="text-mdOnSurfaceVariant text-base leading-relaxed whitespace-pre-line">{event.description}</p>
+                                        </div>
                                         {event.event_date && (
-                                            <p className="text-yellow-200 text-xs mt-2">
-                                                📅 {new Date(event.event_date).toLocaleDateString()}
-                                            </p>
+                                            <div className="mt-6 inline-flex items-center gap-2 bg-mdSecondaryContainer/50 text-mdSecondary px-4 py-2 rounded-full font-bold text-sm w-max">
+                                                <span>📅</span>
+                                                {new Date(event.event_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                            </div>
                                         )}
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-yellow-200">No events at this time.</p>
+                            <div className="bg-mdSurfaceVariant/30 border border-mdSurfaceVariant rounded-3xl p-12 text-center">
+                                <p className="text-mdOnSurfaceVariant text-lg font-medium">No events scheduled at this time.</p>
+                            </div>
                         )}
                     </div>
                 )}
 
                 {/* Sermons Tab */}
                 {activeTab === 'sermons' && (
-                    <div className="space-y-4 sm:space-y-6">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Sermon Library</h2>
+                    <div className="space-y-6 animate-fade-in">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
+                                <span className="text-2xl">🎙️</span>
+                            </div>
+                            <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Sermon Library</h2>
+                        </div>
                         {sermons.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {sermons.map((sermon) => (
-                                    <div key={sermon.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
-                                        <h3 className="font-bold text-base sm:text-lg text-lemon">{sermon.title}</h3>
-                                        <p className="text-white text-xs sm:text-sm mt-2 break-words">{sermon.description}</p>
-                                        {sermon.speaker && (
-                                            <p className="text-yellow-200 text-xs mt-2">
-                                                <span className="font-semibold">Speaker:</span> {sermon.speaker}
-                                            </p>
-                                        )}
-                                        {sermon.sermonDate && (
-                                            <p className="text-yellow-200 text-xs mt-2">
-                                                📅 {new Date(sermon.sermonDate).toLocaleDateString()}
-                                            </p>
-                                        )}
+                                    <div key={sermon.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col h-full">
+                                        <div className="flex-1">
+                                            <h3 className="font-extrabold text-xl text-mdOnSurface mb-3 leading-snug">{sermon.title}</h3>
+                                            <p className="text-mdOnSurfaceVariant text-sm leading-relaxed mb-4 line-clamp-4">{sermon.description}</p>
+                                        </div>
+                                        <div className="mt-auto space-y-2 pt-4 border-t border-mdSurfaceVariant text-sm font-medium text-mdOutline">
+                                            {sermon.speaker && (
+                                                <p className="flex items-center gap-2">
+                                                    <span className="text-mdPrimary">👤</span> {sermon.speaker}
+                                                </p>
+                                            )}
+                                            {sermon.sermonDate && (
+                                                <p className="flex items-center gap-2">
+                                                    <span className="text-mdPrimary">📅</span> {new Date(sermon.sermonDate).toLocaleDateString()}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-yellow-200">No sermons available yet.</p>
+                            <div className="bg-mdSurfaceVariant/30 border border-mdSurfaceVariant rounded-3xl p-12 text-center">
+                                <p className="text-mdOnSurfaceVariant text-lg font-medium">No sermons available yet.</p>
+                            </div>
                         )}
                     </div>
                 )}

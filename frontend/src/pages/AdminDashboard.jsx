@@ -275,55 +275,55 @@ export default function AdminDashboard() {
                 localStorage.setItem('adminActiveTab', tab);
                 setMobileMenuOpen(false);
             }}
-            className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold transition whitespace-nowrap ${
+            className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
                 activeTab === tab
-                    ? 'bg-white text-tealDeep border-b-4 border-lemon'
-                    : 'text-white hover:bg-opacity-80'
+                    ? 'bg-mdSurface text-mdSecondary border-b-4 border-mdSecondary'
+                    : 'text-mdOnSecondary hover:bg-white/10'
             }`}
         >
-            <span className="hidden sm:inline">{icon} </span>
+            <span className="hidden sm:inline mr-2">{icon}</span>
             {label}
         </button>
     );
 
     return (
-        <div className="min-h-screen bg-tealDeep">
+        <div className="min-h-[80vh] bg-mdSurface outline-none animate-fade-in relative z-10 transition-colors duration-300 py-4">
             {/* Logout Confirmation Modal */}
             {showLogoutConfirm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                    <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-4">
-                        <h3 className="text-lg font-bold text-tealDeep mb-4">Confirm Logout</h3>
-                        <p className="text-gray-700 mb-6">Are you sure you want to logout?</p>
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-mdSurface rounded-3xl shadow-md3 p-8 max-w-sm w-full mx-auto">
+                        <h3 className="text-2xl font-bold text-mdOnSurface mb-4">Confirm Logout</h3>
+                        <p className="text-mdOnSurfaceVariant mb-8 text-lg">Are you sure you want to logout?</p>
                         <div className="flex gap-4">
                             <button
                                 onClick={() => setShowLogoutConfirm(false)}
-                                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 rounded-lg transition"
+                                className="flex-1 bg-mdSurfaceVariant hover:bg-mdOutline/20 text-mdOnSurfaceVariant font-bold py-3 rounded-full transition-colors duration-200"
                             >
-                                No
+                                Cancel
                             </button>
                             <button
                                 onClick={confirmLogout}
-                                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg transition"
+                                className="flex-1 bg-mdError hover:bg-red-700 text-mdOnError font-bold py-3 rounded-full shadow-md1 transition-all duration-200"
                             >
-                                Yes
+                                Logout
                             </button>
                         </div>
                     </div>
                 </div>
             )}
             {/* Navigation Bar */}
-            <div className="bg-tealDeep text-white sticky top-0 z-50 shadow-lg">
-                <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
+            <div className="bg-mdSecondary text-mdOnSecondary rounded-3xl shadow-md2 mx-4 md:mx-6 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 md:px-6">
                     {/* Top row with title, menu button, and logout */}
-                    <div className="flex justify-between items-center py-2 sm:py-3 gap-2">
-                        <h1 className="text-lg sm:text-xl md:text-2xl font-bold flex-1">
+                    <div className="flex justify-between items-center py-4 gap-4">
+                        <h1 className="text-xl md:text-2xl font-extrabold flex-1 tracking-tight">
                             Admin Dashboard
                         </h1>
                         
                         {/* Hamburger Menu Button - Mobile Only */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-tealDeep hover:bg-teal-700 text-white px-3 py-2 rounded-lg transition"
+                            className="md:hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-colors"
                             aria-label="Toggle menu"
                         >
                             {mobileMenuOpen ? '✕' : '☰'}
@@ -331,14 +331,14 @@ export default function AdminDashboard() {
 
                         <button
                             onClick={handleLogout}
-                            className="bg-red-500 hover:bg-red-600 text-white px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm md:text-base rounded-lg transition font-semibold flex-shrink-0"
+                            className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdSecondary px-4 py-2 sm:px-6 sm:py-2 text-sm md:text-base rounded-full shadow-md1 transition-all duration-200 font-bold flex-shrink-0"
                         >
                             {isMobile ? 'Logout' : `Logout (${adminName})`}
                         </button>
                     </div>
 
-                    {/* Tabs row - Desktop (visible), Mobile dropdown (hidden until menu open) */}
-                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-0 pb-2 md:pb-0`}>
+                    {/* Tabs row */}
+                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
                         <TabButton tab="members" label="Members" icon="👥" />
                         <TabButton tab="announcements" label="Announcements" icon="📢" />
                         <TabButton tab="events" label="Events" icon="📅" />
@@ -348,324 +348,459 @@ export default function AdminDashboard() {
             </div>
 
             {/* Content Area */}
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 {error && (
-                    <div className="bg-red-900 border border-red-400 text-red-100 px-4 py-3 rounded-lg mb-4">
-                        <p className="font-semibold">Error:</p>
+                    <div className="bg-mdErrorContainer text-mdError px-6 py-4 rounded-3xl shadow-sm text-sm sm:text-base animate-pulse font-medium mb-6">
+                        <p className="font-bold mb-1">Error</p>
                         <p>{error}</p>
                     </div>
                 )}
 
             {/* Loading State */}
-            {loading && <p className="text-center text-white text-lg">Loading...</p>}
+            {loading && <div className="flex justify-center p-12"><p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Loading data...</p></div>}
 
             {/* Members Tab */}
             {activeTab === 'members' && !loading && (
-                <div className="space-y-4 sm:space-y-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Members</h2>
+                <div className="space-y-6 animate-fade-in">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-mdSecondaryContainer/50 p-4 rounded-2xl">
+                                <span className="text-2xl">👥</span>
+                            </div>
+                            <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Members</h2>
+                        </div>
                         <button
                             onClick={() => downloadMembersAsExcel(members)}
-                            className="bg-green-500 hover:bg-green-600 text-white px-3 sm:px-6 py-2 rounded font-semibold transition text-sm sm:text-base whitespace-nowrap"
+                            className="bg-mdPrimary text-mdOnPrimary hover:bg-mdSecondary px-6 py-3 rounded-full font-bold shadow-md1 hover:shadow-md2 transition-all duration-300 text-sm sm:text-base whitespace-nowrap"
                         >
                             📥 Export to Excel
                         </button>
                     </div>
-                    <div className="overflow-x-auto bg-tealDeep rounded-lg shadow">
-                        <table className="w-full text-white">
-                            <thead className="bg-teal-800">
-                                <tr>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">First Name</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Last Name</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Phone Number</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">System Email</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Personal Email</th>
-                                    <th className="px-4 py-3 text-left font-bold text-lemon">Date Joined</th>
-                                    <th className="px-4 py-3 text-center font-bold text-lemon">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {members.map((member, index) => (
-                                    <tr key={member.id} className={`border-t border-teal-700 ${index % 2 === 0 ? 'bg-tealDeep' : 'bg-teal-900'} hover:bg-teal-700 transition`}>
-                                        <td className="px-4 py-3 text-white">{member.firstName || member.name?.split(' ')[0] || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white">{member.lastName || member.name?.split(' ')[1] || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white">{member.phoneNumber || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white truncate text-sm">{member.email || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white truncate text-sm">{member.actualEmail || 'N/A'}</td>
-                                        <td className="px-4 py-3 text-white text-sm">
-                                            {member.joinedDate ? new Date(member.joinedDate).toLocaleString() : (member.createdAt ? new Date(member.createdAt).toLocaleString() : 'N/A')}
-                                        </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <button
-                                                onClick={() => handleDeleteMember(member.id)}
-                                                className="bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded transition font-semibold"
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
+                    
+                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-mdSurfaceVariant/30 border-b border-mdSurfaceVariant/50">
+                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">First Name</th>
+                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">Last Name</th>
+                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">Phone Number</th>
+                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">System Email</th>
+                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">Personal Email</th>
+                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">Date Joined</th>
+                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider text-right">Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {members.length === 0 && (
-                            <div className="text-center py-8 text-white">
-                                <p className="text-lg">No members registered yet</p>
-                            </div>
-                        )}
+                                </thead>
+                                <tbody className="divide-y divide-mdSurfaceVariant/50">
+                                    {members.map((member) => (
+                                        <tr key={member.id} className="hover:bg-mdSurfaceVariant/10 transition-colors">
+                                            <td className="px-6 py-4 text-mdOnSurface font-bold">{member.firstName || member.name?.split(' ')[0] || '-'}</td>
+                                            <td className="px-6 py-4 text-mdOnSurface font-bold">{member.lastName || member.name?.split(' ')[1] || '-'}</td>
+                                            <td className="px-6 py-4 text-mdOnSurfaceVariant">{member.phoneNumber || '-'}</td>
+                                            <td className="px-6 py-4 text-mdOnSurfaceVariant text-sm">{member.email || '-'}</td>
+                                            <td className="px-6 py-4 text-mdOnSurfaceVariant text-sm">{member.actualEmail || '-'}</td>
+                                            <td className="px-6 py-4 text-mdOnSurfaceVariant text-sm font-medium">
+                                                {member.joinedDate ? new Date(member.joinedDate).toLocaleDateString() : (member.createdAt ? new Date(member.createdAt).toLocaleDateString() : '-')}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button
+                                                    onClick={() => handleDeleteMember(member.id)}
+                                                    className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-4 py-2 text-xs rounded-full transition-colors font-bold"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {members.length === 0 && (
+                                <div className="text-center py-16">
+                                    <p className="text-lg text-mdOnSurfaceVariant font-medium">No members registered yet.</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* Announcements Tab */}
             {activeTab === 'announcements' && !loading && (
-                <div className="space-y-4 sm:space-y-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Create Announcement</h2>
-                    <div className="bg-teal-800 p-4 sm:p-6 rounded-lg shadow space-y-4">
-                        <input
-                            type="text"
-                            placeholder="Announcement Title"
-                            value={newAnnouncement.title}
-                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
-                        />
-                        <textarea
-                            placeholder="Announcement Message"
-                            value={newAnnouncement.message}
-                            onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 h-24 sm:h-32 text-sm sm:text-base"
-                        />
-                        <div>
-                            <label className="block text-sm font-semibold text-lemon mb-2">Upload File (Optional)</label>
-                            <input
-                                type="file"
-                                onChange={(e) => setNewAnnouncement({ ...newAnnouncement, file: e.target.files[0] })}
-                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded text-white bg-tealDeep text-sm sm:text-base"
-                            />
-                            {newAnnouncement.file && (
-                                <p className="text-sm text-lemon mt-1">Selected: {newAnnouncement.file.name}</p>
+                <div className="space-y-8 animate-fade-in">
+                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
+                                <span className="text-2xl">📢</span>
+                            </div>
+                            <h2 className="text-2xl font-extrabold text-mdPrimary tracking-tight">Create Announcement</h2>
+                        </div>
+                        
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Title</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Sunday Service Time Change"
+                                    value={newAnnouncement.title}
+                                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Message</label>
+                                <textarea
+                                    placeholder="Enter the details of the announcement..."
+                                    value={newAnnouncement.message}
+                                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 min-h-[160px]"
+                                />
+                            </div>
+                            <div className="bg-mdSurfaceVariant/20 p-6 rounded-2xl border border-mdOutline/30 border-dashed">
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2">Attachment (Optional)</label>
+                                <input
+                                    type="file"
+                                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, file: e.target.files[0] })}
+                                    className="w-full text-mdOnSurfaceVariant text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-mdPrimaryContainer file:text-mdPrimary hover:file:bg-mdPrimary hover:file:text-mdOnPrimary file:transition-colors file:cursor-pointer"
+                                />
+                                {newAnnouncement.file && (
+                                    <p className="text-sm font-bold text-mdPrimary mt-3">Selected file: {newAnnouncement.file.name}</p>
+                                )}
+                            </div>
+                            <button
+                                onClick={handleAddAnnouncement}
+                                className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 px-8 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
+                            >
+                                Post Announcement
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6 pt-4">
+                        <h2 className="text-2xl font-extrabold text-mdOnSurface tracking-tight">Manage Announcements</h2>
+                        <div className="grid gap-6">
+                            {announcements.map(ann => (
+                                <div key={ann.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-extrabold text-xl text-mdOnSurface mb-2">{ann.title}</h3>
+                                            <p className="text-mdOnSurfaceVariant text-base leading-relaxed whitespace-pre-line">{ann.message}</p>
+                                            
+                                            {ann.fileUrl && (
+                                                <a 
+                                                    href={ann.fileUrl} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center gap-2 mt-4 text-mdPrimary bg-mdPrimaryContainer/50 px-4 py-2 rounded-full text-sm font-bold hover:bg-mdPrimary hover:text-mdOnPrimary transition-colors"
+                                                >
+                                                    <span>📎</span> Download Attachment
+                                                </a>
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteAnnouncement(ann.id)}
+                                            className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-4 py-2 text-sm rounded-full transition-colors font-bold flex-shrink-0"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                            {announcements.length === 0 && (
+                                <p className="text-mdOnSurfaceVariant py-8 text-center text-lg font-medium">No announcements posted yet.</p>
                             )}
                         </div>
-                        <button
-                            onClick={handleAddAnnouncement}
-                            className="w-full sm:w-auto bg-lemon text-tealDeep px-4 sm:px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition text-sm sm:text-base"
-                        >
-                            Post Announcement
-                        </button>
-                    </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon mt-6 sm:mt-8">Announcements</h2>
-                    <div className="space-y-4">
-                        {announcements.map(ann => (
-                            <div key={ann.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
-                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-base sm:text-lg text-lemon">{ann.title}</p>
-                                        <p className="text-white text-sm sm:text-base mt-2 break-words">{ann.message}</p>
-                                        {ann.fileUrl && (
-                                            <a 
-                                                href={ann.fileUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="text-yellow-300 text-sm mt-2 inline-block hover:text-yellow-100 transition underline"
-                                            >
-                                                📎 Download File
-                                            </a>
-                                        )}
-                                    </div>
-                                    <button
-                                        onClick={() => handleDeleteAnnouncement(ann.id)}
-                                        className="bg-red-500 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-red-600 transition flex-shrink-0"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             )}
 
             {/* Events Tab */}
             {activeTab === 'events' && !loading && (
-                <div className="space-y-4 sm:space-y-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Create Event</h2>
-                    <div className="bg-teal-800 p-4 sm:p-6 rounded-lg shadow space-y-4">
-                        <input
-                            type="text"
-                            placeholder="Event Title"
-                            value={newEvent.title}
-                            onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
-                        />
-                        <textarea
-                            placeholder="Event Description"
-                            value={newEvent.description}
-                            onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 h-20 sm:h-24 text-sm sm:text-base"
-                        />
-                        <input
-                            type="datetime-local"
-                            value={newEvent.eventDate}
-                            onChange={(e) => setNewEvent({ ...newEvent, eventDate: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white text-sm sm:text-base"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Event Location"
-                            value={newEvent.location}
-                            onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
-                        />
-                        <div>
-                            <label className="block text-sm font-semibold text-lemon mb-2">Upload Event Document (PDF, DOCX, etc.)</label>
-                            <input
-                                type="file"
-                                onChange={(e) => setNewEvent({ ...newEvent, documentFile: e.target.files[0] })}
-                                accept=".pdf,.doc,.docx,.txt,.xlsx,.xls"
-                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white text-sm sm:text-base"
-                            />
-                            {newEvent.documentFile && <p className="text-sm text-lemon mt-1">✓ {newEvent.documentFile.name}</p>}
+                <div className="space-y-8 animate-fade-in">
+                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
+                                <span className="text-2xl">📅</span>
+                            </div>
+                            <h2 className="text-2xl font-extrabold text-mdSecondary tracking-tight">Create Event</h2>
                         </div>
-                        <button
-                            onClick={handleAddEvent}
-                            className="w-full sm:w-auto bg-lemon text-tealDeep px-4 sm:px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition text-sm sm:text-base"
-                        >
-                            Create Event
-                        </button>
+                        
+                        <div className="space-y-6">
+                            <div className="grid sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Event Title</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Youth Camp 2026"
+                                        value={newEvent.title}
+                                        onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                                        className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdSecondary focus:border-transparent transition-all duration-200"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Date & Time</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={newEvent.eventDate}
+                                        onChange={(e) => setNewEvent({ ...newEvent, eventDate: e.target.value })}
+                                        className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdSecondary focus:border-transparent transition-all duration-200"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Event Description</label>
+                                <textarea
+                                    placeholder="Details about the event..."
+                                    value={newEvent.description}
+                                    onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdSecondary focus:border-transparent transition-all duration-200 min-h-[120px]"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Location</label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Main Auditorium"
+                                    value={newEvent.location}
+                                    onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdSecondary focus:border-transparent transition-all duration-200"
+                                />
+                            </div>
+                            
+                            <div className="bg-mdSurfaceVariant/20 p-6 rounded-2xl border border-mdOutline/30 border-dashed">
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2">Event Document (PDF/DOCX - Optional)</label>
+                                <input
+                                    type="file"
+                                    onChange={(e) => setNewEvent({ ...newEvent, documentFile: e.target.files[0] })}
+                                    accept=".pdf,.doc,.docx,.txt,.xlsx,.xls"
+                                    className="w-full text-mdOnSurfaceVariant text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-mdSecondaryContainer file:text-mdSecondary hover:file:bg-mdSecondary hover:file:text-mdOnSecondary file:transition-colors file:cursor-pointer"
+                                />
+                                {newEvent.documentFile && <p className="text-sm font-bold text-mdSecondary mt-3">Selected: {newEvent.documentFile.name}</p>}
+                            </div>
+                            
+                            <button
+                                onClick={handleAddEvent}
+                                className="w-full sm:w-auto bg-mdSecondary hover:bg-mdPrimary text-mdOnSecondary font-bold py-4 px-8 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
+                            >
+                                Publish Event
+                            </button>
+                        </div>
                     </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon mt-6 sm:mt-8">Events</h2>
-                    <div className="grid grid-cols-1 gap-4">
-                        {events.map(event => (
-                            <div key={event.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon">
-                                <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-base sm:text-lg text-lemon">{event.title}</p>
-                                        <p className="text-yellow-200 text-xs sm:text-sm mt-1">{new Date(event.eventDate).toLocaleString()}</p>
-                                        <p className="text-white text-sm sm:text-base mt-2 break-words">{event.location}</p>
-                                        {event.description && (
-                                            <p className="text-gray-200 text-sm mt-2">{event.description}</p>
-                                        )}
-                                        {event.documentFileUrl && (
+
+                    <div className="space-y-6 pt-4">
+                        <h2 className="text-2xl font-extrabold text-mdOnSurface tracking-tight">Manage Events</h2>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {events.map(event => (
+                                <div key={event.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col">
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <h3 className="font-extrabold text-xl text-mdOnSurface">{event.title}</h3>
+                                            <button
+                                                onClick={() => handleDeleteEvent(event.id)}
+                                                className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-3 py-1.5 text-xs rounded-full transition-colors font-bold ml-4 shrink-0"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="space-y-3 mb-6">
+                                            {event.eventDate && (
+                                                <div className="inline-flex items-center gap-2 bg-mdSecondaryContainer/50 text-mdSecondary px-3 py-1.5 rounded-lg font-bold text-sm">
+                                                    <span>📅</span>
+                                                    {new Date(event.eventDate).toLocaleString(undefined, {
+                                                        weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                                                    })}
+                                                </div>
+                                            )}
+                                            
+                                            {event.location && (
+                                                <p className="flex items-start gap-2 text-mdOnSurfaceVariant text-sm font-medium">
+                                                    <span className="mt-0.5">📍</span>
+                                                    {event.location}
+                                                </p>
+                                            )}
+                                        </div>
+                                        
+                                        <p className="text-mdOnSurfaceVariant text-sm leading-relaxed whitespace-pre-line border-t border-mdSurfaceVariant/50 pt-4">
+                                            {event.description}
+                                        </p>
+                                    </div>
+                                    
+                                    {event.documentFileUrl && (
+                                        <div className="mt-6 pt-4 border-t border-mdSurfaceVariant/50">
                                             <a 
                                                 href={event.documentFileUrl} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
-                                                className="text-yellow-300 text-sm mt-2 inline-block hover:text-yellow-100 transition underline"
+                                                className="inline-flex items-center gap-2 text-mdSecondary bg-mdSecondaryContainer/30 px-4 py-2 rounded-full text-sm font-bold hover:bg-mdSecondary hover:text-mdOnSecondary transition-colors"
                                             >
-                                                📄 Download Document
+                                                <span>📄</span> View Document
                                             </a>
-                                        )}
-                                    </div>
-                                    <button
-                                        onClick={() => handleDeleteEvent(event.id)}
-                                        className="bg-red-500 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-red-600 transition flex-shrink-0"
-                                    >
-                                        Delete
-                                    </button>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                            {events.length === 0 && (
+                                <p className="text-mdOnSurfaceVariant py-8 col-span-full text-center text-lg font-medium">No events scheduled.</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* Sermons Tab */}
             {activeTab === 'sermons' && !loading && (
-                <div className="space-y-4 sm:space-y-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon">Upload Sermon</h2>
-                    <div className="bg-teal-800 p-4 sm:p-6 rounded-lg shadow space-y-4">
-                        <input
-                            type="text"
-                            placeholder="Sermon Title"
-                            value={newSermon.title}
-                            onChange={(e) => setNewSermon({ ...newSermon, title: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
-                        />
-                        <textarea
-                            placeholder="Sermon Description"
-                            value={newSermon.description}
-                            onChange={(e) => setNewSermon({ ...newSermon, description: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 h-20 sm:h-24 text-sm sm:text-base"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Sermon Speaker"
-                            value={newSermon.speaker}
-                            onChange={(e) => setNewSermon({ ...newSermon, speaker: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white placeholder-gray-300 text-sm sm:text-base"
-                        />
-                        <input
-                            type="date"
-                            value={newSermon.sermonDate}
-                            onChange={(e) => setNewSermon({ ...newSermon, sermonDate: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white text-sm sm:text-base"
-                        />
-                        <select
-                            value={newSermon.fileType}
-                            onChange={(e) => setNewSermon({ ...newSermon, fileType: e.target.value })}
-                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-white bg-tealDeep text-white text-sm sm:text-base"
-                        >
-                            <option value="mp3" style={{color: 'black'}}>Audio (MP3)</option>
-                            <option value="mp4" style={{color: 'black'}}>Video (MP4)</option>
-                        </select>
-                        <div>
-                            <label className="block text-sm font-semibold text-lemon mb-2">Upload Sermon File</label>
-                            <input
-                                type="file"
-                                accept="audio/*,video/*"
-                                onChange={(e) => setNewSermon({ ...newSermon, file: e.target.files[0] })}
-                                className="w-full border-2 border-lemon p-2 sm:p-3 rounded text-white bg-tealDeep text-sm sm:text-base"
-                            />
-                            {newSermon.file && (
-                                <p className="text-sm text-lemon mt-1">Selected: {newSermon.file.name}</p>
-                            )}
+                <div className="space-y-8 animate-fade-in">
+                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
+                                <span className="text-2xl">🎙️</span>
+                            </div>
+                            <h2 className="text-2xl font-extrabold text-mdPrimary tracking-tight">Upload Sermon</h2>
                         </div>
-                        <button
-                            onClick={handleAddSermon}
-                            className="w-full sm:w-auto bg-lemon text-tealDeep px-4 sm:px-6 py-2 rounded font-semibold hover:bg-yellow-300 transition text-sm sm:text-base"
-                        >
-                            Upload Sermon
-                        </button>
+                        
+                        <div className="space-y-6">
+                            <div className="grid sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Title</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Faith that Moves Mountains"
+                                        value={newSermon.title}
+                                        onChange={(e) => setNewSermon({ ...newSermon, title: e.target.value })}
+                                        className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Speaker</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Pastor John Doe"
+                                        value={newSermon.speaker}
+                                        onChange={(e) => setNewSermon({ ...newSermon, speaker: e.target.value })}
+                                        className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Description (Optional)</label>
+                                <textarea
+                                    placeholder="Brief summary of the sermon..."
+                                    value={newSermon.description}
+                                    onChange={(e) => setNewSermon({ ...newSermon, description: e.target.value })}
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 min-h-[100px]"
+                                />
+                            </div>
+
+                            <div className="grid sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Date Preached</label>
+                                    <input
+                                        type="date"
+                                        value={newSermon.sermonDate}
+                                        onChange={(e) => setNewSermon({ ...newSermon, sermonDate: e.target.value })}
+                                        className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Media Type</label>
+                                    <select
+                                        value={newSermon.fileType}
+                                        onChange={(e) => setNewSermon({ ...newSermon, fileType: e.target.value })}
+                                        className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 appearance-none"
+                                    >
+                                        <option value="mp3" className="text-mdOnSurface">Audio (MP3)</option>
+                                        <option value="mp4" className="text-mdOnSurface">Video (MP4)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-mdSurfaceVariant/20 p-6 rounded-2xl border border-mdOutline/30 border-dashed">
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2">Upload File</label>
+                                <input
+                                    type="file"
+                                    accept="audio/*,video/*"
+                                    onChange={(e) => setNewSermon({ ...newSermon, file: e.target.files[0] })}
+                                    className="w-full text-mdOnSurfaceVariant text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-mdPrimaryContainer file:text-mdPrimary hover:file:bg-mdPrimary hover:file:text-mdOnPrimary file:transition-colors file:cursor-pointer"
+                                />
+                                {newSermon.file && (
+                                    <p className="text-sm font-bold text-mdPrimary mt-3">Selected: {newSermon.file.name}</p>
+                                )}
+                            </div>
+                            
+                            <button
+                                onClick={handleAddSermon}
+                                className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 px-8 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
+                            >
+                                Publish Sermon
+                            </button>
+                        </div>
                     </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-lemon mt-6 sm:mt-8">Sermons</h2>
-                    <div className="grid grid-cols-1 gap-4">
-                        {sermons.map(sermon => (
-                            <div key={sermon.id} className="bg-teal-800 p-3 sm:p-4 rounded-lg shadow border-l-4 border-lemon flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-base sm:text-lg text-lemon">{sermon.title}</p>
-                                    <p className="text-yellow-200 text-xs sm:text-sm">{sermon.fileType?.toUpperCase() || 'Audio'}</p>
-                                    <p className="text-white text-sm sm:text-base mt-2 break-words">{sermon.description}</p>
-                                    <p className="text-gray-300 text-xs sm:text-sm mt-1">Speaker: {sermon.speaker}</p>
-                                    <div className="flex gap-2 mt-2">
-                                        {sermon.audioUrl && (
-                                            <a 
-                                                href={sermon.audioUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="text-yellow-300 text-sm hover:text-yellow-100 transition underline"
-                                            >
-                                                🎵 Listen
-                                            </a>
+
+                    <div className="space-y-6 pt-4">
+                        <h2 className="text-2xl font-extrabold text-mdOnSurface tracking-tight">Manage Sermons</h2>
+                        <div className="grid lg:grid-cols-2 gap-6">
+                            {sermons.map(sermon => (
+                                <div key={sermon.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col sm:flex-row gap-6">
+                                    <div className="flex-1 space-y-4">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <span className={`px-2.5 py-1 text-xs font-bold uppercase rounded-md tracking-wider ${sermon.fileType === 'mp4' ? 'bg-mdSecondaryContainer text-mdSecondary' : 'bg-mdPrimaryContainer/50 text-mdPrimary'}`}>
+                                                        {sermon.fileType === 'mp4' ? '🎥 Video' : '🎵 Audio'}
+                                                    </span>
+                                                    <h3 className="font-extrabold text-xl text-mdOnSurface leading-tight">{sermon.title}</h3>
+                                                </div>
+                                                <p className="text-mdOnSurfaceVariant font-medium text-sm">by {sermon.speaker}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        {sermon.description && (
+                                            <p className="text-mdOnSurfaceVariant text-sm leading-relaxed line-clamp-2">{sermon.description}</p>
                                         )}
-                                        {sermon.videoUrl && (
-                                            <a 
-                                                href={sermon.videoUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="text-yellow-300 text-sm hover:text-yellow-100 transition underline"
-                                            >
-                                                🎬 Watch
-                                            </a>
-                                        )}
+                                        
+                                        <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-mdSurfaceVariant/50">
+                                            <p className="text-mdOnSurfaceVariant text-xs font-semibold">
+                                                Added {new Date(sermon.createdAt || sermon.sermonDate).toLocaleDateString()}
+                                            </p>
+                                            
+                                            <div className="flex gap-2 ml-auto">
+                                                {sermon.audioUrl && (
+                                                    <a 
+                                                        href={sermon.audioUrl} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="px-3 py-1.5 bg-mdPrimaryContainer/30 text-mdPrimary rounded-full text-xs font-bold hover:bg-mdPrimary hover:text-mdOnPrimary transition-colors"
+                                                    >
+                                                        Listen
+                                                    </a>
+                                                )}
+                                                {sermon.videoUrl && (
+                                                    <a 
+                                                        href={sermon.videoUrl} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="px-3 py-1.5 bg-mdSecondaryContainer/30 text-mdSecondary rounded-full text-xs font-bold hover:bg-mdSecondary hover:text-mdOnSecondary transition-colors"
+                                                    >
+                                                        Watch
+                                                    </a>
+                                                )}
+                                                <button
+                                                    onClick={() => handleDeleteSermon(sermon.id)}
+                                                    className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-3 py-1.5 text-xs rounded-full transition-colors font-bold ml-2"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => handleDeleteSermon(sermon.id)}
-                                    className="bg-red-500 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded hover:bg-red-600 transition flex-shrink-0"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        ))}}
+                            ))}
+                            {sermons.length === 0 && (
+                                <p className="text-mdOnSurfaceVariant py-8 col-span-full text-center text-lg font-medium">No sermons uploaded yet.</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
