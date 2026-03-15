@@ -68,8 +68,13 @@ public class PasswordResetController {
                     return response;
                 }
             } else {
-                // Legacy account fallback: if no actualEmail in DB, we send the reset code to the system login email.
-                targetEmail = member.getEmail();
+                // Legacy account fallback: if no actualEmail in DB, we trust the personal email provided,
+                // bind it to the account permanently, and send the reset code to it.
+                // This ensures legacy accounts without a personal email can be recovered safely.
+                targetEmail = actualEmail.trim();
+                member.setActualEmail(targetEmail);
+                memberDAO.updateMember(member);
+                logger.info("Bound new actualEmail '{}' to legacy account '{}'", targetEmail, email);
             }
             
             // Generate a 6-digit reset code (valid for 1 hour)
