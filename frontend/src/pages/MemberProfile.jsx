@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentMemberProfile, updateMemberProfile, updateProfilePrivacy, uploadProfilePicture } from '../services/api';
-import analytics from '../services/analyticsTracker';
 
 export default function MemberProfile() {
     const navigate = useNavigate();
@@ -25,7 +24,6 @@ export default function MemberProfile() {
             return;
         }
 
-        analytics.trackPageView('Member Profile');
         fetchProfile();
     }, [navigate]);
 
@@ -41,11 +39,9 @@ export default function MemberProfile() {
                 });
             } else {
                 setError('Failed to load profile');
-                analytics.trackError('Profile Load Failed', { reason: 'Failed to load profile' });
             }
         } catch (err) {
             setError('Error loading profile: ' + err.message);
-            analytics.trackError('Profile Load Error', { message: err.message });
             console.error('Error', err);
         } finally {
             setLoading(false);
@@ -65,15 +61,12 @@ export default function MemberProfile() {
             if (response.data.success) {
                 setSuccess('Profile updated successfully!');
                 setEditing(false);
-                analytics.trackUserAction('Profile Updated', { fields: Object.keys(updateData) });
                 fetchProfile();
             } else {
                 setError(response.data.message || 'Failed to update profile');
-                analytics.trackError('Profile Update Failed', { message: response.data.message });
             }
         } catch (err) {
             setError('Error updating profile: ' + err.message);
-            analytics.trackError('Profile Update Error', { message: err.message });
         }
     };
 
@@ -87,15 +80,12 @@ export default function MemberProfile() {
             if (response.data.success) {
                 setFormData({ ...formData, isProfilePublic: newPrivacySetting });
                 setSuccess(`Profile is now ${newPrivacySetting ? 'public' : 'private'}!`);
-                analytics.trackUserAction('Privacy Setting Changed', { newSetting: newPrivacySetting ? 'public' : 'private' });
                 fetchProfile();
             } else {
                 setError(response.data.message || 'Failed to update privacy settings');
-                analytics.trackError('Privacy Update Failed', { message: response.data.message });
             }
         } catch (err) {
             setError('Error updating privacy settings: ' + err.message);
-            analytics.trackError('Privacy Update Error', { message: err.message });
         }
     };
 
@@ -114,63 +104,54 @@ export default function MemberProfile() {
             const response = await uploadProfilePicture(formDataObj);
             if (response.data.success) {
                 setSuccess('Profile picture uploaded successfully!');
-                analytics.trackUserAction('Profile Picture Uploaded', { fileSize: file.size });
                 fetchProfile();
             } else {
                 setError(response.data.message || 'Failed to upload profile picture');
-                analytics.trackError('Picture Upload Failed', { message: response.data.message });
             }
         } catch (err) {
             setError('Error uploading profile picture: ' + err.message);
-            analytics.trackError('Picture Upload Error', { message: err.message });
         }
     };
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-12">
-                <p className="text-gray-500 text-lg font-semibold">⏳ Loading profile...</p>
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-gray-600">Loading profile...</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h2 className="text-5xl font-bold text-tealDeep mb-2">👤 My Profile</h2>
-                <p className="text-xl text-gray-300">Manage your account information</p>
-            </div>
-
+        <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
             {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
-                    <p className="font-semibold text-sm">Error:</p>
-                    <p className="text-sm">{error}</p>
+                <div className="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 text-sm sm:text-base">
+                    <p className="font-semibold">Error:</p>
+                    <p>{error}</p>
                 </div>
             )}
 
             {success && (
-                <div className="bg-green-50 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded-lg shadow-sm">
-                    <p className="font-semibold text-sm">Success:</p>
-                    <p className="text-sm">{success}</p>
+                <div className="bg-green-100 border border-green-400 text-green-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 text-sm sm:text-base">
+                    <p className="font-semibold">Success:</p>
+                    <p>{success}</p>
                 </div>
             )}
 
             {profile && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                     {/* Profile Picture Section */}
-                    <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-lemon">
-                        <h3 className="text-2xl font-bold text-tealDeep mb-4">📷 Profile Picture</h3>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                    <div className="bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 border-l-4 border-lemon">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-tealDeep mb-4">Profile Picture</h2>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                             {profile.profilePictureUrl ? (
                                 <img 
                                     src={profile.profilePictureUrl} 
                                     alt="Profile" 
-                                    className="w-32 h-32 rounded-lg object-cover border-4 border-lemon shadow-md"
+                                    className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg object-cover border-2 border-lemon"
                                 />
                             ) : (
-                                <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-5xl border-2 border-gray-300">
-                                    📸
+                                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg bg-gray-300 flex items-center justify-center text-gray-600">
+                                    No Picture
                                 </div>
                             )}
                             <label className="flex-1">
@@ -184,135 +165,112 @@ export default function MemberProfile() {
                                 <button 
                                     type="button"
                                     onClick={() => document.getElementById('profilePictureInput').click()}
-                                    className="bg-gradient-to-r from-tealDeep to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white px-6 py-3 rounded-lg font-semibold cursor-pointer transition shadow-md"
+                                    className="bg-tealDeep text-white px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg hover:bg-teal-700 transition font-semibold cursor-pointer"
                                 >
-                                    🖼️ Upload Photo
+                                    Upload Picture
                                 </button>
-                                <p className="text-xs text-gray-500 mt-2">JPG, PNG or GIF (max 5MB)</p>
                             </label>
                         </div>
                     </div>
 
                     {/* Profile Information Section */}
-                    <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-lemon">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-2xl font-bold text-tealDeep">ℹ️ Profile Information</h3>
+                    <div className="bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 border-l-4 border-lemon">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-tealDeep">Profile Information</h2>
                             <button
                                 onClick={() => setEditing(!editing)}
-                                className={`px-6 py-2 rounded-lg font-semibold transition ${
-                                    editing 
-                                        ? 'bg-red-500 hover:bg-red-600 text-white' 
-                                        : 'bg-lemon hover:bg-yellow-400 text-tealDeep'
-                                }`}
+                                className="bg-lemon text-tealDeep px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm rounded-lg hover:bg-yellow-400 transition font-semibold"
                             >
-                                {editing ? '❌ Cancel' : '✏️ Edit'}
+                                {editing ? 'Cancel' : 'Edit'}
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-3 sm:space-y-4">
                             <div>
-                                <label className="text-gray-600 text-sm font-semibold block mb-2">Full Name</label>
-                                <p className="text-lg font-semibold text-tealDeep bg-gray-50 px-4 py-3 rounded-lg">{profile.firstName} {profile.lastName}</p>
+                                <label className="text-gray-600 text-xs sm:text-sm">Full Name</label>
+                                <p className="text-base sm:text-lg font-semibold text-tealDeep">{profile.firstName} {profile.lastName}</p>
                             </div>
 
                             <div>
-                                <label className="text-gray-600 text-sm font-semibold block mb-2">System Email</label>
-                                <p className="text-lg font-semibold text-tealDeep bg-gray-50 px-4 py-3 rounded-lg break-all">{profile.email}</p>
+                                <label className="text-gray-600 text-xs sm:text-sm">Email</label>
+                                <p className="text-base sm:text-lg font-semibold text-tealDeep break-all">{profile.email}</p>
                             </div>
 
                             <div>
-                                <label className="text-gray-600 text-sm font-semibold block mb-2">Personal Email</label>
-                                <p className="text-lg font-semibold text-tealDeep bg-gray-50 px-4 py-3 rounded-lg break-all">{profile.actualEmail}</p>
+                                <label className="text-gray-600 text-xs sm:text-sm">Actual Email</label>
+                                <p className="text-base sm:text-lg font-semibold text-tealDeep break-all">{profile.actualEmail}</p>
                             </div>
 
-                            <div>
-                                <label className="text-gray-600 text-sm font-semibold block mb-2">Phone Number</label>
-                                {editing ? (
-                                    <input
-                                        type="tel"
-                                        value={formData.phoneNumber}
-                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                        className="w-full border-2 border-lemon px-4 py-3 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-2 focus:ring-yellow-100 transition"
-                                        placeholder="(123) 456-7890"
-                                    />
-                                ) : (
-                                    <p className="text-lg font-semibold text-tealDeep bg-gray-50 px-4 py-3 rounded-lg">{formData.phoneNumber || 'Not provided'}</p>
-                                )}
-                            </div>
+                            {editing ? (
+                                <>
+                                    <div>
+                                        <label className="text-gray-600 text-xs sm:text-sm">Phone Number</label>
+                                        <input
+                                            type="text"
+                                            value={formData.phoneNumber}
+                                            onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep text-sm sm:text-base"
+                                        />
+                                    </div>
 
-                            <div className="md:col-span-2">
-                                <label className="text-gray-600 text-sm font-semibold block mb-2">Bio</label>
-                                {editing ? (
-                                    <textarea
-                                        value={formData.bio}
-                                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                                        className="w-full border-2 border-lemon px-4 py-3 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-2 focus:ring-yellow-100 transition h-24 resize-none"
-                                        placeholder="Tell us about yourself..."
-                                    />
-                                ) : (
-                                    <p className="text-lg text-tealDeep bg-gray-50 px-4 py-3 rounded-lg min-h-24 flex items-start">{formData.bio || 'No bio added yet'}</p>
-                                )}
-                            </div>
+                                    <div>
+                                        <label className="text-gray-600 text-xs sm:text-sm">Bio</label>
+                                        <textarea
+                                            value={formData.bio}
+                                            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                                            className="w-full border-2 border-lemon p-2 sm:p-3 rounded focus:outline-none focus:border-tealDeep h-24 text-sm sm:text-base"
+                                            placeholder="Tell us about yourself"
+                                        />
+                                    </div>
+
+                                    <button
+                                        onClick={handleUpdateProfile}
+                                        className="w-full sm:w-auto bg-tealDeep text-white px-4 sm:px-6 py-2 rounded font-semibold hover:bg-teal-700 transition text-sm sm:text-base"
+                                    >
+                                        Save Changes
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <div>
+                                        <label className="text-gray-600 text-xs sm:text-sm">Phone Number</label>
+                                        <p className="text-base sm:text-lg text-gray-700">{profile.phoneNumber || 'Not provided'}</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-gray-600 text-xs sm:text-sm">Bio</label>
+                                        <p className="text-base sm:text-lg text-gray-700 break-words">{profile.bio || 'No bio provided'}</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-gray-600 text-xs sm:text-sm">Member Since</label>
+                                        <p className="text-base sm:text-lg text-gray-700">
+                                            {new Date(profile.joinedDate).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </div>
-
-                        {editing && (
-                            <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-                                <button
-                                    onClick={handleUpdateProfile}
-                                    className="w-full bg-gradient-to-r from-tealDeep to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white px-6 py-3 rounded-lg font-semibold transition shadow-md"
-                                >
-                                    ✅ Save Changes
-                                </button>
-                                <button
-                                    onClick={() => setEditing(false)}
-                                    className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-3 rounded-lg font-semibold transition"
-                                >
-                                    ❌ Cancel
-                                </button>
-                            </div>
-                        )}
                     </div>
 
                     {/* Privacy Settings Section */}
-                    <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-lemon">
-                        <div className="flex justify-between items-center">
+                    <div className="bg-white rounded-lg shadow-lg p-3 sm:p-4 md:p-6 border-l-4 border-lemon">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-tealDeep mb-4">Privacy Settings</h2>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                             <div>
-                                <h3 className="text-2xl font-bold text-tealDeep mb-2">🔒 Privacy Settings</h3>
-                                <p className="text-gray-600 text-sm">Control who can see your profile</p>
+                                <p className="font-semibold text-tealDeep text-base sm:text-lg">Profile Visibility</p>
+                                <p className="text-gray-600 text-sm">
+                                    {formData.isProfilePublic 
+                                        ? 'Your profile is visible to other members' 
+                                        : 'Your profile is private'}
+                                </p>
                             </div>
                             <button
                                 onClick={handlePrivacyToggle}
-                                className={`px-6 py-3 rounded-lg font-semibold transition ${
-                                    formData.isProfilePublic
-                                        ? 'bg-lemon hover:bg-yellow-400 text-tealDeep'
-                                        : 'bg-red-500 hover:bg-red-600 text-white'
-                                }`}
+                                className={`px-4 sm:px-6 py-2 rounded font-semibold transition text-sm sm:text-base whitespace-nowrap ${formData.isProfilePublic ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-green-500 text-white hover:bg-green-600'}`}
                             >
-                                {formData.isProfilePublic ? '🌍 Public' : '🔐 Private'}
+                                {formData.isProfilePublic ? 'Make Private' : 'Make Public'}
                             </button>
-                        </div>
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                            <p className="text-gray-700 text-sm">
-                                {formData.isProfilePublic
-                                    ? '✅ Your profile is visible to all church members'
-                                    : '🔒 Your profile is only visible to you'}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Member Info Section */}
-                    <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-lemon">
-                        <h3 className="text-2xl font-bold text-tealDeep mb-4">📊 Member Information</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="text-gray-600 text-sm font-semibold block mb-2">Member Since</label>
-                                <p className="text-lg font-semibold text-tealDeep bg-gray-50 px-4 py-3 rounded-lg">{new Date(profile.joinedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                            </div>
-
-                            <div>
-                                <label className="text-gray-600 text-sm font-semibold block mb-2">Account Status</label>
-                                <p className="text-lg font-semibold text-tealDeep bg-green-50 px-4 py-3 rounded-lg border-l-4 border-green-500">✅ Active</p>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import Hero from '../components/Hero';
 
 export default function Home() {
   const userName = localStorage.getItem('userName');
@@ -19,13 +18,46 @@ export default function Home() {
 
   return (
     <div>
-      <Hero
-        title={<><span className="text-lemon">📣</span> Welcome to EcclesiaSys</>}
-        subtitle="A modern church management system designed for spiritual growth and community connection."
-        ctaText={userType && userName ? 'Dashboard' : 'Join Us Today'}
-        ctaLink={userType && userName ? '/announcements' : '/register'}
-        bgImage="/hero-home.jpg"
-      />
+      {/* Hero Section - Modern & Professional */}
+      <section className="bg-gradient-to-r from-tealDeep via-teal-700 to-teal-900 text-white py-32 text-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-pattern"></div>
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-4">
+          <h1 className="text-6xl md:text-7xl font-bold mb-4 leading-tight">
+            Welcome to <span className="text-lemon">EcclesiaSys</span>
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 text-gray-100 font-light">
+            A modern church management system designed for spiritual growth and community connection.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {userType && userName ? (
+              <>
+                <Link to="/announcements" className="bg-lemon hover:bg-yellow-300 text-tealDeep font-bold px-8 py-4 rounded-lg transition inline-block shadow-lg">
+                  Dashboard
+                </Link>
+                <Link to="/sermons" className="bg-white/20 hover:bg-white/30 text-white font-bold px-8 py-4 rounded-lg transition inline-block border border-white/50">
+                  Browse Sermons
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/register" className="bg-lemon hover:bg-yellow-300 text-tealDeep font-bold px-8 py-4 rounded-lg transition inline-block shadow-lg">
+                  Join Us Today
+                </Link>
+                <Link to="/login" className="bg-white/20 hover:bg-white/30 text-white font-bold px-8 py-4 rounded-lg transition inline-block border border-white/50">
+                  Sign In
+                </Link>
+              </>
+            )}
+          </div>
+          {userType && userName && (
+            <p className="mt-6 text-lg text-lemon font-semibold animate-pulse">
+              ✓ Welcome back, {userName}!
+            </p>
+          )}
+        </div>
+      </section>
 
       {/* Service Times Section */}
       <section className="bg-white py-16">

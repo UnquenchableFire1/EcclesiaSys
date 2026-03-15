@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../services/api';
 import Layout from '../layouts/Layout';
-import analytics from '../services/analyticsTracker';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -35,13 +34,11 @@ export default function Register() {
 
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
-            analytics.trackError('Registration Validation Error', { reason: 'Passwords do not match' });
             return;
         }
 
         try {
             setIsSubmitting(true);
-            analytics.trackUserAction('Register Attempt', { email: formData.actualEmail });
             // send the form data
             const response = await register(formData);
             if (response.data?.success) {
@@ -53,22 +50,19 @@ export default function Register() {
                     localStorage.setItem('userId', response.data.userId);
                     localStorage.setItem('userType', 'member');
                     localStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`);
-                    localStorage.setItem('sessionId', Date.now().toString());
+                    localStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
                     localStorage.setItem('isNewMember', 'true');
                 }
-                analytics.trackUserAction('User Registration Successful', { email: generatedEmail });
                 alert(`WELCOME TO ECCLESIASYS CHURCH MANAGEMENT SYSTEM. YOUR LOGIN EMAIL IS "${generatedEmail}" USE THIS ANYTIME LOGGING IN`);
                 // navigate to member dashboard
                 navigate('/member-dashboard');
             } else {
                 setError(response.data?.message || 'Registration failed');
-                analytics.trackError('Registration Failed', { message: response.data?.message });
             }
         } catch (err) {
             console.error('Registration error', err);
             const msg = err.response?.data?.message || err.message || 'Network error';
             setError(msg);
-            analytics.trackError('Registration Error', { message: msg });
         } finally {
             setIsSubmitting(false);
         }
@@ -76,19 +70,22 @@ export default function Register() {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-gradient-to-br from-teal-50 to-yellow-50 py-12 px-4">
-                <div className="w-full max-w-md mx-auto">
+            <div className="min-h-screen flex items-center justify-center py-12 px-4">
+                <div className="w-full max-w-md">
                     {/* Header */}
                     <div className="text-center mb-8">
-                        <h1 className="text-5xl font-bold text-tealDeep mb-2">✨ Join Us</h1>
-                        <p className="text-xl text-gray-600">Create your church member account</p>
+                        <div className="h-16 w-16 bg-lemon rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                            <span className="text-3xl font-bold text-tealDeep">+</span>
+                        </div>
+                        <h1 className="text-4xl font-bold text-tealDeep mb-2">Join EcclesiaSys Church Management System</h1>
+                        <p className="text-gray-600">Create your member account</p>
                     </div>
 
                     {/* Card */}
-                    <div className="bg-white rounded-lg shadow-lg p-8 border-t-4 border-lemon">
+                    <div className="bg-white rounded-xl shadow-xl p-8 border-t-4 border-lemon">
                         {error && (
-                            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">
-                                <p className="font-semibold text-sm">{error}</p>
+                            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
+                                {error}
                             </div>
                         )}
 
@@ -101,7 +98,7 @@ export default function Register() {
                                     value={formData.firstName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-lemon focus:ring-2 focus:ring-yellow-100 transition"
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
                                     placeholder="John"
                                 />
                             </div>
@@ -113,7 +110,7 @@ export default function Register() {
                                     value={formData.lastName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-lemon focus:ring-2 focus:ring-yellow-100 transition"
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
                                     placeholder="Doe"
                                 />
                             </div>
@@ -125,7 +122,7 @@ export default function Register() {
                                     value={formData.phoneNumber}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-lemon focus:ring-2 focus:ring-yellow-100 transition"
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
                                     placeholder="(123) 456-7890"
                                 />
                             </div>
@@ -137,10 +134,10 @@ export default function Register() {
                                     value={formData.actualEmail}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-lemon focus:ring-2 focus:ring-yellow-100 transition"
-                                    placeholder="your@email.com"
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                    placeholder="your.email@example.com"
                                 />
-                                <p className="text-xs text-gray-500 mt-1">✉️ For password reset links only</p>
+                                <p className="text-xs text-gray-500 mt-1">This email will be used to send you password reset links</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-tealDeep mb-2">Password</label>
@@ -151,13 +148,13 @@ export default function Register() {
                                         value={formData.password}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-lemon focus:ring-2 focus:ring-yellow-100 transition"
-                                        placeholder="••••••••"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                        placeholder="Enter your password"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-700 text-lg transition"
+                                        className="absolute right-3 top-3.5 text-gray-600 hover:text-gray-800"
                                         title={showPassword ? 'Hide password' : 'Show password'}
                                     >
                                         {showPassword ? '👁️' : '👁️‍🗨️'}
@@ -173,13 +170,13 @@ export default function Register() {
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-lemon focus:ring-2 focus:ring-yellow-100 transition"
-                                        placeholder="••••••••"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-tealDeep focus:ring-1 focus:ring-lemon transition"
+                                        placeholder="Confirm your password"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-700 text-lg transition"
+                                        className="absolute right-3 top-3.5 text-gray-600 hover:text-gray-800"
                                         title={showConfirmPassword ? 'Hide password' : 'Show password'}
                                     >
                                         {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
@@ -187,17 +184,16 @@ export default function Register() {
                                 </div>
                             </div>
 
-                            <div className="bg-blue-50 border-l-4 border-blue-500 p-3 rounded text-blue-700 text-sm">
-                                <p className="font-semibold">📧 A login email will be auto-generated for you!</p>
-                                <p className="text-xs mt-1">Keep it safe - you'll use it to login.</p>
-                            </div>
+                            <p className="text-gray-600 text-sm">
+                                An email will be automatically generated for you after registration. Please save it for logging in.
+                            </p>
 
                             <button 
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full bg-gradient-to-r from-tealDeep to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold py-3 rounded-lg transition shadow-md mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full bg-lemon text-tealDeep font-bold py-3 rounded-lg hover:bg-yellow-400 transition shadow-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isSubmitting ? '⏳ Creating Account...' : '✨ Create Account'}
+                                {isSubmitting ? 'Creating Account...' : 'Create Account'}
                             </button>
                         </form>
 
