@@ -684,7 +684,7 @@ export default function AdminDashboard() {
                                     Delete
                                 </button>
                             </div>
-                        ))}}
+                        ))}
                     </div>
                 </div>
             )}
