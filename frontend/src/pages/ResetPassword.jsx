@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
 
 export default function ResetPassword() {
+  const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -11,20 +12,24 @@ export default function ResetPassword() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const location = useLocation();
 
   useEffect(() => {
-    if (!token) {
-      setError('No reset token provided. Please use the link from your email.');
-    }
-  }, [token]);
+    // If we're coming from ForgotPassword, we might have an email in state.
+    // If we have a message from the redirect, we could show it, but the UI flow is self-explanatory enough.
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
+
+    if (!resetCode || resetCode.length !== 6) {
+      setError('Please enter a valid 6-digit reset code');
+      return;
+    }
 
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters long');
@@ -45,7 +50,7 @@ export default function ResetPassword() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token,
+          token: resetCode,
           newPassword,
         }),
       });
@@ -100,8 +105,28 @@ export default function ResetPassword() {
             </div>
           )}
 
-          {!success && token ? (
+          {!success ? (
             <form onSubmit={handleSubmit} className="space-y-5">
+              
+              {location.state?.email && (
+                <div className="bg-mdPrimaryContainer/30 border border-mdPrimaryContainer text-mdOnSurface px-5 py-3 rounded-2xl mb-4 font-medium text-sm text-center">
+                  Resetting password for: <span className="font-bold text-mdPrimary">{location.state.email}</span>
+                </div>
+              )}
+
+              <div className="relative">
+                <input
+                  type="text"
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="6-Digit Reset Code"
+                  className="w-full px-6 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 text-lg font-bold tracking-widest text-center"
+                  required
+                  disabled={loading}
+                  maxLength={6}
+                />
+              </div>
+
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -187,13 +212,13 @@ export default function ResetPassword() {
             </div>
           )}
           
-          {!success && !token && (
+          {!success && (
             <div className="text-center mt-6">
               <Link
                 to="/forgot-password"
                 className="text-mdPrimary font-bold hover:text-mdSecondary transition-colors"
               >
-                Request a new reset link
+                Request a new reset code
               </Link>
             </div>
           )}

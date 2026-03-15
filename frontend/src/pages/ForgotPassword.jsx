@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
+  const [actualEmail, setActualEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,21 +22,17 @@ export default function ForgotPassword() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, actualEmail }),
       });
 
       const data = await response.json();
 
       if (data.success) {
         setMessage(data.message);
-        setEmail('');
-        // Show reset token if available (for testing/development)
-        if (data.resetToken) {
-          setMessage(data.message + ` Reset Token: ${data.resetToken}`);
-        }
-        // Optionally redirect to login after 3 seconds
+        
+        // Use a timeout to redirect to ResetPassword with the email pre-filled
         setTimeout(() => {
-          navigate('/login');
+          navigate('/reset-password', { state: { email } });
         }, 3000);
       } else {
         setError(data.message || 'Failed to process password reset request');
@@ -77,17 +74,33 @@ export default function ForgotPassword() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">
-              Email Address
+              System Login Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder="e.g. jdoe123@ecclesiasys.com"
               className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
               required
               disabled={loading}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">
+              Personal Web Email
+            </label>
+            <input
+              type="email"
+              value={actualEmail}
+              onChange={(e) => setActualEmail(e.target.value)}
+              placeholder="e.g. john.doe@gmail.com"
+              className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+              required
+              disabled={loading}
+            />
+            <p className="text-xs text-mdOutline mt-2 ml-1">A 6-digit code will be sent to this email.</p>
           </div>
 
           <button
@@ -95,7 +108,7 @@ export default function ForgotPassword() {
             disabled={loading}
             className="w-full bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Sending...' : 'Send Reset Link'}
+            {loading ? 'Sending Code...' : 'Send Reset Code'}
           </button>
         </form>
 

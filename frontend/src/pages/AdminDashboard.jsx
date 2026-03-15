@@ -451,49 +451,77 @@ export default function AdminDashboard() {
                         </button>
                     </div>
                     
-                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-mdSurfaceVariant/30 border-b border-mdSurfaceVariant/50">
-                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">First Name</th>
-                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">Last Name</th>
-                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">Phone Number</th>
-                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">System Email</th>
-                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">Personal Email</th>
-                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider">Date Joined</th>
-                                        <th className="px-6 py-4 font-extrabold text-mdOnSurfaceVariant text-xs uppercase tracking-wider text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-mdSurfaceVariant/50">
-                                    {members.map((member) => (
-                                        <tr key={member.id} className="hover:bg-mdSurfaceVariant/10 transition-colors">
-                                            <td className="px-6 py-4 text-mdOnSurface font-bold">{member.firstName || member.name?.split(' ')[0] || '-'}</td>
-                                            <td className="px-6 py-4 text-mdOnSurface font-bold">{member.lastName || member.name?.split(' ')[1] || '-'}</td>
-                                            <td className="px-6 py-4 text-mdOnSurfaceVariant">{member.phoneNumber || '-'}</td>
-                                            <td className="px-6 py-4 text-mdOnSurfaceVariant text-sm">{member.email || '-'}</td>
-                                            <td className="px-6 py-4 text-mdOnSurfaceVariant text-sm">{member.actualEmail || '-'}</td>
-                                            <td className="px-6 py-4 text-mdOnSurfaceVariant text-sm font-medium">
-                                                {member.joinedDate ? new Date(member.joinedDate).toLocaleDateString() : (member.createdAt ? new Date(member.createdAt).toLocaleDateString() : '-')}
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button
-                                                    onClick={() => handleDeleteMember(member.id)}
-                                                    className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-4 py-2 text-xs rounded-full transition-colors font-bold"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {members.length === 0 && (
-                                <div className="text-center py-16">
-                                    <p className="text-lg text-mdOnSurfaceVariant font-medium">No members registered yet.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {members.map((member) => {
+                            const firstName = member.firstName || member.name?.split(' ')[0] || 'Unknown';
+                            const lastName = member.lastName || member.name?.split(' ').slice(1).join(' ') || '';
+                            const initial = firstName.charAt(0).toUpperCase();
+
+                            return (
+                                <div key={member.id} className="bg-mdSurface p-6 rounded-[2rem] border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col items-center text-center group relative overflow-hidden">
+                                    <button
+                                        onClick={() => handleDeleteMember(member.id)}
+                                        className="absolute top-4 right-4 bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 shadow-sm z-10"
+                                        title="Delete Member"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                    
+                                    <div className="w-28 h-28 mb-4 rounded-full bg-mdSurfaceVariant overflow-hidden border-4 border-mdSurface shadow-md relative group-hover:scale-105 transition-transform duration-300">
+                                        {member.profilePictureUrl ? (
+                                            <img src={member.profilePictureUrl} alt={`${firstName} ${lastName}`} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-4xl font-black text-mdPrimary bg-mdPrimaryContainer">
+                                                {initial}
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <h3 className="text-xl font-extrabold text-mdOnSurface mb-1">
+                                        {firstName} {lastName}
+                                    </h3>
+                                    <p className="text-mdOnSurfaceVariant font-bold text-[10px] uppercase tracking-wider mb-5">
+                                        Joined {member.joinedDate ? new Date(member.joinedDate).toLocaleDateString() : (member.createdAt ? new Date(member.createdAt).toLocaleDateString() : 'Unknown')}
+                                    </p>
+                                    
+                                    <div className="w-full space-y-2 text-left bg-mdSurfaceVariant/30 p-4 rounded-2xl flex-grow flex flex-col justify-center">
+                                        <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
+                                            <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">📱</div>
+                                            <div className="overflow-hidden">
+                                                <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Phone</p>
+                                                <p className="text-sm font-bold text-mdOnSurface truncate">{member.phoneNumber || 'Not provided'}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
+                                            <div className="bg-mdPrimaryContainer/50 p-2 rounded-lg text-mdPrimary text-sm">✉️</div>
+                                            <div className="overflow-hidden">
+                                                <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">System Email</p>
+                                                <p className="text-sm font-bold text-mdOnSurface truncate" title={member.email || ''}>{member.email || 'Not provided'}</p>
+                                            </div>
+                                        </div>
+
+                                        {(member.actualEmail && member.actualEmail !== member.email) && (
+                                            <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all mt-auto">
+                                                <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">📧</div>
+                                                <div className="overflow-hidden">
+                                                    <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Personal Email</p>
+                                                    <p className="text-sm font-bold text-mdOnSurface truncate" title={member.actualEmail}>{member.actualEmail}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
+                            );
+                        })}
+                        
+                        {members.length === 0 && (
+                            <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-20 bg-mdSurfaceVariant/30 rounded-[2rem] border border-mdOutline/20">
+                                <span className="text-5xl mb-4 block animate-bounce">👥</span>
+                                <h3 className="text-xl font-bold text-mdOnSurface mb-2">No members found</h3>
+                                <p className="text-mdOnSurfaceVariant">There are currently no registered members.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

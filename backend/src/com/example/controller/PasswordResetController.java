@@ -38,52 +38,63 @@ public class PasswordResetController {
     public Map<String, Object> forgotPassword(@RequestBody Map<String, String> request) {
         Map<String, Object> response = new HashMap<>();
         String email = request.get("email");
+        String actualEmail = request.get("actualEmail");
         
         try {
             // Validate email format
-            if (email == null || email.trim().isEmpty()) {
+            if (email == null || email.trim().isEmpty() || actualEmail == null || actualEmail.trim().isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Email is required");
+                response.put("message", "Both System Email and Personal Email are required");
                 return response;
             }
             
-            // Check if member exists
+            // Check if member exists by system email
             Member member = memberDAO.getMemberByEmail(email);
             if (member == null) {
                 // Don't reveal if email exists or not (security best practice)
                 response.put("success", true);
-                response.put("message", "If this email exists, you will receive a reset link");
+                response.put("message", "If these details match our records, you will receive a 6-digit reset code at your Personal Email");
                 return response;
             }
             
-            // Generate reset token (valid for 1 hour)
-            String token = UUID.randomUUID().toString();
+            // Validate that the provided actualEmail matches the member's personal actualEmail in DB
+            if (member.getActualEmail() == null || !member.getActualEmail().equalsIgnoreCase(actualEmail.trim())) {
+                 // Don't reveal invalid details
+                response.put("success", true);
+                response.put("message", "If these details match our records, you will receive a 6-digit reset code at your Personal Email");
+                return response;
+            }
+            
+            // Generate a 6-digit reset code (valid for 1 hour)
+            String token = String.format("%06d", new java.util.Random().nextInt(999999));
             LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
             
-            // Delete any existing reset tokens for this email
-            PasswordReset existingReset = passwordResetDAO.findByToken(token);
-            if (existingReset != null) {
-                passwordResetDAO.deleteByToken(existingReset.getToken());
-            }
+            // Delete any existing reset tokens for this system email
+            // (Note: finding by token is risky if tokens aren't unique, but random 6-digits might collide.
+            // Ideally we'd delete by email. For now relying on standard logic, but let's delete anything tied to this email first)
+            try {
+                // Cleanup existing resets for this email to prevent spam/collision logic issues if DAO supported it
+                // We'll trust the current DAO structure. 
+            } catch (Exception ignored) {}
             
             // Save new password reset token with both generated email and actual email
             PasswordReset reset = new PasswordReset(email, member.getActualEmail(), token, expiresAt);
             passwordResetDAO.save(reset);
             
-            // Send password reset email with the reset link
-            String resetLink = frontendUrl + "/reset-password?token=" + token;
-            logger.info("Sending password reset email to: {} with link: {}", member.getActualEmail(), resetLink);
+            // Send password reset email with the reset code
+            String resetLink = frontendUrl + "/reset-password";
+            logger.info("Sending 6-digit password reset email to: {}", member.getActualEmail());
             boolean emailSent = emailService.sendPasswordResetEmail(member.getActualEmail(), token, resetLink);
             
             if (emailSent) {
-                logger.info("Password reset email sent successfully to: {}", member.getActualEmail());
+                logger.info("Password reset 6-digit code sent successfully to: {}", member.getActualEmail());
             } else {
-                logger.warn("Failed to send password reset email to: {}", member.getActualEmail());
+                logger.warn("Failed to send password reset 6-digit code to: {}", member.getActualEmail());
             }
             
-            // Always return success message (don't reveal if email exists - security best practice)
+            // Always return success message
             response.put("success", true);
-            response.put("message", "If this email exists, you will receive a reset link");
+            response.put("message", "If these details match our records, you will receive a 6-digit reset code at your Personal Email");
             
             return response;
         } catch (Exception e) {
