@@ -1,15 +1,16 @@
 package com.example.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.json.JSONObject;
+import org.json.JSONArray;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -18,20 +19,18 @@ public class EmailTemplateService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailTemplateService.class);
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${resend.api-key:null}")
+    private String apiKey;
+    
+    @Value("${resend.sender-email:onboarding@resend.dev}")
+    private String senderEmail;
 
     /**
      * Welcome email for new member registration
      */
     public void sendWelcomeEmail(String recipientEmail, String userName, String churchName) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setTo(recipientEmail);
-            helper.setSubject("Welcome to " + churchName + " - Let's Get Started!");
-            
+            String subject = "Welcome to " + churchName + " - Let's Get Started!";
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
                 "<div style='background-color: #0F766E; color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;'>" +
@@ -51,10 +50,9 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px;'>In Christ,<br/><strong>" + churchName + " Team</strong></p>" +
                 "</div></div></body></html>";
 
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
+            sendHtmlEmailViaResend(recipientEmail, subject, htmlContent);
             logger.info("Welcome email sent successfully to: {}", recipientEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("Failed to send welcome email to: {}", recipientEmail, e);
         }
     }
@@ -65,12 +63,7 @@ public class EmailTemplateService {
     public void sendEventNotificationEmail(String recipientEmail, String eventName, 
                                           String eventDate, String eventDescription, String eventLocation) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setTo(recipientEmail);
-            helper.setSubject("Upcoming Event: " + eventName);
-            
+            String subject = "Upcoming Event: " + eventName;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
                 "<div style='background-color: #FDE047; color: #0F766E; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;'>" +
@@ -88,10 +81,9 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from our church management system.</small></p>" +
                 "</div></div></body></html>";
 
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
+            sendHtmlEmailViaResend(recipientEmail, subject, htmlContent);
             logger.info("Event notification email sent successfully to: {}", recipientEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("Failed to send event notification email to: {}", recipientEmail, e);
         }
     }
@@ -101,12 +93,7 @@ public class EmailTemplateService {
      */
     public void sendAnnouncementNotificationEmail(String recipientEmail, String announcementTitle, String announcementContent) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setTo(recipientEmail);
-            helper.setSubject("Church Announcement: " + announcementTitle);
-            
+            String subject = "Church Announcement: " + announcementTitle;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
                 "<div style='background-color: #0F766E; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;'>" +
@@ -119,10 +106,9 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from our church management system.</small></p>" +
                 "</div></div></body></html>";
 
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
+            sendHtmlEmailViaResend(recipientEmail, subject, htmlContent);
             logger.info("Announcement notification email sent successfully to: {}", recipientEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("Failed to send announcement notification email to: {}", recipientEmail, e);
         }
     }
@@ -132,12 +118,7 @@ public class EmailTemplateService {
      */
     public void sendWeeklyDigestEmail(String recipientEmail, String userName, String highlightedEvents, String featuredSermon) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setTo(recipientEmail);
-            helper.setSubject("Weekly Digest - " + getCurrentWeekLabel());
-            
+            String subject = "Weekly Digest - " + getCurrentWeekLabel();
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
                 "<div style='background-color: #0F766E; color: white; padding: 20px; text-align: center;'>" +
@@ -159,10 +140,9 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated digest from our church management system. You can manage your subscription preferences in your account settings.</small></p>" +
                 "</div></div></body></html>";
 
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
+            sendHtmlEmailViaResend(recipientEmail, subject, htmlContent);
             logger.info("Weekly digest email sent successfully to: {}", recipientEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("Failed to send weekly digest email to: {}", recipientEmail, e);
         }
     }
@@ -172,12 +152,7 @@ public class EmailTemplateService {
      */
     public void sendBirthdayGreetingEmail(String recipientEmail, String userName, String churchName) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setTo(recipientEmail);
-            helper.setSubject("Happy Birthday! " + userName);
-            
+            String subject = "Happy Birthday! " + userName;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
                 "<div style='background-color: #FDE047; color: #0F766E; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;'>" +
@@ -189,10 +164,9 @@ public class EmailTemplateService {
                 "<p style='font-size: 14px; margin-top: 30px; color: #666;'>May God's love and grace continue to guide you every day.</p>" +
                 "</div></div></body></html>";
 
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
+            sendHtmlEmailViaResend(recipientEmail, subject, htmlContent);
             logger.info("Birthday greeting email sent successfully to: {}", recipientEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("Failed to send birthday greeting email to: {}", recipientEmail, e);
         }
     }
@@ -203,12 +177,7 @@ public class EmailTemplateService {
     public void sendVolunteerOpportunityEmail(String recipientEmail, String opportunityTitle, 
                                              String opportunityDescription, String requiredSkills, String contactEmail) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setTo(recipientEmail);
-            helper.setSubject("Volunteer Opportunity: " + opportunityTitle);
-            
+            String subject = "Volunteer Opportunity: " + opportunityTitle;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
                 "<div style='background-color: #0F766E; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;'>" +
@@ -227,11 +196,37 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from our church management system.</small></p>" +
                 "</div></div></body></html>";
 
-            helper.setText(htmlContent, true);
-            mailSender.send(message);
+            sendHtmlEmailViaResend(recipientEmail, subject, htmlContent);
             logger.info("Volunteer opportunity email sent successfully to: {}", recipientEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("Failed to send volunteer opportunity email to: {}", recipientEmail, e);
+        }
+    }
+
+    private void sendHtmlEmailViaResend(String to, String subject, String htmlText) throws Exception {
+        if ("null".equals(apiKey) || apiKey == null || apiKey.trim().isEmpty()) {
+            logger.warn("Resend API key is not configured. Email to {} was not sent.", to);
+            return;
+        }
+
+        JSONObject payload = new JSONObject();
+        payload.put("from", "EcclesiaSys <" + senderEmail + ">");
+        payload.put("to", new JSONArray().put(to));
+        payload.put("subject", subject);
+        payload.put("html", htmlText);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.resend.com/emails"))
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new Exception("Resend API failed with status " + response.statusCode() + " and body: " + response.body());
         }
     }
 
