@@ -15,10 +15,10 @@ import java.net.http.HttpResponse;
 @Service
 public class EmailService {
     
-    @Value("${resend.api-key:null}")
+    @Value("${brevo.api-key:null}")
     private String apiKey;
     
-    @Value("${resend.sender-email:onboarding@resend.dev}")
+    @Value("${brevo.sender-email:onboarding@resend.dev}")
     private String senderEmail;
     
     @Value("${app.frontend.url:https://yourbbjdigitalapp.onrender.com}")
@@ -28,7 +28,7 @@ public class EmailService {
     
     public boolean sendPasswordResetEmail(String recipientEmail, String resetToken, String resetLink) {
         try {
-            logger.info("Attempting to send password reset email via Resend to: {}", recipientEmail);
+            logger.info("Attempting to send password reset email via Brevo to: {}", recipientEmail);
             
             String emailBody = "Hello,\n\n" +
                     "You requested to reset your password for your EcclesiaSys account.\n\n" +
@@ -40,7 +40,7 @@ public class EmailService {
                     "Best regards,\n" +
                     "EcclesiaSys Team";
                     
-            return sendEmailViaResend(recipientEmail, "EcclesiaSys - Password Reset Request", emailBody);
+            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - Password Reset Request", emailBody);
         } catch (Exception e) {
             logger.error("Failed to send password reset email to: " + recipientEmail + " | Error: " + e.getMessage());
             return false;
@@ -59,7 +59,7 @@ public class EmailService {
                     "Best regards,\n" +
                     "EcclesiaSys Team";
                     
-            return sendEmailViaResend(recipientEmail, "EcclesiaSys - Email Verification", emailBody);
+            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - Email Verification", emailBody);
         } catch (Exception e) {
             logger.error("Failed to send verification email to: " + recipientEmail, e);
             return false;
@@ -72,41 +72,52 @@ public class EmailService {
                     "Best regards,\n" +
                     "EcclesiaSys Team";
                     
-            return sendEmailViaResend(recipientEmail, "EcclesiaSys - " + subject, emailBody);
+            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - " + subject, emailBody);
         } catch (Exception e) {
             logger.error("Failed to send notification email to: " + recipientEmail, e);
             return false;
         }
     }
     
-    private boolean sendEmailViaResend(String to, String subject, String text) throws Exception {
+    private boolean sendEmailViaBrevo(String to, String subject, String text) throws Exception {
         if ("null".equals(apiKey) || apiKey == null || apiKey.trim().isEmpty()) {
-            logger.warn("Resend API key is not configured. Email to {} was not sent.", to);
+            logger.warn("Brevo API key is not configured. Email to {} was not sent.", to);
             // In dev without API key, pretend it sent
             return true; 
         }
 
         JSONObject payload = new JSONObject();
-        payload.put("from", "EcclesiaSys <" + senderEmail + ">");
-        payload.put("to", new JSONArray().put(to));
+        
+        JSONObject sender = new JSONObject();
+        sender.put("name", "EcclesiaSys");
+        sender.put("email", senderEmail);
+        payload.put("sender", sender);
+        
+        JSONArray toArray = new JSONArray();
+        JSONObject toObj = new JSONObject();
+        toObj.put("email", to);
+        toArray.put(toObj);
+        payload.put("to", toArray);
+        
         payload.put("subject", subject);
-        payload.put("text", text);
+        payload.put("textContent", text);
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.resend.com/emails"))
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
+                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                .header("api-key", apiKey)
+                .header("accept", "application/json")
+                .header("content-type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            logger.info("Email successfully sent via Resend API to: " + to);
+            logger.info("Email successfully sent via Brevo API to: " + to);
             return true;
         } else {
-            logger.error("Failed to send email via Resend API. Status: {}, Body: {}", response.statusCode(), response.body());
+            logger.error("Failed to send email via Brevo API. Status: {}, Body: {}", response.statusCode(), response.body());
             return false;
         }
     }
