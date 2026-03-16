@@ -57,7 +57,7 @@ export default function Sermons() {
                 <div className="mb-10 sm:mb-14">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
-                            <span className="text-3xl sm:text-4xl">🎙️</span>
+                            <span className="text-3xl sm:text-4xl"></span>
                         </div>
                         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mdOnSurface tracking-tight">
                             Sermons
@@ -70,7 +70,7 @@ export default function Sermons() {
 
                 {sermons.length === 0 ? (
                     <div className="bg-mdSurfaceVariant/30 border border-mdOutline/20 p-12 rounded-[2.5rem] text-center shadow-sm">
-                        <div className="text-6xl mb-6">💽</div>
+                        <div className="text-6xl mb-6"></div>
                         <h3 className="text-2xl font-bold text-mdOnSurface mb-3">No sermons available yet</h3>
                         <p className="text-mdOnSurfaceVariant text-lg">New sermons will be added soon. Check back later!</p>
                     </div>
@@ -79,9 +79,7 @@ export default function Sermons() {
                         {/* Filter Section */}
                         {uniqueSpeakers.length > 1 && (
                             <div className="mb-10 bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm">
-                                <h3 className="text-mdOnSurface font-extrabold text-lg flex items-center gap-2 mb-5">
-                                    <span className="text-xl">🔍</span> Filter by Speaker
-                                </h3>
+                                    <span className="text-xl"></span> Filter by Speaker
                                 <div className="flex flex-wrap gap-3">
                                     <button
                                         onClick={() => setFilterSpeaker('')}
@@ -141,10 +139,10 @@ export default function Sermons() {
                                         <div className="flex-1">
                                             <div className="flex flex-wrap items-center gap-3 mb-3">
                                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mdSecondaryContainer text-mdSecondary text-sm font-bold">
-                                                    <span>📅</span> {new Date(sermon.sermonDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                                    <span></span> {new Date(sermon.sermonDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                                                 </span>
-                                                {sermon.audioUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mdPrimaryContainer text-mdPrimary text-sm font-bold"><span>🎧</span> Audio</span>}
-                                                {sermon.videoUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFDAB9]/30 text-[#D2691E] text-sm font-bold"><span>🎬</span> Video</span>}
+                                                {sermon.audioUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mdPrimaryContainer text-mdPrimary text-sm font-bold"><span></span> Audio</span>}
+                                                {sermon.videoUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFDAB9]/30 text-[#D2691E] text-sm font-bold"><span></span> Video</span>}
                                             </div>
                                             
                                             <h3 className={`text-2xl sm:text-3xl font-extrabold mb-2 transition-colors duration-300 ${expandedSermon === sermon.id ? 'text-mdPrimary' : 'text-mdOnSurface group-hover:text-mdPrimary/80'}`}>
@@ -181,7 +179,7 @@ export default function Sermons() {
                                         {sermon.audioUrl && (
                                             <div className="mb-8 bg-mdSurfaceVariant/20 p-5 rounded-3xl border border-mdSurfaceVariant/50">
                                                 <h4 className="text-mdOnSurface font-bold mb-4 flex items-center gap-2">
-                                                    <span className="bg-mdPrimaryContainer text-mdPrimary p-1.5 rounded-lg">🎧</span> Listen to Audio
+                                                    <span className="bg-mdPrimaryContainer text-mdPrimary p-1.5 rounded-lg"></span> Listen to Audio
                                                 </h4>
                                                 <audio 
                                                     controls 
@@ -197,7 +195,7 @@ export default function Sermons() {
                                                     onClick={() => handleDownload(sermon, 'AUDIO')}
                                                     className="inline-flex items-center gap-2 bg-mdPrimary hover:bg-mdPrimary/90 text-mdOnPrimary px-6 py-2.5 rounded-full font-bold transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                                                 >
-                                                    <span>📥</span> Download Audio
+                                                    <span></span> Download Audio
                                                 </a>
                                             </div>
                                         )}
@@ -206,7 +204,7 @@ export default function Sermons() {
                                         {sermon.videoUrl && (
                                             <div className="mb-8 bg-mdSurfaceVariant/20 p-5 rounded-3xl border border-mdSurfaceVariant/50">
                                                 <h4 className="text-mdOnSurface font-bold mb-4 flex items-center gap-2">
-                                                    <span className="bg-[#FFDAB9]/30 text-[#D2691E] p-1.5 rounded-lg">🎬</span> Watch Video
+                                                    <span className="bg-[#FFDAB9]/30 text-[#D2691E] p-1.5 rounded-lg"></span> Watch Video
                                                 </h4>
                                                 <div className="rounded-2xl overflow-hidden shadow-sm mb-4 border border-mdOutline/20 bg-black aspect-video flex items-center justify-center">
                                                     <video 
@@ -224,7 +222,7 @@ export default function Sermons() {
                                                     onClick={() => handleDownload(sermon, 'VIDEO')}
                                                     className="inline-flex items-center gap-2 bg-[#D2691E] hover:bg-[#D2691E]/90 text-white px-6 py-2.5 rounded-full font-bold transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                                                 >
-                                                    <span>📥</span> Download Video
+                                                    <span></span> Download Video
                                                 </a>
                                             </div>
                                         )}
@@ -257,7 +255,7 @@ export default function Sermons() {
 
                         {filteredSermons.length === 0 && filterSpeaker && (
                             <div className="text-center py-16 bg-mdSurfaceVariant/20 rounded-3xl border border-mdOutline/10 mt-6">
-                                <div className="text-4xl mb-4">🔍</div>
+                                <div className="text-4xl mb-4"></div>
                                 <h3 className="text-xl font-bold text-mdOnSurface mb-1">No matches found</h3>
                                 <p className="text-mdOnSurfaceVariant">No sermons found by {filterSpeaker}</p>
                                 <button 

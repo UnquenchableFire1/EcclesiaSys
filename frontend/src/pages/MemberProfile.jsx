@@ -150,11 +150,10 @@ export default function MemberProfile() {
                                 />
                             ) : (
                                 <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-mdSurfaceVariant flex items-center justify-center text-4xl border-4 border-mdPrimaryContainer shadow-md1 transition-transform group-hover:scale-105 duration-300">
-                                    👤
                                 </div>
                             )}
                             <label className="absolute bottom-0 right-0 bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary w-10 h-10 rounded-full flex items-center justify-center shadow-md2 cursor-pointer transition-colors duration-200">
-                                <span>📷</span>
+                                <span></span>
                                 <input 
                                     type="file" 
                                     accept="image/*" 
@@ -257,7 +256,7 @@ export default function MemberProfile() {
                             
                             <div className="bg-mdSurfaceVariant/10 p-5 rounded-2xl border border-mdSurfaceVariant/50 text-center space-y-4">
                                 <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl shadow-sm ${formData.isProfilePublic ? 'bg-mdPrimaryContainer text-mdPrimary' : 'bg-mdSurfaceVariant text-mdOnSurfaceVariant'}`}>
-                                    {formData.isProfilePublic ? '👁️' : '🔒'}
+                                    {formData.isProfilePublic ? '' : ''}
                                 </div>
                                 
                                 <div>

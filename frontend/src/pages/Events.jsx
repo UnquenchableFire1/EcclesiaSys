@@ -30,7 +30,7 @@ export default function Events() {
             <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 animate-fade-in">
                 <div className="flex items-center gap-4 mb-2">
                     <div className="bg-mdSecondaryContainer p-3 sm:p-4 rounded-2xl">
-                        <span className="text-3xl sm:text-4xl">📅</span>
+                        <span className="text-3xl sm:text-4xl"></span>
                     </div>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-mdOnSurface tracking-tight">Church Events</h1>
                 </div>
@@ -38,7 +38,7 @@ export default function Events() {
                 
                 {events.length === 0 ? (
                     <div className="bg-mdSurfaceVariant/30 border border-mdOutline/20 p-10 rounded-3xl text-center">
-                        <div className="text-5xl mb-4">🎟️</div>
+                        <div className="text-5xl mb-4"></div>
                         <h3 className="text-xl font-bold text-mdOnSurface mb-2">No events scheduled yet</h3>
                         <p className="text-mdOnSurfaceVariant">Subscribe to our newsletter to be notified of upcoming events!</p>
                     </div>
@@ -50,7 +50,7 @@ export default function Events() {
                                 
                                 <div className="space-y-4 mb-6 flex-grow">
                                     <div className="flex items-start gap-4 p-4 rounded-2xl bg-mdSurfaceVariant/30">
-                                        <div className="bg-mdSecondaryContainer/50 p-2 rounded-xl text-mdSecondary text-xl mt-0.5">📅</div>
+                                        <div className="bg-mdSecondaryContainer/50 p-2 rounded-xl text-mdSecondary text-xl mt-0.5"></div>
                                         <div>
                                             <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-wider mb-1">Date & Time</p>
                                             <p className="text-mdOnSurface font-bold">{event.eventDate ? new Date(event.eventDate).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA'}</p>
@@ -59,7 +59,7 @@ export default function Events() {
                                     </div>
                                     
                                     <div className="flex items-start gap-4 p-4 rounded-2xl bg-mdSurfaceVariant/30">
-                                        <div className="bg-mdPrimaryContainer/50 p-2 rounded-xl text-mdPrimary text-xl mt-0.5">📍</div>
+                                        <div className="bg-mdPrimaryContainer/50 p-2 rounded-xl text-mdPrimary text-xl mt-0.5"></div>
                                         <div>
                                             <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-wider mb-1">Location</p>
                                             <p className="text-mdOnSurface font-bold">{event.location || 'TBA'}</p>
@@ -77,7 +77,7 @@ export default function Events() {
                                             rel="noopener noreferrer"
                                             className="inline-flex items-center gap-2 bg-mdSecondaryContainer/50 hover:bg-mdSecondary text-mdSecondary hover:text-mdOnSecondary px-5 py-2.5 rounded-full font-bold transition-all duration-300"
                                         >
-                                            <span className="text-lg">📥</span> Download Info
+                                            <span className="text-lg"></span> Download Info
                                         </a>
                                     </div>
                                 )}

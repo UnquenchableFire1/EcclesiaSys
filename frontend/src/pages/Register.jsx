@@ -38,6 +38,19 @@ export default function Register() {
             return;
         }
 
+        // Password strength validation
+        const password = formData.password;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const isLongEnough = password.length >= 8;
+
+        if (!isLongEnough || !hasUpperCase || !hasLowerCase || !hasNumbers || !hasSymbols) {
+            setError('Password must be at least 8 characters long and include uppercase, lowercase, numbers, and symbols');
+            return;
+        }
+
         try {
             setIsSubmitting(true);
             // send the form data
@@ -156,7 +169,7 @@ export default function Register() {
                                     onChange={handleChange}
                                     required
                                     className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
-                                    placeholder="Enter your password"
+                                    placeholder="Min. 8 chars, A-Z, a-z, 0-9, symbol"
                                 />
                                 <button
                                     type="button"
@@ -164,7 +177,7 @@ export default function Register() {
                                     className="absolute right-4 top-4 text-mdOutline hover:text-mdPrimary transition-colors duration-200"
                                     title={showPassword ? 'Hide password' : 'Show password'}
                                 >
-                                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                                    {showPassword ? 'Hide' : 'Show'}
                                 </button>
                             </div>
                         </div>
@@ -186,7 +199,7 @@ export default function Register() {
                                     className="absolute right-4 top-4 text-mdOutline hover:text-mdPrimary transition-colors duration-200"
                                     title={showConfirmPassword ? 'Hide password' : 'Show password'}
                                 >
-                                    {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                                    {showConfirmPassword ? 'Hide' : 'Show'}
                                 </button>
                             </div>
                         </div>

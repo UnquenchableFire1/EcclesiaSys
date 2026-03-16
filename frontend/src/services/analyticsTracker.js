@@ -35,7 +35,7 @@ class AnalyticsTracker {
     };
 
     this.sendAnalytics(event);
-    console.log('📊 Analytics - Page View:', pageName);
+    console.log(' Analytics - Page View:', pageName);
   }
 
   /**
@@ -55,7 +55,7 @@ class AnalyticsTracker {
     };
 
     this.sendAnalytics(event);
-    console.log(`📊 Analytics - Resource Access: ${resourceType} - ${resourceName}`);
+    console.log(` Analytics - Resource Access: ${resourceType} - ${resourceName}`);
   }
 
   /**
@@ -74,7 +74,7 @@ class AnalyticsTracker {
     };
 
     this.sendAnalytics(event);
-    console.log(`📊 Analytics - Action: ${actionType}`, actionDetails);
+    console.log(` Analytics - Action: ${actionType}`, actionDetails);
   }
 
   /**
@@ -95,7 +95,7 @@ class AnalyticsTracker {
     };
 
     this.sendAnalytics(event);
-    console.log(`📊 Analytics - Media: ${mediaType} - ${mediaName} (${Math.round(duration)}s)`);
+    console.log(` Analytics - Media: ${mediaType} - ${mediaName} (${Math.round(duration)}s)`);
   }
 
   /**
@@ -116,7 +116,7 @@ class AnalyticsTracker {
       };
 
       this.sendAnalytics(event);
-      console.log(`📊 Analytics - Engagement: ${timeSpent} seconds`);
+      console.log(` Analytics - Engagement: ${timeSpent} seconds`);
     }
 
     this.lastInteractionTime = currentTime;
@@ -138,7 +138,7 @@ class AnalyticsTracker {
     };
 
     this.sendAnalytics(event);
-    console.log(`📊 Analytics - Form Submitted: ${formName}`);
+    console.log(` Analytics - Form Submitted: ${formName}`);
   }
 
   /**
@@ -158,7 +158,7 @@ class AnalyticsTracker {
     };
 
     this.sendAnalytics(event);
-    console.error(`📊 Analytics - Error: ${errorMessage}`);
+    console.error(` Analytics - Error: ${errorMessage}`);
   }
 
   /**
@@ -205,7 +205,7 @@ class AnalyticsTracker {
     };
 
     this.sendAnalytics(event);
-    console.log(`📊 Analytics - Session Started: ${this.sessionId}`);
+    console.log(` Analytics - Session Started: ${this.sessionId}`);
   }
 
   /**
@@ -224,7 +224,7 @@ class AnalyticsTracker {
     };
 
     this.sendAnalytics(event);
-    console.log(`📊 Analytics - Session Ended: ${this.sessionId} (Duration: ${sessionDuration}s)`);
+    console.log(` Analytics - Session Ended: ${this.sessionId} (Duration: ${sessionDuration}s)`);
   }
 }
 

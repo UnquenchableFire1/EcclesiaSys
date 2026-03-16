@@ -332,10 +332,10 @@ export default function AdminDashboard() {
 
                     {/* Tabs row */}
                     <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
-                        <TabButton tab="members" label="Members" icon="👥" />
-                        <TabButton tab="announcements" label="Announcements" icon="📢" />
-                        <TabButton tab="events" label="Events" icon="📅" />
-                        <TabButton tab="sermons" label="Sermons" icon="🎵" />
+                        <TabButton tab="members" label="Members" icon="" />
+                        <TabButton tab="announcements" label="Announcements" icon="" />
+                        <TabButton tab="events" label="Events" icon="" />
+                        <TabButton tab="sermons" label="Sermons" icon="" />
                     </div>
                 </div>
             </div>
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-4">
                             <div className="bg-mdSecondaryContainer/50 p-4 rounded-2xl">
-                                <span className="text-2xl">👥</span>
+                                <span className="text-2xl"></span>
                             </div>
                             <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Members</h2>
                         </div>
@@ -405,7 +405,7 @@ export default function AdminDashboard() {
                                     
                                     <div className="w-full space-y-2 text-left bg-mdSurfaceVariant/30 p-4 rounded-2xl flex-grow flex flex-col justify-center">
                                         <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
-                                            <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">📱</div>
+                                            <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm"></div>
                                             <div className="overflow-hidden">
                                                 <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Phone</p>
                                                 <p className="text-sm font-bold text-mdOnSurface truncate">{member.phoneNumber || 'Not provided'}</p>
@@ -413,7 +413,7 @@ export default function AdminDashboard() {
                                         </div>
                                         
                                         <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
-                                            <div className="bg-mdPrimaryContainer/50 p-2 rounded-lg text-mdPrimary text-sm">✉️</div>
+                                            <div className="bg-mdPrimaryContainer/50 p-2 rounded-lg text-mdPrimary text-sm"></div>
                                             <div className="overflow-hidden">
                                                 <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">System Email</p>
                                                 <p className="text-sm font-bold text-mdOnSurface truncate" title={member.email || ''}>{member.email || 'Not provided'}</p>
@@ -422,7 +422,7 @@ export default function AdminDashboard() {
 
                                         {(member.actualEmail && member.actualEmail !== member.email) && (
                                             <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all mt-auto">
-                                                <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">📧</div>
+                                                <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm"></div>
                                                 <div className="overflow-hidden">
                                                     <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Personal Email</p>
                                                     <p className="text-sm font-bold text-mdOnSurface truncate" title={member.actualEmail}>{member.actualEmail}</p>
@@ -436,7 +436,7 @@ export default function AdminDashboard() {
                         
                         {members.length === 0 && (
                             <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-20 bg-mdSurfaceVariant/30 rounded-[2rem] border border-mdOutline/20">
-                                <span className="text-5xl mb-4 block animate-bounce">👥</span>
+                                <span className="text-5xl mb-4 block animate-bounce"></span>
                                 <h3 className="text-xl font-bold text-mdOnSurface mb-2">No members found</h3>
                                 <p className="text-mdOnSurfaceVariant">There are currently no registered members.</p>
                             </div>
@@ -451,7 +451,7 @@ export default function AdminDashboard() {
                     <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl">📢</span>
+                                <span className="text-2xl"></span>
                             </div>
                             <h2 className="text-2xl font-extrabold text-mdPrimary tracking-tight">Create Announcement</h2>
                         </div>
@@ -521,7 +521,7 @@ export default function AdminDashboard() {
                     <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl">📅</span>
+                                <span className="text-2xl"></span>
                             </div>
                             <h2 className="text-2xl font-extrabold text-mdSecondary tracking-tight">Create Event</h2>
                         </div>
@@ -599,7 +599,7 @@ export default function AdminDashboard() {
                                         <div className="space-y-3 mb-6">
                                             {event.eventDate && (
                                                 <div className="inline-flex items-center gap-2 bg-mdSecondaryContainer/50 text-mdSecondary px-3 py-1.5 rounded-lg font-bold text-sm">
-                                                    <span>📅</span>
+                                                    <span></span>
                                                     {new Date(event.eventDate).toLocaleString(undefined, {
                                                         weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                                     })}
@@ -608,7 +608,7 @@ export default function AdminDashboard() {
                                             
                                             {event.location && (
                                                 <p className="flex items-start gap-2 text-mdOnSurfaceVariant text-sm font-medium">
-                                                    <span className="mt-0.5">📍</span>
+                                                    <span className="mt-0.5"></span>
                                                     {event.location}
                                                 </p>
                                             )}
@@ -636,7 +636,7 @@ export default function AdminDashboard() {
                     <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl">🎙️</span>
+                                <span className="text-2xl"></span>
                             </div>
                             <h2 className="text-2xl font-extrabold text-mdPrimary tracking-tight">Upload Sermon</h2>
                         </div>
@@ -719,7 +719,7 @@ export default function AdminDashboard() {
                                             <div>
                                                 <div className="flex items-center gap-3 mb-2">
                                                     <span className={`px-2.5 py-1 text-xs font-bold uppercase rounded-md tracking-wider ${sermon.fileType === 'mp4' ? 'bg-mdSecondaryContainer text-mdSecondary' : 'bg-mdPrimaryContainer/50 text-mdPrimary'}`}>
-                                                        {sermon.fileType === 'mp4' ? '🎥 Video' : '🎵 Audio'}
+                                                        {sermon.fileType === 'mp4' ? 'Video' : 'Audio'}
                                                     </span>
                                                     <h3 className="font-extrabold text-xl text-mdOnSurface leading-tight">{sermon.title}</h3>
                                                 </div>

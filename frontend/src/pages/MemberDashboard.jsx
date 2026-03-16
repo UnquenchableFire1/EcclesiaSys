@@ -187,12 +187,12 @@ export default function MemberDashboard() {
 
                     {/* Tabs row */}
                     <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
-                        <TabButton tab="home" label="Overview" icon="🏠" />
-                        <TabButton tab="announcements" label="Announcements" icon="📢" />
-                        <TabButton tab="events" label="Events" icon="📅" />
-                        <TabButton tab="sermons" label="Sermons" icon="🎙️" />
-                        <TabButton tab="support" label="Support" icon="🎧" />
-                        <TabButton tab="profile" label="Profile" icon="👤" />
+                        <TabButton tab="home" label="Overview" icon="" />
+                        <TabButton tab="announcements" label="Announcements" icon="" />
+                        <TabButton tab="events" label="Events" icon="" />
+                        <TabButton tab="sermons" label="Sermons" icon="" />
+                        <TabButton tab="support" label="Support" icon="" />
+                        <TabButton tab="profile" label="Profile" icon="" />
                     </div>
                 </div>
             </div>
@@ -207,7 +207,7 @@ export default function MemberDashboard() {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-mdPrimary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                             <div className="relative z-10">
                                 <h2 className="text-3xl md:text-4xl font-extrabold text-mdPrimary mb-3 tracking-tight">
-                                    {isNewMember ? '🎉 Welcome to EcclesiaSys' : 'Welcome back!'}
+                                    {isNewMember ? ' Welcome to EcclesiaSys' : 'Welcome back!'}
                                 </h2>
                                 <p className="text-lg text-mdOnPrimaryContainer/90 font-medium max-w-2xl">
                                     {isNewMember ? 'Thank you for joining our church community! Explore the portal to stay connected.' : 'Your personalized church community portal. Here is a quick overview.'}
@@ -222,7 +222,7 @@ export default function MemberDashboard() {
                                 onClick={() => { setActiveTab('announcements'); localStorage.setItem('memberActiveTab', 'announcements'); }}
                                 className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
-                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">📣</div>
+                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6"></div>
                                 <div>
                                     <p className="text-4xl font-extrabold text-mdPrimary mb-1 tracking-tight">{announcements.length}</p>
                                     <p className="text-mdOnSurfaceVariant font-semibold text-lg">Announcements</p>
@@ -234,7 +234,7 @@ export default function MemberDashboard() {
                                 onClick={() => { setActiveTab('events'); localStorage.setItem('memberActiveTab', 'events'); }}
                                 className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
-                                <div className="bg-mdSecondaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">📅</div>
+                                <div className="bg-mdSecondaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6"></div>
                                 <div>
                                     <p className="text-4xl font-extrabold text-mdSecondary mb-1 tracking-tight">{events.length}</p>
                                     <p className="text-mdOnSurfaceVariant font-semibold text-lg">Events</p>
@@ -246,7 +246,7 @@ export default function MemberDashboard() {
                                 onClick={() => { setActiveTab('sermons'); localStorage.setItem('memberActiveTab', 'sermons'); }}
                                 className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
-                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">🎙️</div>
+                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6"></div>
                                 <div>
                                     <p className="text-4xl font-extrabold text-mdPrimary mb-1 tracking-tight">{sermons.length}</p>
                                     <p className="text-mdOnSurfaceVariant font-semibold text-lg">Sermons</p>
@@ -261,7 +261,7 @@ export default function MemberDashboard() {
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
                             <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl">📢</span>
+                                <span className="text-2xl"></span>
                             </div>
                             <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Recent Announcements</h2>
                         </div>
@@ -287,7 +287,7 @@ export default function MemberDashboard() {
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
                             <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl">📅</span>
+                                <span className="text-2xl"></span>
                             </div>
                             <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Upcoming Events</h2>
                         </div>
@@ -301,7 +301,7 @@ export default function MemberDashboard() {
                                         </div>
                                         {event.event_date && (
                                             <div className="mt-6 inline-flex items-center gap-2 bg-mdSecondaryContainer/50 text-mdSecondary px-4 py-2 rounded-full font-bold text-sm w-max">
-                                                <span>📅</span>
+                                                <span></span>
                                                 {new Date(event.event_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                                             </div>
                                         )}
@@ -321,7 +321,7 @@ export default function MemberDashboard() {
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
                             <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl">🎙️</span>
+                                <span className="text-2xl"></span>
                             </div>
                             <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Sermon Library</h2>
                         </div>
@@ -336,12 +336,12 @@ export default function MemberDashboard() {
                                         <div className="mt-auto space-y-2 pt-4 border-t border-mdSurfaceVariant text-sm font-medium text-mdOutline">
                                             {sermon.speaker && (
                                                 <p className="flex items-center gap-2">
-                                                    <span className="text-mdPrimary">👤</span> {sermon.speaker}
+                                                    <span className="text-mdPrimary"></span> {sermon.speaker}
                                                 </p>
                                             )}
                                             {sermon.sermonDate && (
                                                 <p className="flex items-center gap-2">
-                                                    <span className="text-mdPrimary">📅</span> {new Date(sermon.sermonDate).toLocaleDateString()}
+                                                    <span className="text-mdPrimary"></span> {new Date(sermon.sermonDate).toLocaleDateString()}
                                                 </p>
                                             )}
                                         </div>
@@ -361,7 +361,7 @@ export default function MemberDashboard() {
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
                             <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl">🎧</span>
+                                <span className="text-2xl"></span>
                             </div>
                             <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Help & Support</h2>
                         </div>
@@ -373,14 +373,14 @@ export default function MemberDashboard() {
                                 </p>
                                 <div className="space-y-4">
                                     <a href="mailto:benjaminbuckmanjunior@gmail.com" className="flex items-center gap-4 p-4 bg-mdPrimaryContainer/20 hover:bg-mdPrimaryContainer/40 rounded-2xl transition-colors duration-300">
-                                        <div className="bg-mdPrimaryContainer text-mdPrimary w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0">📧</div>
+                                        <div className="bg-mdPrimaryContainer text-mdPrimary w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0"></div>
                                         <div className="min-w-0">
                                             <p className="text-xs font-bold text-mdOnSurfaceVariant mb-1 uppercase tracking-wider">Email Us</p>
                                             <p className="text-mdPrimary font-bold truncate">benjaminbuckmanjunior@gmail.com</p>
                                         </div>
                                     </a>
                                     <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-mdSecondaryContainer/20 hover:bg-mdSecondaryContainer/40 rounded-2xl transition-colors duration-300">
-                                        <div className="bg-mdSecondaryContainer text-mdSecondary w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0">📱</div>
+                                        <div className="bg-mdSecondaryContainer text-mdSecondary w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0"></div>
                                         <div>
                                             <p className="text-xs font-bold text-mdOnSurfaceVariant mb-1 uppercase tracking-wider">WhatsApp</p>
                                             <p className="text-mdSecondary font-bold truncate">Chat with Support</p>
@@ -389,7 +389,7 @@ export default function MemberDashboard() {
                                 </div>
                             </div>
                             <div className="hidden md:flex flex-1 justify-center p-8">
-                                <div className="text-9xl opacity-10 filter drop-shadow-sm transition-transform hover:scale-110 duration-500">💬</div>
+                                <div className="text-9xl opacity-10 filter drop-shadow-sm transition-transform hover:scale-110 duration-500"></div>
                             </div>
                         </div>
                     </div>

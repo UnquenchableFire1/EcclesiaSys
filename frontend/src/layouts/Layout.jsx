@@ -83,12 +83,12 @@ export default function Layout({ children }) {
                             <h3 className="text-mdPrimary font-bold mb-2 text-xl">Contact Us</h3>
                             <p className="mb-2">
                                 <a href="mailto:benjaminbuckmanjunior@gmail.com" className="hover:text-mdPrimary transition-colors duration-200 font-medium">
-                                    📧 benjaminbuckmanjunior@gmail.com
+                                     benjaminbuckmanjunior@gmail.com
                                 </a>
                             </p>
                             <p>
                                 <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="hover:text-mdPrimary transition-colors duration-200 font-medium">
-                                    📱 WhatsApp
+                                     WhatsApp
                                 </a>
                             </p>
                         </div>
