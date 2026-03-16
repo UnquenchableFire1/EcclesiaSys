@@ -6,7 +6,6 @@ import { faKey, faArrowLeft, faEnvelope } from '@fortawesome/free-solid-svg-icon
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
-  const [actualEmail, setActualEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,7 +23,7 @@ export default function ForgotPassword() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, actualEmail }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
@@ -60,7 +59,7 @@ export default function ForgotPassword() {
             Reset Password
           </h1>
           <p className="text-mdOnSurfaceVariant mt-2">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we'll send you a 6-digit code to reset your password.
           </p>
         </div>
 
@@ -79,33 +78,23 @@ export default function ForgotPassword() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">
-              System Login Email
+              Registered Email Address
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="e.g. jdoe123@ecclesiasys.com"
-              className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">
-              Personal Web Email
-            </label>
-            <input
-              type="email"
-              value={actualEmail}
-              onChange={(e) => setActualEmail(e.target.value)}
-              placeholder="e.g. john.doe@gmail.com"
-              className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
-              required
-              disabled={loading}
-            />
-            <p className="text-xs text-mdOutline mt-2 ml-1">A 6-digit code will be sent to this email.</p>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-mdOutline">
+                <FontAwesomeIcon icon={faEnvelope} />
+              </span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. john.doe@gmail.com"
+                className="w-full pl-11 pr-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                required
+                disabled={loading}
+              />
+            </div>
+            <p className="text-xs text-mdOutline mt-2 ml-1">The reset code will be sent to this email.</p>
           </div>
 
           <button

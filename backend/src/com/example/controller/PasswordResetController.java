@@ -38,82 +38,59 @@ public class PasswordResetController {
     public Map<String, Object> forgotPassword(@RequestBody Map<String, String> request) {
         Map<String, Object> response = new HashMap<>();
         String email = request.get("email");
-        String actualEmail = request.get("actualEmail");
         
         try {
             // Validate email format
-            if (email == null || email.trim().isEmpty() || actualEmail == null || actualEmail.trim().isEmpty()) {
+            if (email == null || email.trim().isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Both System Email and Personal Email are required");
+                setMessageAndLog(response, "Email address is required");
                 return response;
             }
             
-            // Check if member exists by system email
+            // Check if member exists
             Member member = memberDAO.getMemberByEmail(email);
             if (member == null) {
                 // Don't reveal if email exists or not (security best practice)
                 response.put("success", true);
-                response.put("message", "If these details match our records, you will receive a 6-digit reset code at your Personal Email");
+                response.put("message", "If this email matches our records, you will receive a 6-digit reset code shortly.");
                 return response;
-            }
-            
-            // Validate that the provided actualEmail matches the member's personal actualEmail in DB
-            String targetEmail = member.getActualEmail();
-            
-            if (targetEmail != null && !targetEmail.trim().isEmpty()) {
-                if (!targetEmail.equalsIgnoreCase(actualEmail.trim())) {
-                    // Don't reveal invalid details
-                    response.put("success", true);
-                    response.put("message", "If these details match our records, you will receive a 6-digit reset code at your Personal Email");
-                    return response;
-                }
-            } else {
-                // Legacy account fallback: if no actualEmail in DB, we trust the personal email provided,
-                // bind it to the account permanently, and send the reset code to it.
-                // This ensures legacy accounts without a personal email can be recovered safely.
-                targetEmail = actualEmail.trim();
-                member.setActualEmail(targetEmail);
-                memberDAO.updateMember(member);
-                logger.info("Bound new actualEmail '{}' to legacy account '{}'", targetEmail, email);
             }
             
             // Generate a 6-digit reset code (valid for 1 hour)
             String token = String.format("%06d", new java.util.Random().nextInt(999999));
             LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
             
-            // Delete any existing reset tokens for this system email
-            // (Note: finding by token is risky if tokens aren't unique, but random 6-digits might collide.
-            // Ideally we'd delete by email. For now relying on standard logic, but let's delete anything tied to this email first)
-            try {
-                // Cleanup existing resets for this email to prevent spam/collision logic issues if DAO supported it
-                // We'll trust the current DAO structure. 
-            } catch (Exception ignored) {}
-            
-            // Save new password reset token with both generated email and actual email
-            PasswordReset reset = new PasswordReset(email, targetEmail, token, expiresAt);
+            // Save new password reset token
+            PasswordReset reset = new PasswordReset(email, email, token, expiresAt);
             passwordResetDAO.save(reset);
             
-            // Send password reset email with the reset code
+            // Send password reset email
             String resetLink = frontendUrl + "/reset-password";
-            logger.info("Sending 6-digit password reset email to: {}", targetEmail);
-            boolean emailSent = emailService.sendPasswordResetEmail(targetEmail, token, resetLink);
+            logger.info("Sending password reset code to: {}", email);
+            boolean emailSent = emailService.sendPasswordResetEmail(email, token, resetLink);
             
             if (emailSent) {
-                logger.info("Password reset 6-digit code sent successfully to: {}", targetEmail);
+                logger.info("Password reset code sent successfully to: {}", email);
             } else {
-                logger.warn("Failed to send password reset 6-digit code to: {}", targetEmail);
+                logger.warn("Failed to send password reset code to: {}", email);
             }
             
-            // Always return success message
+            // Always return success message to prevent user enumeration
             response.put("success", true);
-            response.put("message", "If these details match our records, you will receive a 6-digit reset code at your Personal Email");
+            response.put("message", "If this email matches our records, you will receive a 6-digit reset code shortly.");
             
             return response;
         } catch (Exception e) {
+            logger.error("Error processing password reset request", e);
             response.put("success", false);
-            response.put("message", "Error processing password reset request: " + e.getMessage());
+            response.put("message", "Error processing request: " + e.getMessage());
             return response;
         }
+    }
+
+    private void setMessageAndLog(Map<String, Object> response, String message) {
+        response.put("message", message);
+        logger.warn(message);
     }
     
     @PostMapping("/reset-password")
