@@ -80,4 +80,19 @@ public class MemberController {
         }
         return response;
     }
+
+    @PostMapping("/migrate-emails")
+    public Map<String, Object> migrateEmails() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            MemberDAO dao = new MemberDAO();
+            dao.migrateEmails();
+            response.put("success", true);
+            response.put("message", "Email migration completed successfully");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Migration failed: " + e.getMessage());
+        }
+        return response;
+    }
 }

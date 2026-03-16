@@ -22,9 +22,8 @@ import {
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import DailyVerse from '../components/DailyVerse';
 
-export default function MemberDashboard() {
+export default function MemberDashboard({ activeTab, setActiveTab }) {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState(() => localStorage.getItem('memberActiveTab') || 'home');
     const [memberData, setMemberData] = useState(null);
     const [announcements, setAnnouncements] = useState([]);
     const [events, setEvents] = useState([]);
@@ -131,23 +130,6 @@ export default function MemberDashboard() {
 
 
 
-    const TabButton = ({ tab, label, icon }) => (
-        <button
-            onClick={() => {
-                setActiveTab(tab);
-                localStorage.setItem('memberActiveTab', tab);
-                setMobileMenuOpen(false);
-            }}
-            className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
-                activeTab === tab
-                    ? 'bg-mdSurface text-mdPrimary border-b-4 border-mdPrimary'
-                    : 'text-mdOnPrimary hover:bg-white/10'
-            }`}
-        >
-            <span className="hidden sm:inline mr-2">{icon}</span>
-            {label}
-        </button>
-    );
 
     if (loading) {
         return (
@@ -182,43 +164,6 @@ export default function MemberDashboard() {
                     </div>
                 </div>
             )}
-            {/* Navigation Bar */}
-            <div className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 mx-4 md:mx-6 overflow-hidden">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="flex justify-between items-center py-4 gap-4">
-                        <h1 className="text-xl md:text-2xl font-extrabold flex-1 tracking-tight">
-                            Member Dashboard
-                        </h1>
-                        
-                        {/* Hamburger Menu Button - Mobile Only */}
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-colors"
-                            aria-label="Toggle menu"
-                        >
-                            {mobileMenuOpen ? '✕' : '☰'}
-                        </button>
-
-                        <button
-                            onClick={handleLogout}
-                            className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdPrimary px-4 py-2 sm:px-6 sm:py-2 text-sm md:text-base rounded-full shadow-md1 transition-all duration-200 font-bold flex-shrink-0"
-                        >
-                            {isMobile ? 'Logout' : `Logout (${memberName})`}
-                        </button>
-                    </div>
-
-                    {/* Tabs row */}
-                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
-                        <TabButton tab="home" label="Overview" icon={<FontAwesomeIcon icon={faHome} />} />
-                        <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
-                        <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
-                        <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
-                        <TabButton tab="directory" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
-                        <TabButton tab="support" label="Support" icon={<FontAwesomeIcon icon={faHeadset} />} />
-                        <TabButton tab="profile" label="Profile" icon={<FontAwesomeIcon icon={faUser} />} />
-                    </div>
-                </div>
-            </div>
 
             {/* Detail View Modal */}
             {selectedItem && (
@@ -309,7 +254,7 @@ export default function MemberDashboard() {
             )}
 
             {/* Content Area */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-7xl mx-auto">
                 {/* Home Tab */}
                 {activeTab === 'home' && (
                     <div className="space-y-8 animate-fade-in">
@@ -335,7 +280,7 @@ export default function MemberDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                             {/* Card 1 */}
                             <button
-                                onClick={() => { setActiveTab('announcements'); localStorage.setItem('memberActiveTab', 'announcements'); }}
+                                onClick={() => { setActiveTab('announcements'); }}
                                 className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
                                 <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6"></div>
@@ -347,7 +292,7 @@ export default function MemberDashboard() {
 
                             {/* Card 2 */}
                             <button
-                                onClick={() => { setActiveTab('events'); localStorage.setItem('memberActiveTab', 'events'); }}
+                                onClick={() => { setActiveTab('events'); }}
                                 className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
                                 <div className="bg-mdSecondaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">

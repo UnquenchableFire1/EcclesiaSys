@@ -254,12 +254,24 @@ public class MemberDAO {
         return false;
     }
 
+    public void migrateEmails() {
+        String sql = "UPDATE members SET email = actual_email WHERE actual_email IS NOT NULL AND actual_email != ''";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Migrated " + rowsAffected + " member emails.");
+        } catch (SQLException e) {
+            System.err.println("Email migration failed: " + e.getMessage());
+        }
+    }
+
     public boolean verifyMemberLogin(String email, String password) {
-        String query = "SELECT * FROM members WHERE email = ? AND password = ? AND status = 'active'";
+        String query = "SELECT * FROM members WHERE (email = ? OR actual_email = ?) AND password = ? AND status = 'active'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, email);
-            stmt.setString(2, password);
+            stmt.setString(2, email);
+            stmt.setString(3, password);
             ResultSet rs = stmt.executeQuery();
             return rs.next();
         } catch (SQLException e) {

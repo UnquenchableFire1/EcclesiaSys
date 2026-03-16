@@ -33,8 +33,7 @@ import {
     faHome
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function AdminDashboard() {
-    const [activeTab, setActiveTab] = useState(() => localStorage.getItem('adminActiveTab') || 'home');
+export default function AdminDashboard({ activeTab, setActiveTab }) {
     const [members, setMembers] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
     const [events, setEvents] = useState([]);
@@ -275,22 +274,6 @@ export default function AdminDashboard() {
         });
     };
 
-    const TabButton = ({ tab, label, icon }) => (
-        <button
-            onClick={() => {
-                setActiveTab(tab);
-                sessionStorage.setItem('adminActiveTab', tab);
-                setMobileMenuOpen(false);
-            }}
-            className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
-                activeTab === tab
-                    ? 'bg-mdSurface text-mdSecondary border-b-4 border-mdSecondary shadow-[0_-4px_10px_rgba(0,0,0,0.05)]'
-                    : 'text-white/90 hover:bg-white/10'
-            }`}
-        >
-            <span className="hidden sm:inline mr-2">{icon}</span>
-            {label}
-        </button>
     );
 
     return (
@@ -370,46 +353,30 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
-            )}
-            {/* Navigation Bar */}
-            <div className="bg-mdSecondary text-mdOnSecondary rounded-3xl shadow-md2 mx-4 md:mx-6 overflow-hidden">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    {/* Top row with title, menu button, and logout */}
-                    <div className="flex justify-between items-center py-4 gap-4">
-                        <h1 className="text-2xl md:text-3xl font-black flex-1 tracking-tighter text-mdOnSecondary">
-                            Admin Dashboard
-                        </h1>
-                        
-                        {/* Hamburger Menu Button - Mobile Only */}
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-mdSurface text-mdSecondary hover:bg-mdSurfaceVariant w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-200 shadow-md1 ring-2 ring-white/20"
-                            aria-label="Toggle menu"
-                        >
-                            <span className="text-2xl font-black">{mobileMenuOpen ? '✕' : '☰'}</span>
-                        </button>
+            )}            {/* Header Area */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 px-4 md:px-0">
+                <div>
+                    <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2">
+                        Admin Dashboard
+                    </h1>
+                    <p className="text-mdOnSurfaceVariant font-medium text-lg">
+                        Welcome back, <span className="text-mdPrimary font-bold">{adminName}</span>. Managing your community.
+                    </p>
+                </div>
 
-                        <button
-                            onClick={handleLogout}
-                            className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdSecondary px-4 py-2 sm:px-6 sm:py-2 text-sm md:text-base rounded-full shadow-md1 transition-all duration-200 font-bold flex-shrink-0"
-                        >
-                            {isMobile ? 'Logout' : `Logout (${adminName})`}
-                        </button>
-                    </div>
-
-                    {/* Tabs row */}
-                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
-                        <TabButton tab="home" label="Dashboard" icon={<FontAwesomeIcon icon={faHome} />} />
-                        <TabButton tab="members" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
-                        <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
-                        <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
-                        <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
-                    </div>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleLogout}
+                        className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdError px-6 py-3 rounded-full shadow-sm transition-all duration-200 font-bold border border-mdError/20 flex items-center gap-2"
+                    >
+                        <FontAwesomeIcon icon={faSignOutAlt} />
+                        Logout
+                    </button>
                 </div>
             </div>
 
             {/* Content Area */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <div className="max-w-7xl mx-auto">
                 {/* Summary Cards - Only show on Home or at the top of other tabs if preferred, but user wants them to link to tabs */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                     {[
@@ -422,7 +389,6 @@ export default function AdminDashboard() {
                             key={stat.id}
                             onClick={() => {
                                 setActiveTab(stat.id);
-                                localStorage.setItem('adminActiveTab', stat.id);
                             }}
                             className={`flex flex-col items-center justify-center p-6 rounded-[2.5rem] border-2 transition-all duration-300 group shadow-sm hover:shadow-md2 hover:-translate-y-1 ${
                                 activeTab === stat.id ? 'bg-white border-mdPrimary' : 'bg-white/50 border-transparent'
