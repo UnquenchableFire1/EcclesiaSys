@@ -64,6 +64,8 @@ public class MemberController {
             response.put("message", "Error: " + e.getMessage());
         }
         return response;
+    }
+
     @GetMapping("/public")
     public Map<String, Object> getPublicMembers() {
         Map<String, Object> response = new HashMap<>();
