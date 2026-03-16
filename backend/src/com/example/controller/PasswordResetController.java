@@ -143,6 +143,13 @@ public class PasswordResetController {
                 return response;
             }
             
+            // SECURITY: Prevent reusing old password
+            if (newPassword.equals(member.getPassword())) {
+                response.put("success", false);
+                response.put("message", "You cannot use your current password as the new password. Please choose a different one.");
+                return response;
+            }
+            
             // Update password using MemberDAO
             member.setPassword(newPassword);
             boolean updateSuccess = memberDAO.updateMember(member);

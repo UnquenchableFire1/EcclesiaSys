@@ -101,8 +101,8 @@ export default function Home() {
                 <FontAwesomeIcon icon={faMapMarkerAlt} />
               </div>
               <h3 className="text-2xl font-black mb-4">Visit Us</h3>
-              <p className="text-white/90 font-bold text-lg mb-2">UMat SRID</p>
-              <p className="text-white/80 leading-relaxed font-medium">Essikado, Secondi Takoradi</p>
+              <p className="text-white/90 font-bold text-lg mb-2">UMaT SRID</p>
+              <p className="text-white/80 leading-relaxed font-medium">Essikado, Sekondi Takoradi.</p>
             </div>
         </div>
       </section>

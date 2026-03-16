@@ -80,4 +80,20 @@ public class PasswordResetDAO {
             throw new RuntimeException("Failed to delete expired tokens: " + e.getMessage());
         }
     }
+
+    public boolean hasActiveToken(String email) {
+        String query = "SELECT COUNT(*) FROM password_resets WHERE email = ? AND expires_at > ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, email);
+            stmt.setObject(2, LocalDateTime.now());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to check for active token: " + e.getMessage());
+        }
+        return false;
+    }
 }

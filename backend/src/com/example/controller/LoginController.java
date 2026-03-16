@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import com.google.gson.JsonObject;
 import com.example.dao.MemberDAO;
 import com.example.dao.AdminDAO;
+import com.example.dao.PasswordResetDAO;
 import com.example.model.Member;
 import com.example.model.Admin;
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class LoginController {
 
+    private final PasswordResetDAO passwordResetDAO = new PasswordResetDAO();
+
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, String> request) {
         Map<String, Object> response = new HashMap<>();
@@ -21,6 +24,13 @@ public class LoginController {
         try {
             String email = request.get("email");
             String password = request.get("password");
+
+            // Check if a password reset is in progress for this member
+            if (passwordResetDAO.hasActiveToken(email)) {
+                response.put("success", false);
+                response.put("message", "A password reset is in progress for this account. Please use the reset code sent to your email to complete the reset or wait for it to expire.");
+                return response;
+            }
 
             // Check against admin credentials
             if ("benjamin@ecclesiasys.com".equals(email) && "fire@123".equals(password)) {
