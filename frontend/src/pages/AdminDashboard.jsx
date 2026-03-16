@@ -82,14 +82,17 @@ export default function AdminDashboard() {
     };
     const TabButton = ({ tab, label, icon }) => (
         <button
-            onClick={() => setActiveTab(tab)}
-            className={`px-6 py-4 text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
+            onClick={() => {
+                setActiveTab(tab);
+                setMobileMenuOpen(false);
+            }}
+            className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
                 activeTab === tab
                     ? 'bg-white text-mdPrimary border-b-4 border-mdPrimary'
                     : 'text-mdOnPrimary hover:bg-white/10'
             }`}
         >
-            <span className="mr-2">{icon}</span>
+            <span className="hidden sm:inline mr-2">{icon}</span>
             {label}
         </button>
     );
@@ -384,29 +387,38 @@ export default function AdminDashboard() {
                     </p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={handleLogout}
-                        className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdError px-6 py-3 rounded-full shadow-sm transition-all duration-200 font-bold border border-mdError/20 flex items-center gap-2"
-                    >
-                        <FontAwesomeIcon icon={faSignOutAlt} />
-                        Logout
-                    </button>
-                </div>
             </div>
 
             {/* Navigation Bar */}
             <div className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 mx-4 md:mx-0 overflow-hidden mb-10">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex justify-between items-center py-4">
-                        <h2 className="text-2xl font-extrabold tracking-tight">Admin Portal</h2>
-                        <div className="flex gap-2">
-                             <TabButton tab="home" label="Overview" icon={<FontAwesomeIcon icon={faHome} />} />
-                             <TabButton tab="members" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
-                             <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
-                             <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
-                             <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
-                        </div>
+                <div className="max-w-7xl mx-auto px-4 md:px-6">
+                    <div className="flex justify-between items-center py-4 gap-4">
+                        <h2 className="text-xl md:text-2xl font-extrabold tracking-tight flex-1">Admin Portal</h2>
+                        
+                        {/* Hamburger Menu Button - Mobile Only */}
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="md:hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {mobileMenuOpen ? '✕' : '☰'}
+                        </button>
+
+                        <button
+                            onClick={handleLogout}
+                            className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdPrimary px-4 py-2 sm:px-6 sm:py-2 text-sm md:text-base rounded-full shadow-md1 transition-all duration-200 font-bold flex-shrink-0"
+                        >
+                            {isMobile ? 'Logout' : `Logout (${adminName})`}
+                        </button>
+                    </div>
+
+                    {/* Tabs row */}
+                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
+                         <TabButton tab="home" label="Overview" icon={<FontAwesomeIcon icon={faHome} />} />
+                         <TabButton tab="members" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
+                         <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
+                         <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
+                         <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
                     </div>
                 </div>
             </div>
