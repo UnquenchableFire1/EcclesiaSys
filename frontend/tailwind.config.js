@@ -30,7 +30,24 @@ export default {
         onSurface: {
           DEFAULT: "#111827", // gray-900
           variant: "#4B5563", // gray-600
-        }
+        },
+        mdPrimary: "#006A6A",
+        mdOnPrimary: "#FFFFFF",
+        mdPrimaryContainer: "#D1F0EF",
+        mdOnPrimaryContainer: "#002020",
+        mdSecondary: "#4A6363",
+        mdOnSecondary: "#FFFFFF",
+        mdSecondaryContainer: "#CCE8E7",
+        mdOnSecondaryContainer: "#051F1F",
+        mdSurface: "#F4FBFA",
+        mdOnSurface: "#191C1C",
+        mdSurfaceVariant: "#DAE5E3",
+        mdOnSurfaceVariant: "#3F4948",
+        mdOutline: "#6F7978",
+        mdError: "#BA1A1A",
+        mdOnError: "#FFFFFF",
+        mdErrorContainer: "#FFDAD6",
+        mdOnErrorContainer: "#410002",
       },
       fontFamily: {
         sans: ['"Inter"', 'sans-serif'],

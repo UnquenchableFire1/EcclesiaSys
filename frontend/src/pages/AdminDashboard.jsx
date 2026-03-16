@@ -28,11 +28,12 @@ import {
     faMapMarkerAlt,
     faVideo,
     faPlus,
-    faSignOutAlt
+    faSignOutAlt,
+    faHome
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
-    const [activeTab, setActiveTab] = useState(() => localStorage.getItem('adminActiveTab') || 'members');
+    const [activeTab, setActiveTab] = useState(() => localStorage.getItem('adminActiveTab') || 'home');
     const [members, setMembers] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
     const [events, setEvents] = useState([]);
@@ -244,8 +245,8 @@ export default function AdminDashboard() {
             }}
             className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
                 activeTab === tab
-                    ? 'bg-mdSurface text-mdSecondary border-b-4 border-mdSecondary'
-                    : 'text-mdOnSecondary hover:bg-white/10'
+                    ? 'bg-mdSurface text-mdSecondary border-b-4 border-mdSecondary shadow-[0_-4px_10px_rgba(0,0,0,0.05)]'
+                    : 'text-white/90 hover:bg-white/10'
             }`}
         >
             <span className="hidden sm:inline mr-2">{icon}</span>
@@ -336,17 +337,17 @@ export default function AdminDashboard() {
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     {/* Top row with title, menu button, and logout */}
                     <div className="flex justify-between items-center py-4 gap-4">
-                        <h1 className="text-xl md:text-2xl font-extrabold flex-1 tracking-tight">
+                        <h1 className="text-2xl md:text-3xl font-black flex-1 tracking-tighter text-mdOnSecondary">
                             Admin Dashboard
                         </h1>
                         
                         {/* Hamburger Menu Button - Mobile Only */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-colors"
+                            className="md:hidden bg-mdSurface text-mdSecondary hover:bg-mdSurfaceVariant w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-200 shadow-md1 ring-2 ring-white/20"
                             aria-label="Toggle menu"
                         >
-                            {mobileMenuOpen ? '✕' : '☰'}
+                            <span className="text-2xl font-black">{mobileMenuOpen ? '✕' : '☰'}</span>
                         </button>
 
                         <button
@@ -359,6 +360,7 @@ export default function AdminDashboard() {
 
                     {/* Tabs row */}
                     <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
+                        <TabButton tab="home" label="Dashboard" icon={<FontAwesomeIcon icon={faHome} />} />
                         <TabButton tab="members" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
                         <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
                         <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
@@ -369,13 +371,13 @@ export default function AdminDashboard() {
 
             {/* Content Area */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-                {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                {/* Summary Cards - Only show on Home or at the top of other tabs if preferred, but user wants them to link to tabs */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                     {[
-                        { id: 'members', label: 'Members', count: counts.members, icon: faUsers, color: 'bg-teal-50 text-primary' },
-                        { id: 'announcements', label: 'Announcements', count: counts.announcements, icon: faBullhorn, color: 'bg-blue-50 text-secondary' },
-                        { id: 'events', label: 'Events', count: counts.events, icon: faCalendarAlt, color: 'bg-yellow-50 text-accent-dark' },
-                        { id: 'sermons', label: 'Sermons', count: counts.sermons, icon: faMicrophone, color: 'bg-emerald-50 text-emerald-700' },
+                        { id: 'members', label: 'Members', count: counts.members, icon: faUsers, color: 'bg-mdPrimaryContainer text-mdOnPrimaryContainer' },
+                        { id: 'announcements', label: 'Announcements', count: counts.announcements, icon: faBullhorn, color: 'bg-mdSecondaryContainer text-mdOnSecondaryContainer' },
+                        { id: 'events', label: 'Events', count: counts.events, icon: faCalendarAlt, color: 'bg-mdPrimaryContainer/60 text-mdOnPrimaryContainer' },
+                        { id: 'sermons', label: 'Sermons', count: counts.sermons, icon: faMicrophone, color: 'bg-mdSecondaryContainer/60 text-mdOnSecondaryContainer' },
                     ].map((stat) => (
                         <button
                             key={stat.id}
@@ -383,18 +385,31 @@ export default function AdminDashboard() {
                                 setActiveTab(stat.id);
                                 localStorage.setItem('adminActiveTab', stat.id);
                             }}
-                            className={`flex flex-col items-center justify-center p-6 rounded-[2rem] border transition-all duration-300 group shadow-premium hover:shadow-lifted hover:-translate-y-1 ${
-                                activeTab === stat.id ? 'bg-white border-primary border-2' : 'bg-white/50 border-white/20'
+                            className={`flex flex-col items-center justify-center p-6 rounded-[2.5rem] border-2 transition-all duration-300 group shadow-sm hover:shadow-md2 hover:-translate-y-1 ${
+                                activeTab === stat.id ? 'bg-white border-mdPrimary' : 'bg-white/50 border-transparent'
                             }`}
                         >
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 transition-transform group-hover:scale-110 ${stat.color}`}>
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 shadow-sm ${stat.color}`}>
                                 <FontAwesomeIcon icon={stat.icon} className="text-xl" />
                             </div>
-                            <span className="text-3xl font-black text-onSurface">{stat.count}</span>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">{stat.label}</span>
+                            <span className="text-4xl font-black text-mdOnSurface leading-none mb-1">{stat.count}</span>
+                            <span className="text-xs font-bold uppercase tracking-widest text-mdOnSurfaceVariant">{stat.label}</span>
                         </button>
                     ))}
                 </div>
+
+                {/* Home View Placeholder / Welcome */}
+                {activeTab === 'home' && !loading && (
+                    <div className="bg-mdSurface rounded-[3rem] p-12 text-center border-2 border-dashed border-mdOutline/10 animate-fade-in py-20">
+                         <div className="w-24 h-24 bg-mdPrimaryContainer rounded-full flex items-center justify-center text-mdPrimary text-4xl mx-auto mb-8 shadow-sm">
+                            <FontAwesomeIcon icon={faUsers} />
+                         </div>
+                         <h2 className="text-4xl font-black text-mdOnSurface mb-4">Welcome, Admin</h2>
+                         <p className="text-xl text-mdOnSurfaceVariant max-w-lg mx-auto font-medium">
+                            Select a category above or use the navigation tabs to manage your church community.
+                         </p>
+                    </div>
+                )}
 
                 {error && (
                     <div className="bg-mdErrorContainer text-mdError px-6 py-4 rounded-3xl shadow-sm text-sm sm:text-base animate-pulse font-medium mb-6">
@@ -409,9 +424,9 @@ export default function AdminDashboard() {
                     <div className="bg-white rounded-[2.5rem] shadow-premium max-w-2xl w-full mx-auto relative overflow-hidden flex flex-col max-h-[90vh]">
                         {/* Modal Header/Decorative */}
                         <div className={`h-32 w-full shrink-0 relative ${
-                            modalType === 'event' ? 'bg-gradient-to-r from-accent to-accent-dark' : 
-                            modalType === 'announcement' ? 'bg-gradient-to-r from-secondary to-blue-900' : 
-                            'bg-gradient-to-r from-primary to-teal-800'
+                            modalType === 'event' ? 'bg-gradient-to-r from-mdPrimary to-mdPrimaryContainer' : 
+                            modalType === 'announcement' ? 'bg-gradient-to-r from-mdSecondary to-mdSecondaryContainer' : 
+                            'bg-gradient-to-r from-mdPrimary to-mdPrimaryContainer'
                         }`}>
                             <button 
                                 onClick={() => setSelectedItem(null)}
@@ -422,7 +437,7 @@ export default function AdminDashboard() {
                             <div className="absolute -bottom-10 left-10 w-20 h-20 rounded-3xl bg-white shadow-lifted flex items-center justify-center text-3xl">
                                 <FontAwesomeIcon 
                                     icon={modalType === 'event' ? faCalendarAlt : modalType === 'announcement' ? faBullhorn : faMicrophone} 
-                                    className={modalType === 'event' ? 'text-accent' : modalType === 'announcement' ? 'text-secondary' : 'text-primary'}
+                                    className={modalType === 'event' ? 'text-mdPrimary' : modalType === 'announcement' ? 'text-mdSecondary' : 'text-mdPrimary'}
                                 />
                             </div>
                         </div>
@@ -435,7 +450,7 @@ export default function AdminDashboard() {
                             
                             <div className="flex flex-wrap gap-4 mb-8">
                                 {modalType === 'event' && selectedItem.eventDate && (
-                                    <div className="flex items-center gap-2 bg-accent/10 text-accent-dark px-4 py-2 rounded-full font-bold text-sm">
+                                    <div className="flex items-center gap-2 bg-mdPrimaryContainer text-mdOnPrimaryContainer px-4 py-2 rounded-full font-bold text-sm">
                                         <FontAwesomeIcon icon={faClock} />
                                         {new Date(selectedItem.eventDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                                     </div>
@@ -447,13 +462,13 @@ export default function AdminDashboard() {
                                     </div>
                                 )}
                                 {selectedItem.speaker && (
-                                    <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm">
+                                    <div className="flex items-center gap-2 bg-mdPrimaryContainer text-mdOnPrimaryContainer px-4 py-2 rounded-full font-bold text-sm">
                                         <FontAwesomeIcon icon={faUser} />
                                         {selectedItem.speaker}
                                     </div>
                                 )}
                                 {selectedItem.sermonDate && (
-                                    <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm">
+                                    <div className="flex items-center gap-2 bg-mdPrimaryContainer text-mdOnPrimaryContainer px-4 py-2 rounded-full font-bold text-sm">
                                         <FontAwesomeIcon icon={faCalendarAlt} />
                                         {new Date(selectedItem.sermonDate).toLocaleDateString()}
                                     </div>
@@ -461,16 +476,16 @@ export default function AdminDashboard() {
                             </div>
 
                             <div className="space-y-6">
-                                <p className="text-onSurface-variant text-lg leading-relaxed whitespace-pre-line">
+                                <p className="text-mdOnSurfaceVariant text-lg leading-relaxed whitespace-pre-line">
                                     {selectedItem.description || selectedItem.message}
                                 </p>
                             </div>
                         </div>
                         
-                        <div className="p-8 border-t border-gray-100 bg-gray-50 shrink-0">
+                        <div className="p-8 border-t border-mdSurfaceVariant bg-mdSurface shrink-0">
                             <button 
                                 onClick={() => setSelectedItem(null)}
-                                className="w-full bg-onSurface text-white py-4 rounded-full font-bold shadow-premium hover:shadow-lifted transition-all"
+                                className="w-full bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary py-4 rounded-full font-bold shadow-premium hover:shadow-lifted transition-all"
                             >
                                 Close Detail
                             </button>
@@ -482,101 +497,94 @@ export default function AdminDashboard() {
             {/* Loading State */}
             {loading && <div className="flex justify-center p-12"><p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Loading data...</p></div>}
 
-            {/* Members Tab */}
-            {activeTab === 'members' && !loading && (
-                <div className="space-y-6 animate-fade-in">
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-mdSecondaryContainer/50 p-4 rounded-2xl">
-                                <FontAwesomeIcon icon={faUsers} className="text-2xl text-mdSecondary" />
+                {/* Members Tab */}
+                {activeTab === 'members' && !loading && (
+                    <div className="space-y-6 animate-fade-in">
+                        {/* Summary Cards were already shown at top, so maybe just show management part */}
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-mdSecondaryContainer/50 p-4 rounded-2xl">
+                                    <FontAwesomeIcon icon={faUsers} className="text-2xl text-mdSecondary" />
+                                </div>
+                                <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Members</h2>
                             </div>
-                            <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Members</h2>
+                            <button
+                                onClick={() => downloadMembersAsExcel(members)}
+                                className="bg-mdPrimary text-mdOnPrimary hover:bg-mdSecondary px-6 py-3 rounded-full font-bold shadow-md1 hover:shadow-md2 transition-all duration-300 text-sm sm:text-base whitespace-nowrap"
+                            >
+                                <FontAwesomeIcon icon={faPlus} className="mr-2" /> Export to Excel
+                            </button>
                         </div>
-                        <button
-                            onClick={() => downloadMembersAsExcel(members)}
-                            className="bg-mdPrimary text-mdOnPrimary hover:bg-mdSecondary px-6 py-3 rounded-full font-bold shadow-md1 hover:shadow-md2 transition-all duration-300 text-sm sm:text-base whitespace-nowrap"
-                        >
-                            📥 Export to Excel
-                        </button>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {members.map((member) => {
-                            const firstName = member.firstName || member.name?.split(' ')[0] || 'Unknown';
-                            const lastName = member.lastName || member.name?.split(' ').slice(1).join(' ') || '';
-                            const initial = firstName.charAt(0).toUpperCase();
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {members.map((member) => {
+                                const firstName = member.firstName || member.name?.split(' ')[0] || 'Unknown';
+                                const lastName = member.lastName || member.name?.split(' ').slice(1).join(' ') || '';
+                                const initial = firstName.charAt(0).toUpperCase();
 
-                            return (
-                                <div key={member.id} className="bg-mdSurface p-6 rounded-[2rem] border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col items-center text-center group relative overflow-hidden">
-                                    <button
-                                        onClick={() => handleDeleteMember(member.id)}
-                                        className="absolute top-4 right-4 bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 shadow-sm z-10"
-                                        title="Delete Member"
-                                    >
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
-                                    
-                                    <div className="w-28 h-28 mb-4 rounded-full bg-mdSurfaceVariant overflow-hidden border-4 border-mdSurface shadow-md relative group-hover:scale-105 transition-transform duration-300">
-                                        {member.profilePictureUrl ? (
-                                            <img src={member.profilePictureUrl} alt={`${firstName} ${lastName}`} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-4xl font-black text-mdPrimary bg-mdPrimaryContainer">
-                                                {initial}
-                                            </div>
-                                        )}
-                                    </div>
-                                    
-                                    <h3 className="text-xl font-extrabold text-mdOnSurface mb-1">
-                                        {firstName} {lastName}
-                                    </h3>
-                                    <p className="text-mdOnSurfaceVariant font-bold text-[10px] uppercase tracking-wider mb-5">
-                                        Joined {member.joinedDate ? new Date(member.joinedDate).toLocaleDateString() : (member.createdAt ? new Date(member.createdAt).toLocaleDateString() : 'Unknown')}
-                                    </p>
-                                    
-                                    <div className="w-full space-y-2 text-left bg-mdSurfaceVariant/30 p-4 rounded-2xl flex-grow flex flex-col justify-center">
-                                        <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
-                                            <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">
-                                                <FontAwesomeIcon icon={faPhone} />
-                                            </div>
-                                            <div className="overflow-hidden">
-                                                <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Phone</p>
-                                                <p className="text-sm font-bold text-mdOnSurface truncate">{member.phoneNumber || 'Not provided'}</p>
-                                            </div>
+                                return (
+                                    <div key={member.id} className="bg-mdSurface p-6 rounded-[2rem] border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col items-center text-center group relative overflow-hidden">
+                                        <button
+                                            onClick={() => handleDeleteMember(member.id)}
+                                            className="absolute top-4 right-4 bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 shadow-sm z-10"
+                                            title="Delete Member"
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
+                                        
+                                        <div className="w-28 h-28 mb-4 rounded-full bg-mdSurfaceVariant overflow-hidden border-4 border-mdSurface shadow-md relative group-hover:scale-105 transition-transform duration-300">
+                                            {member.profilePictureUrl ? (
+                                                <img src={member.profilePictureUrl} alt={`${firstName} ${lastName}`} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-4xl font-black text-mdPrimary bg-mdPrimaryContainer">
+                                                    {initial}
+                                                </div>
+                                            )}
                                         </div>
                                         
-                                        <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
-                                            <div className="bg-mdPrimaryContainer/50 p-2 rounded-lg text-mdPrimary text-sm">
-                                                <FontAwesomeIcon icon={faEnvelope} />
-                                            </div>
-                                            <div className="overflow-hidden">
-                                                <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">System Email</p>
-                                                <p className="text-sm font-bold text-mdOnSurface truncate" title={member.email || ''}>{member.email || 'Not provided'}</p>
-                                            </div>
-                                        </div>
-
-                                        {(member.actualEmail && member.actualEmail !== member.email) && (
-                                            <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all mt-auto">
+                                        <h3 className="text-xl font-extrabold text-mdOnSurface mb-1">
+                                            {firstName} {lastName}
+                                        </h3>
+                                        <p className="text-mdOnSurfaceVariant font-bold text-[10px] uppercase tracking-wider mb-5">
+                                            Joined {member.joinedDate ? new Date(member.joinedDate).toLocaleDateString() : (member.createdAt ? new Date(member.createdAt).toLocaleDateString() : 'Unknown')}
+                                        </p>
+                                        
+                                        <div className="w-full space-y-2 text-left bg-mdSurfaceVariant/30 p-4 rounded-2xl flex-grow flex flex-col justify-center">
+                                            <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
                                                 <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">
+                                                    <FontAwesomeIcon icon={faPhone} />
+                                                </div>
+                                                <div className="overflow-hidden">
+                                                    <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Phone</p>
+                                                    <p className="text-sm font-bold text-mdOnSurface truncate">{member.phoneNumber || 'Not provided'}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
+                                                <div className="bg-mdPrimaryContainer/50 p-2 rounded-lg text-mdPrimary text-sm">
                                                     <FontAwesomeIcon icon={faEnvelope} />
                                                 </div>
                                                 <div className="overflow-hidden">
-                                                    <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Personal Email</p>
-                                                    <p className="text-sm font-bold text-mdOnSurface truncate" title={member.actualEmail}>{member.actualEmail}</p>
+                                                    <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">System Email</p>
+                                                    <p className="text-sm font-bold text-mdOnSurface truncate" title={member.email || ''}>{member.email || 'Not provided'}</p>
                                                 </div>
                                             </div>
-                                        )}
+
+                                            {(member.actualEmail && member.actualEmail !== member.email) && (
+                                                <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all mt-auto">
+                                                    <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">
+                                                        <FontAwesomeIcon icon={faEnvelope} />
+                                                    </div>
+                                                    <div className="overflow-hidden">
+                                                        <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Personal Email</p>
+                                                        <p className="text-sm font-bold text-mdOnSurface truncate" title={member.actualEmail}>{member.actualEmail}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            );
-                        })}
-                        
-                        {members.length === 0 && (
-                            <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 text-center py-20 bg-mdSurfaceVariant/30 rounded-[2rem] border border-mdOutline/20">
-                                <span className="text-5xl mb-4 block animate-bounce"></span>
-                                <h3 className="text-xl font-bold text-mdOnSurface mb-2">No members found</h3>
-                                <p className="text-mdOnSurfaceVariant">There are currently no registered members.</p>
-                            </div>
-                        )}
+                                );
+                            })}
                     </div>
                 </div>
             )}
@@ -587,7 +595,7 @@ export default function AdminDashboard() {
                     <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl"></span>
+                                <FontAwesomeIcon icon={faBullhorn} className="text-2xl text-mdPrimary" />
                             </div>
                             <h2 className="text-2xl font-extrabold text-mdPrimary tracking-tight">Create Announcement</h2>
                         </div>
@@ -778,7 +786,7 @@ export default function AdminDashboard() {
                     <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl"></span>
+                                <FontAwesomeIcon icon={faMicrophone} className="text-2xl text-mdPrimary" />
                             </div>
                             <h2 className="text-2xl font-extrabold text-mdPrimary tracking-tight">Upload Sermon</h2>
                         </div>

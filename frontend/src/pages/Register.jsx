@@ -94,7 +94,7 @@ export default function Register() {
                     <a href="/" className="absolute left-0 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-colors flex items-center gap-1 text-sm font-bold">
                         <FontAwesomeIcon icon={faArrowLeft} /> Home
                     </a>
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm mx-auto">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdOnPrimaryContainer mb-4 shadow-sm mx-auto">
                         <FontAwesomeIcon icon={faPlus} className="text-3xl" />
                     </div>
                     <h1 className="text-3xl font-extrabold text-mdPrimary tracking-tight mb-2">Join EcclesiaSys</h1>
@@ -119,7 +119,7 @@ export default function Register() {
                                     value={formData.firstName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    className="w-full px-4 py-3 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                     placeholder="John"
                                 />
                             </div>
@@ -131,7 +131,7 @@ export default function Register() {
                                     value={formData.lastName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    className="w-full px-4 py-3 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                     placeholder="Doe"
                                 />
                             </div>
@@ -144,7 +144,7 @@ export default function Register() {
                                 value={formData.phoneNumber}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                className="w-full px-5 py-4 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                 placeholder="(123) 456-7890"
                             />
                         </div>
@@ -156,7 +156,7 @@ export default function Register() {
                                 value={formData.actualEmail}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                className="w-full px-5 py-4 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                 placeholder="your.email@example.com"
                             />
                             <p className="text-xs text-mdOutline mt-2 ml-1">This email will be used to send you password reset links</p>
@@ -170,7 +170,7 @@ export default function Register() {
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    className="w-full px-5 py-4 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                     placeholder="Min. 8 chars, A-Z, a-z, 0-9, symbol"
                                 />
                                 <button
@@ -192,7 +192,7 @@ export default function Register() {
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    className="w-full px-5 py-4 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                     placeholder="Confirm your password"
                                 />
                                 <button
@@ -233,7 +233,7 @@ export default function Register() {
             {alertDialog && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-mdSurface rounded-3xl shadow-md3 p-8 max-w-sm w-full mx-auto animate-fade-in text-center relative">
-                        <div className={`mx-auto flex items-center justify-center p-4 rounded-full mb-4 w-16 h-16 bg-mdPrimaryContainer text-mdPrimary`}>
+                        <div className={`mx-auto flex items-center justify-center p-4 rounded-full mb-4 w-16 h-16 bg-mdPrimaryContainer text-mdOnPrimaryContainer`}>
                             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
                         </div>
                         <h3 className="text-2xl font-bold text-mdOnSurface mb-2">{alertDialog.title}</h3>

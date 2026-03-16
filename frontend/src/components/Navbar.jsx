@@ -26,7 +26,7 @@ export default function Navbar({ isMobile }) {
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  const isActive = (path) => location.pathname === path ? 'bg-mdPrimaryContainer text-mdPrimary font-bold' : 'text-mdOnSurface hover:bg-mdSurfaceVariant hover:text-mdOnSurface';
+  const isActive = (path) => location.pathname === path ? 'bg-mdPrimaryContainer text-mdOnPrimaryContainer font-bold' : 'text-mdOnSurface hover:bg-mdSurfaceVariant hover:text-mdOnSurface';
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);

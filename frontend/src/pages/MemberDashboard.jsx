@@ -212,7 +212,7 @@ export default function MemberDashboard() {
                         <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
                         <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
                         <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
-                        <TabButton tab="directory" label="Directory" icon={<FontAwesomeIcon icon={faUsers} />} />
+                        <TabButton tab="directory" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
                         <TabButton tab="support" label="Support" icon={<FontAwesomeIcon icon={faHeadset} />} />
                         <TabButton tab="profile" label="Profile" icon={<FontAwesomeIcon icon={faUser} />} />
                     </div>

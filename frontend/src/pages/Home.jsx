@@ -111,7 +111,7 @@ export default function Home() {
       <section className="py-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tight">Explore Our <span className="text-mdPrimary">Ministry</span></h2>
-          <p className="text-xl text-mdOnSurface-variant font-medium mt-4">Discover ways to connect, grow, and serve.</p>
+          <p className="text-xl text-mdOnSurfaceVariant font-medium mt-4">Discover ways to connect, grow, and serve.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Link 
@@ -175,7 +175,7 @@ export default function Home() {
               <FontAwesomeIcon icon={faBolt} className="text-accent" />
               Our Mission
             </h2>
-            <p className="text-xl text-mdOnSurface-variant leading-relaxed mb-8 font-medium">
+            <p className="text-xl text-mdOnSurfaceVariant leading-relaxed mb-8 font-medium">
               We are committed to building lives, restoring hope, and spreading the love of Christ through authentic community.
             </p>
             <ul className="space-y-4">
@@ -202,7 +202,7 @@ export default function Home() {
             <p className="text-2xl text-mdPrimary font-black leading-tight mb-8">
               "To be a beacon of hope where every heart is touched and every soul uplifted."
             </p>
-            <p className="text-lg text-mdOnSurface-variant leading-relaxed font-medium">
+            <p className="text-lg text-mdOnSurfaceVariant leading-relaxed font-medium">
               Our vision extends beyond our walls. We believe in the transformative power of faith and the endless possibilities when we put God first in our community.
             </p>
             <div className="mt-8 flex gap-6">
@@ -213,7 +213,7 @@ export default function Home() {
                     </div>
                   ))}
                </div>
-               <p className="text-sm font-bold text-mdOnSurface-variant self-center">
+               <p className="text-sm font-bold text-mdOnSurfaceVariant self-center">
                  Join <span className="text-mdPrimary">5,000+ members</span> <br/>making an impact
                </p>
             </div>
@@ -249,7 +249,7 @@ export default function Home() {
             <FontAwesomeIcon icon={faEnvelope} />
           </div>
           <h2 className="text-4xl font-black text-mdOnSurface mb-4">Stay Inspired</h2>
-          <p className="text-xl text-mdOnSurface-variant font-medium mb-10">
+          <p className="text-xl text-mdOnSurfaceVariant font-medium mb-10">
             Join our weekly newsletter for spiritual insights, upcoming events, and community updates delivered to your inbox.
           </p>
           
@@ -287,7 +287,7 @@ export default function Home() {
         <h2 className="text-5xl font-black text-mdOnSurface mb-8 tracking-tight">
           Ready to find your <span className="text-mdPrimary">place?</span>
         </h2>
-        <p className="text-xl text-mdOnSurface-variant font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xl text-mdOnSurfaceVariant font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
           Whether you're visiting for the first time or looking for a church home, we're here to welcome you with open arms.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
