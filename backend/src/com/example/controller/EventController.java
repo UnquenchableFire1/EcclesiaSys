@@ -14,6 +14,12 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class EventController {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.service.EmailTemplateService emailService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.dao.MemberDAO memberDao;
+
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @GetMapping
@@ -85,6 +91,23 @@ public class EventController {
             
             EventDAO dao = new EventDAO();
             if (dao.addEvent(event)) {
+                // Send email notifications to all active members
+                try {
+                    java.util.List<String> memberEmails = memberDao.getAllActiveMemberEmails();
+                    for (String email : memberEmails) {
+                        emailService.sendEventNotificationEmail(
+                            email, 
+                            event.getTitle(), 
+                            event.getEventDate().toString(), 
+                            event.getDescription(), 
+                            event.getLocation(),
+                            String.valueOf(event.getId())
+                        );
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to send event notifications: " + e.getMessage());
+                }
+
                 response.put("success", true);
                 response.put("message", "Event created");
             } else {

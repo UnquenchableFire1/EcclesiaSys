@@ -61,12 +61,13 @@ public class EmailTemplateService {
      * Event notification email
      */
     public void sendEventNotificationEmail(String recipientEmail, String eventName, 
-                                          String eventDate, String eventDescription, String eventLocation) {
+                                          String eventDate, String eventDescription, String eventLocation, String eventId) {
         try {
+            String eventLink = "https://ecclesiasys-bequ.onrender.com/events?id=" + eventId;
             String subject = "Upcoming Event: " + eventName;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
-                "<div style='background-color: #FDE047; color: #0F766E; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;'>" +
+                "<div style='background-color: #0F4C5C; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;'>" +
                 "<h1 style='margin: 0;'>📅 " + eventName + "</h1>" +
                 "</div>" +
                 "<div style='background-color: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px;'>" +
@@ -75,24 +76,26 @@ public class EmailTemplateService {
                 "<p><strong>Event:</strong> " + eventName + "</p>" +
                 "<p><strong>Date & Time:</strong> " + eventDate + "</p>" +
                 "<p><strong>Location:</strong> " + eventLocation + "</p>" +
-                "<p><strong>Details:</strong> " + eventDescription + "</p>" +
+                "</div>" +
+                "<div style='text-align: center; margin: 30px 0;'>" +
+                "<a href='" + eventLink + "' style='background-color: #0F766E; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: bold;'>View Event Details</a>" +
                 "</div>" +
                 "<p>Mark your calendar and join us for a wonderful time of fellowship and ministry!</p>" +
-                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from our church management system.</small></p>" +
+                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
                 "</div></div></body></html>";
 
             sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
-            logger.info("Event notification email sent successfully to: {}", recipientEmail);
         } catch (Exception e) {
-            logger.error("Failed to send event notification email to: {}", recipientEmail, e);
+            logger.error("Failed to send event notification", e);
         }
     }
 
     /**
      * Announcement notification email
      */
-    public void sendAnnouncementNotificationEmail(String recipientEmail, String announcementTitle, String announcementContent) {
+    public void sendAnnouncementNotificationEmail(String recipientEmail, String announcementTitle, String announcementContent, String announcementId) {
         try {
+            String announcementLink = "https://ecclesiasys-bequ.onrender.com/announcements?id=" + announcementId;
             String subject = "Church Announcement: " + announcementTitle;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
@@ -102,16 +105,49 @@ public class EmailTemplateService {
                 "<div style='background-color: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px;'>" +
                 "<p>Hello,</p>" +
                 "<p>" + announcementContent + "</p>" +
-                "<p>For more information, please log in to your account or contact our office.</p>" +
-                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from our church management system.</small></p>" +
+                "<div style='text-align: center; margin: 30px 0;'>" +
+                "<a href='" + announcementLink + "' style='background-color: #0F4C5C; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: bold;'>Read Full Announcement</a>" +
+                "</div>" +
+                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
                 "</div></div></body></html>";
 
             sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
-            logger.info("Announcement notification email sent successfully to: {}", recipientEmail);
         } catch (Exception e) {
-            logger.error("Failed to send announcement notification email to: {}", recipientEmail, e);
+            logger.error("Failed to send announcement notification", e);
         }
     }
+
+    /**
+     * Sermon notification email
+     */
+    public void sendSermonNotificationEmail(String recipientEmail, String sermonTitle, String speaker, String description, String sermonId) {
+        try {
+            String sermonLink = "https://ecclesiasys-bequ.onrender.com/sermons?id=" + sermonId;
+            String subject = "New Sermon Posted: " + sermonTitle;
+            String htmlContent = "<html><body>" +
+                "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
+                "<div style='background-color: #0F4C5C; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;'>" +
+                "<h1 style='margin: 0;'>🎙️ New Sermon: " + sermonTitle + "</h1>" +
+                "</div>" +
+                "<div style='background-color: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px;'>" +
+                "<p>A new sermon has been uploaded to the platform.</p>" +
+                "<div style='background-color: white; padding: 20px; border-left: 4px solid #0F766E; margin: 20px 0;'>" +
+                "<p><strong>Title:</strong> " + sermonTitle + "</p>" +
+                "<p><strong>Speaker:</strong> " + speaker + "</p>" +
+                "<p><strong>Description:</strong> " + (description != null ? description : "New message available to watch or listen.") + "</p>" +
+                "</div>" +
+                "<div style='text-align: center; margin: 30px 0;'>" +
+                "<a href='" + sermonLink + "' style='background-color: #0F766E; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: bold;'>Listen / Watch Now</a>" +
+                "</div>" +
+                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
+                "</div></div></body></html>";
+
+            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
+        } catch (Exception e) {
+            logger.error("Failed to send sermon notification", e);
+        }
+    }
+
 
     /**
      * Weekly digest/newsletter email

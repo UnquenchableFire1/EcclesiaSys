@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faKey, faEye, faEyeSlash, faCheckCircle, faExclamationTriangle, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 export default function ResetPassword() {
   const [resetCode, setResetCode] = useState('');
@@ -79,9 +81,7 @@ export default function ResetPassword() {
         <div className="bg-mdSurface text-mdOnSurface p-10 rounded-[2.5rem] shadow-md2 w-full max-w-md border border-mdSurfaceVariant transition-all duration-300">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-5 shadow-sm">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-              </svg>
+              <FontAwesomeIcon icon={faKey} className="text-2xl" />
             </div>
             <h1 className="text-3xl font-extrabold text-mdOnSurface tracking-tight">
               Set New Password
@@ -93,14 +93,14 @@ export default function ResetPassword() {
 
           {message && (
             <div className="bg-[#E8F5E9] text-[#2E7D32] border border-[#A5D6A7] px-5 py-4 rounded-2xl mb-6 font-semibold flex items-center gap-3 shadow-sm">
-              <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <FontAwesomeIcon icon={faCheckCircle} className="w-6 h-6 shrink-0" />
               {message}
             </div>
           )}
 
           {error && (
             <div className="bg-mdErrorContainer text-mdError px-5 py-4 rounded-2xl mb-6 font-semibold flex items-start gap-3 shadow-sm animate-shake">
-              <svg className="w-6 h-6 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <FontAwesomeIcon icon={faExclamationTriangle} className="w-6 h-6 shrink-0 mt-0.5" />
               <p className="flex-1">{error}</p>
             </div>
           )}
@@ -145,13 +145,7 @@ export default function ResetPassword() {
                   title={showPassword ? 'Hide password' : 'Show password'}
                   disabled={loading}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {showPassword ? (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    )}
-                  </svg>
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="w-5 h-5" />
                 </button>
               </div>
 
@@ -173,13 +167,7 @@ export default function ResetPassword() {
                   title={showConfirmPassword ? 'Hide password' : 'Show password'}
                   disabled={loading}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {showConfirmPassword ? (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    )}
-                  </svg>
+                  <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} className="w-5 h-5" />
                 </button>
               </div>
 

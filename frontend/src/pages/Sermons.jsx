@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getSermons } from '../services/api';
 import Layout from '../layouts/Layout';
 import analytics from '../services/analyticsTracker';
@@ -10,13 +11,29 @@ export default function Sermons() {
     const [loading, setLoading] = useState(true);
     const [expandedSermon, setExpandedSermon] = useState(null);
     const [filterSpeaker, setFilterSpeaker] = useState('');
+    const location = useLocation();
 
     useEffect(() => {
         analytics.trackPageView('Sermons Library');
         
         getSermons().then(response => {
-            setSermons(response.data || []);
+            const fetchedSermons = response.data || [];
+            setSermons(fetchedSermons);
             setLoading(false);
+
+            // Check for id in query params
+            const params = new URLSearchParams(location.search);
+            const sermonId = params.get('id');
+            if (sermonId) {
+                setExpandedSermon(parseInt(sermonId));
+                // Scroll to the sermon after a short delay
+                setTimeout(() => {
+                    const element = document.getElementById(`sermon-${sermonId}`);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 500);
+            }
         }).catch(err => {
             console.error('Error fetching sermons:', err);
             analytics.trackError('Failed to load sermons', 'API_ERROR');
@@ -121,6 +138,7 @@ export default function Sermons() {
                             {filteredSermons.map((sermon, index) => (
                                 <div 
                                     key={sermon.id || index} 
+                                    id={`sermon-${sermon.id}`}
                                     className={`bg-mdSurface p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 overflow-hidden ${
                                         expandedSermon === sermon.id 
                                         ? 'border-mdPrimary shadow-md2 bg-mdPrimaryContainer/5' 

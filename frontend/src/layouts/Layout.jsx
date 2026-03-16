@@ -7,7 +7,7 @@ import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 export default function Layout({ children }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [lastActivity, setLastActivity] = useState(Date.now());
-    const inactivityTimeout = 10 * 60 * 1000; // 10 minutes
+    const inactivityTimeout = 5 * 60 * 1000; // 5 minutes
 
     // Check for new tab/window logout
     useEffect(() => {

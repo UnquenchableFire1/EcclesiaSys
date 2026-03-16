@@ -64,5 +64,18 @@ public class MemberController {
             response.put("message", "Error: " + e.getMessage());
         }
         return response;
+    @GetMapping("/public")
+    public Map<String, Object> getPublicMembers() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            MemberDAO dao = new MemberDAO();
+            List<Member> members = dao.getPublicMembers();
+            response.put("success", true);
+            response.put("data", members);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        return response;
     }
 }

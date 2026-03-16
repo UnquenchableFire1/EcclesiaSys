@@ -176,6 +176,10 @@ export const updateProfilePrivacy = (memberId, isPublic) => {
   return api.put(`/member/${memberId}/privacy`, { isProfilePublic: isPublic });
 };
 
+export const getPublicMembers = () => {
+  return api.get('/members/public');
+};
+
 export const getPublicMemberProfile = (memberId) => {
   return api.get(`/member/public/${memberId}`);
 };

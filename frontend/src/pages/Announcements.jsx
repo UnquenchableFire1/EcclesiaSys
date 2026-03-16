@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getAnnouncements } from '../services/api';
 import Layout from '../layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,11 +8,31 @@ import { faBullhorn, faDownload } from '@fortawesome/free-solid-svg-icons';
 export default function Announcements() {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
+    const location = useLocation();
 
     useEffect(() => {
         getAnnouncements().then(response => {
-            setAnnouncements(response.data || []);
+            const fetchedAnnouncements = response.data || [];
+            setAnnouncements(fetchedAnnouncements);
             setLoading(false);
+
+            // Check for id in query params
+            const params = new URLSearchParams(location.search);
+            const announcementId = params.get('id');
+            if (announcementId) {
+                // Scroll to the announcement after a short delay
+                setTimeout(() => {
+                    const element = document.getElementById(`announcement-${announcementId}`);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Add a temporary highlight class
+                        element.classList.add('ring-4', 'ring-mdPrimary', 'transition-all', 'duration-1000');
+                        setTimeout(() => {
+                            element.classList.remove('ring-4', 'ring-mdPrimary');
+                        }, 3000);
+                    }
+                }, 500);
+            }
         }).catch(err => {
             console.error('Error fetching announcements:', err);
             setLoading(false);
@@ -47,7 +68,7 @@ export default function Announcements() {
                 ) : (
                     <div className="space-y-6">
                         {announcements.map((announcement, index) => (
-                            <div key={announcement.id || index} className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 group">
+                            <div key={announcement.id || index} id={`announcement-${announcement.id}`} className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 group">
                                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                                     <h3 className="text-2xl font-extrabold text-mdOnSurface group-hover:text-mdPrimary transition-colors">{announcement.title}</h3>
                                     <span className="inline-flex items-center px-3 py-1 rounded-full bg-mdSurfaceVariant text-mdOnSurfaceVariant text-sm font-bold whitespace-nowrap">

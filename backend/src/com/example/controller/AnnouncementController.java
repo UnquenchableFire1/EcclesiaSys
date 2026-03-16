@@ -12,6 +12,13 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AnnouncementController {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.service.EmailTemplateService emailService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.dao.MemberDAO memberDao;
+
+
     @GetMapping
     public Map<String, Object> getAllAnnouncements() {
         Map<String, Object> response = new HashMap<>();
@@ -62,6 +69,21 @@ public class AnnouncementController {
             
             AnnouncementDAO dao = new AnnouncementDAO();
             if (dao.addAnnouncement(announcement)) {
+                // Send email notifications to all active members
+                try {
+                    java.util.List<String> memberEmails = memberDao.getAllActiveMemberEmails();
+                    for (String email : memberEmails) {
+                        emailService.sendAnnouncementNotificationEmail(
+                            email, 
+                            announcement.getTitle(), 
+                            announcement.getMessage(),
+                            String.valueOf(announcement.getId())
+                        );
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to send announcement notifications: " + e.getMessage());
+                }
+
                 response.put("success", true);
                 response.put("message", "Announcement created");
             } else {

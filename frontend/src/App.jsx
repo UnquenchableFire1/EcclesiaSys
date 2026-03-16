@@ -11,6 +11,7 @@ import Events from "./pages/Events";
 import Sermons from "./pages/Sermons";
 import AdminDashboard from "./pages/AdminDashboard";
 import Layout from "./layouts/Layout";
+import SessionTimer from "./components/SessionTimer";
 
 function ProtectedRoute({ requiredRole, children }) {
   const userType = localStorage.getItem('userType');
@@ -25,7 +26,9 @@ function ProtectedRoute({ requiredRole, children }) {
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <SessionTimer />
+      <Routes>
       <Route path="/" element={<Layout><Home /></Layout>} />
       <Route path="/home" element={<Layout><Home /></Layout>} />
       <Route path="/login" element={<Login />} />
@@ -75,5 +78,6 @@ export default function App() {
         }
       />
     </Routes>
+    </>
   );
 }

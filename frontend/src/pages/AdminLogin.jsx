@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
 import Layout from '../layouts/Layout';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShieldAlt, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -31,9 +33,12 @@ export default function AdminLogin() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 animate-fade-in">
       <div className="bg-mdSurface text-mdOnSurface p-10 rounded-3xl shadow-md2 w-full max-w-md border border-mdSurfaceVariant">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdSecondaryContainer text-mdSecondary mb-4 shadow-sm">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+        <div className="text-center mb-8 relative">
+          <a href="/login" className="absolute left-0 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdSecondary transition-colors flex items-center gap-1 text-sm font-bold">
+            <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Back
+          </a>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdSecondaryContainer text-mdSecondary mb-4 shadow-sm mx-auto">
+            <FontAwesomeIcon icon={faShieldAlt} className="text-2xl" />
           </div>
           <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">
             Admin Portal

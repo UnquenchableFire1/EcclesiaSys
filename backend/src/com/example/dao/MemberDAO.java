@@ -169,6 +169,47 @@ public class MemberDAO {
         return members;
     }
 
+    public List<String> getAllActiveMemberEmails() {
+        List<String> emails = new ArrayList<>();
+        String query = "SELECT COALESCE(actual_email, email) as contact_email FROM members WHERE status = 'active'";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                emails.add(rs.getString("contact_email"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return emails;
+    }
+
+    public List<Member> getPublicMembers() {
+        List<Member> members = new ArrayList<>();
+        String query = "SELECT * FROM members WHERE status = 'active' AND is_profile_public = true";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                Member member = new Member();
+                member.setId(rs.getInt("id"));
+                member.setFirstName(rs.getString("first_name"));
+                member.setLastName(rs.getString("last_name"));
+                member.setProfilePictureUrl(rs.getString("profile_picture_url"));
+                member.setBio(rs.getString("bio"));
+                try {
+                    Timestamp jd = rs.getTimestamp("joined_date");
+                    if (jd != null) member.setJoinedDate(jd.toLocalDateTime());
+                } catch (SQLException ex) {}
+                members.add(member);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return members;
+    }
+
+
     public boolean updateMember(Member member) {
         String query = "UPDATE members SET first_name = ?, last_name = ?, phone_number = ?, email = ?, actual_email = ?, password = ?, profile_picture_url = ?, is_profile_public = ?, bio = ?, status = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MemberProfile from './MemberProfile';
+import MemberDirectory from './MemberDirectory';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faHome, 
@@ -11,7 +12,12 @@ import {
     faUser, 
     faSignOutAlt,
     faEnvelope,
-    faPhone
+    faPhone,
+    faUsers,
+    faChevronRight,
+    faClock,
+    faMapMarkerAlt,
+    faFileAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
@@ -24,6 +30,8 @@ export default function MemberDashboard() {
     const [sermons, setSermons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [modalType, setModalType] = useState(null);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -204,11 +212,100 @@ export default function MemberDashboard() {
                         <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
                         <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
                         <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
+                        <TabButton tab="directory" label="Directory" icon={<FontAwesomeIcon icon={faUsers} />} />
                         <TabButton tab="support" label="Support" icon={<FontAwesomeIcon icon={faHeadset} />} />
                         <TabButton tab="profile" label="Profile" icon={<FontAwesomeIcon icon={faUser} />} />
                     </div>
                 </div>
             </div>
+
+            {/* Detail View Modal */}
+            {selectedItem && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-fade-in">
+                    <div className="bg-white rounded-[2.5rem] shadow-premium max-w-2xl w-full mx-auto relative overflow-hidden flex flex-col max-h-[90vh]">
+                        {/* Modal Header/Decorative */}
+                        <div className={`h-32 w-full shrink-0 relative ${
+                            modalType === 'event' ? 'bg-gradient-to-r from-accent to-accent-dark' : 
+                            modalType === 'announcement' ? 'bg-gradient-to-r from-secondary to-blue-900' : 
+                            'bg-gradient-to-r from-primary to-teal-800'
+                        }`}>
+                            <button 
+                                onClick={() => setSelectedItem(null)}
+                                className="absolute top-6 right-6 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10"
+                            >
+                                <span className="text-2xl">&times;</span>
+                            </button>
+                            <div className="absolute -bottom-10 left-10 w-20 h-20 rounded-3xl bg-white shadow-lifted flex items-center justify-center text-3xl">
+                                <FontAwesomeIcon 
+                                    icon={modalType === 'event' ? faCalendarAlt : modalType === 'announcement' ? faBullhorn : faMicrophone} 
+                                    className={modalType === 'event' ? 'text-accent' : modalType === 'announcement' ? 'text-secondary' : 'text-primary'}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-10 pt-16 overflow-y-auto">
+                            <h3 className="text-3xl font-black text-onSurface mb-4 leading-tight">
+                                {selectedItem.title}
+                            </h3>
+                            
+                            <div className="flex flex-wrap gap-4 mb-8">
+                                {modalType === 'event' && selectedItem.event_date && (
+                                    <div className="flex items-center gap-2 bg-accent/10 text-accent-dark px-4 py-2 rounded-full font-bold text-sm">
+                                        <FontAwesomeIcon icon={faClock} />
+                                        {new Date(selectedItem.event_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </div>
+                                )}
+                                {selectedItem.location && (
+                                    <div className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-full font-bold text-sm">
+                                        <FontAwesomeIcon icon={faMapMarkerAlt} />
+                                        {selectedItem.location}
+                                    </div>
+                                )}
+                                {selectedItem.speaker && (
+                                    <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm">
+                                        <FontAwesomeIcon icon={faUser} />
+                                        {selectedItem.speaker}
+                                    </div>
+                                )}
+                                {selectedItem.sermonDate && (
+                                    <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm">
+                                        <FontAwesomeIcon icon={faCalendarAlt} />
+                                        {new Date(selectedItem.sermonDate).toLocaleDateString()}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-6">
+                                <p className="text-onSurface-variant text-lg leading-relaxed whitespace-pre-line">
+                                    {selectedItem.description || selectedItem.message}
+                                </p>
+                                
+                                {selectedItem.file_url && (
+                                    <a 
+                                        href={selectedItem.file_url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-3 bg-secondary text-white px-8 py-4 rounded-full font-bold shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all"
+                                    >
+                                        <FontAwesomeIcon icon={faFileAlt} />
+                                        View Attached Document
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <div className="p-8 border-t border-gray-100 bg-gray-50 shrink-0">
+                            <button 
+                                onClick={() => setSelectedItem(null)}
+                                className="w-full bg-onSurface text-white py-4 rounded-full font-bold shadow-premium hover:shadow-lifted transition-all"
+                            >
+                                Close Detail
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Content Area */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -275,23 +372,32 @@ export default function MemberDashboard() {
                 {activeTab === 'announcements' && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl"></span>
+                            <div className="bg-secondary/10 p-4 rounded-2xl">
+                                <FontAwesomeIcon icon={faBullhorn} className="text-2xl text-secondary" />
                             </div>
-                            <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Recent Announcements</h2>
+                            <h2 className="text-3xl font-extrabold text-secondary tracking-tight">Recent Announcements</h2>
                         </div>
                         {announcements.length > 0 ? (
                             <div className="grid gap-6">
                                 {announcements.map((announcement) => (
-                                    <div key={announcement.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300">
-                                        <h3 className="font-extrabold text-xl text-mdOnSurface mb-2">{announcement.title}</h3>
-                                        <p className="text-mdOnSurfaceVariant text-base leading-relaxed whitespace-pre-line">{announcement.message}</p>
+                                    <div 
+                                        key={announcement.id} 
+                                        onClick={() => { setSelectedItem(announcement); setModalType('announcement'); }}
+                                        className="bg-white p-8 rounded-[2rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                                    >
+                                        <div className="flex justify-between items-start mb-4">
+                                            <h3 className="font-black text-2xl text-onSurface group-hover:text-secondary transition-colors">{announcement.title}</h3>
+                                            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <FontAwesomeIcon icon={faChevronRight} />
+                                            </div>
+                                        </div>
+                                        <p className="text-onSurface-variant text-base leading-relaxed line-clamp-3">{announcement.message}</p>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="bg-mdSurfaceVariant/30 border border-mdSurfaceVariant rounded-3xl p-12 text-center">
-                                <p className="text-mdOnSurfaceVariant text-lg font-medium">No announcements at this time.</p>
+                            <div className="bg-white/50 border border-white/40 rounded-[2rem] p-16 text-center">
+                                <p className="text-onSurface-variant text-lg font-medium">No announcements at this time.</p>
                             </div>
                         )}
                     </div>
@@ -301,31 +407,40 @@ export default function MemberDashboard() {
                 {activeTab === 'events' && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl"></span>
+                            <div className="bg-accent/10 p-4 rounded-2xl">
+                                <FontAwesomeIcon icon={faCalendarAlt} className="text-2xl text-accent-dark" />
                             </div>
-                            <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Upcoming Events</h2>
+                            <h2 className="text-3xl font-extrabold text-accent-dark tracking-tight">Upcoming Events</h2>
                         </div>
                         {events.length > 0 ? (
-                            <div className="grid md:grid-cols-2 gap-6">
+                            <div className="grid md:grid-cols-2 gap-8">
                                 {events.map((event) => (
-                                    <div key={event.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col h-full">
+                                    <div 
+                                        key={event.id} 
+                                        onClick={() => { setSelectedItem(event); setModalType('event'); }}
+                                        className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer group"
+                                    >
                                         <div className="flex-1">
-                                            <h3 className="font-extrabold text-xl text-mdOnSurface mb-3">{event.title}</h3>
-                                            <p className="text-mdOnSurfaceVariant text-base leading-relaxed whitespace-pre-line">{event.description}</p>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <h3 className="font-black text-2xl text-onSurface group-hover:text-accent-dark transition-colors">{event.title}</h3>
+                                                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent-dark opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <FontAwesomeIcon icon={faChevronRight} />
+                                                </div>
+                                            </div>
+                                            <p className="text-onSurface-variant text-base leading-relaxed line-clamp-4 mb-6">{event.description}</p>
                                         </div>
                                         {event.event_date && (
-                                            <div className="mt-6 inline-flex items-center gap-2 bg-mdSecondaryContainer/50 text-mdSecondary px-4 py-2 rounded-full font-bold text-sm w-max">
-                                                <FontAwesomeIcon icon={faCalendarAlt} />
-                                                {new Date(event.event_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                            <div className="mt-auto inline-flex items-center gap-3 bg-accent/10 text-accent-dark px-6 py-3 rounded-full font-black text-sm w-max uppercase tracking-widest shadow-sm">
+                                                <FontAwesomeIcon icon={faClock} />
+                                                {new Date(event.event_date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                             </div>
                                         )}
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="bg-mdSurfaceVariant/30 border border-mdSurfaceVariant rounded-3xl p-12 text-center">
-                                <p className="text-mdOnSurfaceVariant text-lg font-medium">No events scheduled at this time.</p>
+                            <div className="bg-white/50 border border-white/40 rounded-[2rem] p-16 text-center">
+                                <p className="text-onSurface-variant text-lg font-medium">No events scheduled at this time.</p>
                             </div>
                         )}
                     </div>
@@ -335,28 +450,37 @@ export default function MemberDashboard() {
                 {activeTab === 'sermons' && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl"></span>
+                            <div className="bg-primary/10 p-4 rounded-2xl">
+                                <FontAwesomeIcon icon={faMicrophone} className="text-2xl text-primary" />
                             </div>
-                            <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Sermon Library</h2>
+                            <h2 className="text-3xl font-extrabold text-primary tracking-tight">Sermon Library</h2>
                         </div>
                         {sermons.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {sermons.map((sermon) => (
-                                    <div key={sermon.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col h-full">
+                                    <div 
+                                        key={sermon.id} 
+                                        onClick={() => { setSelectedItem(sermon); setModalType('sermon'); }}
+                                        className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer group"
+                                    >
                                         <div className="flex-1">
-                                            <h3 className="font-extrabold text-xl text-mdOnSurface mb-3 leading-snug">{sermon.title}</h3>
-                                            <p className="text-mdOnSurfaceVariant text-sm leading-relaxed mb-4 line-clamp-4">{sermon.description}</p>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <h3 className="font-black text-2xl text-onSurface group-hover:text-primary transition-colors leading-tight">{sermon.title}</h3>
+                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                                    <FontAwesomeIcon icon={faChevronRight} />
+                                                </div>
+                                            </div>
+                                            <p className="text-onSurface-variant text-sm leading-relaxed mb-6 line-clamp-3">{sermon.description}</p>
                                         </div>
-                                        <div className="mt-auto space-y-2 pt-4 border-t border-mdSurfaceVariant text-sm font-medium text-mdOutline">
+                                        <div className="mt-auto space-y-3 pt-6 border-t border-gray-100 text-sm font-bold text-gray-500">
                                             {sermon.speaker && (
-                                                <p className="flex items-center gap-2">
-                                                    <FontAwesomeIcon icon={faUser} className="text-mdPrimary" /> {sermon.speaker}
+                                                <p className="flex items-center gap-3">
+                                                    <FontAwesomeIcon icon={faUser} className="text-primary" /> {sermon.speaker}
                                                 </p>
                                             )}
                                             {sermon.sermonDate && (
-                                                <p className="flex items-center gap-2">
-                                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary" /> {new Date(sermon.sermonDate).toLocaleDateString()}
+                                                <p className="flex items-center gap-3">
+                                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-primary" /> {new Date(sermon.sermonDate).toLocaleDateString()}
                                                 </p>
                                             )}
                                         </div>
@@ -364,51 +488,56 @@ export default function MemberDashboard() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="bg-mdSurfaceVariant/30 border border-mdSurfaceVariant rounded-3xl p-12 text-center">
-                                <p className="text-mdOnSurfaceVariant text-lg font-medium">No sermons available yet.</p>
+                            <div className="bg-white/50 border border-white/40 rounded-[2rem] p-16 text-center">
+                                <p className="text-onSurface-variant text-lg font-medium">No sermons available yet.</p>
                             </div>
                         )}
                     </div>
                 )}
 
+                {/* Directory Tab */}
+                {activeTab === 'directory' && <MemberDirectory />}
+
                 {/* Support Tab */}
                 {activeTab === 'support' && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl"></span>
+                            <div className="bg-secondary/10 p-4 rounded-2xl">
+                                <FontAwesomeIcon icon={faHeadset} className="text-2xl text-secondary" />
                             </div>
-                            <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Help & Support</h2>
+                            <h2 className="text-3xl font-extrabold text-secondary tracking-tight">Help & Support</h2>
                         </div>
-                        <div className="bg-mdSurface p-8 rounded-3xl shadow-sm border border-mdSurfaceVariant flex flex-col md:flex-row gap-8 items-center justify-between">
-                            <div className="flex-1 w-full max-w-xl">
-                                <h3 className="font-extrabold text-2xl text-mdOnSurface mb-4">Need Assistance?</h3>
-                                <p className="text-mdOnSurfaceVariant text-lg leading-relaxed mb-8">
-                                    Our support team is always here to help you. Whether you have questions about the digital church or need technical assistance, feel free to reach out to us.
+                        <div className="bg-white p-12 rounded-[3rem] shadow-premium border border-white/20 flex flex-col md:flex-row gap-12 items-center">
+                            <div className="flex-1">
+                                <h3 className="font-black text-3xl text-onSurface mb-6">Need Assistance?</h3>
+                                <p className="text-onSurface-variant text-xl leading-relaxed mb-10">
+                                    Our support team is here to help you. Reach out via email or WhatsApp for quick assistance.
                                 </p>
-                                <div className="space-y-4">
-                                    <a href="mailto:benjaminbuckmanjunior@gmail.com" className="flex items-center gap-4 p-4 bg-mdPrimaryContainer/20 hover:bg-mdPrimaryContainer/40 rounded-2xl transition-colors duration-300">
-                                        <div className="bg-mdPrimaryContainer text-mdPrimary w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0">
+                                <div className="grid sm:grid-cols-2 gap-6">
+                                    <a href="mailto:benjaminbuckmanjunior@gmail.com" className="flex items-center gap-5 p-6 bg-primary/5 hover:bg-primary/10 rounded-3xl transition-all duration-300 group">
+                                        <div className="bg-primary text-white w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lifted transition-transform group-hover:scale-110">
                                             <FontAwesomeIcon icon={faEnvelope} />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-xs font-bold text-mdOnSurfaceVariant mb-1 uppercase tracking-wider">Email Us</p>
-                                            <p className="text-mdPrimary font-bold truncate">benjaminbuckmanjunior@gmail.com</p>
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Email Us</p>
+                                            <p className="text-onSurface font-black truncate">Support Team</p>
                                         </div>
                                     </a>
-                                    <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 bg-mdSecondaryContainer/20 hover:bg-mdSecondaryContainer/40 rounded-2xl transition-colors duration-300">
-                                        <div className="bg-mdSecondaryContainer text-mdSecondary w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0">
+                                    <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="flex items-center gap-5 p-6 bg-emerald-50 hover:bg-emerald-100 rounded-3xl transition-all duration-300 group">
+                                        <div className="bg-emerald-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lifted transition-transform group-hover:scale-110">
                                             <FontAwesomeIcon icon={faWhatsapp} />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-mdOnSurfaceVariant mb-1 uppercase tracking-wider">WhatsApp</p>
-                                            <p className="text-mdSecondary font-bold truncate">Chat with Support</p>
+                                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">WhatsApp</p>
+                                            <p className="text-onSurface font-black truncate">Chat Now</p>
                                         </div>
                                     </a>
                                 </div>
                             </div>
-                            <div className="hidden md:flex flex-1 justify-center p-8">
-                                <div className="text-9xl opacity-10 filter drop-shadow-sm transition-transform hover:scale-110 duration-500"></div>
+                            <div className="hidden lg:block w-1/3">
+                                <div className="text-9xl text-gray-100 animate-pulse flex justify-center">
+                                    <FontAwesomeIcon icon={faHeadset} />
+                                </div>
                             </div>
                         </div>
                     </div>

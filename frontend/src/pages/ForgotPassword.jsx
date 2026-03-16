@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../layouts/Layout';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faKey, faArrowLeft, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -47,9 +49,12 @@ export default function ForgotPassword() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 animate-fade-in">
       <div className="bg-mdSurface text-mdOnSurface p-10 rounded-3xl shadow-md2 w-full max-w-md border border-mdSurfaceVariant">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+        <div className="text-center mb-8 relative">
+          <Link to="/login" className="absolute left-0 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-colors flex items-center gap-1 text-sm font-bold">
+            <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Login
+          </Link>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm mx-auto">
+            <FontAwesomeIcon icon={faKey} className="text-2xl" />
           </div>
           <h1 className="text-3xl font-extrabold text-mdPrimary tracking-tight">
             Reset Password

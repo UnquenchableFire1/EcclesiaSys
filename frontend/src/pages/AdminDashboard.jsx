@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -35,6 +36,9 @@ export default function AdminDashboard() {
     const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '', file: null });
     const [newEvent, setNewEvent] = useState({ title: '', description: '', eventDate: '', location: '', documentFile: null });
     const [newSermon, setNewSermon] = useState({ title: '', description: '', speaker: '', sermonDate: '', file: null, fileType: 'mp3' });
+    const [counts, setCounts] = useState({ members: 0, events: 0, announcements: 0, sermons: 0 });
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [modalType, setModalType] = useState(null);
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -64,16 +68,18 @@ export default function AdminDashboard() {
         setLoading(true);
         setError('');
         try {
-            const [membersRes, announcementsRes, eventsRes, sermonsRes] = await Promise.all([
+            const [membersRes, announcementsRes, eventsRes, sermonsRes, summaryRes] = await Promise.all([
                 getMembers(),
                 getAnnouncements(),
                 getEvents(),
-                getSermons()
+                getSermons(),
+                axios.get('/api/summary/counts')
             ]);
             setMembers(membersRes.data?.data || []);
             setAnnouncements(announcementsRes.data?.data || []);
             setEvents(eventsRes.data?.data || []);
             setSermons(sermonsRes.data?.data || []);
+            setCounts(summaryRes.data?.data || { members: 0, events: 0, announcements: 0, sermons: 0 });
         } catch (error) {
             console.error('Error fetching data:', error);
             setError('Failed to load data: ' + (error.response?.data?.message || error.message));
@@ -348,12 +354,115 @@ export default function AdminDashboard() {
 
             {/* Content Area */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                    {[
+                        { id: 'members', label: 'Members', count: counts.members, icon: faUsers, color: 'bg-teal-50 text-primary' },
+                        { id: 'announcements', label: 'Announcements', count: counts.announcements, icon: faBullhorn, color: 'bg-blue-50 text-secondary' },
+                        { id: 'events', label: 'Events', count: counts.events, icon: faCalendarAlt, color: 'bg-yellow-50 text-accent-dark' },
+                        { id: 'sermons', label: 'Sermons', count: counts.sermons, icon: faMicrophone, color: 'bg-emerald-50 text-emerald-700' },
+                    ].map((stat) => (
+                        <button
+                            key={stat.id}
+                            onClick={() => {
+                                setActiveTab(stat.id);
+                                localStorage.setItem('adminActiveTab', stat.id);
+                            }}
+                            className={`flex flex-col items-center justify-center p-6 rounded-[2rem] border transition-all duration-300 group shadow-premium hover:shadow-lifted hover:-translate-y-1 ${
+                                activeTab === stat.id ? 'bg-white border-primary border-2' : 'bg-white/50 border-white/20'
+                            }`}
+                        >
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-3 transition-transform group-hover:scale-110 ${stat.color}`}>
+                                <FontAwesomeIcon icon={stat.icon} className="text-xl" />
+                            </div>
+                            <span className="text-3xl font-black text-onSurface">{stat.count}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-onSurface-variant">{stat.label}</span>
+                        </button>
+                    ))}
+                </div>
+
                 {error && (
                     <div className="bg-mdErrorContainer text-mdError px-6 py-4 rounded-3xl shadow-sm text-sm sm:text-base animate-pulse font-medium mb-6">
                         <p className="font-bold mb-1">Error</p>
                         <p>{error}</p>
                     </div>
                 )}
+
+            {/* Detail View Modal */}
+            {selectedItem && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-fade-in">
+                    <div className="bg-white rounded-[2.5rem] shadow-premium max-w-2xl w-full mx-auto relative overflow-hidden flex flex-col max-h-[90vh]">
+                        {/* Modal Header/Decorative */}
+                        <div className={`h-32 w-full shrink-0 relative ${
+                            modalType === 'event' ? 'bg-gradient-to-r from-accent to-accent-dark' : 
+                            modalType === 'announcement' ? 'bg-gradient-to-r from-secondary to-blue-900' : 
+                            'bg-gradient-to-r from-primary to-teal-800'
+                        }`}>
+                            <button 
+                                onClick={() => setSelectedItem(null)}
+                                className="absolute top-6 right-6 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10"
+                            >
+                                <span className="text-2xl">&times;</span>
+                            </button>
+                            <div className="absolute -bottom-10 left-10 w-20 h-20 rounded-3xl bg-white shadow-lifted flex items-center justify-center text-3xl">
+                                <FontAwesomeIcon 
+                                    icon={modalType === 'event' ? faCalendarAlt : modalType === 'announcement' ? faBullhorn : faMicrophone} 
+                                    className={modalType === 'event' ? 'text-accent' : modalType === 'announcement' ? 'text-secondary' : 'text-primary'}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-10 pt-16 overflow-y-auto">
+                            <h3 className="text-3xl font-black text-onSurface mb-4 leading-tight">
+                                {selectedItem.title}
+                            </h3>
+                            
+                            <div className="flex flex-wrap gap-4 mb-8">
+                                {modalType === 'event' && selectedItem.eventDate && (
+                                    <div className="flex items-center gap-2 bg-accent/10 text-accent-dark px-4 py-2 rounded-full font-bold text-sm">
+                                        <FontAwesomeIcon icon={faClock} />
+                                        {new Date(selectedItem.eventDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </div>
+                                )}
+                                {selectedItem.location && (
+                                    <div className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-full font-bold text-sm">
+                                        <FontAwesomeIcon icon={faMapMarkerAlt} />
+                                        {selectedItem.location}
+                                    </div>
+                                )}
+                                {selectedItem.speaker && (
+                                    <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm">
+                                        <FontAwesomeIcon icon={faUser} />
+                                        {selectedItem.speaker}
+                                    </div>
+                                )}
+                                {selectedItem.sermonDate && (
+                                    <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm">
+                                        <FontAwesomeIcon icon={faCalendarAlt} />
+                                        {new Date(selectedItem.sermonDate).toLocaleDateString()}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-6">
+                                <p className="text-onSurface-variant text-lg leading-relaxed whitespace-pre-line">
+                                    {selectedItem.description || selectedItem.message}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="p-8 border-t border-gray-100 bg-gray-50 shrink-0">
+                            <button 
+                                onClick={() => setSelectedItem(null)}
+                                className="w-full bg-onSurface text-white py-4 rounded-full font-bold shadow-premium hover:shadow-lifted transition-all"
+                            >
+                                Close Detail
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Loading State */}
             {loading && <div className="flex justify-center p-12"><p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Loading data...</p></div>}
@@ -502,16 +611,18 @@ export default function AdminDashboard() {
                         <h2 className="text-2xl font-extrabold text-mdOnSurface tracking-tight">Manage Announcements</h2>
                         <div className="grid gap-6">
                             {announcements.map(ann => (
-                                <div key={ann.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300">
+                                <div 
+                                    key={ann.id} 
+                                    onClick={() => { setSelectedItem(ann); setModalType('announcement'); }}
+                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 cursor-pointer group"
+                                >
                                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-extrabold text-xl text-mdOnSurface mb-2">{ann.title}</h3>
-                                            <p className="text-mdOnSurfaceVariant text-base leading-relaxed whitespace-pre-line">{ann.message}</p>
-                                            
-
+                                            <h3 className="font-extrabold text-xl text-mdOnSurface mb-2 group-hover:text-mdPrimary transition-colors">{ann.title}</h3>
+                                            <p className="text-mdOnSurfaceVariant text-base leading-relaxed line-clamp-2">{ann.message}</p>
                                         </div>
                                         <button
-                                            onClick={() => handleDeleteAnnouncement(ann.id)}
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteAnnouncement(ann.id); }}
                                             className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-4 py-2 text-sm rounded-full transition-colors font-bold flex-shrink-0"
                                         >
                                             Delete
@@ -596,12 +707,16 @@ export default function AdminDashboard() {
                         <h2 className="text-2xl font-extrabold text-mdOnSurface tracking-tight">Manage Events</h2>
                         <div className="grid md:grid-cols-2 gap-6">
                             {events.map(event => (
-                                <div key={event.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col">
+                                <div 
+                                    key={event.id} 
+                                    onClick={() => { setSelectedItem(event); setModalType('event'); }}
+                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col cursor-pointer group"
+                                >
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-4">
-                                            <h3 className="font-extrabold text-xl text-mdOnSurface">{event.title}</h3>
+                                            <h3 className="font-extrabold text-xl text-mdOnSurface group-hover:text-mdSecondary transition-colors">{event.title}</h3>
                                             <button
-                                                onClick={() => handleDeleteEvent(event.id)}
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteEvent(event.id); }}
                                                 className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-3 py-1.5 text-xs rounded-full transition-colors font-bold ml-4 shrink-0"
                                             >
                                                 Delete
@@ -725,7 +840,11 @@ export default function AdminDashboard() {
                         <h2 className="text-2xl font-extrabold text-mdOnSurface tracking-tight">Manage Sermons</h2>
                         <div className="grid lg:grid-cols-2 gap-6">
                             {sermons.map(sermon => (
-                                <div key={sermon.id} className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col sm:flex-row gap-6">
+                                <div 
+                                    key={sermon.id} 
+                                    onClick={() => { setSelectedItem(sermon); setModalType('sermon'); }}
+                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col sm:flex-row gap-6 cursor-pointer group"
+                                >
                                     <div className="flex-1 space-y-4">
                                         <div className="flex justify-between items-start">
                                             <div>
@@ -734,7 +853,7 @@ export default function AdminDashboard() {
                                                         <FontAwesomeIcon icon={sermon.fileType === 'mp4' ? faVideo : faMicrophone} />
                                                         {sermon.fileType === 'mp4' ? 'Video' : 'Audio'}
                                                     </span>
-                                                    <h3 className="font-extrabold text-xl text-mdOnSurface leading-tight">{sermon.title}</h3>
+                                                    <h3 className="font-extrabold text-xl text-mdOnSurface leading-tight group-hover:text-mdPrimary transition-colors">{sermon.title}</h3>
                                                 </div>
                                                 <p className="text-mdOnSurfaceVariant font-medium text-sm">by {sermon.speaker}</p>
                                             </div>
@@ -771,7 +890,7 @@ export default function AdminDashboard() {
                                                     </a>
                                                 )}
                                                 <button
-                                                    onClick={() => handleDeleteSermon(sermon.id)}
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteSermon(sermon.id); }}
                                                     className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-3 py-1.5 text-xs rounded-full transition-colors font-bold ml-2"
                                                 >
                                                     Delete

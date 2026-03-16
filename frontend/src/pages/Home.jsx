@@ -1,9 +1,26 @@
-
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faBullhorn, faCalendarAlt, faMicrophone, faBolt, faEye, 
+  faClock, faMapMarkerAlt, faEnvelope, faUsers, faCheckCircle,
+  faStar, faQuoteLeft, faHeart
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function Home() {
   const userName = localStorage.getItem('userName');
   const userType = localStorage.getItem('userType');
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleNewsletterSignup = (e) => {
+    e.preventDefault();
+    if (email) {
+      setSubmitted(true);
+      setEmail('');
+      setTimeout(() => setSubmitted(false), 5000);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -14,17 +31,36 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-mdSecondary opacity-5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4"></div>
         
         <div className="relative z-10 px-6 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight text-mdPrimary">
-            Welcome to EcclesiaSys
+          <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-mdPrimary leading-[1.1]">
+            Experience Higher <br/>
+            <span className="text-mdSecondary">Connection</span> with God
           </h1>
-          <p className="text-xl md:text-2xl mb-10 text-mdOnPrimaryContainer/80 font-medium max-w-2xl mx-auto">
-            A digital church designed to make your church management simple.
+          <p className="text-xl md:text-2xl mb-12 text-mdOnPrimaryContainer/70 font-medium max-w-2xl mx-auto leading-relaxed">
+            A modern digital home for your spiritual journey. Join a vibrant community of faith where growth has no limits.
           </p>
-          <a href="/register" className="bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold px-10 py-4 text-lg rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 inline-block transform hover:-translate-y-1">
-            Register Now
-          </a>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            {!userType ? (
+              <>
+                <Link to="/register" className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-black px-12 py-5 text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1">
+                  Start Your Journey
+                </Link>
+                <Link to="/login" className="w-full sm:w-auto bg-mdSurface/80 backdrop-blur-md border-2 border-mdPrimary/20 hover:border-mdPrimary text-mdPrimary font-black px-12 py-5 text-xl rounded-full transition-all duration-300">
+                  Member Login
+                </Link>
+              </>
+            ) : (
+              <Link to={userType === 'admin' ? '/admin' : '/member-dashboard'} className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-black px-12 py-5 text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1">
+                Go to Dashboard
+              </Link>
+            )}
+          </div>
+
           {userType && userName && (
-            <div className="mt-12 inline-block bg-mdSurface/50 backdrop-blur-sm px-6 py-3 rounded-full border border-mdPrimaryContainer">
+            <div className="inline-flex items-center gap-3 bg-white/40 backdrop-blur-md px-8 py-4 rounded-full border border-mdPrimary/10 shadow-sm animate-fade-in">
+              <div className="w-10 h-10 rounded-full bg-mdPrimary text-mdOnPrimary flex items-center justify-center font-black">
+                {userName.charAt(0)}
+              </div>
               <p className="text-xl font-bold text-mdPrimary">
                 Welcome back, {userName}!
               </p>
@@ -33,64 +69,226 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Service Times & Location Section */}
+      <section className="py-12 px-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Sunday Service */}
+            <div className="bg-mdSurface rounded-[2.5rem] p-10 border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all group overflow-hidden relative">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-mdSecondaryContainer/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="text-3xl mb-6 text-mdSecondary bg-mdSecondaryContainer w-16 h-16 flex items-center justify-center rounded-2xl shadow-sm">
+                <FontAwesomeIcon icon={faClock} />
+              </div>
+              <h3 className="text-2xl font-black text-mdOnSurface mb-4">Sunday Worship</h3>
+              <p className="text-mdPrimary font-black text-lg mb-2">10:00 AM — 12:00 PM</p>
+              <p className="text-mdOnSurfaceVariant leading-relaxed font-medium">Join us for a dynamic experience of multi-cultural worship and a life-transforming message.</p>
+            </div>
+
+            {/* Midweek Study */}
+            <div className="bg-mdSurface rounded-[2.5rem] p-10 border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all group overflow-hidden relative">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-mdPrimaryContainer/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="text-3xl mb-6 text-mdPrimary bg-mdPrimaryContainer w-16 h-16 flex items-center justify-center rounded-2xl shadow-sm">
+                <FontAwesomeIcon icon={faQuoteLeft} />
+              </div>
+              <h3 className="text-2xl font-black text-mdOnSurface mb-4">Midweek Study</h3>
+              <p className="text-mdPrimary font-black text-lg mb-2">Wednesdays @ 7:00 PM</p>
+              <p className="text-mdOnSurfaceVariant leading-relaxed font-medium">Deep dive into the Word of God in a relaxed environment. Grow in understanding and faith.</p>
+            </div>
+
+            {/* Location */}
+            <div className="bg-mdPrimary rounded-[2.5rem] p-10 shadow-md2 transition-all group overflow-hidden relative text-white">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="text-3xl mb-6 text-mdPrimary bg-white w-16 h-16 flex items-center justify-center rounded-2xl shadow-sm">
+                <FontAwesomeIcon icon={faMapMarkerAlt} />
+              </div>
+              <h3 className="text-2xl font-black mb-4">Visit Us</h3>
+              <p className="text-white/90 font-bold text-lg mb-2">Main Sanctuary</p>
+              <p className="text-white/80 leading-relaxed font-medium">123 Faith Avenue, Accra<br/>Digital Square, Suites 201-204</p>
+            </div>
+        </div>
+      </section>
+
       {/* Navigation Cards Section */}
-      <section className="py-4">
+      <section className="py-8">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tight">Explore Our <span className="text-mdPrimary">Ministry</span></h2>
+          <p className="text-xl text-mdOnSurface-variant font-medium mt-4">Discover ways to connect, grow, and serve.</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Link to="/announcements" className="bg-mdSurface rounded-3xl shadow-sm p-8 hover:shadow-md3 hover:-translate-y-1 transition-all duration-300 border border-mdSurfaceVariant block group">
-            <div className="text-4xl mb-6 bg-mdPrimaryContainer w-16 h-16 flex items-center justify-center rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-sm">📢</div>
-            <h3 className="text-2xl font-bold text-mdPrimary mb-3">Announcements</h3>
-            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed">Stay updated with important church announcements and news.</p>
+          <Link to="/announcements" className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden">
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-mdPrimaryContainer opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="text-4xl mb-8 bg-mdPrimaryContainer w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-sm text-mdPrimary">
+                <FontAwesomeIcon icon={faBullhorn} />
+            </div>
+            <h3 className="text-2xl font-black text-mdPrimary mb-4">Announcements</h3>
+            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-6">Stay updated with important church news, stories of faith, and community highlights.</p>
+            <div className="text-mdPrimary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
+              See What's New <span className="text-xl">→</span>
+            </div>
           </Link>
 
-          <Link to="/events" className="bg-mdSurface rounded-3xl shadow-sm p-8 hover:shadow-md3 hover:-translate-y-1 transition-all duration-300 border border-mdSurfaceVariant block group">
-            <div className="text-4xl mb-6 bg-mdSecondaryContainer w-16 h-16 flex items-center justify-center rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-sm">📅</div>
-            <h3 className="text-2xl font-bold text-mdSecondary mb-3">Events</h3>
-            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed">Discover upcoming events, programs, and activities.</p>
+          <Link to="/events" className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden">
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-mdSecondaryContainer opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="text-4xl mb-8 bg-mdSecondaryContainer w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-sm text-mdSecondary">
+                <FontAwesomeIcon icon={faCalendarAlt} />
+            </div>
+            <h3 className="text-2xl font-black text-mdSecondary mb-4">Events</h3>
+            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-6">Discover upcoming gatherings, ministry programs, and special activities for all ages.</p>
+            <div className="text-mdSecondary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
+              View Calendar <span className="text-xl">→</span>
+            </div>
           </Link>
 
-          <Link to="/sermons" className="bg-mdSurface rounded-3xl shadow-sm p-8 hover:shadow-md3 hover:-translate-y-1 transition-all duration-300 border border-mdSurfaceVariant block group">
-            <div className="text-4xl mb-6 bg-mdPrimaryContainer w-16 h-16 flex items-center justify-center rounded-2xl group-hover:scale-110 transition-transform duration-300 shadow-sm">🎙️</div>
-            <h3 className="text-2xl font-bold text-mdPrimary mb-3">Sermons</h3>
-            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed">Listen to our latest sermons, teachings, and podcasts.</p>
+          <Link to="/sermons" className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden">
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-mdPrimaryContainer opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="text-4xl mb-8 bg-mdPrimaryContainer w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-sm text-mdPrimary">
+                <FontAwesomeIcon icon={faMicrophone} />
+            </div>
+            <h3 className="text-2xl font-black text-mdPrimary mb-4">Sermons</h3>
+            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-6">Listen to inspiring sermons and life-transforming teachings from our pastoral team.</p>
+            <div className="text-mdPrimary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
+              Listen Online <span className="text-xl">→</span>
+            </div>
           </Link>
         </div>
       </section>
 
-      {/* Info Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-8">
-        <section className="bg-mdSurface rounded-3xl shadow-sm border border-mdSurfaceVariant p-12 text-center hover:shadow-md2 transition-all duration-300 group">
-          <div className="inline-block p-5 bg-mdSecondaryContainer rounded-3xl mb-6 text-mdSecondary group-hover:scale-110 transition-transform duration-300 shadow-sm">
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-          </div>
-          <h2 className="text-3xl font-extrabold text-mdSecondary mb-4 tracking-tight">
-            Our Mission
-          </h2>
-          <p className="text-lg text-mdOnSurfaceVariant leading-relaxed">
-            We are committed to building lives, restoring hope, and spreading the love of Christ
-            through impactful worship, community outreach, and spiritual growth.
-          </p>
-        </section>
-
-        <section className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 p-12 text-center hover:shadow-md3 transition-all duration-300 relative overflow-hidden group">
-          {/* Decorative elements */}
-          <div className="absolute -top-32 -right-32 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-          <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-          
-          <div className="relative z-10">
-            <div className="inline-block p-5 bg-white/20 rounded-3xl mb-6 backdrop-blur-md shadow-sm group-hover:scale-110 transition-transform duration-300">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+      {/* Mission & Vision Section */}
+      <section className="py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="bg-mdSecondaryContainer/20 p-12 rounded-[3rem] border border-mdSecondary/10 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 text-mdSecondary opacity-10 text-8xl group-hover:scale-110 transition-transform duration-700">
+              <FontAwesomeIcon icon={faHeart} />
             </div>
-            <h2 className="text-3xl font-extrabold mb-4 tracking-tight">
-              Vision
+            <h2 className="text-4xl font-black text-mdSecondary mb-8 flex items-center gap-4">
+              <FontAwesomeIcon icon={faBolt} className="text-accent" />
+              Our Mission
             </h2>
-            <p className="text-lg text-mdPrimaryContainer font-medium leading-relaxed">
-              To be a beacon of hope where every heart is touched, every soul
-              uplifted, and all are welcomed into the warm embrace of God’s
-              enduring love.
+            <p className="text-xl text-mdOnSurface-variant leading-relaxed mb-8 font-medium">
+              We are committed to building lives, restoring hope, and spreading the love of Christ through authentic community.
             </p>
+            <ul className="space-y-4">
+              {[
+                { text: 'Impactful Worship', icon: faStar },
+                { text: 'Community Outreach', icon: faHeart },
+                { text: 'Spiritual Growth', icon: faPlusCircle },
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-4 text-lg font-bold text-mdOnSurface">
+                  <div className="w-8 h-8 rounded-full bg-mdSecondary text-white flex items-center justify-center text-sm shadow-sm group-hover:rotate-12 transition-transform">
+                    <FontAwesomeIcon icon={item.icon} />
+                  </div>
+                  {item.text}
+                </li>
+              ))}
+            </ul>
           </div>
-        </section>
-      </div>
+
+          <div className="p-8">
+            <h2 className="text-4xl font-black text-mdPrimary mb-8 flex items-center gap-4">
+              <FontAwesomeIcon icon={faEye} className="text-secondary" />
+              Our Vision
+            </h2>
+            <p className="text-2xl text-mdPrimary font-black leading-tight mb-8">
+              "To be a beacon of hope where every heart is touched and every soul uplifted."
+            </p>
+            <p className="text-lg text-mdOnSurface-variant leading-relaxed font-medium">
+              Our vision extends beyond our walls. We believe in the transformative power of faith and the endless possibilities when we put God first in our community.
+            </p>
+            <div className="mt-8 flex gap-6">
+               <div className="flex -space-x-4">
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className={`w-12 h-12 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center font-bold text-xs ${i === 4 ? 'bg-mdPrimary text-white' : ''}`}>
+                       {i === 4 ? '+500' : <FontAwesomeIcon icon={faUsers} className="text-gray-400" />}
+                    </div>
+                  ))}
+               </div>
+               <p className="text-sm font-bold text-mdOnSurface-variant self-center">
+                 Join <span className="text-mdPrimary">5,000+ members</span> <br/>making an impact
+               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="bg-mdPrimary text-mdOnPrimary rounded-[3rem] py-20 px-4 shadow-md2 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center relative z-10">
+          {[
+            { label: 'Years Serving', value: '25+', icon: faStar },
+            { label: 'Global Members', value: '5K+', icon: faUsers },
+            { label: 'Annual Events', value: '50+', icon: faCalendarAlt },
+            { label: 'Volunteers', value: '500+', icon: faHeart },
+          ].map((stat, i) => (
+            <div key={i} className="group">
+              <div className="text-4xl mb-4 text-mdSecondary group-hover:scale-110 transition-transform">
+                <FontAwesomeIcon icon={stat.icon} />
+              </div>
+              <div className="text-5xl font-black mb-2 tracking-tight">{stat.value}</div>
+              <div className="text-mdOnPrimary/70 font-bold uppercase tracking-widest text-xs">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="bg-mdSecondaryContainer/30 rounded-[3rem] py-20 px-8 text-center border border-mdSecondary/5">
+        <div className="max-w-2xl mx-auto">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-mdSecondary text-white text-3xl mb-8 shadow-md">
+            <FontAwesomeIcon icon={faEnvelope} />
+          </div>
+          <h2 className="text-4xl font-black text-mdOnSurface mb-4">Stay Inspired</h2>
+          <p className="text-xl text-mdOnSurface-variant font-medium mb-10">
+            Join our weekly newsletter for spiritual insights, upcoming events, and community updates delivered to your inbox.
+          </p>
+          
+          {submitted ? (
+            <div className="bg-emerald-50 text-emerald-700 p-6 rounded-[2rem] border border-emerald-100 flex items-center justify-center gap-3 animate-fade-in">
+              <FontAwesomeIcon icon={faCheckCircle} className="text-2xl" />
+              <p className="text-lg font-bold uppercase tracking-tight">Blessings! You're subscribed.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleNewsletterSignup} className="flex flex-col sm:flex-row gap-4 p-2 bg-white rounded-[2.5rem] shadow-sm border border-mdOutline/10 focus-within:ring-2 focus-within:ring-mdSecondary transition-all">
+              <input
+                type="email"
+                placeholder="Your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="flex-1 px-8 py-4 rounded-full text-mdOnSurface font-medium focus:outline-none bg-transparent"
+              />
+              <button
+                type="submit"
+                className="bg-mdSecondary hover:bg-mdPrimary text-white font-black px-10 py-4 rounded-full shadow-sm hover:shadow-md2 transition-all duration-300 transform active:scale-95"
+              >
+                Join Now
+              </button>
+            </form>
+          )}
+          <p className="mt-6 text-sm text-mdOutline font-medium uppercase tracking-widest">
+            Privacy Guaranteed — No Spam
+          </p>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 text-center">
+        <h2 className="text-5xl font-black text-mdOnSurface mb-8 tracking-tight">
+          Ready to find your <span className="text-mdPrimary">place?</span>
+        </h2>
+        <p className="text-xl text-mdOnSurface-variant font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
+          Whether you're visiting for the first time or looking for a church home, we're here to welcome you with open arms.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+           {!userName && (
+             <Link to="/register" className="w-full sm:w-auto bg-mdPrimary text-mdOnPrimary font-black px-12 py-5 text-xl rounded-full shadow-md hover:shadow-md3 transition-all">
+               Join EcclesiaSys
+             </Link>
+           )}
+           <Link to="/events" className="w-full sm:w-auto bg-white border-2 border-mdOutline/20 hover:border-mdPrimary text-mdOnSurface font-black px-12 py-5 text-xl rounded-full transition-all">
+             Plan a Visit
+           </Link>
+        </div>
+      </section>
     </div>
   );
 }

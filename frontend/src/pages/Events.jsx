@@ -7,11 +7,31 @@ import { faCalendarAlt, faMapMarkerAlt, faClock, faDownload } from '@fortawesome
 export default function Events() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const location = useLocation();
 
     useEffect(() => {
         getEvents().then(response => {
-            setEvents(response.data || []);
+            const fetchedEvents = response.data || [];
+            setEvents(fetchedEvents);
             setLoading(false);
+
+            // Check for id in query params
+            const params = new URLSearchParams(location.search);
+            const eventId = params.get('id');
+            if (eventId) {
+                // Scroll to the event after a short delay
+                setTimeout(() => {
+                    const element = document.getElementById(`event-${eventId}`);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Add a temporary highlight class
+                        element.classList.add('ring-4', 'ring-mdSecondary', 'transition-all', 'duration-1000');
+                        setTimeout(() => {
+                            element.classList.remove('ring-4', 'ring-mdSecondary');
+                        }, 3000);
+                    }
+                }, 500);
+            }
         }).catch(err => {
             console.error('Error fetching events:', err);
             setLoading(false);
@@ -47,7 +67,7 @@ export default function Events() {
                 ) : (
                     <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
                         {events.map((event, index) => (
-                            <div key={event.id || index} className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col group">
+                            <div key={event.id || index} id={`event-${event.id}`} className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col group">
                                 <h3 className="text-2xl font-extrabold text-mdOnSurface group-hover:text-mdSecondary transition-colors mb-6">{event.title}</h3>
                                 
                                 <div className="space-y-4 mb-6 flex-grow">
