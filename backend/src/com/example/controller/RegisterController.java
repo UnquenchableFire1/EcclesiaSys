@@ -5,7 +5,6 @@ import com.example.dao.MemberDAO;
 import com.example.model.Member;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 @RestController
 @RequestMapping("/api")
@@ -20,16 +19,15 @@ public class RegisterController {
             String firstName = request.get("firstName");
             String lastName = request.get("lastName");
             String phoneNumber = request.get("phoneNumber");
-            String actualEmail = request.get("actualEmail");
+            String email = request.get("email");
             String password = request.get("password");
             String confirmPassword = request.get("confirmPassword");
-            String gender = request.get("gender");
+            String gender = request.getOrDefault("gender", "Not Specified");
             
             if (firstName == null || firstName.trim().isEmpty() ||
                 lastName == null || lastName.trim().isEmpty() ||
                 phoneNumber == null || phoneNumber.trim().isEmpty() ||
-                actualEmail == null || actualEmail.trim().isEmpty() ||
-                gender == null || gender.trim().isEmpty() ||
+                email == null || email.trim().isEmpty() ||
                 password == null || password.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "All fields are required");
@@ -42,12 +40,8 @@ public class RegisterController {
                 return response;
             }
 
-            // Generate auto email
-            String name = firstName + " " + lastName;
-            String email = generateAutoEmail(name);
-
             Member member = new Member(firstName, lastName, phoneNumber, email, password, gender);
-            member.setActualEmail(actualEmail);
+            member.setActualEmail(email);
             MemberDAO memberDao = new MemberDAO();
             
             try {
@@ -84,29 +78,5 @@ public class RegisterController {
         return response;
     }
 
-    private String generateAutoEmail(String name) {
-        String[] parts = name.trim().split("\\s+");
-        String firstName = parts[0].toLowerCase();
-        String lastName = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "";
-        
-        String baseEmail = lastName.isEmpty() ? firstName : firstName + "." + lastName;
-        String domain = "@ecclesiasys.com";
-        
-        MemberDAO memberDao = new MemberDAO();
-        String generatedEmail = baseEmail + domain;
-        int count = 1;
-        
-        // Loop and index if the email already exists in the system
-        while (memberDao.getMemberByEmail(generatedEmail) != null) {
-            generatedEmail = baseEmail + count + domain;
-            count++;
-        }
-        
-        return generatedEmail;
-    }
-
-    private String generatePassword() {
-        Random rand = new Random();
-        return "pass" + rand.nextInt(10000);
-    }
 }
+

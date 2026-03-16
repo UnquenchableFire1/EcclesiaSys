@@ -164,7 +164,7 @@ export const getMemberProfile = (memberId) => {
 };
 
 export const getCurrentMemberProfile = () => {
-  const memberId = localStorage.getItem('userId');
+  const memberId = sessionStorage.getItem('userId');
   return api.get(`/member/${memberId}`);
 };
 

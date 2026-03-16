@@ -10,8 +10,7 @@ export default function Register() {
         firstName: '',
         lastName: '',
         phoneNumber: '',
-        actualEmail: '',
-        gender: '',
+        email: '',
         password: '',
         confirmPassword: ''
     });
@@ -59,20 +58,19 @@ export default function Register() {
             // send the form data
             const response = await register(formData);
             if (response.data?.success) {
-                const generatedEmail = response.data.email;
                 // save credentials
-                sessionStorage.setItem('memberEmail', generatedEmail);
+                sessionStorage.setItem('memberEmail', formData.email);
                 // auto-login as member
                 if (response.data.userId) {
                     sessionStorage.setItem('userId', response.data.userId);
                     sessionStorage.setItem('userType', 'member');
                     sessionStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`);
-                    sessionStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
+                    sessionStorage.setItem('sessionId', Date.now().toString());
                     sessionStorage.setItem('isNewMember', 'true');
                 }
                 setAlertDialog({
                     title: 'Welcome!',
-                    message: `WELCOME TO ECCLESIASYS CHURCH MANAGEMENT SYSTEM. YOUR LOGIN EMAIL IS "${generatedEmail}" USE THIS ANYTIME LOGGING IN`,
+                    message: `Registration successful! You can now log in using your email: ${formData.email}`,
                     onConfirm: () => navigate('/member-dashboard')
                 });
             } else {
@@ -125,7 +123,7 @@ export default function Register() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Last Name</label>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Second Name</label>
                                 <input 
                                     type="text"
                                     name="lastName"
@@ -138,7 +136,7 @@ export default function Register() {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Phone Number</label>
+                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Contact</label>
                             <input 
                                 type="tel"
                                 name="phoneNumber"
@@ -150,37 +148,18 @@ export default function Register() {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Personal Email</label>
+                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Email</label>
                             <input 
                                 type="email"
-                                name="actualEmail"
-                                value={formData.actualEmail}
+                                name="email"
+                                value={formData.email}
                                 onChange={handleChange}
                                 required
                                 className="w-full px-5 py-4 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                 placeholder="your.email@example.com"
                             />
-                            <p className="text-xs text-mdOutline mt-2 ml-1">This email will be used to send you password reset links</p>
                         </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Gender</label>
-                            <div className="relative">
-                                <select
-                                    name="gender"
-                                    value={formData.gender}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-5 py-4 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 appearance-none text-mdOnSurface"
-                                >
-                                    <option value="" disabled>Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-mdOutline">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
-                        </div>
+
                         <div>
                             <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Password</label>
                             <div className="relative">
@@ -226,11 +205,7 @@ export default function Register() {
                             </div>
                         </div>
 
-                        <div className="bg-mdPrimaryContainer/30 p-4 rounded-2xl border border-mdPrimaryContainer mt-4">
-                            <p className="text-mdOnSurfaceVariant text-xs font-medium leading-relaxed">
-                                An email will be automatically generated for you after registration. Please save it for logging in.
-                            </p>
-                        </div>
+
 
                         <button 
                             type="submit"

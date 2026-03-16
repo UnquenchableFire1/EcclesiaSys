@@ -20,6 +20,7 @@ import {
     faFileAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import DailyVerse from '../components/DailyVerse';
 
 export default function MemberDashboard() {
     const navigate = useNavigate();
@@ -323,6 +324,11 @@ export default function MemberDashboard() {
                                     {isNewMember ? 'Thank you for joining our church community! Explore the portal to stay connected.' : 'Your personalized church community portal. Here is a quick overview.'}
                                 </p>
                             </div>
+                        </div>
+
+                        {/* Daily Bible Verse */}
+                        <div className="mb-8">
+                            <DailyVerse />
                         </div>
 
                         {/* Quick Links with Counts */}
