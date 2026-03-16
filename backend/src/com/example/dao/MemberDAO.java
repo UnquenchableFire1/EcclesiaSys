@@ -166,6 +166,7 @@ public class MemberDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        for (Member m : members) { m.setPassword(null); }
         return members;
     }
 
@@ -195,6 +196,9 @@ public class MemberDAO {
                 member.setId(rs.getInt("id"));
                 member.setFirstName(rs.getString("first_name"));
                 member.setLastName(rs.getString("last_name"));
+                member.setPhoneNumber(rs.getString("phone_number"));
+                member.setActualEmail(rs.getString("actual_email"));
+                member.setEmail(rs.getString("email"));
                 member.setProfilePictureUrl(rs.getString("profile_picture_url"));
                 member.setBio(rs.getString("bio"));
                 try {
