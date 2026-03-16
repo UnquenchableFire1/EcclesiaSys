@@ -9,7 +9,7 @@ export default function MemberDirectory() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const currentUserId = parseInt(localStorage.getItem('userId')) || 0;
+    const currentUserId = parseInt(sessionStorage.getItem('userId')) || 0;
 
     const filteredMembers = members.filter(member => {
         if (member.id === currentUserId) return false;

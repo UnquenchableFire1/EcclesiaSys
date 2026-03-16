@@ -14,7 +14,7 @@ import Layout from "./layouts/Layout";
 import SessionTimer from "./components/SessionTimer";
 
 function ProtectedRoute({ requiredRole, children }) {
-  const userType = localStorage.getItem('userType');
+  const userType = sessionStorage.getItem('userType');
   const location = useLocation();
 
   if (!userType) {

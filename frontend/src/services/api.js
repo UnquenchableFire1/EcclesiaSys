@@ -14,7 +14,7 @@ const api = axios.create({
 // Add request interceptor for auth tokens
 api.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,9 +29,9 @@ api.interceptors.response.use(
   error => {
     if (error.response?.status === 401) {
       // Clear auth and redirect to login
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userType');
-      localStorage.removeItem('userName');
+      sessionStorage.removeItem('userId');
+      sessionStorage.removeItem('userType');
+      sessionStorage.removeItem('userName');
       window.location.href = '/login';
     }
     return Promise.reject(error);

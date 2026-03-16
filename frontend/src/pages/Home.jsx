@@ -8,8 +8,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Home() {
-  const userName = localStorage.getItem('userName');
-  const userType = localStorage.getItem('userType');
+  const userName = sessionStorage.getItem('userName');
+  const userType = sessionStorage.getItem('userType');
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 

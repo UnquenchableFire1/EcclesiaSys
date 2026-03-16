@@ -61,14 +61,14 @@ export default function Register() {
             if (response.data?.success) {
                 const generatedEmail = response.data.email;
                 // save credentials
-                localStorage.setItem('memberEmail', generatedEmail);
+                sessionStorage.setItem('memberEmail', generatedEmail);
                 // auto-login as member
                 if (response.data.userId) {
-                    localStorage.setItem('userId', response.data.userId);
-                    localStorage.setItem('userType', 'member');
-                    localStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`);
-                    localStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
-                    localStorage.setItem('isNewMember', 'true');
+                    sessionStorage.setItem('userId', response.data.userId);
+                    sessionStorage.setItem('userType', 'member');
+                    sessionStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`);
+                    sessionStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
+                    sessionStorage.setItem('isNewMember', 'true');
                 }
                 setAlertDialog({
                     title: 'Welcome!',

@@ -70,11 +70,11 @@ export default function AdminDashboard() {
     };
 
     const confirmLogout = () => {
-        localStorage.clear();
+        sessionStorage.clear();
         navigate('/login');
     };
     useEffect(() => {
-        const userType = localStorage.getItem('userType');
+        const userType = sessionStorage.getItem('userType');
         if (userType !== 'admin') {
             navigate('/login');
         }
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
         <button
             onClick={() => {
                 setActiveTab(tab);
-                localStorage.setItem('adminActiveTab', tab);
+                sessionStorage.setItem('adminActiveTab', tab);
                 setMobileMenuOpen(false);
             }}
             className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${

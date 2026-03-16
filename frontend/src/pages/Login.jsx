@@ -24,10 +24,10 @@ export default function Login() {
       const response = await login(email, password);
       if (response.data?.success) {
         const data = response.data;
-        localStorage.setItem('userId', data.userId);
-        localStorage.setItem('userType', data.userType);
-        localStorage.setItem('userName', data.name);
-        localStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
+        sessionStorage.setItem('userId', data.userId);
+        sessionStorage.setItem('userType', data.userType);
+        sessionStorage.setItem('userName', data.name);
+        sessionStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
         
         let destination = from && from !== '/' ? from : null;
 

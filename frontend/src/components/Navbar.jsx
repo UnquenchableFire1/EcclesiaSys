@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 
 export default function Navbar({ isMobile }) {
   const location = useLocation();
-  const [userType, setUserType] = useState(localStorage.getItem('userType'));
-  const [userName, setUserName] = useState(localStorage.getItem('userName'));
+  const [userType, setUserType] = useState(sessionStorage.getItem('userType'));
+  const [userName, setUserName] = useState(sessionStorage.getItem('userName'));
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
@@ -19,9 +19,11 @@ export default function Navbar({ isMobile }) {
 
   useEffect(() => {
     const handler = () => {
-      setUserType(localStorage.getItem('userType'));
-      setUserName(localStorage.getItem('userName'));
+      setUserType(sessionStorage.getItem('userType'));
+      setUserName(sessionStorage.getItem('userName'));
     };
+    // Note: The 'storage' event only fires for changes in localStorage, not sessionStorage.
+    // If you intend to react to sessionStorage changes across tabs/windows, a different mechanism is needed.
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);

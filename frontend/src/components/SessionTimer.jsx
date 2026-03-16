@@ -11,7 +11,7 @@ const SessionTimer = ({ timeoutInMinutes = 5 }) => {
 
   const handleLogout = useCallback(() => {
     console.log('Session timed out. Logging out...');
-    localStorage.clear();
+    sessionStorage.clear();
     // Redirect to login page with a timeout message if desired
     navigate('/login', { state: { message: 'Your session has expired due to inactivity.' } });
   }, [navigate]);
@@ -23,7 +23,7 @@ const SessionTimer = ({ timeoutInMinutes = 5 }) => {
       if (timeoutId) clearTimeout(timeoutId);
       
       // Only set timer if user is logged in
-      if (localStorage.getItem('userType')) {
+      if (sessionStorage.getItem('userType')) {
         timeoutId = setTimeout(handleLogout, TIMEOUT_MS);
       }
     };

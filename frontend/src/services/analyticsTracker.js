@@ -22,7 +22,7 @@ class AnalyticsTracker {
    * Track page view
    */
   trackPageView(pageName) {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     const userAgent = navigator.userAgent;
     
     const event = {
@@ -42,7 +42,7 @@ class AnalyticsTracker {
    * Track resource access (sermon, announcement, event, etc.)
    */
   trackResourceAccess(resourceType, resourceId, resourceName) {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     
     const event = {
       type: 'RESOURCE_ACCESS',
@@ -62,7 +62,7 @@ class AnalyticsTracker {
    * Track user actions (download, share, stream, etc.)
    */
   trackUserAction(actionType, actionDetails = {}) {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     
     const event = {
       type: 'USER_ACTION',
@@ -81,7 +81,7 @@ class AnalyticsTracker {
    * Track audio/video engagement
    */
   trackMediaEngagement(mediaType, mediaId, mediaName, duration) {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     
     const event = {
       type: 'MEDIA_ENGAGEMENT',
@@ -102,7 +102,7 @@ class AnalyticsTracker {
    * Track user engagement time on page
    */
   trackEngagementTime() {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     const currentTime = Date.now();
     const timeSpent = Math.round((currentTime - this.lastInteractionTime) / 1000); // in seconds
     
@@ -126,7 +126,7 @@ class AnalyticsTracker {
    * Track form submissions
    */
   trackFormSubmission(formName, formData = {}) {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     
     const event = {
       type: 'FORM_SUBMISSION',
@@ -145,7 +145,7 @@ class AnalyticsTracker {
    * Track errors
    */
   trackError(errorMessage, errorType = 'GENERAL') {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     
     const event = {
       type: 'ERROR',
@@ -194,7 +194,7 @@ class AnalyticsTracker {
    * Track session start
    */
   trackSessionStart() {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     const event = {
       type: 'SESSION_START',
       userId: userId || 'anonymous',
@@ -212,7 +212,7 @@ class AnalyticsTracker {
    * Track session end
    */
   trackSessionEnd() {
-    const userId = localStorage.getItem('userId');
+    const userId = sessionStorage.getItem('userId');
     const sessionDuration = Math.round((Date.now() - this.lastInteractionTime) / 1000);
     
     const event = {

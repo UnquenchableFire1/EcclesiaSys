@@ -11,7 +11,7 @@ export default function MemberProfile() {
     const [editing, setEditing] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const memberId = localStorage.getItem('userId');
+    const memberId = sessionStorage.getItem('userId');
     
     const [formData, setFormData] = useState({
         phoneNumber: '',
@@ -20,7 +20,7 @@ export default function MemberProfile() {
     });
 
     useEffect(() => {
-        const userType = localStorage.getItem('userType');
+        const userType = sessionStorage.getItem('userType');
         if (userType !== 'member') {
             navigate('/login');
             return;

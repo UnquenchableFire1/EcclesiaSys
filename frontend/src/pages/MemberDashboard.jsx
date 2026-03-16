@@ -43,12 +43,12 @@ export default function MemberDashboard() {
     }, []);
 
     const isMobile = windowWidth < 768;
-    const memberName = localStorage.getItem('userName') || 'Member';
-    const isNewMember = localStorage.getItem('isNewMember') === 'true';
+    const memberName = sessionStorage.getItem('userName') || 'Member';
+    const isNewMember = sessionStorage.getItem('isNewMember') === 'true';
 
     useEffect(() => {
         if (isNewMember) {
-            localStorage.removeItem('isNewMember');
+            sessionStorage.removeItem('isNewMember');
         }
     }, [isNewMember]);
 
@@ -57,9 +57,9 @@ export default function MemberDashboard() {
     };
 
     useEffect(() => {
-        const userType = localStorage.getItem('userType');
-        const userId = localStorage.getItem('userId');
-        const memberEmail = localStorage.getItem('memberEmail');
+        const userType = sessionStorage.getItem('userType');
+        const userId = sessionStorage.getItem('userId');
+        const memberEmail = sessionStorage.getItem('memberEmail');
 
         if (userType !== 'member' || !userId) {
             navigate('/login');

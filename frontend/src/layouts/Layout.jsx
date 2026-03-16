@@ -9,22 +9,6 @@ export default function Layout({ children }) {
     const [lastActivity, setLastActivity] = useState(Date.now());
     const inactivityTimeout = 5 * 60 * 1000; // 5 minutes
 
-    // Check for new tab/window logout
-    useEffect(() => {
-        const sessionId = localStorage.getItem('sessionId');
-        const storedSessionId = sessionStorage.getItem('sessionId');
-        
-        if (sessionId && !storedSessionId) {
-            // This is a new tab/window, but a session exists.
-            // DO NOT logout immediately. Instead, create a new session ID
-            // or trust the existing localStorage.
-            // Let's just track this tab as well.
-            sessionStorage.setItem('sessionId', sessionId);
-        } else if (sessionId) {
-            sessionStorage.setItem('sessionId', sessionId);
-        }
-    }, []);
-
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
@@ -34,7 +18,7 @@ export default function Layout({ children }) {
     // Activity tracking for session timeout
     useEffect(() => {
         // Only track if logged in
-        if (!localStorage.getItem('userId')) return;
+        if (!sessionStorage.getItem('userId')) return;
 
         // Mark activity on user interactions
         const handleActivity = () => {
@@ -49,13 +33,12 @@ export default function Layout({ children }) {
             const timeSinceLastActivity = Date.now() - lastActivity;
             if (timeSinceLastActivity > inactivityTimeout) {
                 // Logout user
-                localStorage.removeItem('userId');
-                localStorage.removeItem('userType');
-                localStorage.removeItem('memberEmail');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('adminActiveTab');
-                localStorage.removeItem('memberActiveTab');
-                localStorage.removeItem('sessionId');
+                sessionStorage.removeItem('userId');
+                sessionStorage.removeItem('userType');
+                sessionStorage.removeItem('memberEmail');
+                sessionStorage.removeItem('userName');
+                sessionStorage.removeItem('adminActiveTab');
+                sessionStorage.removeItem('memberActiveTab');
                 sessionStorage.removeItem('sessionId');
                 window.location.href = '/login';
             }

@@ -18,9 +18,9 @@ export default function AdminLogin() {
       const response = await login(email, password);
       if (response.data?.success) {
         const data = response.data;
-        localStorage.setItem('userId', data.userId);
-        localStorage.setItem('userType', data.userType);
-        localStorage.setItem('userName', data.name);
+        sessionStorage.setItem('userId', data.userId);
+        sessionStorage.setItem('userType', data.userType);
+        sessionStorage.setItem('userName', data.name);
         navigate('/admin');
       } else {
         setError(response.data?.message || 'Login failed');
