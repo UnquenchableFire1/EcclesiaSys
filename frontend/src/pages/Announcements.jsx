@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getAnnouncements } from '../services/api';
 import Layout from '../layouts/Layout';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBullhorn, faDownload } from '@fortawesome/free-solid-svg-icons';
 
 export default function Announcements() {
     const [announcements, setAnnouncements] = useState([]);
@@ -30,7 +32,7 @@ export default function Announcements() {
             <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 animate-fade-in">
                 <div className="flex items-center gap-4 mb-2">
                     <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
-                        <span className="text-3xl sm:text-4xl"></span>
+                        <FontAwesomeIcon icon={faBullhorn} className="text-3xl sm:text-4xl text-mdPrimary" />
                     </div>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-mdOnSurface tracking-tight">Announcements</h1>
                 </div>
@@ -38,7 +40,7 @@ export default function Announcements() {
                 
                 {announcements.length === 0 ? (
                     <div className="bg-mdSurfaceVariant/30 border border-mdOutline/20 p-10 rounded-3xl text-center">
-                        <div className="text-5xl mb-4"></div>
+                        <FontAwesomeIcon icon={faBullhorn} className="text-5xl mb-4 text-mdOutline" />
                         <h3 className="text-xl font-bold text-mdOnSurface mb-2">No announcements yet</h3>
                         <p className="text-mdOnSurfaceVariant">Check back soon for updates from the church!</p>
                     </div>
@@ -61,7 +63,7 @@ export default function Announcements() {
                                             download
                                             className="inline-flex items-center gap-2 bg-mdPrimaryContainer/50 hover:bg-mdPrimary text-mdPrimary hover:text-mdOnPrimary px-5 py-2.5 rounded-full font-bold transition-all duration-300"
                                         >
-                                            <span className="text-lg"></span> Download File
+                                            <FontAwesomeIcon icon={faDownload} /> Download File
                                         </a>
                                     </div>
                                 )}

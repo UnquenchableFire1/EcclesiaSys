@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-    getMembers, deleteMember,
-    getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement,
-    getEvents, createEvent, updateEvent, deleteEvent,
-    getSermons, createSermon, deleteSermon,
-    uploadEventDocument
-} from '../services/api';
 import { downloadMembersAsExcel } from '../services/excelExport';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+    faUsers, 
+    faBullhorn, 
+    faCalendarAlt, 
+    faMicrophone, 
+    faFileExcel, 
+    faTrash, 
+    faPhone, 
+    faEnvelope,
+    faMapMarkerAlt,
+    faVideo,
+    faPlus,
+    faSignOutAlt
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState(() => localStorage.getItem('adminActiveTab') || 'members');
@@ -332,10 +338,10 @@ export default function AdminDashboard() {
 
                     {/* Tabs row */}
                     <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
-                        <TabButton tab="members" label="Members" icon="" />
-                        <TabButton tab="announcements" label="Announcements" icon="" />
-                        <TabButton tab="events" label="Events" icon="" />
-                        <TabButton tab="sermons" label="Sermons" icon="" />
+                        <TabButton tab="members" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
+                        <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
+                        <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
+                        <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
                     </div>
                 </div>
             </div>
@@ -358,7 +364,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-4">
                             <div className="bg-mdSecondaryContainer/50 p-4 rounded-2xl">
-                                <span className="text-2xl"></span>
+                                <FontAwesomeIcon icon={faUsers} className="text-2xl text-mdSecondary" />
                             </div>
                             <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Members</h2>
                         </div>
@@ -383,7 +389,7 @@ export default function AdminDashboard() {
                                         className="absolute top-4 right-4 bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 shadow-sm z-10"
                                         title="Delete Member"
                                     >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <FontAwesomeIcon icon={faTrash} />
                                     </button>
                                     
                                     <div className="w-28 h-28 mb-4 rounded-full bg-mdSurfaceVariant overflow-hidden border-4 border-mdSurface shadow-md relative group-hover:scale-105 transition-transform duration-300">
@@ -405,7 +411,9 @@ export default function AdminDashboard() {
                                     
                                     <div className="w-full space-y-2 text-left bg-mdSurfaceVariant/30 p-4 rounded-2xl flex-grow flex flex-col justify-center">
                                         <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
-                                            <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm"></div>
+                                            <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">
+                                                <FontAwesomeIcon icon={faPhone} />
+                                            </div>
                                             <div className="overflow-hidden">
                                                 <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Phone</p>
                                                 <p className="text-sm font-bold text-mdOnSurface truncate">{member.phoneNumber || 'Not provided'}</p>
@@ -413,7 +421,9 @@ export default function AdminDashboard() {
                                         </div>
                                         
                                         <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all">
-                                            <div className="bg-mdPrimaryContainer/50 p-2 rounded-lg text-mdPrimary text-sm"></div>
+                                            <div className="bg-mdPrimaryContainer/50 p-2 rounded-lg text-mdPrimary text-sm">
+                                                <FontAwesomeIcon icon={faEnvelope} />
+                                            </div>
                                             <div className="overflow-hidden">
                                                 <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">System Email</p>
                                                 <p className="text-sm font-bold text-mdOnSurface truncate" title={member.email || ''}>{member.email || 'Not provided'}</p>
@@ -422,7 +432,9 @@ export default function AdminDashboard() {
 
                                         {(member.actualEmail && member.actualEmail !== member.email) && (
                                             <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all mt-auto">
-                                                <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm"></div>
+                                                <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">
+                                                    <FontAwesomeIcon icon={faEnvelope} />
+                                                </div>
                                                 <div className="overflow-hidden">
                                                     <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Personal Email</p>
                                                     <p className="text-sm font-bold text-mdOnSurface truncate" title={member.actualEmail}>{member.actualEmail}</p>
@@ -521,7 +533,7 @@ export default function AdminDashboard() {
                     <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="bg-mdSecondaryContainer p-4 rounded-2xl">
-                                <span className="text-2xl"></span>
+                                <FontAwesomeIcon icon={faCalendarAlt} className="text-2xl text-mdSecondary" />
                             </div>
                             <h2 className="text-2xl font-extrabold text-mdSecondary tracking-tight">Create Event</h2>
                         </div>
@@ -599,7 +611,7 @@ export default function AdminDashboard() {
                                         <div className="space-y-3 mb-6">
                                             {event.eventDate && (
                                                 <div className="inline-flex items-center gap-2 bg-mdSecondaryContainer/50 text-mdSecondary px-3 py-1.5 rounded-lg font-bold text-sm">
-                                                    <span></span>
+                                                    <FontAwesomeIcon icon={faCalendarAlt} />
                                                     {new Date(event.eventDate).toLocaleString(undefined, {
                                                         weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                                     })}
@@ -608,7 +620,7 @@ export default function AdminDashboard() {
                                             
                                             {event.location && (
                                                 <p className="flex items-start gap-2 text-mdOnSurfaceVariant text-sm font-medium">
-                                                    <span className="mt-0.5"></span>
+                                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="mt-0.5" />
                                                     {event.location}
                                                 </p>
                                             )}
@@ -718,7 +730,8 @@ export default function AdminDashboard() {
                                         <div className="flex justify-between items-start">
                                             <div>
                                                 <div className="flex items-center gap-3 mb-2">
-                                                    <span className={`px-2.5 py-1 text-xs font-bold uppercase rounded-md tracking-wider ${sermon.fileType === 'mp4' ? 'bg-mdSecondaryContainer text-mdSecondary' : 'bg-mdPrimaryContainer/50 text-mdPrimary'}`}>
+                                                    <span className={`px-2.5 py-1 text-xs font-bold uppercase rounded-md tracking-wider ${sermon.fileType === 'mp4' ? 'bg-mdSecondaryContainer text-mdSecondary' : 'bg-mdPrimaryContainer/50 text-mdPrimary'} flex items-center gap-1.5`}>
+                                                        <FontAwesomeIcon icon={sermon.fileType === 'mp4' ? faVideo : faMicrophone} />
                                                         {sermon.fileType === 'mp4' ? 'Video' : 'Audio'}
                                                     </span>
                                                     <h3 className="font-extrabold text-xl text-mdOnSurface leading-tight">{sermon.title}</h3>

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentMemberProfile, updateMemberProfile, updateProfilePrivacy, uploadProfilePicture } from '../services/api';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faCamera, faLock, faLockOpen, faCalendarAlt, faPhone, faEnvelope, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 export default function MemberProfile() {
     const navigate = useNavigate();
@@ -150,10 +152,11 @@ export default function MemberProfile() {
                                 />
                             ) : (
                                 <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-mdSurfaceVariant flex items-center justify-center text-4xl border-4 border-mdPrimaryContainer shadow-md1 transition-transform group-hover:scale-105 duration-300">
+                                    <FontAwesomeIcon icon={faUser} className="text-mdPrimary/50" />
                                 </div>
                             )}
                             <label className="absolute bottom-0 right-0 bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary w-10 h-10 rounded-full flex items-center justify-center shadow-md2 cursor-pointer transition-colors duration-200">
-                                <span></span>
+                                <FontAwesomeIcon icon={faCamera} />
                                 <input 
                                     type="file" 
                                     accept="image/*" 
@@ -169,7 +172,8 @@ export default function MemberProfile() {
                                 {profile.firstName} {profile.lastName}
                             </h2>
                             <p className="text-mdPrimary font-bold">{profile.email}</p>
-                            <div className="inline-flex mt-2 bg-mdSurfaceVariant/50 text-mdOnSurfaceVariant px-4 py-1.5 rounded-full text-sm font-semibold">
+                             <div className="inline-flex mt-2 bg-mdSurfaceVariant/50 text-mdOnSurfaceVariant px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
+                                <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary" />
                                 Member since {new Date(profile.joinedDate).toLocaleDateString()}
                             </div>
                         </div>
@@ -256,7 +260,7 @@ export default function MemberProfile() {
                             
                             <div className="bg-mdSurfaceVariant/10 p-5 rounded-2xl border border-mdSurfaceVariant/50 text-center space-y-4">
                                 <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl shadow-sm ${formData.isProfilePublic ? 'bg-mdPrimaryContainer text-mdPrimary' : 'bg-mdSurfaceVariant text-mdOnSurfaceVariant'}`}>
-                                    {formData.isProfilePublic ? '' : ''}
+                                    <FontAwesomeIcon icon={formData.isProfilePublic ? faLockOpen : faLock} />
                                 </div>
                                 
                                 <div>

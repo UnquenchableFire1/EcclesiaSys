@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { getSermons } from '../services/api';
 import Layout from '../layouts/Layout';
 import analytics from '../services/analyticsTracker';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMicrophone, faVideo, faCalendarAlt, faUser, faPlay, faDownload, faFilter, faSearch, faChevronDown, faShareAlt, faHeart } from '@fortawesome/free-solid-svg-icons';
 
 export default function Sermons() {
     const [sermons, setSermons] = useState([]);
@@ -57,7 +59,7 @@ export default function Sermons() {
                 <div className="mb-10 sm:mb-14">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
-                            <span className="text-3xl sm:text-4xl"></span>
+                            <FontAwesomeIcon icon={faMicrophone} className="text-3xl sm:text-4xl text-mdPrimary" />
                         </div>
                         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mdOnSurface tracking-tight">
                             Sermons
@@ -70,7 +72,7 @@ export default function Sermons() {
 
                 {sermons.length === 0 ? (
                     <div className="bg-mdSurfaceVariant/30 border border-mdOutline/20 p-12 rounded-[2.5rem] text-center shadow-sm">
-                        <div className="text-6xl mb-6"></div>
+                        <FontAwesomeIcon icon={faMicrophone} className="text-6xl mb-6 text-mdOutline" />
                         <h3 className="text-2xl font-bold text-mdOnSurface mb-3">No sermons available yet</h3>
                         <p className="text-mdOnSurfaceVariant text-lg">New sermons will be added soon. Check back later!</p>
                     </div>
@@ -79,7 +81,7 @@ export default function Sermons() {
                         {/* Filter Section */}
                         {uniqueSpeakers.length > 1 && (
                             <div className="mb-10 bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm">
-                                    <span className="text-xl"></span> Filter by Speaker
+                                    <FontAwesomeIcon icon={faFilter} className="text-mdPrimary mr-2" /> Filter by Speaker
                                 <div className="flex flex-wrap gap-3">
                                     <button
                                         onClick={() => setFilterSpeaker('')}
@@ -139,10 +141,10 @@ export default function Sermons() {
                                         <div className="flex-1">
                                             <div className="flex flex-wrap items-center gap-3 mb-3">
                                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mdSecondaryContainer text-mdSecondary text-sm font-bold">
-                                                    <span></span> {new Date(sermon.sermonDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                                    <FontAwesomeIcon icon={faCalendarAlt} /> {new Date(sermon.sermonDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                                                 </span>
-                                                {sermon.audioUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mdPrimaryContainer text-mdPrimary text-sm font-bold"><span></span> Audio</span>}
-                                                {sermon.videoUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFDAB9]/30 text-[#D2691E] text-sm font-bold"><span></span> Video</span>}
+                                                {sermon.audioUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mdPrimaryContainer text-mdPrimary text-sm font-bold"><FontAwesomeIcon icon={faMicrophone} /> Audio</span>}
+                                                {sermon.videoUrl && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFDAB9]/30 text-[#D2691E] text-sm font-bold"><FontAwesomeIcon icon={faVideo} /> Video</span>}
                                             </div>
                                             
                                             <h3 className={`text-2xl sm:text-3xl font-extrabold mb-2 transition-colors duration-300 ${expandedSermon === sermon.id ? 'text-mdPrimary' : 'text-mdOnSurface group-hover:text-mdPrimary/80'}`}>
@@ -150,7 +152,7 @@ export default function Sermons() {
                                             </h3>
                                             
                                             <p className="text-mdOnSurface text-lg font-medium mb-3 flex items-center gap-2">
-                                                <span className="text-mdOnSurfaceVariant">by</span> {sermon.speaker}
+                                                <FontAwesomeIcon icon={faUser} className="text-mdOnSurfaceVariant text-sm" /> <span className="text-mdOnSurfaceVariant">by</span> {sermon.speaker}
                                             </p>
                                             
                                             {sermon.description && (
@@ -179,7 +181,9 @@ export default function Sermons() {
                                         {sermon.audioUrl && (
                                             <div className="mb-8 bg-mdSurfaceVariant/20 p-5 rounded-3xl border border-mdSurfaceVariant/50">
                                                 <h4 className="text-mdOnSurface font-bold mb-4 flex items-center gap-2">
-                                                    <span className="bg-mdPrimaryContainer text-mdPrimary p-1.5 rounded-lg"></span> Listen to Audio
+                                                    <div className="bg-mdPrimaryContainer text-mdPrimary p-1.5 rounded-lg">
+                                                        <FontAwesomeIcon icon={faMicrophone} />
+                                                    </div> Listen to Audio
                                                 </h4>
                                                 <audio 
                                                     controls 
@@ -195,7 +199,7 @@ export default function Sermons() {
                                                     onClick={() => handleDownload(sermon, 'AUDIO')}
                                                     className="inline-flex items-center gap-2 bg-mdPrimary hover:bg-mdPrimary/90 text-mdOnPrimary px-6 py-2.5 rounded-full font-bold transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                                                 >
-                                                    <span></span> Download Audio
+                                                    <FontAwesomeIcon icon={faDownload} /> Download Audio
                                                 </a>
                                             </div>
                                         )}
@@ -204,7 +208,9 @@ export default function Sermons() {
                                         {sermon.videoUrl && (
                                             <div className="mb-8 bg-mdSurfaceVariant/20 p-5 rounded-3xl border border-mdSurfaceVariant/50">
                                                 <h4 className="text-mdOnSurface font-bold mb-4 flex items-center gap-2">
-                                                    <span className="bg-[#FFDAB9]/30 text-[#D2691E] p-1.5 rounded-lg"></span> Watch Video
+                                                    <div className="bg-[#FFDAB9]/30 text-[#D2691E] p-1.5 rounded-lg">
+                                                        <FontAwesomeIcon icon={faVideo} />
+                                                    </div> Watch Video
                                                 </h4>
                                                 <div className="rounded-2xl overflow-hidden shadow-sm mb-4 border border-mdOutline/20 bg-black aspect-video flex items-center justify-center">
                                                     <video 
@@ -222,7 +228,7 @@ export default function Sermons() {
                                                     onClick={() => handleDownload(sermon, 'VIDEO')}
                                                     className="inline-flex items-center gap-2 bg-[#D2691E] hover:bg-[#D2691E]/90 text-white px-6 py-2.5 rounded-full font-bold transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                                                 >
-                                                    <span></span> Download Video
+                                                    <FontAwesomeIcon icon={faDownload} /> Download Video
                                                 </a>
                                             </div>
                                         )}
@@ -233,19 +239,13 @@ export default function Sermons() {
                                                 onClick={() => analytics.trackUserAction('SHARE_SERMON', { sermon: sermon.title })}
                                                 className="inline-flex items-center gap-2 bg-mdSurfaceVariant/50 hover:bg-mdSurfaceVariant text-mdOnSurfaceVariant hover:text-mdOnSurface px-5 py-2 rounded-full font-bold transition-all"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                                </svg>
-                                                Share
+                                                <FontAwesomeIcon icon={faShareAlt} /> Share
                                             </button>
                                             <button 
                                                 onClick={() => analytics.trackUserAction('ADD_TO_PLAYLIST', { sermon: sermon.title })}
                                                 className="inline-flex items-center gap-2 bg-mdSurfaceVariant/50 hover:bg-mdSurfaceVariant text-mdOnSurfaceVariant hover:text-mdOnSurface px-5 py-2 rounded-full font-bold transition-all"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                </svg>
-                                                Add to Favorites
+                                                <FontAwesomeIcon icon={faHeart} /> Add to Favorites
                                             </button>
                                         </div>
                                     </div>
@@ -255,7 +255,7 @@ export default function Sermons() {
 
                         {filteredSermons.length === 0 && filterSpeaker && (
                             <div className="text-center py-16 bg-mdSurfaceVariant/20 rounded-3xl border border-mdOutline/10 mt-6">
-                                <div className="text-4xl mb-4"></div>
+                                <FontAwesomeIcon icon={faSearch} className="text-4xl mb-4 text-mdOutline" />
                                 <h3 className="text-xl font-bold text-mdOnSurface mb-1">No matches found</h3>
                                 <p className="text-mdOnSurfaceVariant">No sermons found by {filterSpeaker}</p>
                                 <button 

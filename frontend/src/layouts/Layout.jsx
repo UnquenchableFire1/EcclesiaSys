@@ -1,5 +1,8 @@
 import Navbar from '../components/Navbar';
 import { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 export default function Layout({ children }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -82,13 +85,13 @@ export default function Layout({ children }) {
                         <div className="text-center md:text-left">
                             <h3 className="text-mdPrimary font-bold mb-2 text-xl">Contact Us</h3>
                             <p className="mb-2">
-                                <a href="mailto:benjaminbuckmanjunior@gmail.com" className="hover:text-mdPrimary transition-colors duration-200 font-medium">
-                                     benjaminbuckmanjunior@gmail.com
+                                <a href="mailto:benjaminbuckmanjunior@gmail.com" className="hover:text-mdPrimary transition-colors duration-200 font-medium flex items-center justify-center md:justify-start gap-2">
+                                    <FontAwesomeIcon icon={faEnvelope} /> benjaminbuckmanjunior@gmail.com
                                 </a>
                             </p>
                             <p>
-                                <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="hover:text-mdPrimary transition-colors duration-200 font-medium">
-                                     WhatsApp
+                                <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="hover:text-mdPrimary transition-colors duration-200 font-medium flex items-center justify-center md:justify-start gap-2">
+                                    <FontAwesomeIcon icon={faWhatsapp} /> WhatsApp
                                 </a>
                             </p>
                         </div>

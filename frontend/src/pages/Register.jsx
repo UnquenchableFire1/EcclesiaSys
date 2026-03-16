@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../services/api';
 import Layout from '../layouts/Layout';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faEye, faEyeSlash, faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -90,10 +92,10 @@ export default function Register() {
                 {/* Header */}
                 <div className="text-center mb-8 relative">
                     <a href="/" className="absolute left-0 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-colors flex items-center gap-1 text-sm font-bold">
-                        <span>←</span> Home
+                        <FontAwesomeIcon icon={faArrowLeft} /> Home
                     </a>
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm mx-auto">
-                        <span className="text-3xl font-bold">+</span>
+                        <FontAwesomeIcon icon={faPlus} className="text-3xl" />
                     </div>
                     <h1 className="text-3xl font-extrabold text-mdPrimary tracking-tight mb-2">Join EcclesiaSys</h1>
                     <p className="text-mdOnSurfaceVariant font-medium">Create your member account</p>
@@ -177,7 +179,7 @@ export default function Register() {
                                     className="absolute right-4 top-4 text-mdOutline hover:text-mdPrimary transition-colors duration-200"
                                     title={showPassword ? 'Hide password' : 'Show password'}
                                 >
-                                    {showPassword ? 'Hide' : 'Show'}
+                                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                                 </button>
                             </div>
                         </div>
@@ -199,7 +201,7 @@ export default function Register() {
                                     className="absolute right-4 top-4 text-mdOutline hover:text-mdPrimary transition-colors duration-200"
                                     title={showConfirmPassword ? 'Hide password' : 'Show password'}
                                 >
-                                    {showConfirmPassword ? 'Hide' : 'Show'}
+                                    <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
                                 </button>
                             </div>
                         </div>
