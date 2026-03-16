@@ -22,7 +22,15 @@ import {
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import DailyVerse from '../components/DailyVerse';
 
-export default function MemberDashboard({ activeTab, setActiveTab }) {
+export default function MemberDashboard() {
+    const [activeTab, setActiveTabInternal] = useState(() => {
+        return sessionStorage.getItem('memberActiveTab') || 'home';
+    });
+
+    const setActiveTab = (tab) => {
+        setActiveTabInternal(tab);
+        sessionStorage.setItem('memberActiveTab', tab);
+    };
     const navigate = useNavigate();
     const [memberData, setMemberData] = useState(null);
     const [announcements, setAnnouncements] = useState([]);
@@ -131,6 +139,20 @@ export default function MemberDashboard({ activeTab, setActiveTab }) {
 
 
 
+    const TabButton = ({ tab, label, icon }) => (
+        <button
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
+                activeTab === tab
+                    ? 'bg-mdSurface text-mdPrimary border-b-4 border-mdPrimary'
+                    : 'text-mdOnPrimary hover:bg-white/10'
+            }`}
+        >
+            <span className="hidden sm:inline mr-2">{icon}</span>
+            {label}
+        </button>
+    );
+
     if (loading) {
         return (
             <div className="min-h-[80vh] flex items-center justify-center">
@@ -164,6 +186,43 @@ export default function MemberDashboard({ activeTab, setActiveTab }) {
                     </div>
                 </div>
             )}
+
+            {/* Navigation Bar */}
+            <div className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 mx-4 md:mx-6 overflow-hidden mb-10">
+                <div className="max-w-7xl mx-auto px-4 md:px-6">
+                    <div className="flex justify-between items-center py-4 gap-4">
+                        <h1 className="text-xl md:text-2xl font-extrabold flex-1 tracking-tight">
+                            Member Dashboard
+                        </h1>
+                        
+                        {/* Hamburger Menu Button - Mobile Only */}
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="md:hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {mobileMenuOpen ? '✕' : '☰'}
+                        </button>
+
+                        <button
+                            onClick={handleLogout}
+                            className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdPrimary px-4 py-2 sm:px-6 sm:py-2 text-sm md:text-base rounded-full shadow-md1 transition-all duration-200 font-bold flex-shrink-0"
+                        >
+                            {isMobile ? 'Logout' : `Logout (${memberName})`}
+                        </button>
+                    </div>
+
+                    {/* Tabs row */}
+                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
+                        <TabButton tab="home" label="Overview" icon={<FontAwesomeIcon icon={faHome} />} />
+                        <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
+                        <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
+                        <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
+                        <TabButton tab="directory" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
+                        <TabButton tab="profile" label="Profile" icon={<FontAwesomeIcon icon={faUser} />} />
+                    </div>
+                </div>
+            </div>
 
             {/* Detail View Modal */}
             {selectedItem && (

@@ -33,7 +33,15 @@ import {
     faHome
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function AdminDashboard({ activeTab, setActiveTab }) {
+export default function AdminDashboard() {
+    const [activeTab, setActiveTabInternal] = useState(() => {
+        return sessionStorage.getItem('adminActiveTab') || 'home';
+    });
+
+    const setActiveTab = (tab) => {
+        setActiveTabInternal(tab);
+        sessionStorage.setItem('adminActiveTab', tab);
+    };
     const [members, setMembers] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
     const [events, setEvents] = useState([]);
@@ -72,6 +80,20 @@ export default function AdminDashboard({ activeTab, setActiveTab }) {
         sessionStorage.clear();
         navigate('/login');
     };
+    const TabButton = ({ tab, label, icon }) => (
+        <button
+            onClick={() => setActiveTab(tab)}
+            className={`px-6 py-4 text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
+                activeTab === tab
+                    ? 'bg-white text-mdPrimary border-b-4 border-mdPrimary'
+                    : 'text-mdOnPrimary hover:bg-white/10'
+            }`}
+        >
+            <span className="mr-2">{icon}</span>
+            {label}
+        </button>
+    );
+
     useEffect(() => {
         const userType = sessionStorage.getItem('userType');
         if (userType !== 'admin') {
@@ -370,6 +392,22 @@ export default function AdminDashboard({ activeTab, setActiveTab }) {
                         <FontAwesomeIcon icon={faSignOutAlt} />
                         Logout
                     </button>
+                </div>
+            </div>
+
+            {/* Navigation Bar */}
+            <div className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 mx-4 md:mx-0 overflow-hidden mb-10">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex justify-between items-center py-4">
+                        <h2 className="text-2xl font-extrabold tracking-tight">Admin Portal</h2>
+                        <div className="flex gap-2">
+                             <TabButton tab="home" label="Overview" icon={<FontAwesomeIcon icon={faHome} />} />
+                             <TabButton tab="members" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
+                             <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
+                             <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
+                             <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
+                        </div>
+                    </div>
                 </div>
             </div>
 
