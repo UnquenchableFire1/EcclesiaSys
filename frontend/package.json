@@ -14,7 +14,11 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
     "axios": "^1.4.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/free-brands-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0"
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.19.11",
