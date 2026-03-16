@@ -1,11 +1,14 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
 public class Admin {
     private int id;
     private String name;
     private String email;
+    
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private int createdBy;
     private LocalDateTime createdDate;

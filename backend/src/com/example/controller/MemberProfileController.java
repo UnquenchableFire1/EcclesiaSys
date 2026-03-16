@@ -25,7 +25,6 @@ public class MemberProfileController {
                 response.put("firstName", member.getFirstName());
                 response.put("lastName", member.getLastName());
                 response.put("email", member.getEmail());
-                response.put("actualEmail", member.getActualEmail());
                 response.put("phoneNumber", member.getPhoneNumber());
                 response.put("profilePictureUrl", member.getProfilePictureUrl());
                 response.put("bio", member.getBio());

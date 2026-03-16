@@ -1,5 +1,6 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,9 +26,11 @@ public class Member {
     private String email;
     
     @Column(name = "actual_email", length = 100)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String actualEmail;
     
     @Column(name = "password", nullable = false, length = 255)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     
     @Column(name = "profile_picture_url", length = 500)
