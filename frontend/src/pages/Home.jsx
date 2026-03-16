@@ -114,7 +114,11 @@ export default function Home() {
           <p className="text-xl text-mdOnSurface-variant font-medium mt-4">Discover ways to connect, grow, and serve.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Link to="/announcements" className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden">
+          <Link 
+            to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/announcements'} 
+            onClick={() => userType && localStorage.setItem(userType === 'admin' ? 'adminActiveTab' : 'memberActiveTab', 'announcements')}
+            className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden"
+          >
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-mdPrimaryContainer opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
             <div className="text-4xl mb-8 bg-mdPrimaryContainer w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-sm text-mdPrimary">
                 <FontAwesomeIcon icon={faBullhorn} />
@@ -122,11 +126,15 @@ export default function Home() {
             <h3 className="text-2xl font-black text-mdPrimary mb-4">Announcements</h3>
             <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-6">Stay updated with important church news, stories of faith, and community highlights.</p>
             <div className="text-mdPrimary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
-              See What's New <span className="text-xl">→</span>
+              {userType ? 'Go to Announcements' : 'See What\'s New'} <span className="text-xl">→</span>
             </div>
           </Link>
 
-          <Link to="/events" className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden">
+          <Link 
+            to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/events'} 
+            onClick={() => userType && localStorage.setItem(userType === 'admin' ? 'adminActiveTab' : 'memberActiveTab', 'events')}
+            className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden"
+          >
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-mdSecondaryContainer opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
             <div className="text-4xl mb-8 bg-mdSecondaryContainer w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-sm text-mdSecondary">
                 <FontAwesomeIcon icon={faCalendarAlt} />
@@ -134,11 +142,15 @@ export default function Home() {
             <h3 className="text-2xl font-black text-mdSecondary mb-4">Events</h3>
             <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-6">Discover upcoming gatherings, ministry programs, and special activities for all ages.</p>
             <div className="text-mdSecondary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
-              View Calendar <span className="text-xl">→</span>
+              {userType ? 'Manage Events' : 'View Calendar'} <span className="text-xl">→</span>
             </div>
           </Link>
 
-          <Link to="/sermons" className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden">
+          <Link 
+            to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/sermons'} 
+            onClick={() => userType && localStorage.setItem(userType === 'admin' ? 'adminActiveTab' : 'memberActiveTab', 'sermons')}
+            className="bg-mdSurface rounded-[3rem] shadow-sm p-12 hover:shadow-md3 hover:-translate-y-2 transition-all duration-500 border border-mdSurfaceVariant block group relative overflow-hidden"
+          >
             <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-mdPrimaryContainer opacity-20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
             <div className="text-4xl mb-8 bg-mdPrimaryContainer w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-sm text-mdPrimary">
                 <FontAwesomeIcon icon={faMicrophone} />
@@ -146,7 +158,7 @@ export default function Home() {
             <h3 className="text-2xl font-black text-mdPrimary mb-4">Sermons</h3>
             <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-6">Listen to inspiring sermons and life-transforming teachings from our pastoral team.</p>
             <div className="text-mdPrimary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
-              Listen Online <span className="text-xl">→</span>
+              {userType ? 'Latest Sermons' : 'Listen Online'} <span className="text-xl">→</span>
             </div>
           </Link>
         </div>

@@ -53,12 +53,16 @@ export default function Navbar({ isMobile }) {
               <Link to="/" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/')}`}>Home</Link>
               {userType && (
                 <>
-                  <Link to="/announcements" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/announcements')}`}>Announcements</Link>
-                  <Link to="/events" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/events')}`}>Events</Link>
-                  <Link to="/sermons" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/sermons')}`}>Sermons</Link>
-                  {userType === 'admin' && (
-                    <Link to="/admin" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/admin')}`}>Dashboard</Link>
+                  {!isMobileView && userType === 'member' && (
+                    <>
+                      <Link to="/announcements" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/announcements')}`}>Announcements</Link>
+                      <Link to="/events" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/events')}`}>Events</Link>
+                      <Link to="/sermons" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/sermons')}`}>Sermons</Link>
+                    </>
                   )}
+                  <Link to={userType === 'admin' ? '/admin' : '/member-dashboard'} className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive(userType === 'admin' ? '/admin' : '/member-dashboard')}`}>
+                    {userType === 'admin' ? 'Admin Dashboard' : 'My Dashboard'}
+                  </Link>
 
                   <div className="relative ml-2">
                     <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-mdSurfaceVariant transition-colors duration-200 font-bold text-mdPrimary">
