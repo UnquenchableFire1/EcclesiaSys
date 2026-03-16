@@ -274,8 +274,6 @@ export default function AdminDashboard({ activeTab, setActiveTab }) {
         });
     };
 
-    );
-
     return (
         <div className="min-h-[80vh] bg-mdSurface outline-none animate-fade-in relative z-10 transition-colors duration-300 py-4">
             {/* Custom Dialogs */}
