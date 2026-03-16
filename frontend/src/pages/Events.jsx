@@ -12,8 +12,9 @@ export default function Events() {
 
     useEffect(() => {
         getEvents().then(response => {
-            const fetchedEvents = response.data || [];
-            setEvents(fetchedEvents);
+            const data = response.data;
+            const fetchedEvents = data.data || data || [];
+            setEvents(Array.isArray(fetchedEvents) ? fetchedEvents : []);
             setLoading(false);
 
             // Check for id in query params

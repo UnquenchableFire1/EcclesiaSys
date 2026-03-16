@@ -12,8 +12,9 @@ export default function Announcements() {
 
     useEffect(() => {
         getAnnouncements().then(response => {
-            const fetchedAnnouncements = response.data || [];
-            setAnnouncements(fetchedAnnouncements);
+            const data = response.data;
+            const fetchedAnnouncements = data.data || data || [];
+            setAnnouncements(Array.isArray(fetchedAnnouncements) ? fetchedAnnouncements : []);
             setLoading(false);
 
             // Check for id in query params

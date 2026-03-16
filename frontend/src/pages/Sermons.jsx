@@ -17,8 +17,9 @@ export default function Sermons() {
         analytics.trackPageView('Sermons Library');
         
         getSermons().then(response => {
-            const fetchedSermons = response.data || [];
-            setSermons(fetchedSermons);
+            const data = response.data;
+            const fetchedSermons = data.data || data || [];
+            setSermons(Array.isArray(fetchedSermons) ? fetchedSermons : []);
             setLoading(false);
 
             // Check for id in query params

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faBullhorn, faCalendarAlt, faMicrophone, faBolt, faEye, 
   faClock, faMapMarkerAlt, faEnvelope, faUsers, faCheckCircle,
-  faStar, faQuoteLeft, faHeart
+  faStar, faQuoteLeft, faHeart, faPlusCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Home() {
