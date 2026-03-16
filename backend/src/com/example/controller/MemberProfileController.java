@@ -1,5 +1,7 @@
 package com.example.controller;
 
+import com.example.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.web.bind.annotation.*;
 import com.example.dao.MemberDAO;
 import com.example.model.Member;
@@ -12,6 +14,7 @@ import java.util.Map;
 public class MemberProfileController {
 
     @GetMapping("/{memberId}")
+    @JsonView(Views.Member.class)
     public Map<String, Object> getMemberProfile(@PathVariable int memberId) {
         Map<String, Object> response = new HashMap<>();
         
@@ -126,6 +129,7 @@ public class MemberProfileController {
     }
 
     @GetMapping("/public/{memberId}")
+    @JsonView(Views.Public.class)
     public Map<String, Object> getPublicMemberProfile(@PathVariable int memberId) {
         Map<String, Object> response = new HashMap<>();
         

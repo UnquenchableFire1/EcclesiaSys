@@ -1,6 +1,8 @@
 package com.example.model;
 
+import com.example.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,18 +13,23 @@ import org.hibernate.annotations.UpdateTimestamp;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonView(Views.Public.class)
     private int id;
     
     @Column(name = "first_name", nullable = false, length = 50)
+    @JsonView(Views.Public.class)
     private String firstName;
     
     @Column(name = "last_name", nullable = false, length = 50)
+    @JsonView(Views.Public.class)
     private String lastName;
     
     @Column(name = "phone_number", length = 20)
+    @JsonView(Views.Member.class)
     private String phoneNumber;
     
     @Column(name = "email", nullable = false, length = 100, unique = true)
+    @JsonView(Views.Member.class)
     private String email;
     
     @Column(name = "actual_email", length = 100)
@@ -34,26 +41,33 @@ public class Member {
     private String password;
     
     @Column(name = "profile_picture_url", length = 500)
+    @JsonView(Views.Public.class)
     private String profilePictureUrl;
     
     @Column(name = "is_profile_public", nullable = false)
+    @JsonView(Views.Member.class)
     private Boolean isProfilePublic = true;
     
     @Column(name = "gender", length = 20)
+    @JsonView(Views.Member.class)
     private String gender;
     
     @Column(name = "bio", columnDefinition = "TEXT")
+    @JsonView(Views.Public.class)
     private String bio;
     
     @Column(name = "status", nullable = false, length = 10)
+    @JsonView(Views.Admin.class)
     private String status;
     
     @CreationTimestamp
     @Column(name = "joined_date", nullable = false, updatable = false)
+    @JsonView(Views.Public.class)
     private LocalDateTime joinedDate;
     
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
+    @JsonView(Views.Admin.class)
     private LocalDateTime updatedAt;
 
     public Member() {}

@@ -243,13 +243,54 @@ public class MemberDAO {
     }
 
     public boolean deleteMember(int id) {
-        String query = "UPDATE members SET status = 'inactive' WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false); // Start transaction
+            
+            // 1. Get member email to clean up associated records
+            String email = null;
+            try (PreparedStatement stmt = conn.prepareStatement("SELECT email FROM members WHERE id = ?")) {
+                stmt.setInt(1, id);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    email = rs.getString("email");
+                }
+            }
+            
+            if (email != null) {
+                // 2. Delete related password resets
+                try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM password_resets WHERE email = ?")) {
+                    stmt.setString(1, email);
+                    stmt.executeUpdate();
+                }
+            }
+            
+            // 3. Delete the member
+            String deleteQuery = "DELETE FROM members WHERE id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(deleteQuery)) {
+                stmt.setInt(1, id);
+                int result = stmt.executeUpdate();
+                conn.commit(); // Commit transaction
+                return result > 0;
+            }
         } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return false;
     }

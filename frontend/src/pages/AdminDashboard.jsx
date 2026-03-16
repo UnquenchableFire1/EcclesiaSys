@@ -48,8 +48,8 @@ export default function AdminDashboard() {
     const [sermons, setSermons] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [adminId] = useState(parseInt(localStorage.getItem('userId')));
-    const [adminName] = useState(localStorage.getItem('userName'));
+    const [adminId] = useState(parseInt(sessionStorage.getItem('userId')));
+    const [adminName] = useState(sessionStorage.getItem('userName'));
     const navigate = useNavigate();
 
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
@@ -393,7 +393,7 @@ export default function AdminDashboard() {
             <div className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 mx-4 md:mx-0 overflow-hidden mb-10">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="flex justify-between items-center py-4 gap-4">
-                        <h2 className="text-xl md:text-2xl font-extrabold tracking-tight flex-1">Admin Portal</h2>
+                        <div className="flex-1"></div>
                         
                         {/* Hamburger Menu Button - Mobile Only */}
                         <button
