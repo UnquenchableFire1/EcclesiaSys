@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { login } from '../services/api';
 import Layout from '../layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,6 +12,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname + (location.state?.from?.search || "");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,10 +26,13 @@ export default function Login() {
         localStorage.setItem('userType', data.userType);
         localStorage.setItem('userName', data.name);
         localStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
+        
+        let destination = from && from !== '/' ? from : null;
+
         if (data.userType === 'admin') {
-          navigate('/admin');
+          navigate(destination || '/admin', { replace: true });
         } else if (data.userType === 'member') {
-          navigate('/member-dashboard');
+          navigate(destination || '/member-dashboard', { replace: true });
         }
       } else {
         setError('Account does not exist');

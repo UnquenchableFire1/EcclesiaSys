@@ -23,11 +23,13 @@ public class RegisterController {
             String actualEmail = request.get("actualEmail");
             String password = request.get("password");
             String confirmPassword = request.get("confirmPassword");
+            String gender = request.get("gender");
             
             if (firstName == null || firstName.trim().isEmpty() ||
                 lastName == null || lastName.trim().isEmpty() ||
                 phoneNumber == null || phoneNumber.trim().isEmpty() ||
                 actualEmail == null || actualEmail.trim().isEmpty() ||
+                gender == null || gender.trim().isEmpty() ||
                 password == null || password.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "All fields are required");
@@ -44,7 +46,7 @@ public class RegisterController {
             String name = firstName + " " + lastName;
             String email = generateAutoEmail(name);
 
-            Member member = new Member(firstName, lastName, phoneNumber, email, password);
+            Member member = new Member(firstName, lastName, phoneNumber, email, password, gender);
             member.setActualEmail(actualEmail);
             MemberDAO memberDao = new MemberDAO();
             

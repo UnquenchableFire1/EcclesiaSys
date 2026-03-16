@@ -12,7 +12,8 @@ import {
     createEvent,
     deleteEvent,
     createSermon,
-    deleteSermon
+    deleteSermon,
+    uploadSermon
 } from '../services/api';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -51,7 +52,7 @@ export default function AdminDashboard() {
     const [alertDialog, setAlertDialog] = useState(null);
     const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '', file: null });
     const [newEvent, setNewEvent] = useState({ title: '', description: '', eventDate: '', location: '', documentFile: null });
-    const [newSermon, setNewSermon] = useState({ title: '', description: '', speaker: '', sermonDate: '', file: null, fileType: 'mp3' });
+    const [newSermon, setNewSermon] = useState({ title: '', description: '', speaker: '', sermonDate: '', fileType: 'mp3', mediaMode: 'none', file: null, customUrl: '' });
     const [counts, setCounts] = useState({ members: 0, events: 0, announcements: 0, sermons: 0 });
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalType, setModalType] = useState(null);
@@ -194,12 +195,48 @@ export default function AdminDashboard() {
         }
 
         try {
+            setLoading(true);
+
+            let audioUrl = '';
+            let videoUrl = '';
+
+            // Handle File Upload
+            if (newSermon.mediaMode === 'upload' && newSermon.file) {
+                const formData = new FormData();
+                formData.append('file', newSermon.file);
+                formData.append('title', newSermon.title);
+                formData.append('adminId', adminId);
+
+                const uploadRes = await uploadSermon(formData);
+                if (uploadRes.data?.success && uploadRes.data?.fileUrl) {
+                    if (newSermon.fileType === 'mp3') {
+                        audioUrl = uploadRes.data.fileUrl;
+                    } else {
+                        videoUrl = uploadRes.data.fileUrl;
+                    }
+                } else {
+                    setLoading(false);
+                    setAlertDialog({ title: 'Error', message: 'Failed to upload media file: ' + (uploadRes.data?.message || ''), isError: true });
+                    return;
+                }
+            } 
+            // Handle Direct URL
+            else if (newSermon.mediaMode === 'url' && newSermon.customUrl.trim() !== '') {
+                if (newSermon.fileType === 'mp3') {
+                    audioUrl = newSermon.customUrl.trim();
+                } else {
+                    videoUrl = newSermon.customUrl.trim();
+                }
+            }
+
             let sermonData = { 
                 title: newSermon.title.trim(),
                 description: newSermon.description.trim(),
                 speaker: newSermon.speaker.trim(),
                 sermonDate: newSermon.sermonDate.includes('T') ? newSermon.sermonDate : newSermon.sermonDate + 'T00:00:00',
                 fileType: newSermon.fileType,
+                audioUrl: audioUrl,
+                videoUrl: videoUrl,
                 createdBy: adminId
             };
             
@@ -209,7 +246,7 @@ export default function AdminDashboard() {
             console.log('Sermon response:', response);
             
             if (response.data?.success || response.data?.data?.id) {
-                setNewSermon({ title: '', description: '', speaker: '', sermonDate: '', fileType: 'mp3' });
+                setNewSermon({ title: '', description: '', speaker: '', sermonDate: '', fileType: 'mp3', mediaMode: 'none', file: null, customUrl: '' });
                 setAlertDialog({ title: 'Success', message: 'Sermon created successfully!' });
                 await fetchAllData();
             } else {
@@ -218,6 +255,8 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error('Error adding sermon:', error);
             setAlertDialog({ title: 'Error', message: 'Error creating sermon: ' + error.message, isError: true });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -848,7 +887,71 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                             
+                            <div className="bg-mdSurfaceVariant/30 p-6 rounded-2xl border border-mdOutline/20 space-y-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-4 ml-1">Attach Media (Optional)</label>
+                                    <div className="flex flex-wrap gap-4 mb-6">
+                                        <label className="flex items-center gap-2 cursor-pointer bg-mdSurface p-3 rounded-xl border border-mdOutline/30 hover:bg-mdSurfaceVariant/50 transition-colors">
+                                            <input 
+                                                type="radio" 
+                                                name="mediaMode" 
+                                                value="none" 
+                                                checked={newSermon.mediaMode === 'none'}
+                                                onChange={(e) => setNewSermon({ ...newSermon, mediaMode: e.target.value })}
+                                                className="w-4 h-4 text-mdPrimary"
+                                            />
+                                            <span className="font-medium text-mdOnSurface">No Media</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer bg-mdSurface p-3 rounded-xl border border-mdOutline/30 hover:bg-mdSurfaceVariant/50 transition-colors">
+                                            <input 
+                                                type="radio" 
+                                                name="mediaMode" 
+                                                value="upload" 
+                                                checked={newSermon.mediaMode === 'upload'}
+                                                onChange={(e) => setNewSermon({ ...newSermon, mediaMode: e.target.value })}
+                                                className="w-4 h-4 text-mdPrimary"
+                                            />
+                                            <span className="font-medium text-mdOnSurface">Upload File</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer bg-mdSurface p-3 rounded-xl border border-mdOutline/30 hover:bg-mdSurfaceVariant/50 transition-colors">
+                                            <input 
+                                                type="radio" 
+                                                name="mediaMode" 
+                                                value="url" 
+                                                checked={newSermon.mediaMode === 'url'}
+                                                onChange={(e) => setNewSermon({ ...newSermon, mediaMode: e.target.value })}
+                                                className="w-4 h-4 text-mdPrimary"
+                                            />
+                                            <span className="font-medium text-mdOnSurface">External URL</span>
+                                        </label>
+                                    </div>
 
+                                    {newSermon.mediaMode === 'upload' && (
+                                        <div className="animate-fade-in">
+                                            <input
+                                                type="file"
+                                                accept={newSermon.fileType === 'mp3' ? 'audio/mpeg,audio/mp3' : 'video/mp4'}
+                                                onChange={(e) => setNewSermon({ ...newSermon, file: e.target.files[0] })}
+                                                className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-mdPrimary/10 file:text-mdPrimary hover:file:bg-mdPrimary/20"
+                                            />
+                                            <p className="text-xs text-mdOnSurfaceVariant mt-2 ml-1">Maximum file size: 500MB</p>
+                                        </div>
+                                    )}
+
+                                    {newSermon.mediaMode === 'url' && (
+                                        <div className="animate-fade-in">
+                                            <input
+                                                type="url"
+                                                placeholder={newSermon.fileType === 'mp3' ? "e.g. https://example.com/audio.mp3" : "e.g. https://example.com/video.mp4"}
+                                                value={newSermon.customUrl}
+                                                onChange={(e) => setNewSermon({ ...newSermon, customUrl: e.target.value })}
+                                                className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                </div>
+                            </div>
                             
                             <button
                                 onClick={handleAddSermon}

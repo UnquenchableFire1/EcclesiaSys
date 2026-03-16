@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS members(
     password VARCHAR(255) NOT NULL,
     profile_picture_url VARCHAR(500),
     is_profile_public BOOLEAN DEFAULT true,
+    gender VARCHAR(20),
     bio TEXT,
     status VARCHAR(10) NOT NULL DEFAULT 'active',
     joined_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

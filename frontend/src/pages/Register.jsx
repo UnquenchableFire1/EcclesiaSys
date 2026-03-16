@@ -11,6 +11,7 @@ export default function Register() {
         lastName: '',
         phoneNumber: '',
         actualEmail: '',
+        gender: '',
         password: '',
         confirmPassword: ''
     });
@@ -160,6 +161,25 @@ export default function Register() {
                                 placeholder="your.email@example.com"
                             />
                             <p className="text-xs text-mdOutline mt-2 ml-1">This email will be used to send you password reset links</p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Gender</label>
+                            <div className="relative">
+                                <select
+                                    name="gender"
+                                    value={formData.gender}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-5 py-4 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 appearance-none text-mdOnSurface"
+                                >
+                                    <option value="" disabled>Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-mdOutline">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Password</label>

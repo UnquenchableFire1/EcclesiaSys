@@ -35,13 +35,21 @@ public class Application {
     }
 
     /**
-     * Catch-all controller for React SPA routing
-     * Forwards unmatched routes to index.html so React Router can handle them
+     * Error controller for React SPA routing.
+     * Catches all 404s (e.g., deep links and page refreshes) and forwards them to index.html 
+     * so React Router can take over. Returns a JSON 404 for missing API routes.
      */
     @Controller
-    public static class SpaController {
-        @GetMapping(value = "/{path:^(?!api|static|.*\\.\\w+$).*$}")
-        public String forward() {
+    public static class SpaErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
+        
+        @org.springframework.web.bind.annotation.RequestMapping("/error")
+        public Object handleError(jakarta.servlet.http.HttpServletRequest request) {
+            String uri = (String) request.getAttribute(jakarta.servlet.RequestDispatcher.ERROR_REQUEST_URI);
+            if (uri != null && uri.startsWith("/api/")) {
+                return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .body("{\"success\":false,\"message\":\"API Endpoint Not Found\"}");
+            }
             return "forward:/index.html";
         }
     }

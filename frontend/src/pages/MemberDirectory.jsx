@@ -9,11 +9,15 @@ export default function MemberDirectory() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const filteredMembers = members.filter(member => 
-        `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const currentUserId = parseInt(localStorage.getItem('userId')) || 0;
+
+    const filteredMembers = members.filter(member => {
+        if (member.id === currentUserId) return false;
+        
+        return `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (member.phoneNumber && member.phoneNumber.includes(searchTerm)) ||
         (member.actualEmail || member.email).toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    });
 
     useEffect(() => {
         fetchPublicMembers();

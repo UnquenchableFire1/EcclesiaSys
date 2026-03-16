@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getEvents } from '../services/api';
 import Layout from '../layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

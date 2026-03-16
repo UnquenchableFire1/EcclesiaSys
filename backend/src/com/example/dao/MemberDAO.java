@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public class MemberDAO {
     
     public boolean addMember(Member member) {
-        String query = "INSERT INTO members (first_name, last_name, phone_number, email, actual_email, password, status, is_profile_public, profile_picture_url, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO members (first_name, last_name, phone_number, email, actual_email, password, status, is_profile_public, profile_picture_url, gender, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
@@ -30,7 +30,8 @@ public class MemberDAO {
                 stmt.setString(7, "active");
                 stmt.setBoolean(8, true);
                 stmt.setString(9, null);
-                stmt.setString(10, null);
+                stmt.setString(10, member.getGender());
+                stmt.setString(11, null);
                 
                 System.out.println("MemberDAO: Executing INSERT for email: " + member.getEmail());
                 System.out.println("MemberDAO: firstName=" + member.getFirstName() + ", lastName=" + member.getLastName() + 
@@ -73,6 +74,7 @@ public class MemberDAO {
                 member.setPassword(rs.getString("password"));
                 member.setProfilePictureUrl(rs.getString("profile_picture_url"));
                 member.setIsProfilePublic(rs.getBoolean("is_profile_public"));
+                member.setGender(rs.getString("gender"));
                 member.setBio(rs.getString("bio"));
                 member.setStatus(rs.getString("status"));
                 try {
@@ -112,6 +114,7 @@ public class MemberDAO {
                 member.setPassword(rs.getString("password"));
                 member.setProfilePictureUrl(rs.getString("profile_picture_url"));
                 member.setIsProfilePublic(rs.getBoolean("is_profile_public"));
+                member.setGender(rs.getString("gender"));
                 member.setBio(rs.getString("bio"));
                 member.setStatus(rs.getString("status"));
                 try {
@@ -149,6 +152,7 @@ public class MemberDAO {
                 member.setPassword(rs.getString("password"));
                 member.setProfilePictureUrl(rs.getString("profile_picture_url"));
                 member.setIsProfilePublic(rs.getBoolean("is_profile_public"));
+                member.setGender(rs.getString("gender"));
                 member.setBio(rs.getString("bio"));
                 member.setStatus(rs.getString("status"));
                 try {
@@ -200,6 +204,7 @@ public class MemberDAO {
                 member.setActualEmail(rs.getString("actual_email"));
                 member.setEmail(rs.getString("email"));
                 member.setProfilePictureUrl(rs.getString("profile_picture_url"));
+                member.setGender(rs.getString("gender"));
                 member.setBio(rs.getString("bio"));
                 try {
                     Timestamp jd = rs.getTimestamp("joined_date");
@@ -215,7 +220,7 @@ public class MemberDAO {
 
 
     public boolean updateMember(Member member) {
-        String query = "UPDATE members SET first_name = ?, last_name = ?, phone_number = ?, email = ?, actual_email = ?, password = ?, profile_picture_url = ?, is_profile_public = ?, bio = ?, status = ? WHERE id = ?";
+        String query = "UPDATE members SET first_name = ?, last_name = ?, phone_number = ?, email = ?, actual_email = ?, password = ?, profile_picture_url = ?, is_profile_public = ?, gender = ?, bio = ?, status = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, member.getFirstName());
@@ -226,9 +231,10 @@ public class MemberDAO {
             stmt.setString(6, member.getPassword());
             stmt.setString(7, member.getProfilePictureUrl());
             stmt.setBoolean(8, member.getIsProfilePublic());
-            stmt.setString(9, member.getBio());
-            stmt.setString(10, member.getStatus());
-            stmt.setInt(11, member.getId());
+            stmt.setString(9, member.getGender());
+            stmt.setString(10, member.getBio());
+            stmt.setString(11, member.getStatus());
+            stmt.setInt(12, member.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

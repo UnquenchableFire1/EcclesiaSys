@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
@@ -15,8 +15,10 @@ import SessionTimer from "./components/SessionTimer";
 
 function ProtectedRoute({ requiredRole, children }) {
   const userType = localStorage.getItem('userType');
+  const location = useLocation();
+
   if (!userType) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
   if (requiredRole && userType !== requiredRole) {
     return <Navigate to="/home" />;

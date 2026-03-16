@@ -36,6 +36,9 @@ public class Member {
     @Column(name = "is_profile_public", nullable = false)
     private Boolean isProfilePublic = true;
     
+    @Column(name = "gender", length = 20)
+    private String gender;
+    
     @Column(name = "bio", columnDefinition = "TEXT")
     private String bio;
     
@@ -52,12 +55,13 @@ public class Member {
 
     public Member() {}
 
-    public Member(String firstName, String lastName, String phoneNumber, String email, String password) {
+    public Member(String firstName, String lastName, String phoneNumber, String email, String password, String gender) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
+        this.gender = gender;
         this.status = "active";
         this.joinedDate = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -120,6 +124,9 @@ public class Member {
     
     public Boolean getIsProfilePublic() { return isProfilePublic != null ? isProfilePublic : true; }
     public void setIsProfilePublic(Boolean isProfilePublic) { this.isProfilePublic = isProfilePublic; }
+    
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
     
     public String getBio() { return bio; }
     public void setBio(String bio) { this.bio = bio; }
