@@ -1,10 +1,22 @@
-const CACHE_NAME = 'ecclesiasys-v1';
+const CACHE_NAME = 'ecclesiasys-v2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/static/js/bundle.js',
   '/manifest.json'
 ];
+
+// Clean up old caches
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames =>
+      Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      )
+    )
+  );
+});
 
 self.addEventListener('install', event => {
   event.waitUntil(
