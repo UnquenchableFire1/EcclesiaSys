@@ -233,5 +233,17 @@ public class SermonController {
             response.put("message", "Error: " + e.getMessage());
         }
         return response;
+    @PostMapping("/migrate")
+    public Map<String, Object> migrateSermons() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            new SermonDAO(); // Constructor triggers migration
+            response.put("success", true);
+            response.put("message", "Sermon schema migration triggered successfully");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Migration failed: " + e.getMessage());
+        }
+        return response;
     }
 }

@@ -4,7 +4,6 @@ import com.example.model.Member;
 import com.example.model.PasswordReset;
 import com.example.dao.MemberDAO;
 import com.example.dao.PasswordResetDAO;
-import com.example.service.EmailService;
 import com.example.service.EmailTemplateService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;

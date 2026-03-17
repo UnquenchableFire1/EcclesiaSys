@@ -184,5 +184,18 @@ export const getPublicMemberProfile = (memberId) => {
   return api.get(`/member/public/${memberId}`);
 };
 
+// Prayer Request APIs
+export const submitPrayerRequest = (data) => {
+  return api.post('/prayer-requests', data);
+};
+
+export const getPrayerRequests = () => {
+  return api.get('/prayer-requests');
+};
+
+export const updatePrayerRequestStatus = (id, status) => {
+  return api.put(`/prayer-requests/${id}/status`, { status });
+};
+
 export default api;
 

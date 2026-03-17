@@ -1,10 +1,5 @@
-
-import { useState } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { login } from '../services/api';
-import Layout from '../layouts/Layout';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt, faEye, faEyeSlash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import logo from '../assets/logo.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -52,8 +47,8 @@ export default function Login() {
           <a href="/" className="absolute left-0 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-colors flex items-center gap-1 text-sm font-bold">
             <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Home
           </a>
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm mx-auto">
-            <FontAwesomeIcon icon={faSignInAlt} className="text-2xl" />
+          <div className="inline-flex items-center justify-center w-20 h-20 mb-4 mx-auto">
+            <img src={logo} alt="Logo" className="w-full h-full object-contain drop-shadow-md" />
           </div>
           <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">
             Welcome Back

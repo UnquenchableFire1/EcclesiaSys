@@ -71,7 +71,7 @@ public class MemberController {
     }
 
     @GetMapping("/public")
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Member.class)
     public Map<String, Object> getPublicMembers() {
         Map<String, Object> response = new HashMap<>();
         try {

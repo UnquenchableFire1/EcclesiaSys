@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
 import MemberProfile from './MemberProfile';
 import MemberDirectory from './MemberDirectory';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,10 +18,12 @@ import {
     faChevronRight,
     faClock,
     faMapMarkerAlt,
-    faFileAlt
+    faFileAlt,
+    faPrayingHands
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import DailyVerse from '../components/DailyVerse';
+import PrayerRequestModal from '../components/PrayerRequestModal';
 
 export default function MemberDashboard() {
     const [activeTab, setActiveTabInternal] = useState(() => {
@@ -43,6 +46,7 @@ export default function MemberDashboard() {
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -348,9 +352,12 @@ export default function MemberDashboard() {
                         <div className="bg-mdPrimaryContainer px-8 py-10 rounded-[2rem] shadow-sm mb-8 border border-white/40 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-mdPrimary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                             <div className="relative z-10">
-                                <h2 className="text-3xl md:text-4xl font-extrabold text-mdPrimary mb-3 tracking-tight">
-                                    {isNewMember ? ' Welcome to EcclesiaSys' : 'Welcome back!'}
-                                </h2>
+                                <div className="flex items-center gap-4 mb-3">
+                                    <img src={logo} alt="Logo" className="w-12 h-12 object-contain drop-shadow-sm" />
+                                    <h2 className="text-3xl md:text-4xl font-extrabold text-mdPrimary tracking-tight">
+                                        {isNewMember ? ' Welcome to EcclesiaSys' : 'Welcome back!'}
+                                    </h2>
+                                </div>
                                 <p className="text-lg text-mdOnPrimaryContainer/90 font-medium max-w-2xl">
                                     {isNewMember ? 'Thank you for joining our church community! Explore the portal to stay connected.' : 'Your personalized church community portal. Here is a quick overview.'}
                                 </p>
@@ -392,13 +399,29 @@ export default function MemberDashboard() {
 
                             {/* Card 3 */}
                             <button
-                                onClick={() => { setActiveTab('sermons'); localStorage.setItem('memberActiveTab', 'sermons'); }}
+                                onClick={() => { setActiveTab('sermons'); sessionStorage.setItem('memberActiveTab', 'sermons'); }}
                                 className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
                             >
-                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6"></div>
+                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">
+                                    <FontAwesomeIcon icon={faMicrophone} className="text-mdPrimary" />
+                                </div>
                                 <div>
                                     <p className="text-4xl font-extrabold text-mdPrimary mb-1 tracking-tight">{sermons.length}</p>
                                     <p className="text-mdOnSurfaceVariant font-semibold text-lg">Sermons</p>
+                                </div>
+                            </button>
+
+                            {/* Prayer Request Card */}
+                            <button
+                                onClick={() => setIsPrayerModalOpen(true)}
+                                className="bg-mdSecondaryContainer/20 rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSecondaryContainer/30 cursor-pointer group flex items-center p-6 h-full text-left backdrop-blur-md"
+                            >
+                                <div className="bg-mdSecondary text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">
+                                    <FontAwesomeIcon icon={faPrayingHands} />
+                                </div>
+                                <div>
+                                    <p className="text-mdOnSurface font-black text-xl mb-1 tracking-tight">Need Prayer?</p>
+                                    <p className="text-mdOnSurfaceVariant font-semibold text-sm">Submit a request</p>
                                 </div>
                             </button>
                         </div>
@@ -583,6 +606,7 @@ export default function MemberDashboard() {
                 {/* Profile Tab */}
                 {activeTab === 'profile' && <MemberProfile />}
             </div>
+            <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
         </div>
     );
 }

@@ -1,6 +1,4 @@
-
-import { Link, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import logo from "../assets/logo.png";
 
 export default function Navbar({ isMobile }) {
   const location = useLocation();
@@ -42,11 +40,14 @@ export default function Navbar({ isMobile }) {
   const isMobileView = windowWidth < 768;
 
   return (
-    <nav className="bg-mdSurface/90 backdrop-blur-md text-mdOnSurface fixed w-full z-20 shadow-sm border-b border-mdSurfaceVariant transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
+    <nav className="bg-mdSurface/80 backdrop-blur-xl text-mdOnSurface fixed w-full z-20 shadow-sm border-b border-white/10 transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
         <div className="flex justify-between items-center">
-          <Link to="/" className="text-xl md:text-2xl font-extrabold text-mdPrimary hover:text-mdSecondary transition-colors">
-            EcclesiaSys
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-all active:scale-95">
+            <img src={logo} alt="EcclesiaSys Logo" className="w-10 h-10 object-contain drop-shadow-md" />
+            <span className="text-xl md:text-2xl font-black text-mdPrimary tracking-tighter">
+              EcclesiaSys
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import logo from '../assets/logo.png';
 import { 
     getMembers, 
     getAnnouncements, 
@@ -13,7 +14,9 @@ import {
     deleteEvent,
     createSermon,
     deleteSermon,
-    uploadSermon
+    uploadSermon,
+    getPrayerRequests,
+    updatePrayerRequestStatus
 } from '../services/api';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -30,7 +33,9 @@ import {
     faVideo,
     faPlus,
     faSignOutAlt,
-    faHome
+    faHome,
+    faPrayingHands,
+    faCheckCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
@@ -46,6 +51,7 @@ export default function AdminDashboard() {
     const [announcements, setAnnouncements] = useState([]);
     const [events, setEvents] = useState([]);
     const [sermons, setSermons] = useState([]);
+    const [prayerRequests, setPrayerRequests] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [adminId] = useState(parseInt(sessionStorage.getItem('userId')));
@@ -60,7 +66,7 @@ export default function AdminDashboard() {
     const [newAnnouncement, setNewAnnouncement] = useState({ title: '', message: '', file: null });
     const [newEvent, setNewEvent] = useState({ title: '', description: '', eventDate: '', location: '', documentFile: null });
     const [newSermon, setNewSermon] = useState({ title: '', description: '', speaker: '', sermonDate: '', fileType: 'mp3', mediaMode: 'none', file: null, customUrl: '' });
-    const [counts, setCounts] = useState({ members: 0, events: 0, announcements: 0, sermons: 0 });
+    const [counts, setCounts] = useState({ members: 0, events: 0, announcements: 0, sermons: 0, prayerRequests: 0 });
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalType, setModalType] = useState(null);
 
@@ -109,18 +115,20 @@ export default function AdminDashboard() {
         setLoading(true);
         setError('');
         try {
-            const [membersRes, announcementsRes, eventsRes, sermonsRes, summaryRes] = await Promise.all([
+            const [membersRes, announcementsRes, eventsRes, sermonsRes, prayerRequestsRes, summaryRes] = await Promise.all([
                 getMembers(),
                 getAnnouncements(),
                 getEvents(),
                 getSermons(),
+                getPrayerRequests(),
                 axios.get('/api/summary/counts')
             ]);
             setMembers(membersRes.data?.data || []);
             setAnnouncements(announcementsRes.data?.data || []);
             setEvents(eventsRes.data?.data || []);
             setSermons(sermonsRes.data?.data || []);
-            setCounts(summaryRes.data?.data || { members: 0, events: 0, announcements: 0, sermons: 0 });
+            setPrayerRequests(prayerRequestsRes.data?.data || []);
+            setCounts(summaryRes.data?.data || { members: 0, events: 0, announcements: 0, sermons: 0, prayerRequests: 0 });
         } catch (error) {
             console.error('Error fetching data:', error);
             setError('Failed to load data: ' + (error.response?.data?.message || error.message));
@@ -419,19 +427,20 @@ export default function AdminDashboard() {
                          <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
                          <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
                          <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
+                         <TabButton tab="prayer-requests" label="Prayer Requests" icon={<FontAwesomeIcon icon={faPrayingHands} />} />
                     </div>
                 </div>
             </div>
 
-            {/* Content Area */}
             <div className="max-w-7xl mx-auto">
                 {/* Summary Cards - Only show on Home or at the top of other tabs if preferred, but user wants them to link to tabs */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
                     {[
                         { id: 'members', label: 'Members', count: counts.members, icon: faUsers, color: 'bg-mdPrimaryContainer text-mdOnPrimaryContainer' },
                         { id: 'announcements', label: 'Announcements', count: counts.announcements, icon: faBullhorn, color: 'bg-mdSecondaryContainer text-mdOnSecondaryContainer' },
                         { id: 'events', label: 'Events', count: counts.events, icon: faCalendarAlt, color: 'bg-mdPrimaryContainer/60 text-mdOnPrimaryContainer' },
                         { id: 'sermons', label: 'Sermons', count: counts.sermons, icon: faMicrophone, color: 'bg-mdSecondaryContainer/60 text-mdOnSecondaryContainer' },
+                        { id: 'prayer-requests', label: 'Prayer+', count: counts.prayerRequests, icon: faPrayingHands, color: 'bg-mdPrimaryContainer/40 text-mdOnPrimaryContainer' },
                     ].map((stat) => (
                         <button
                             key={stat.id}
@@ -1073,6 +1082,89 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+                {/* Prayer Requests Tab */}
+                {activeTab === 'prayer-requests' && !loading && (
+                    <div className="space-y-6 animate-fade-in">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
+                                <FontAwesomeIcon icon={faPrayingHands} className="text-2xl text-mdPrimary" />
+                            </div>
+                            <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Prayer Requests</h2>
+                        </div>
+                        
+                        <div className="grid gap-6">
+                            {prayerRequests.length > 0 ? (
+                                prayerRequests.map((request) => (
+                                    <div key={request.id} className="bg-mdSurface p-8 rounded-[2rem] border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300">
+                                        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
+                                            <div>
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <h3 className="font-black text-2xl text-mdOnSurface">
+                                                        {request.isAnonymous ? 'Anonymous Request' : request.requesterName}
+                                                    </h3>
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${
+                                                        request.status === 'Answered' ? 'bg-green-100 text-green-700' : 
+                                                        request.status === 'Prayed For' ? 'bg-blue-100 text-blue-700' : 
+                                                        'bg-amber-100 text-amber-700'
+                                                    }`}>
+                                                        {request.status}
+                                                    </span>
+                                                </div>
+                                                <p className="text-mdOnSurfaceVariant font-bold text-sm">
+                                                    Submitted {new Date(request.createdAt).toLocaleDateString()}
+                                                    {!request.isAnonymous && request.requesterEmail && ` • ${request.requesterEmail}`}
+                                                </p>
+                                            </div>
+                                            
+                                            <div className="flex flex-wrap gap-2">
+                                                {request.status !== 'Prayed For' && request.status !== 'Answered' && (
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                await updatePrayerRequestStatus(request.id, 'Prayed For');
+                                                                await fetchAllData();
+                                                            } catch (err) {
+                                                                console.error('Error updating status:', err);
+                                                            }
+                                                        }}
+                                                        className="bg-mdPrimaryContainer text-mdPrimary hover:bg-mdPrimary hover:text-mdOnPrimary px-4 py-2 rounded-full text-sm font-bold transition-all"
+                                                    >
+                                                        Mark as Prayed For
+                                                    </button>
+                                                )}
+                                                {request.status !== 'Answered' && (
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                await updatePrayerRequestStatus(request.id, 'Answered');
+                                                                await fetchAllData();
+                                                            } catch (err) {
+                                                                console.error('Error updating status:', err);
+                                                            }
+                                                        }}
+                                                        className="bg-green-100 text-green-700 hover:bg-green-600 hover:text-white px-4 py-2 rounded-full text-sm font-bold transition-all"
+                                                    >
+                                                        Mark as Answered
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="bg-mdSurfaceVariant/20 p-6 rounded-2xl border border-mdSurfaceVariant/50">
+                                            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed italic ">
+                                                "{request.requestText}"
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="bg-mdSurface Variant/10 border border-dashed border-mdOutline/20 rounded-[2rem] p-16 text-center">
+                                    <p className="text-mdOnSurfaceVariant text-lg font-medium">No prayer requests at this time.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

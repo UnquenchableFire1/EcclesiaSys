@@ -56,7 +56,7 @@ export default function Layout({ children }) {
     }, [lastActivity, inactivityTimeout]);
 
     return (
-        <div className="min-h-screen bg-mdSurface text-mdOnSurface transition-colors duration-300 flex flex-col">
+        <div className="min-h-screen bg-transparent text-mdOnSurface transition-colors duration-300 flex flex-col">
             <Navbar isMobile={isMobile} />
             
             <div className="flex flex-1 pt-16 md:pt-20">

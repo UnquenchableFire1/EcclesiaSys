@@ -7,6 +7,39 @@ import com.example.model.Sermon;
 import com.example.db.DBConnection;
 
 public class SermonDAO {
+    
+    public SermonDAO() {
+        // Automatic migration to ensure schema matches code
+        ensureSermonsTableSchema();
+    }
+
+    private void ensureSermonsTableSchema() {
+        String[] columnsToAdd = {
+            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS speaker VARCHAR(100)",
+            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS sermon_date DATETIME",
+            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS audio_url VARCHAR(500)",
+            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)"
+        };
+        
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            if (conn == null) return;
+            
+            for (String sql : columnsToAdd) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException e) {
+                    // Ignore if column already exists (for DBs that don't support IF NOT EXISTS on ALTER)
+                    if (!e.getSQLState().equals("42S21")) { // Duplicate column name
+                        System.err.println("Migration error: " + e.getMessage());
+                    }
+                }
+            }
+            System.out.println("✓ Sermon schema migration check completed");
+        } catch (SQLException e) {
+            System.err.println("Failed to connect for schema migration: " + e.getMessage());
+        }
+    }
 
     public boolean addSermon(Sermon sermon) {
         String query = "INSERT INTO sermons (title, description, speaker, sermon_date, file_path, audio_url, video_url, file_type, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
