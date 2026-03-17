@@ -6,11 +6,32 @@ import App from "./App";
 import "./index.css";
 import NotificationManager from "./services/NotificationManager";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
-);
+// Global error handlers for debugging "blank interface" issues
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error("Global Error Caught:", { message, source, lineno, colno, error });
+  return false;
+};
+
+window.onunhandledrejection = function(event) {
+  console.error("Unhandled Promise Rejection:", event.reason);
+};
+
+console.log("EcclesiaSys: Initializing application...");
+
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  console.error("EcclesiaSys Error: Root element not found!");
+} else {
+  console.log("EcclesiaSys: Root element found, rendering app...");
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </React.StrictMode>
+  );
+}
 
 // Register Service Worker for PWA installability and background notifications
+console.log("EcclesiaSys: Registering Service Worker...");
 NotificationManager.registerServiceWorker();

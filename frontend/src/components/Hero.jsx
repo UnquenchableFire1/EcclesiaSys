@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function Hero({ title, subtitle, ctaText, ctaLink = '/', bgImage, small = false }) {
+export default function Hero({ title, subtitle, ctaText, ctaLink = '/', small = false }) {
   const heightClass = small ? 'py-10' : 'py-24';
-  const bgStyle = bgImage ? { backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {};
 
   const Cta = () => {
     if (!ctaText) return null;
@@ -22,8 +21,8 @@ export default function Hero({ title, subtitle, ctaText, ctaLink = '/', bgImage,
   };
 
   return (
-    <section className={`text-white ${heightClass} relative`} style={bgStyle} aria-labelledby="hero-heading">
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-900/75 to-primary/60" aria-hidden="true" />
+    <section className={`text-white ${heightClass} relative bg-mdPrimaryContainer`} aria-labelledby="hero-heading">
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-900/40 to-primary/30" aria-hidden="true" />
       <div className="relative max-w-6xl mx-auto px-4 text-center">
         <h1 id="hero-heading" className={`text-4xl sm:text-5xl font-bold mb-4 ${small ? '' : 'text-5xl'}`}>
           {title}
