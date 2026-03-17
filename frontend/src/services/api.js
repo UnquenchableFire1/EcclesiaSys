@@ -126,7 +126,7 @@ export const createSermon = (sermon) => {
 
 // File upload with multipart form data
 export const uploadSermon = (formData) => {
-  return api.post('/sermons/upload', formData, {
+  return api.post('/upload/sermons/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

@@ -532,6 +532,33 @@ export default function AdminDashboard() {
                                 <p className="text-mdOnSurfaceVariant text-lg leading-relaxed whitespace-pre-line">
                                     {selectedItem.description || selectedItem.message}
                                 </p>
+                                
+                                {modalType === 'sermon' && (
+                                    <div className="flex flex-col gap-4 pt-4">
+                                        {selectedItem.audioUrl && (
+                                            <a 
+                                                href={selectedItem.audioUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-3 bg-mdPrimary text-mdOnPrimary px-8 py-4 rounded-full font-bold shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all w-max"
+                                            >
+                                                <FontAwesomeIcon icon={faMicrophone} />
+                                                Listen to Sermon
+                                            </a>
+                                        )}
+                                        {selectedItem.videoUrl && (
+                                            <a 
+                                                href={selectedItem.videoUrl} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-3 bg-mdSecondary text-mdOnSecondary px-8 py-4 rounded-full font-bold shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all w-max"
+                                            >
+                                                <FontAwesomeIcon icon={faVideo} />
+                                                Watch Sermon
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                         

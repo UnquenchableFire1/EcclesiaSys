@@ -239,6 +239,39 @@ public class EmailTemplateService {
         }
     }
 
+    /**
+     * Password reset email
+     */
+    public void sendPasswordResetEmail(String recipientEmail, String userName, String resetCode) {
+        try {
+            String subject = "Password Reset Request - EcclesiaSys";
+            String htmlContent = "<html><body>" +
+                "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
+                "<div style='background-color: #0F766E; color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;'>" +
+                "<h1 style='margin: 0;'>Password Reset</h1>" +
+                "</div>" +
+                "<div style='background-color: #f9fafb; padding: 40px; border-radius: 0 0 8px 8px;'>" +
+                "<p>Dear <strong>" + userName + "</strong>,</p>" +
+                "<p>We received a request to reset your password for your EcclesiaSys account. Use the code below to complete the process:</p>" +
+                "<div style='text-align: center; margin: 30px 0;'>" +
+                "<div style='background-color: white; border: 2px dashed #0F766E; padding: 20px; display: inline-block; border-radius: 12px;'>" +
+                "<h2 style='margin: 0; color: #0F766E; letter-spacing: 5px; font-size: 32px;'>" + resetCode + "</h2>" +
+                "</div>" +
+                "</div>" +
+                "<p>This code will expire in 15 minutes. If you didn't request a password reset, please ignore this email or contact support if you have concerns.</p>" +
+                "<p style='margin-top: 30px;'>In Christ,<br/><strong>EcclesiaSys Team</strong></p>" +
+                "<p style='margin-top: 30px; color: #999; font-size: 12px; border-top: 1px solid #ddd; pt-4;'>" +
+                "This is an automated security notification. Do not share this code with anyone." +
+                "</p>" +
+                "</div></div></body></html>";
+
+            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
+            logger.info("Password reset email sent successfully to: {}", recipientEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send password reset email to: {}", recipientEmail, e);
+        }
+    }
+
     private void sendHtmlEmailViaBrevo(String to, String subject, String htmlText) throws Exception {
         if ("null".equals(apiKey) || apiKey == null || apiKey.trim().isEmpty()) {
             logger.warn("Brevo API key is not configured. Email to {} was not sent.", to);

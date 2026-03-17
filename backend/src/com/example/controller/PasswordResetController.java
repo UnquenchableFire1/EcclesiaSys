@@ -5,6 +5,7 @@ import com.example.model.PasswordReset;
 import com.example.dao.MemberDAO;
 import com.example.dao.PasswordResetDAO;
 import com.example.service.EmailService;
+import com.example.service.EmailTemplateService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class PasswordResetController {
     private PasswordResetDAO passwordResetDAO;
     
     @Autowired
-    private EmailService emailService;
+    private EmailTemplateService emailTemplateService;
     
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
@@ -65,15 +66,8 @@ public class PasswordResetController {
             passwordResetDAO.save(reset);
             
             // Send password reset email
-            String resetLink = frontendUrl + "/reset-password";
             logger.info("Sending password reset code to: {}", email);
-            boolean emailSent = emailService.sendPasswordResetEmail(email, token, resetLink);
-            
-            if (emailSent) {
-                logger.info("Password reset code sent successfully to: {}", email);
-            } else {
-                logger.warn("Failed to send password reset code to: {}", email);
-            }
+            emailTemplateService.sendPasswordResetEmail(email, member.getName(), token);
             
             // Always return success message to prevent user enumeration
             response.put("success", true);
@@ -189,20 +183,12 @@ public class PasswordResetController {
             logger.info("Recipient: {}", recipientEmail);
             logger.info("Sender: {}", "benjaminbuckmanjunior@gmail.com");
             
-            String testToken = "TEST-TOKEN-" + System.currentTimeMillis();
-            String testLink = frontendUrl + "/reset-password?token=" + testToken;
+            String testToken = "TEST-123456";
+            emailTemplateService.sendPasswordResetEmail(recipientEmail, "Test User", testToken);
             
-            boolean emailSent = emailService.sendPasswordResetEmail(recipientEmail, testToken, testLink);
-            
-            if (emailSent) {
-                logger.info("Test email sent successfully to: {}", recipientEmail);
-                response.put("success", true);
-                response.put("message", "Test email sent successfully to: " + recipientEmail);
-            } else {
-                logger.warn("Test email FAILED to send to: {}", recipientEmail);
-                response.put("success", false);
-                response.put("message", "Test email failed to send. Check server logs for details.");
-            }
+            logger.info("Test email sent successfully to: {}", recipientEmail);
+            response.put("success", true);
+            response.put("message", "Test email sent successfully to: " + recipientEmail);
             
             return response;
         } catch (Exception e) {

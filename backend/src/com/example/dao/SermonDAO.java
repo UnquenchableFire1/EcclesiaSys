@@ -9,14 +9,18 @@ import com.example.db.DBConnection;
 public class SermonDAO {
 
     public boolean addSermon(Sermon sermon) {
-        String query = "INSERT INTO sermons (title, description, file_path, file_type, uploaded_by) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO sermons (title, description, speaker, sermon_date, file_path, audio_url, video_url, file_type, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, sermon.getTitle());
             stmt.setString(2, sermon.getDescription());
-            stmt.setString(3, sermon.getFilePath());
-            stmt.setString(4, sermon.getFileType());
-            stmt.setInt(5, sermon.getUploadedBy());
+            stmt.setString(3, sermon.getSpeaker());
+            stmt.setTimestamp(4, sermon.getSermonDate() != null ? Timestamp.valueOf(sermon.getSermonDate()) : null);
+            stmt.setString(5, sermon.getFilePath());
+            stmt.setString(6, sermon.getAudioUrl());
+            stmt.setString(7, sermon.getVideoUrl());
+            stmt.setString(8, sermon.getFileType());
+            stmt.setInt(9, sermon.getUploadedBy());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -71,14 +75,18 @@ public class SermonDAO {
     }
 
     public boolean updateSermon(Sermon sermon) {
-        String query = "UPDATE sermons SET title = ?, description = ?, file_path = ?, file_type = ? WHERE id = ?";
+        String query = "UPDATE sermons SET title = ?, description = ?, speaker = ?, sermon_date = ?, file_path = ?, audio_url = ?, video_url = ?, file_type = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, sermon.getTitle());
             stmt.setString(2, sermon.getDescription());
-            stmt.setString(3, sermon.getFilePath());
-            stmt.setString(4, sermon.getFileType());
-            stmt.setInt(5, sermon.getId());
+            stmt.setString(3, sermon.getSpeaker());
+            stmt.setTimestamp(4, sermon.getSermonDate() != null ? Timestamp.valueOf(sermon.getSermonDate()) : null);
+            stmt.setString(5, sermon.getFilePath());
+            stmt.setString(6, sermon.getAudioUrl());
+            stmt.setString(7, sermon.getVideoUrl());
+            stmt.setString(8, sermon.getFileType());
+            stmt.setInt(9, sermon.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -103,9 +111,20 @@ public class SermonDAO {
         sermon.setId(rs.getInt("id"));
         sermon.setTitle(rs.getString("title"));
         sermon.setDescription(rs.getString("description"));
+        sermon.setSpeaker(rs.getString("speaker"));
+        Timestamp sermonDate = rs.getTimestamp("sermon_date");
+        if (sermonDate != null) {
+            sermon.setSermonDate(sermonDate.toLocalDateTime());
+        }
         sermon.setFilePath(rs.getString("file_path"));
+        sermon.setAudioUrl(rs.getString("audio_url"));
+        sermon.setVideoUrl(rs.getString("video_url"));
         sermon.setFileType(rs.getString("file_type"));
         sermon.setUploadedBy(rs.getInt("uploaded_by"));
+        Timestamp uploadedDate = rs.getTimestamp("uploaded_date");
+        if (uploadedDate != null) {
+            sermon.setUploadedDate(uploadedDate.toLocalDateTime());
+        }
         return sermon;
     }
 }
