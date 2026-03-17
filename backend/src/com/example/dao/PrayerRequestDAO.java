@@ -26,7 +26,6 @@ public class PrayerRequestDAO {
         
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
-            if (conn == null) return;
             stmt.execute(createTableSQL);
             System.out.println("✓ Prayer requests table schema check completed");
         } catch (SQLException e) {

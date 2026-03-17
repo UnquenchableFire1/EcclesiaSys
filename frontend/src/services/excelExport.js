@@ -9,13 +9,12 @@ export function downloadMembersAsExcel(members) {
 
     try {
         // Prepare data for Excel
-        const headers = ['ID', 'First Name', 'Last Name', 'Email', 'Actual Email', 'Phone', 'Status', 'Joined Date'];
+        const headers = ['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Status', 'Joined Date'];
         const rows = members.map(m => [
             m.id,
             m.firstName,
             m.lastName,
             m.email,
-            m.actualEmail,
             m.phoneNumber,
             m.status,
             m.joinedDate ? new Date(m.joinedDate).toLocaleDateString() : ''
@@ -30,8 +29,7 @@ export function downloadMembersAsExcel(members) {
             { wch: 8 },   // ID
             { wch: 15 },  // First Name
             { wch: 15 },  // Last Name
-            { wch: 20 },  // Email
-            { wch: 25 },  // Actual Email
+            { wch: 25 },  // Email
             { wch: 15 },  // Phone
             { wch: 12 },  // Status
             { wch: 15 }   // Joined Date

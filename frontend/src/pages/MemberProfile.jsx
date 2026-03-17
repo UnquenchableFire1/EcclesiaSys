@@ -199,10 +199,6 @@ export default function MemberProfile() {
                                         <p className="text-base font-semibold text-mdOnSurface">{profile.firstName} {profile.lastName}</p>
                                     </div>
 
-                                    <div className="bg-mdSurfaceVariant/20 p-4 rounded-2xl border border-mdSurfaceVariant/50">
-                                        <label className="text-mdOnSurfaceVariant text-xs font-bold uppercase tracking-wider mb-1 block">Actual Email</label>
-                                        <p className="text-base font-semibold text-mdOnSurface truncate" title={profile.actualEmail}>{profile.actualEmail}</p>
-                                    </div>
                                 </div>
 
                                 {editing ? (

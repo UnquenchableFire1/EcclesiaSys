@@ -61,7 +61,7 @@ public class PasswordResetController {
             LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
             
             // Save new password reset token
-            PasswordReset reset = new PasswordReset(email, email, token, expiresAt);
+            PasswordReset reset = new PasswordReset(email, token, expiresAt);
             passwordResetDAO.save(reset);
             
             // Send password reset email

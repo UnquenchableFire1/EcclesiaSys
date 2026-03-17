@@ -16,7 +16,7 @@ export default function MemberDirectory() {
         
         return `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (member.phoneNumber && member.phoneNumber.includes(searchTerm)) ||
-        (member.actualEmail || member.email).toLowerCase().includes(searchTerm.toLowerCase())
+        (member.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     });
 
     useEffect(() => {
@@ -112,7 +112,7 @@ export default function MemberDirectory() {
                                     )}
                                     <div className="flex items-center gap-3">
                                         <FontAwesomeIcon icon={faEnvelope} className="text-mdOnPrimaryContainer text-xs opacity-70" />
-                                        <p className="text-xs font-bold text-mdOnSurface truncate">{member.actualEmail || member.email}</p>
+                                        <p className="text-xs font-bold text-mdOnSurface truncate">{member.email}</p>
                                     </div>
                                 </div>
                             </div>

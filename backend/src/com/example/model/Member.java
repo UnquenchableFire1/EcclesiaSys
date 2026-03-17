@@ -32,10 +32,6 @@ public class Member {
     @JsonView(Views.Member.class)
     private String email;
     
-    @Column(name = "actual_email", length = 100)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String actualEmail;
-    
     @Column(name = "password", nullable = false, length = 255)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
@@ -120,9 +116,6 @@ public class Member {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
-    public String getActualEmail() { return actualEmail; }
-    public void setActualEmail(String actualEmail) { this.actualEmail = actualEmail; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }

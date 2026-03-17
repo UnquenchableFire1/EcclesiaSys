@@ -654,22 +654,10 @@ export default function AdminDashboard() {
                                                     <FontAwesomeIcon icon={faEnvelope} />
                                                 </div>
                                                 <div className="overflow-hidden">
-                                                    <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">System Email</p>
+                                                    <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Email</p>
                                                     <p className="text-sm font-bold text-mdOnSurface truncate" title={member.email || ''}>{member.email || 'Not provided'}</p>
                                                 </div>
                                             </div>
-
-                                            {(member.actualEmail && member.actualEmail !== member.email) && (
-                                                <div className="flex items-center gap-3 p-2 hover:bg-mdSurface hover:shadow-sm rounded-xl transition-all mt-auto">
-                                                    <div className="bg-mdSecondaryContainer/50 p-2 rounded-lg text-mdSecondary text-sm">
-                                                        <FontAwesomeIcon icon={faEnvelope} />
-                                                    </div>
-                                                    <div className="overflow-hidden">
-                                                        <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-wider">Personal Email</p>
-                                                        <p className="text-sm font-bold text-mdOnSurface truncate" title={member.actualEmail}>{member.actualEmail}</p>
-                                                    </div>
-                                                </div>
-                                            )}
                                         </div>
                                     </div>
                                 );

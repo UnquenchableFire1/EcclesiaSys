@@ -41,7 +41,6 @@ public class RegisterController {
             }
 
             Member member = new Member(firstName, lastName, phoneNumber, email, password, gender);
-            member.setActualEmail(email);
             MemberDAO memberDao = new MemberDAO();
             
             try {

@@ -5,16 +5,14 @@ import java.time.LocalDateTime;
 public class PasswordReset {
     private int id;
     private String email;
-    private String actualEmail;
     private String token;
     private LocalDateTime expiresAt;
     private LocalDateTime createdAt;
 
     public PasswordReset() {}
 
-    public PasswordReset(String email, String actualEmail, String token, LocalDateTime expiresAt) {
+    public PasswordReset(String email, String token, LocalDateTime expiresAt) {
         this.email = email;
-        this.actualEmail = actualEmail;
         this.token = token;
         this.expiresAt = expiresAt;
         this.createdAt = LocalDateTime.now();
@@ -26,9 +24,6 @@ public class PasswordReset {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
-    public String getActualEmail() { return actualEmail; }
-    public void setActualEmail(String actualEmail) { this.actualEmail = actualEmail; }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
