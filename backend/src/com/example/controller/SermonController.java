@@ -18,7 +18,6 @@ public class SermonController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.example.dao.MemberDAO memberDao;
 
-
     @GetMapping
     public Map<String, Object> getAllSermons() {
         Map<String, Object> response = new HashMap<>();
@@ -58,7 +57,6 @@ public class SermonController {
     public Map<String, Object> createSermon(@RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Log the incoming request for debugging
             System.out.println("=== Sermon Creation Request ===");
             System.out.println("Request data: " + request);
             
@@ -68,12 +66,8 @@ public class SermonController {
             sermon.setSpeaker((String) request.get("speaker"));
             sermon.setFileType((String) request.get("fileType"));
             
-            // Handle uploadedBy/createdBy with proper null checking
             Object uploadedByObj = request.get("uploadedBy");
             Object createdByObj = request.get("createdBy");
-            
-            System.out.println("uploadedBy: " + uploadedByObj + " (type: " + (uploadedByObj != null ? uploadedByObj.getClass().getName() : "null") + ")");
-            System.out.println("createdBy: " + createdByObj + " (type: " + (createdByObj != null ? createdByObj.getClass().getName() : "null") + ")");
             
             int uploaderId = 0;
             if (uploadedByObj != null && uploadedByObj instanceof Number) {
@@ -81,39 +75,26 @@ public class SermonController {
             } else if (createdByObj != null && createdByObj instanceof Number) {
                 uploaderId = ((Number) createdByObj).intValue();
             } else {
-                // Try parsing from string if needed
                 String createdByStr = createdByObj != null ? createdByObj.toString() : null;
                 String uploadedByStr = uploadedByObj != null ? uploadedByObj.toString() : null;
                 
                 if (createdByStr != null && !createdByStr.isEmpty() && !createdByStr.equals("NaN")) {
-                    try {
-                        uploaderId = Integer.parseInt(createdByStr);
-                    } catch (NumberFormatException e) {
-                        System.err.println("Could not parse createdBy: " + createdByStr);
-                    }
+                    try { uploaderId = Integer.parseInt(createdByStr); } catch (NumberFormatException e) {}
                 } else if (uploadedByStr != null && !uploadedByStr.isEmpty() && !uploadedByStr.equals("NaN")) {
-                    try {
-                        uploaderId = Integer.parseInt(uploadedByStr);
-                    } catch (NumberFormatException e) {
-                        System.err.println("Could not parse uploadedBy: " + uploadedByStr);
-                    }
+                    try { uploaderId = Integer.parseInt(uploadedByStr); } catch (NumberFormatException e) {}
                 }
             }
             
             if (uploaderId <= 0) {
                 response.put("success", false);
-                response.put("message", "Error: Invalid or missing creator ID. uploadedBy=" + uploadedByObj + ", createdBy=" + createdByObj);
+                response.put("message", "Error: Invalid or missing creator ID.");
                 return response;
             }
             
             sermon.setUploadedBy(uploaderId);
             
-            // Handle file URLs - either audioUrl or videoUrl
             String audioUrl = (String) request.get("audioUrl");
             String videoUrl = (String) request.get("videoUrl");
-            
-            System.out.println("audioUrl: " + audioUrl);
-            System.out.println("videoUrl: " + videoUrl);
             
             if (audioUrl != null && !audioUrl.isEmpty()) {
                 sermon.setAudioUrl(audioUrl);
@@ -122,7 +103,6 @@ public class SermonController {
                 sermon.setVideoUrl(videoUrl);
                 sermon.setFilePath(videoUrl);
             } else {
-                // Fallback to filePath if provided
                 String filePath = (String) request.get("filePath");
                 sermon.setFilePath(filePath);
                 if (filePath != null && !filePath.isEmpty()) {
@@ -134,10 +114,8 @@ public class SermonController {
                 }
             }
             
-            // Handle sermon date
             Object dateObj = request.get("sermonDate");
             if (dateObj != null) {
-                // Convert string date to LocalDateTime if needed
                 if (dateObj instanceof String) {
                     String dateStr = ((String) dateObj).trim();
                     if (!dateStr.contains("T")) {
@@ -149,11 +127,8 @@ public class SermonController {
                 }
             }
             
-            System.out.println("Creating sermon: " + sermon.getTitle() + " by user " + uploaderId);
-            
             SermonDAO dao = new SermonDAO();
             if (dao.addSermon(sermon)) {
-                // Send email notifications to all active members
                 try {
                     java.util.List<String> memberEmails = memberDao.getAllActiveMemberEmails();
                     for (String email : memberEmails) {
@@ -176,10 +151,6 @@ public class SermonController {
                 response.put("success", false);
                 response.put("message", "Failed to save sermon to database");
             }
-        } catch (NumberFormatException e) {
-            response.put("success", false);
-            response.put("message", "Error: Invalid number format - " + e.getMessage());
-            e.printStackTrace();
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());
@@ -233,6 +204,8 @@ public class SermonController {
             response.put("message", "Error: " + e.getMessage());
         }
         return response;
+    }
+
     @PostMapping("/migrate")
     public Map<String, Object> migrateSermons() {
         Map<String, Object> response = new HashMap<>();
