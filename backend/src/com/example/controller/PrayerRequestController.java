@@ -29,6 +29,16 @@ public class PrayerRequestController {
             if (success) {
                 response.put("success", true);
                 response.put("message", "Prayer request submitted successfully");
+                
+                try {
+                    com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
+                    String requester = request.isAnonymous() ? "An anonymous member" : request.getRequesterName();
+                    String adminMsg = requester + " has submitted a new prayer request: \"" + 
+                                     (request.getRequestText().length() > 50 ? request.getRequestText().substring(0, 47) + "..." : request.getRequestText()) + "\"";
+                    notifDao.notifyAllAdmins("New Prayer Request", adminMsg);
+                } catch (Exception notifEx) {
+                    System.err.println("Failed to send admin notification for prayer request: " + notifEx.getMessage());
+                }
             } else {
                 response.put("success", false);
                 response.put("message", "Failed to submit prayer request");

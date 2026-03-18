@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import logo from '../assets/logo.png';
 import { useTheme } from '../context/ThemeContext';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { 
@@ -22,7 +21,10 @@ import {
     deletePrayerRequest,
     getAdmins,
     promoteMemberToAdmin,
-    createAdmin
+    createAdmin,
+    getNotifications, 
+    markNotificationAsRead, 
+    markAllNotificationsAsRead
 } from '../services/api';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -44,7 +46,10 @@ import {
     faCheckCircle,
     faUserShield,
     faSearch,
-    faUserPlus
+    faUserPlus,
+    faBell,
+    faCheck,
+    faCheckDouble
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
@@ -85,6 +90,9 @@ export default function AdminDashboard() {
     const [counts, setCounts] = useState({ members: 0, events: 0, announcements: 0, sermons: 0, prayerRequests: 0 });
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalType, setModalType] = useState(null);
+    const [notifications, setNotifications] = useState([]);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const { theme, toggleTheme } = useTheme();
 
 
@@ -121,13 +129,56 @@ export default function AdminDashboard() {
         </button>
     );
 
+    const fetchUserNotifications = async () => {
+        const userId = sessionStorage.getItem('userId');
+        if (!userId) return;
+        try {
+            const data = await getNotifications(userId);
+            setNotifications(data);
+            setUnreadCount(data.filter(n => !n.read).length);
+        } catch (err) {
+            console.error("Failed to fetch notifications:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserNotifications();
+        const interval = setInterval(fetchUserNotifications, 30000); // Check every 30 seconds
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleMarkAsRead = async (notifId) => {
+        const userId = sessionStorage.getItem('userId');
+        try {
+            await markNotificationAsRead(notifId, userId);
+            fetchUserNotifications();
+        } catch (err) {
+            console.error("Failed to mark as read:", err);
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        const userId = sessionStorage.getItem('userId');
+        try {
+            await markAllNotificationsAsRead(userId);
+            fetchUserNotifications();
+            setIsNotificationOpen(false);
+        } catch (err) {
+            console.error("Failed to mark all as read:", err);
+        }
+    };
+
     useEffect(() => {
         const userType = sessionStorage.getItem('userType');
+        if (!adminId) {
+            navigate('/login');
+            return;
+        }
         if (userType !== 'admin') {
             navigate('/login');
         }
         fetchAllData();
-    }, [navigate]);
+    }, [adminId, navigate]);
 
     const fetchAllData = async () => {
         setLoading(true);
@@ -472,10 +523,94 @@ export default function AdminDashboard() {
                     <div className="flex justify-between items-center py-4 gap-4">
                         <div className="flex-1"></div>
                         
+                        {/* Notifications Dropdown */}
+                        <div className="relative">
+                            <button 
+                                onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
+                                className="relative p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                                aria-label="Notifications"
+                            >
+                                <FontAwesomeIcon icon={faBell} className="text-xl" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-mdSecondary rounded-full">
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            {isNotificationOpen && (
+                                <>
+                                    <div 
+                                        className="fixed inset-0 z-[100]" 
+                                        onClick={() => setIsNotificationOpen(false)}
+                                    ></div>
+                                    <div className="absolute right-0 mt-4 w-80 sm:w-96 bg-mdSurface text-mdOnSurface rounded-[2rem] shadow-md3 border border-mdOutline/10 overflow-hidden z-[101] animate-fade-in-up">
+                                        <div className="p-5 border-b border-mdOutline/10 flex justify-between items-center bg-mdSurfaceVariant/50">
+                                            <h3 className="font-black text-lg">Notifications</h3>
+                                            {unreadCount > 0 && (
+                                                <button 
+                                                    onClick={handleMarkAllAsRead}
+                                                    className="text-xs font-bold text-mdPrimary hover:underline uppercase tracking-wider"
+                                                >
+                                                    Mark all read
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                            {notifications.length === 0 ? (
+                                                <div className="p-10 text-center">
+                                                    <div className="w-16 h-16 bg-mdSurfaceVariant rounded-full flex items-center justify-center mx-auto mb-4 opacity-40">
+                                                        <FontAwesomeIcon icon={faBell} className="text-2xl" />
+                                                    </div>
+                                                    <p className="text-mdOnSurfaceVariant font-bold">No notifications yet</p>
+                                                    <p className="text-xs text-mdOnSurfaceVariant/60 mt-1 uppercase tracking-widest">Watching over the flock</p>
+                                                </div>
+                                            ) : (
+                                                notifications.map((notif) => (
+                                                    <div 
+                                                        key={notif.id} 
+                                                        className={`p-5 border-b border-mdOutline/5 transition-colors duration-200 relative group ${!notif.read ? 'bg-mdPrimaryContainer/10 border-l-4 border-l-mdPrimary' : 'hover:bg-mdSurfaceVariant/30'}`}
+                                                    >
+                                                        <div className="flex justify-between items-start gap-3 mb-2">
+                                                            <h4 className={`font-black text-base leading-tight ${!notif.read ? 'text-mdPrimary' : 'text-mdOnSurface'}`}>
+                                                                {notif.title}
+                                                            </h4>
+                                                            {!notif.read && (
+                                                                <button 
+                                                                    onClick={() => handleMarkAsRead(notif.id)}
+                                                                    className="p-1.5 text-mdPrimary hover:bg-mdPrimary/10 rounded-full transition-colors"
+                                                                    title="Mark as read"
+                                                                >
+                                                                    <FontAwesomeIcon icon={faCheck} className="text-xs" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-sm text-mdOnSurfaceVariant font-medium leading-relaxed mb-3">
+                                                            {notif.message}
+                                                        </p>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-[10px] font-bold text-mdOutline uppercase tracking-widest">
+                                                                {new Date(notif.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                            {notif.read && (
+                                                                <span className="text-mdPrimary/40">
+                                                                    <FontAwesomeIcon icon={faCheckDouble} className="text-[10px]" />
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
                         {/* Hamburger Menu Button - Mobile Only */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-colors"
+                            className="md:hidden bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors flex items-center justify-center w-12 h-12"
                             aria-label="Toggle menu"
                         >
                             {mobileMenuOpen ? '✕' : '☰'}
@@ -724,13 +859,9 @@ export default function AdminDashboard() {
                                         </div>
                                         
                                         <div className="w-28 h-28 mb-4 rounded-full bg-mdSurfaceVariant overflow-hidden border-4 border-mdSurface shadow-md relative group-hover:scale-105 transition-transform duration-300">
-                                            {member.profilePictureUrl ? (
-                                                <img src={member.profilePictureUrl} alt={`${firstName} ${lastName}`} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-4xl font-black text-mdPrimary bg-mdPrimaryContainer">
-                                                    {initial}
-                                                </div>
-                                            )}
+                                            <div className="w-full h-full flex items-center justify-center text-4xl font-black text-mdPrimary bg-mdPrimaryContainer">
+                                                {initial}
+                                            </div>
                                         </div>
                                         
                                         <h3 className="text-xl font-extrabold text-mdOnSurface mb-1">

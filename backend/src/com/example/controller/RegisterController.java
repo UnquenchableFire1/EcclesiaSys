@@ -52,6 +52,13 @@ public class RegisterController {
                     response.put("email", email);
                     if (saved != null) {
                         response.put("userId", saved.getId());
+                        try {
+                            com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
+                            String adminMsg = "A new member, " + firstName + " " + lastName + " (" + email + "), has just registered.";
+                            notifDao.notifyAllAdmins("New Member Registration", adminMsg);
+                        } catch (Exception notifEx) {
+                            System.err.println("Failed to send admin notification for registration: " + notifEx.getMessage());
+                        }
                     }
                 } else {
                     // addMember returned false but no exception was thrown

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logo from "../assets/logo.png";
 import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun, faBell, faCheck, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
@@ -102,7 +101,6 @@ export default function Navbar({ isMobile }) {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-all active:scale-95">
-            <img src={logo} alt="EcclesiaSys Logo" className="w-10 h-10 object-contain drop-shadow-md mix-blend-multiply dark:invert dark:brightness-0 opacity-90" />
             <span className="text-xl md:text-2xl font-black text-mdPrimary tracking-tighter">
               EcclesiaSys
             </span>

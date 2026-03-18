@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
 import { useTheme } from '../context/ThemeContext';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import MemberProfile from './MemberProfile';
 import MemberDirectory from './MemberDirectory';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/api';
 import { 
     faHome, 
     faBullhorn, 
@@ -21,7 +21,10 @@ import {
     faClock,
     faMapMarkerAlt,
     faFileAlt,
-    faPrayingHands
+    faPrayingHands,
+    faBell,
+    faCheck,
+    faCheckDouble
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import DailyVerse from '../components/DailyVerse';
@@ -49,6 +52,9 @@ export default function MemberDashboard() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const { theme, toggleTheme } = useTheme();
 
 
@@ -67,6 +73,45 @@ export default function MemberDashboard() {
             sessionStorage.removeItem('isNewMember');
         }
     }, [isNewMember]);
+
+    const fetchUserNotifications = async () => {
+        const userId = sessionStorage.getItem('userId');
+        if (!userId) return;
+        try {
+            const data = await getNotifications(userId);
+            setNotifications(data);
+            setUnreadCount(data.filter(n => !n.read).length);
+        } catch (err) {
+            console.error("Failed to fetch notifications:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserNotifications();
+        const interval = setInterval(fetchUserNotifications, 30000); // Check every 30 seconds
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleMarkAsRead = async (notifId) => {
+        const userId = sessionStorage.getItem('userId');
+        try {
+            await markNotificationAsRead(notifId, userId);
+            fetchUserNotifications();
+        } catch (err) {
+            console.error("Failed to mark as read:", err);
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        const userId = sessionStorage.getItem('userId');
+        try {
+            await markAllNotificationsAsRead(userId);
+            fetchUserNotifications();
+            setIsNotificationOpen(false);
+        } catch (err) {
+            console.error("Failed to mark all as read:", err);
+        }
+    };
 
 
     useEffect(() => {
@@ -200,10 +245,94 @@ export default function MemberDashboard() {
                             Member Dashboard
                         </h1>
                         
+                        {/* Notifications Dropdown */}
+                        <div className="relative">
+                            <button 
+                                onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
+                                className="relative p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                                aria-label="Notifications"
+                            >
+                                <FontAwesomeIcon icon={faBell} className="text-xl" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-mdSecondary rounded-full">
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            {isNotificationOpen && (
+                                <>
+                                    <div 
+                                        className="fixed inset-0 z-[100]" 
+                                        onClick={() => setIsNotificationOpen(false)}
+                                    ></div>
+                                    <div className="absolute right-0 mt-4 w-80 sm:w-96 bg-mdSurface text-mdOnSurface rounded-[2rem] shadow-md3 border border-mdOutline/10 overflow-hidden z-[101] animate-fade-in-up">
+                                        <div className="p-5 border-b border-mdOutline/10 flex justify-between items-center bg-mdSurfaceVariant/50">
+                                            <h3 className="font-black text-lg">Notifications</h3>
+                                            {unreadCount > 0 && (
+                                                <button 
+                                                    onClick={handleMarkAllAsRead}
+                                                    className="text-xs font-bold text-mdPrimary hover:underline uppercase tracking-wider"
+                                                >
+                                                    Mark all read
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                            {notifications.length === 0 ? (
+                                                <div className="p-10 text-center">
+                                                    <div className="w-16 h-16 bg-mdSurfaceVariant rounded-full flex items-center justify-center mx-auto mb-4 opacity-40">
+                                                        <FontAwesomeIcon icon={faBell} className="text-2xl" />
+                                                    </div>
+                                                    <p className="text-mdOnSurfaceVariant font-bold">Your notification inbox is empty</p>
+                                                    <p className="text-xs text-mdOnSurfaceVariant/60 mt-1 uppercase tracking-widest">Steady as she goes</p>
+                                                </div>
+                                            ) : (
+                                                notifications.map((notif) => (
+                                                    <div 
+                                                        key={notif.id} 
+                                                        className={`p-5 border-b border-mdOutline/5 transition-colors duration-200 relative group ${!notif.read ? 'bg-mdPrimaryContainer/10 border-l-4 border-l-mdPrimary' : 'hover:bg-mdSurfaceVariant/30'}`}
+                                                    >
+                                                        <div className="flex justify-between items-start gap-3 mb-2">
+                                                            <h4 className={`font-black text-base leading-tight ${!notif.read ? 'text-mdPrimary' : 'text-mdOnSurface'}`}>
+                                                                {notif.title}
+                                                            </h4>
+                                                            {!notif.read && (
+                                                                <button 
+                                                                    onClick={() => handleMarkAsRead(notif.id)}
+                                                                    className="p-1.5 text-mdPrimary hover:bg-mdPrimary/10 rounded-full transition-colors"
+                                                                    title="Mark as read"
+                                                                >
+                                                                    <FontAwesomeIcon icon={faCheck} className="text-xs" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-sm text-mdOnSurfaceVariant font-medium leading-relaxed mb-3">
+                                                            {notif.message}
+                                                        </p>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-[10px] font-bold text-mdOutline uppercase tracking-widest">
+                                                                {new Date(notif.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                            {notif.read && (
+                                                                <span className="text-mdPrimary/40">
+                                                                    <FontAwesomeIcon icon={faCheckDouble} className="text-[10px]" />
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
                         {/* Hamburger Menu Button - Mobile Only */}
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full transition-colors"
+                            className="md:hidden bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors flex items-center justify-center w-12 h-12"
                             aria-label="Toggle menu"
                         >
                             {mobileMenuOpen ? '✕' : '☰'}
@@ -353,8 +482,8 @@ export default function MemberDashboard() {
                         <div className="bg-mdPrimaryContainer px-8 py-10 rounded-[2rem] shadow-sm mb-8 border border-white/40 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-mdPrimary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                             <div className="relative z-10">
-                                <div className="flex items-center gap-4 mb-3">
-                                    <img src={logo} alt="Logo" className="w-12 h-12 object-contain drop-shadow-sm mix-blend-multiply dark:invert dark:brightness-0 opacity-90" />
+                                <div className="p-8 pb-4">
+                                    <h1 className="text-3xl font-black text-mdPrimary tracking-tighter mb-6">EcclesiaSys</h1>
                                     <h2 className="text-3xl md:text-4xl font-extrabold text-mdPrimary tracking-tight">
                                         {isNewMember ? ' Welcome to EcclesiaSys' : 'Welcome back!'}
                                     </h2>

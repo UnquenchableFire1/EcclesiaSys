@@ -89,6 +89,18 @@ public class NotificationDAO {
         return false;
     }
 
+    public boolean notifyAllAdmins(String title, String message) {
+        AdminDAO adminDao = new AdminDAO();
+        List<com.example.model.Admin> admins = adminDao.getAllAdmins();
+        boolean allSuccess = true;
+        for (com.example.model.Admin admin : admins) {
+            if (!addNotification(admin.getId(), title, message)) {
+                allSuccess = false;
+            }
+        }
+        return allSuccess;
+    }
+
     private Notification mapResultSetToNotification(ResultSet rs) throws SQLException {
         Notification n = new Notification();
         n.setId(rs.getInt("id"));

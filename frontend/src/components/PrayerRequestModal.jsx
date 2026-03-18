@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPrayingHands, faTimes, faCheckCircle, faExclamationCircle, faUserSecret, faUser } from '@fortawesome/free-solid-svg-icons';
 import { submitPrayerRequest } from '../services/api';
-import logo from '../assets/logo.png';
 
 export default function PrayerRequestModal({ isOpen, onClose }) {
     const [formData, setFormData] = useState({
@@ -54,7 +53,6 @@ export default function PrayerRequestModal({ isOpen, onClose }) {
                         <FontAwesomeIcon icon={faTimes} className="text-xl" />
                     </button>
                     <div className="flex items-center gap-4">
-                        <img src={logo} alt="Logo" className="w-10 h-10 object-contain mix-blend-screen opacity-90" />
                         <div>
                             <h2 className="text-2xl font-black tracking-tight">Request Prayer</h2>
                             <p className="text-white/80 text-sm font-medium">How can we pray for you today?</p>
