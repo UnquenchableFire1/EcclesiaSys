@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { useTheme } from '../context/ThemeContext';
+import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import MemberProfile from './MemberProfile';
 import MemberDirectory from './MemberDirectory';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -47,6 +49,8 @@ export default function MemberDashboard() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
+    const { theme, toggleTheme } = useTheme();
+
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
@@ -64,9 +68,6 @@ export default function MemberDashboard() {
         }
     }, [isNewMember]);
 
-    const toggleTheme = () => {
-        // Theme toggle removed
-    };
 
     useEffect(() => {
         const userType = sessionStorage.getItem('userType');

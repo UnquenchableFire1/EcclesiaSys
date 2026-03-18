@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/logo.png';
+import { useTheme } from '../context/ThemeContext';
+import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { 
     getMembers, 
     getAnnouncements, 
@@ -83,6 +85,8 @@ export default function AdminDashboard() {
     const [counts, setCounts] = useState({ members: 0, events: 0, announcements: 0, sermons: 0, prayerRequests: 0 });
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalType, setModalType] = useState(null);
+    const { theme, toggleTheme } = useTheme();
+
 
     useEffect(() => {
         const handleResize = () => setWindowWidth(window.innerWidth);
