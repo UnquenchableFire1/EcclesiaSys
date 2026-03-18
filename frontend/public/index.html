@@ -26,21 +26,9 @@
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.png" />
-    <link rel="manifest" href="/manifest.json" />
     
     <!-- Title -->
     <title>EcclesiaSys - Church Management System</title>
-
-    <!-- Service Worker Registration -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('SW registered:', reg.scope))
-            .catch(err => console.log('SW registration failed:', err));
-        });
-      }
-    </script>
 
     <!-- Google Analytics 4 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -66,7 +54,6 @@
       "name": "EcclesiaSys",
       "description": "Modern Church Management System",
       "url": "https://ecclesiasys-bequ.onrender.com",
-      "logo": "/logo.png",
       "founder": {
         "@type": "Person",
         "name": "Development Team"

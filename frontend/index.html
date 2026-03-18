@@ -5,7 +5,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -15,8 +14,41 @@
     <meta property="og:image" content="/og-image.png" />
     <meta property="og:url" content="https://ecclesiasys-bequ.onrender.com/" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="manifest" href="/manifest.json">
     <title>EcclesiaSys | Church Management</title>
+    
+    <!-- Cache and Service Worker Clearing Script -->
+    <script>
+      // Force unregister all service workers and clear caches to resolve "blank page" issues
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (let registration of registrations) {
+            registration.unregister();
+            console.log('Service Worker unregistered');
+          }
+        });
+      }
+      
+      // Attempt to clear caches
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+            console.log('Cache ' + name + ' deleted');
+          }
+        });
+      }
+
+      // Check for old hashed assets and force reload if missing
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        if (msg.includes('ERR_ABORTED') || msg.includes('404')) {
+           console.log('Asset loading failed, clearing cache and reloading...');
+           if (typeof window.location.reload === 'function') {
+             window.location.reload(true);
+           }
+        }
+        return false;
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>
