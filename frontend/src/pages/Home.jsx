@@ -6,7 +6,6 @@ import {
   faClock, faMapMarkerAlt, faEnvelope, faUsers, faCheckCircle,
   faStar, faQuoteLeft, faHeart, faPlusCircle
 } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PrayerRequestModal from '../components/PrayerRequestModal';
 
 export default function Home() {
