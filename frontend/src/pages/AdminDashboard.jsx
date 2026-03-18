@@ -16,7 +16,11 @@ import {
     deleteSermon,
     uploadSermon,
     getPrayerRequests,
-    updatePrayerRequestStatus
+    updatePrayerRequestStatus,
+    deletePrayerRequest,
+    getAdmins,
+    promoteMemberToAdmin,
+    createAdmin
 } from '../services/api';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -35,7 +39,10 @@ import {
     faSignOutAlt,
     faHome,
     faPrayingHands,
-    faCheckCircle
+    faCheckCircle,
+    faUserShield,
+    faSearch,
+    faUserPlus
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
@@ -52,10 +59,17 @@ export default function AdminDashboard() {
     const [events, setEvents] = useState([]);
     const [sermons, setSermons] = useState([]);
     const [prayerRequests, setPrayerRequests] = useState([]);
+    const [admins, setAdmins] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [adminId] = useState(parseInt(sessionStorage.getItem('userId')));
     const [adminName] = useState(sessionStorage.getItem('userName'));
+    const adminEmail = sessionStorage.getItem('userEmail');
+    const isSuperAdmin = adminEmail === 'benjamin@ecclesiasys.com';
+    const [memberSearchQuery, setMemberSearchQuery] = useState('');
+    const [newAdminEmail, setNewAdminEmail] = useState('');
+    const [newAdminName, setNewAdminName] = useState('');
+    const [newAdminPassword, setNewAdminPassword] = useState('');
     const navigate = useNavigate();
 
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
@@ -115,20 +129,38 @@ export default function AdminDashboard() {
         setLoading(true);
         setError('');
         try {
-            const [membersRes, announcementsRes, eventsRes, sermonsRes, prayerRequestsRes, summaryRes] = await Promise.all([
+            const promises = [
                 getMembers(),
                 getAnnouncements(),
                 getEvents(),
                 getSermons(),
                 getPrayerRequests(),
                 axios.get('/api/summary/counts')
-            ]);
+            ];
+
+            if (isSuperAdmin) {
+                promises.push(getAdmins());
+            }
+
+            const results = await Promise.all(promises);
+            const membersRes = results[0];
+            const announcementsRes = results[1];
+            const eventsRes = results[2];
+            const sermonsRes = results[3];
+            const prayerRequestsRes = results[4];
+            const summaryRes = results[5];
+            const adminsRes = isSuperAdmin ? results[6] : null;
+
             setMembers(membersRes.data?.data || []);
             setAnnouncements(announcementsRes.data?.data || []);
             setEvents(eventsRes.data?.data || []);
             setSermons(sermonsRes.data?.data || []);
             setPrayerRequests(prayerRequestsRes.data?.data || []);
             setCounts(summaryRes.data?.data || { members: 0, events: 0, announcements: 0, sermons: 0, prayerRequests: 0 });
+            
+            if (isSuperAdmin && adminsRes) {
+                setAdmins(adminsRes.data?.data || []);
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
             setError('Failed to load data: ' + (error.response?.data?.message || error.message));
@@ -152,6 +184,39 @@ export default function AdminDashboard() {
             }
         });
     };
+
+    const handlePromoteMember = async (memberId) => {
+        setConfirmDialog({
+            title: 'Promote to Admin',
+            message: 'Are you sure you want to promote this member to Admin?',
+            onConfirm: async () => {
+                try {
+                    await promoteMemberToAdmin(memberId, { createdBy: adminId });
+                    setAlertDialog({ title: 'Success', message: 'Member successfully promoted to Admin.' });
+                    fetchAllData();
+                } catch (error) {
+                    console.error('Error promoting member:', error);
+                    setAlertDialog({ title: 'Error', message: 'Failed to promote member.', isError: true });
+                }
+            }
+        });
+    };
+
+    const handleCreateAdmin = async (e) => {
+        e.preventDefault();
+        try {
+            await createAdmin({ name: newAdminName, email: newAdminEmail, password: newAdminPassword, createdBy: adminId });
+            setNewAdminName('');
+            setNewAdminEmail('');
+            setNewAdminPassword('');
+            setAlertDialog({ title: 'Success', message: 'New Admin created successfully.' });
+            fetchAllData();
+        } catch (error) {
+            console.error('Error creating admin:', error);
+            setAlertDialog({ title: 'Error', message: 'Failed to create admin.', isError: true });
+        }
+    };
+
 
     // Announcement Management
     const handleAddAnnouncement = async () => {
@@ -424,6 +489,7 @@ export default function AdminDashboard() {
                     <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
                          <TabButton tab="home" label="Overview" icon={<FontAwesomeIcon icon={faHome} />} />
                          <TabButton tab="members" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
+                         {isSuperAdmin && <TabButton tab="admins" label="Admins" icon={<FontAwesomeIcon icon={faUserShield} />} />}
                          <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
                          <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
                          <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
@@ -597,6 +663,22 @@ export default function AdminDashboard() {
                                 </div>
                                 <h2 className="text-3xl font-extrabold text-mdSecondary tracking-tight">Members</h2>
                             </div>
+                            
+                            <div className="flex-1 max-w-sm mx-4">
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-mdOnSurfaceVariant">
+                                        <FontAwesomeIcon icon={faSearch} />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search members..."
+                                        value={memberSearchQuery}
+                                        onChange={(e) => setMemberSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    />
+                                </div>
+                            </div>
+
                             <button
                                 onClick={() => downloadMembersAsExcel(members)}
                                 className="bg-mdPrimary text-mdOnPrimary hover:bg-mdSecondary px-6 py-3 rounded-full font-bold shadow-md1 hover:shadow-md2 transition-all duration-300 text-sm sm:text-base whitespace-nowrap"
@@ -606,20 +688,36 @@ export default function AdminDashboard() {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {members.map((member) => {
+                            {members.filter(member => 
+                                (member.name && member.name.toLowerCase().includes(memberSearchQuery.toLowerCase())) ||
+                                (member.firstName && member.firstName.toLowerCase().includes(memberSearchQuery.toLowerCase())) ||
+                                (member.lastName && member.lastName.toLowerCase().includes(memberSearchQuery.toLowerCase())) ||
+                                (member.email && member.email.toLowerCase().includes(memberSearchQuery.toLowerCase()))
+                            ).map((member) => {
                                 const firstName = member.firstName || member.name?.split(' ')[0] || 'Unknown';
                                 const lastName = member.lastName || member.name?.split(' ').slice(1).join(' ') || '';
                                 const initial = firstName.charAt(0).toUpperCase();
 
                                 return (
                                     <div key={member.id} className="bg-mdSurface p-6 rounded-[2rem] border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col items-center text-center group relative overflow-hidden">
-                                        <button
-                                            onClick={() => handleDeleteMember(member.id)}
-                                            className="absolute top-4 right-4 bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 shadow-sm z-10"
-                                            title="Delete Member"
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
+                                        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                            {isSuperAdmin && (
+                                                <button
+                                                    onClick={() => handlePromoteMember(member.id)}
+                                                    className="bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-mdOnPrimary w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 shadow-sm"
+                                                    title="Make Admin"
+                                                >
+                                                    <FontAwesomeIcon icon={faUserShield} />
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => handleDeleteMember(member.id)}
+                                                className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 shadow-sm"
+                                                title="Delete Member"
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
+                                        </div>
                                         
                                         <div className="w-28 h-28 mb-4 rounded-full bg-mdSurfaceVariant overflow-hidden border-4 border-mdSurface shadow-md relative group-hover:scale-105 transition-transform duration-300">
                                             {member.profilePictureUrl ? (
@@ -662,6 +760,110 @@ export default function AdminDashboard() {
                                     </div>
                                 );
                             })}
+                    </div>
+                </div>
+            )}
+
+            {/* Admins Tab */}
+            {activeTab === 'admins' && isSuperAdmin && !loading && (
+                <div className="space-y-8 animate-fade-in">
+                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
+                                <FontAwesomeIcon icon={faUserPlus} className="text-2xl text-mdPrimary" />
+                            </div>
+                            <h2 className="text-2xl font-extrabold text-mdPrimary tracking-tight">Create Administrator</h2>
+                        </div>
+                        
+                        <form onSubmit={handleCreateAdmin} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Admin Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="Full Name"
+                                    value={newAdminName}
+                                    onChange={(e) => setNewAdminName(e.target.value)}
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Email Address</label>
+                                <input
+                                    type="email"
+                                    required
+                                    placeholder="admin@ecclesiasys.com"
+                                    value={newAdminEmail}
+                                    onChange={(e) => setNewAdminEmail(e.target.value)}
+                                    className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                />
+                            </div>
+                            <div className="flex flex-col justify-end">
+                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Password</label>
+                                <div className="flex gap-4">
+                                    <input
+                                        type="text"
+                                        required
+                                        placeholder="Secure password"
+                                        value={newAdminPassword}
+                                        onChange={(e) => setNewAdminPassword(e.target.value)}
+                                        className="flex-1 px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 px-6 rounded-2xl shadow-md1 hover:shadow-md2 transition-all duration-300"
+                                    >
+                                        Create Admin
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant overflow-hidden">
+                        <div className="px-6 py-6 border-b border-mdSurfaceVariant bg-mdSurfaceVariant/30 flex justify-between items-center">
+                            <h3 className="text-xl font-extrabold text-mdOnSurface">Current Administrators</h3>
+                            <span className="bg-mdPrimary text-mdOnPrimary px-3 py-1 rounded-full text-sm font-bold">{admins.length} Total</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-mdSurface">
+                                        <th className="py-4 px-6 font-bold text-mdOnSurfaceVariant uppercase tracking-wider text-sm border-b border-mdSurfaceVariant">Admin Name</th>
+                                        <th className="py-4 px-6 font-bold text-mdOnSurfaceVariant uppercase tracking-wider text-sm border-b border-mdSurfaceVariant">Email Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {admins.map((admin) => (
+                                        <tr key={admin.id} className="border-b border-mdSurfaceVariant hover:bg-mdSurfaceVariant/40 transition-colors">
+                                            <td className="py-5 px-6">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-mdPrimaryContainer text-mdPrimary flex items-center justify-center font-bold">
+                                                        {admin.name?.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-mdOnSurface">{admin.name}</p>
+                                                        {admin.email === 'benjamin@ecclesiasys.com' && (
+                                                            <span className="text-xs bg-accent text-mdOnSurface px-2 py-0.5 rounded-full font-bold ml-2">Super Admin</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="py-5 px-6 font-medium text-mdOnSurfaceVariant">
+                                                {admin.email}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {admins.length === 0 && (
+                                        <tr>
+                                            <td colSpan="2" className="py-8 text-center text-mdOnSurfaceVariant font-medium">
+                                                No secondary administrators found.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             )}
@@ -1133,6 +1335,27 @@ export default function AdminDashboard() {
                                                         className="bg-green-100 text-green-700 hover:bg-green-600 hover:text-white px-4 py-2 rounded-full text-sm font-bold transition-all"
                                                     >
                                                         Mark as Answered
+                                                    </button>
+                                                )}
+                                                {(request.status === 'Answered' || request.status === 'Prayed For') && (
+                                                    <button
+                                                        onClick={async () => {
+                                                            setConfirmDialog({
+                                                                title: 'Delete Prayer Request',
+                                                                message: 'Are you sure you want to delete this completed prayer request?',
+                                                                onConfirm: async () => {
+                                                                    try {
+                                                                        await deletePrayerRequest(request.id);
+                                                                        await fetchAllData();
+                                                                    } catch (err) {
+                                                                        console.error('Error deleting request:', err);
+                                                                    }
+                                                                }
+                                                            });
+                                                        }}
+                                                        className="bg-red-100 text-red-700 hover:bg-red-600 hover:text-white px-4 py-2 rounded-full text-sm font-bold transition-all"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} className="mr-2" /> Delete
                                                     </button>
                                                 )}
                                             </div>

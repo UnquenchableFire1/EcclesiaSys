@@ -15,12 +15,12 @@ services:
         value: nrMPj1ECajN3NtY.root
       - key: DB_PASSWORD
         value: dFkBlyj7CjtmqK08
-      # B2 File Upload Service Credentials
-      - key: B2_KEY_ID
-        value: 5be753f9e33f
-      - key: B2_APP_KEY
-        value: K005uAur9WX0YGfPwOwbdyCsVwKOhuA
-      - key: B2_BUCKET_NAME
-        value: bbj-church-media
-
-
+      # Cloudinary Configuration
+      - key: CLOUDINARY_CLOUD_NAME
+        value: dg3kvkfou
+      - key: CLOUDINARY_API_KEY
+        value: "223193716219885"
+      - key: CLOUDINARY_API_SECRET
+        value: s2QmlYnlZkqM56d3l0cQhyrCeLY
+      - key: CLOUDINARY_URL
+        value: cloudinary://223193716219885:s2QmlYnlZkqM56d3l0cQhyrCeLY@dg3kvkfou

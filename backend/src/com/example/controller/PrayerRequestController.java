@@ -6,11 +6,19 @@ import com.example.model.PrayerRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.example.service.EmailService;
+import com.example.dao.MemberDAO;
+import com.example.dao.NotificationDAO;
+import com.example.model.Member;
 
 @RestController
 @RequestMapping("/api/prayer-requests")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class PrayerRequestController {
+
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping
     public Map<String, Object> submitPrayerRequest(@RequestBody PrayerRequest request) {
@@ -62,6 +70,36 @@ public class PrayerRequestController {
             if (success) {
                 response.put("success", true);
                 response.put("message", "Status updated successfully");
+                
+                try {
+                    if ("Answered".equals(status) || "Prayed For".equals(status)) {
+                        PrayerRequest request = dao.getPrayerRequestById(id);
+                        if (request != null && !request.isAnonymous() && request.getEmail() != null) {
+                            String email = request.getEmail();
+                            MemberDAO memberDao = new MemberDAO();
+                            Member member = memberDao.getMemberByEmail(email);
+                            
+                            String message = "Your prayer request submitted on " + request.getCreatedAt().toLocalDate() + " has been marked as '" + status + "'. ";
+                            if ("Answered".equals(status)) {
+                                message += "Praise God for His answered prayers!";
+                            } else {
+                                message += "We are standing in agreement with you in prayer.";
+                            }
+                            
+                            if (member != null) {
+                                NotificationDAO notifDao = new NotificationDAO();
+                                notifDao.addNotification(member.getId(), "Prayer Request Update", message);
+                            }
+                            
+                            if (emailService != null) {
+                                emailService.sendNotificationEmail(email, "Prayer Request Update", "Hello " + request.getRequesterName() + ",\n\n" + message);
+                            }
+                        }
+                    }
+                } catch (Exception notificationError) {
+                    System.err.println("Error sending notification for prayer request update: " + notificationError.getMessage());
+                }
+                
             } else {
                 response.put("success", false);
                 response.put("message", "Failed to update status");
@@ -69,6 +107,26 @@ public class PrayerRequestController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error updating status: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @DeleteMapping("/{id}")
+    public Map<String, Object> deleteRequest(@PathVariable int id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            PrayerRequestDAO dao = new PrayerRequestDAO();
+            boolean success = dao.deletePrayerRequest(id);
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Prayer request deleted successfully");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to delete prayer request");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error deleting prayer request: " + e.getMessage());
         }
         return response;
     }

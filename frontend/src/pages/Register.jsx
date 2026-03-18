@@ -94,7 +94,7 @@ export default function Register() {
                         <FontAwesomeIcon icon={faArrowLeft} /> Home
                     </a>
                     <div className="inline-flex items-center justify-center w-20 h-20 mb-4 mx-auto">
-                        <img src={logo} alt="Logo" className="w-full h-full object-contain drop-shadow-md" />
+                        <img src={logo} alt="Logo" className="w-full h-full object-contain drop-shadow-md mix-blend-multiply dark:invert dark:brightness-0 opacity-90" />
                     </div>
                     <h1 className="text-3xl font-extrabold text-mdPrimary tracking-tight mb-2">Join EcclesiaSys</h1>
                     <p className="text-mdOnSurfaceVariant font-medium">Create your member account</p>

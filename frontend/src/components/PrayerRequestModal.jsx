@@ -54,7 +54,7 @@ export default function PrayerRequestModal({ isOpen, onClose }) {
                         <FontAwesomeIcon icon={faTimes} className="text-xl" />
                     </button>
                     <div className="flex items-center gap-4">
-                        <img src={logo} alt="Logo" className="w-10 h-10 object-contain invert" />
+                        <img src={logo} alt="Logo" className="w-10 h-10 object-contain mix-blend-screen opacity-90" />
                         <div>
                             <h2 className="text-2xl font-black tracking-tight">Request Prayer</h2>
                             <p className="text-white/80 text-sm font-medium">How can we pray for you today?</p>

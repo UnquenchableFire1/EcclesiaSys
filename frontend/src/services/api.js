@@ -65,6 +65,19 @@ export const deleteMember = (id) => {
   return api.delete(`/members/${id}`);
 };
 
+// Admin APIs
+export const getAdmins = () => {
+  return api.get('/admins');
+};
+
+export const createAdmin = (adminData) => {
+  return api.post('/admins', adminData);
+};
+
+export const promoteMemberToAdmin = (memberId, data) => {
+  return api.post(`/admins/promote/${memberId}`, data);
+};
+
 // Announcement APIs
 export const getAnnouncements = () => {
   return api.get('/announcements');
@@ -195,6 +208,23 @@ export const getPrayerRequests = () => {
 
 export const updatePrayerRequestStatus = (id, status) => {
   return api.put(`/prayer-requests/${id}/status`, { status });
+};
+
+export const deletePrayerRequest = (id) => {
+  return api.delete(`/prayer-requests/${id}`);
+};
+
+// Notification APIs
+export const getNotifications = (memberId) => {
+  return api.get(`/notifications/member/${memberId}`);
+};
+
+export const markNotificationAsRead = (id, memberId) => {
+  return api.put(`/notifications/${id}/read`, { memberId });
+};
+
+export const markAllNotificationsAsRead = (memberId) => {
+  return api.put(`/notifications/member/${memberId}/read-all`);
 };
 
 export default api;

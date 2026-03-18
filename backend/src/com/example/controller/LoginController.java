@@ -32,26 +32,40 @@ public class LoginController {
                 return response;
             }
 
-            // Check against admin credentials
+            // Check against hardcoded super admin credentials
             if ("benjamin@ecclesiasys.com".equals(email) && "fire@123".equals(password)) {
                 response.put("success", true);
                 response.put("message", "Login successful");
                 response.put("userId", 1);
                 response.put("userType", "admin");
                 response.put("name", "Benjamin");
+                response.put("email", "benjamin@ecclesiasys.com");
             } else {
-                // Check against member database
-                MemberDAO memberDao = new MemberDAO();
-                if (memberDao.verifyMemberLogin(email, password)) {
-                    Member member = memberDao.getMemberByEmail(email);
+                AdminDAO adminDao = new AdminDAO();
+                // Check against admin database
+                if (adminDao.verifyAdminLogin(email, password)) {
+                    Admin admin = adminDao.getAdminByEmail(email);
                     response.put("success", true);
                     response.put("message", "Login successful");
-                    response.put("userId", member.getId());
-                    response.put("userType", "member");
-                    response.put("name", member.getName());
+                    response.put("userId", admin.getId());
+                    response.put("userType", "admin");
+                    response.put("name", admin.getName());
+                    response.put("email", admin.getEmail());
                 } else {
-                    response.put("success", false);
-                    response.put("message", "Invalid email or password");
+                    // Check against member database
+                    MemberDAO memberDao = new MemberDAO();
+                    if (memberDao.verifyMemberLogin(email, password)) {
+                        Member member = memberDao.getMemberByEmail(email);
+                        response.put("success", true);
+                        response.put("message", "Login successful");
+                        response.put("userId", member.getId());
+                        response.put("userType", "member");
+                        response.put("name", member.getName());
+                        response.put("email", member.getEmail());
+                    } else {
+                        response.put("success", false);
+                        response.put("message", "Invalid email or password");
+                    }
                 }
             }
         } catch (Exception e) {

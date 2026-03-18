@@ -2,52 +2,53 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#0F766E", // Teal
-          dark: "#0D5F58",
-          light: "#14B8A6",
-          container: "#ccfbf1",
+          DEFAULT: "var(--color-primary, #0F766E)", // Teal
+          dark: "var(--color-primary-dark, #0D5F58)",
+          light: "var(--color-primary-light, #14B8A6)",
+          container: "var(--color-primary-container, #ccfbf1)",
         },
         secondary: {
-          DEFAULT: "#0F4C5C", // Deep Blue
-          dark: "#0A3642",
-          light: "#1E6B7D",
-          container: "#e0f2fe",
+          DEFAULT: "var(--color-secondary, #0F4C5C)", // Deep Blue
+          dark: "var(--color-secondary-dark, #0A3642)",
+          light: "var(--color-secondary-light, #1E6B7D)",
+          container: "var(--color-secondary-container, #e0f2fe)",
         },
         accent: {
-          DEFAULT: "#FDE047", // yellow-300
-          dark: "#EAB308", // yellow-500
-          container: "#fef9c3",
+          DEFAULT: "var(--color-accent, #FDE047)", // yellow-300
+          dark: "var(--color-accent-dark, #EAB308)", // yellow-500
+          container: "var(--color-accent-container, #fef9c3)",
         },
         surface: {
-          DEFAULT: "#F9FAFB", // gray-50
-          dark: "#F3F4F6", // gray-100
-          variant: "#E5E7EB", // gray-200
+          DEFAULT: "var(--color-surface, #F9FAFB)", // gray-50
+          dark: "var(--color-surface-dark, #F3F4F6)", // gray-100
+          variant: "var(--color-surface-variant, #E5E7EB)", // gray-200
         },
         onSurface: {
-          DEFAULT: "#111827", // gray-900
-          variant: "#4B5563", // gray-600
+          DEFAULT: "var(--color-on-surface, #111827)", // gray-900
+          variant: "var(--color-on-surface-variant, #4B5563)", // gray-600
         },
-        mdPrimary: "#006A6A",
-        mdOnPrimary: "#FFFFFF",
-        mdPrimaryContainer: "#D1F0EF",
-        mdOnPrimaryContainer: "#002020",
-        mdSecondary: "#4A6363",
-        mdOnSecondary: "#FFFFFF",
-        mdSecondaryContainer: "#CCE8E7",
-        mdOnSecondaryContainer: "#051F1F",
-        mdSurface: "#F4FBFA",
-        mdOnSurface: "#191C1C",
-        mdSurfaceVariant: "#DAE5E3",
-        mdOnSurfaceVariant: "#3F4948",
-        mdOutline: "#6F7978",
-        mdError: "#BA1A1A",
-        mdOnError: "#FFFFFF",
-        mdErrorContainer: "#FFDAD6",
-        mdOnErrorContainer: "#410002",
+        mdPrimary: "var(--color-md-primary, #006A6A)",
+        mdOnPrimary: "var(--color-md-on-primary, #FFFFFF)",
+        mdPrimaryContainer: "var(--color-md-primary-container, #D1F0EF)",
+        mdOnPrimaryContainer: "var(--color-md-on-primary-container, #002020)",
+        mdSecondary: "var(--color-md-secondary, #4A6363)",
+        mdOnSecondary: "var(--color-md-on-secondary, #FFFFFF)",
+        mdSecondaryContainer: "var(--color-md-secondary-container, #CCE8E7)",
+        mdOnSecondaryContainer: "var(--color-md-on-secondary-container, #051F1F)",
+        mdSurface: "var(--color-md-surface, #F4FBFA)",
+        mdOnSurface: "var(--color-md-on-surface, #191C1C)",
+        mdSurfaceVariant: "var(--color-md-surface-variant, #DAE5E3)",
+        mdOnSurfaceVariant: "var(--color-md-on-surface-variant, #3F4948)",
+        mdOutline: "var(--color-md-outline, #6F7978)",
+        mdError: "var(--color-md-error, #BA1A1A)",
+        mdOnError: "var(--color-md-on-error, #FFFFFF)",
+        mdErrorContainer: "var(--color-md-error-container, #FFDAD6)",
+        mdOnErrorContainer: "var(--color-md-on-error-container, #410002)",
       },
       fontFamily: {
         sans: ['"Inter"', 'sans-serif'],

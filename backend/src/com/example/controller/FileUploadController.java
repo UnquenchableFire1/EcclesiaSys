@@ -133,6 +133,7 @@ public class FileUploadController {
             // Upload to Cloudinary
             String fileUrl = null;
             try {
+                System.out.println("Uploading profile picture to Cloudinary...");
                 fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
             } catch (Exception uploadError) {
                 System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
@@ -207,6 +208,7 @@ public class FileUploadController {
             // Upload to Cloudinary
             String fileUrl = null;
             try {
+                System.out.println("Uploading document to Cloudinary...");
                 fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
                 response.put("success", true);
                 response.put("message", "Document uploaded successfully");
@@ -266,7 +268,7 @@ public class FileUploadController {
             File tempFile = File.createTempFile("announcement_", fileName);
             Files.write(tempFile.toPath(), file.getBytes());
 
-            // Upload to Backblaze B2
+            // Upload to Cloudinary
             String fileUrl = null;
                 try {
                     System.out.println("Uploading announcement to Cloudinary...");

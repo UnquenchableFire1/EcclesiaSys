@@ -353,7 +353,7 @@ export default function MemberDashboard() {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-mdPrimary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                             <div className="relative z-10">
                                 <div className="flex items-center gap-4 mb-3">
-                                    <img src={logo} alt="Logo" className="w-12 h-12 object-contain drop-shadow-sm" />
+                                    <img src={logo} alt="Logo" className="w-12 h-12 object-contain drop-shadow-sm mix-blend-multiply dark:invert dark:brightness-0 opacity-90" />
                                     <h2 className="text-3xl md:text-4xl font-extrabold text-mdPrimary tracking-tight">
                                         {isNewMember ? ' Welcome to EcclesiaSys' : 'Welcome back!'}
                                     </h2>

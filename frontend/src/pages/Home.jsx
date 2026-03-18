@@ -34,7 +34,7 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-mdSecondary opacity-5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4"></div>
         
         <div className="relative z-10 px-6 max-w-4xl mx-auto">
-          <img src={logo} alt="EcclesiaSys Logo" className="w-24 h-24 mx-auto mb-8 object-contain drop-shadow-xl animate-float" />
+          <img src={logo} alt="EcclesiaSys Logo" className="w-24 h-24 mx-auto mb-8 object-contain drop-shadow-xl animate-float mix-blend-multiply dark:invert dark:brightness-0 opacity-90" />
           <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-mdPrimary leading-[1.1]">
             Experience Higher <br/>
             <span className="text-mdSecondary">Connection</span> with God

@@ -26,6 +26,7 @@ export default function Login() {
         sessionStorage.setItem('userId', data.userId);
         sessionStorage.setItem('userType', data.userType);
         sessionStorage.setItem('userName', data.name);
+        sessionStorage.setItem('userEmail', data.email);
         sessionStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
         
         let destination = from && from !== '/' ? from : null;
@@ -52,7 +53,7 @@ export default function Login() {
             <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Home
           </a>
           <div className="inline-flex items-center justify-center w-20 h-20 mb-4 mx-auto">
-            <img src={logo} alt="Logo" className="w-full h-full object-contain drop-shadow-md" />
+            <img src={logo} alt="Logo" className="w-full h-full object-contain drop-shadow-md mix-blend-multiply dark:invert dark:brightness-0 opacity-90" />
           </div>
           <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">
             Welcome Back

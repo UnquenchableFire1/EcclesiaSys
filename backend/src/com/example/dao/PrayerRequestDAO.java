@@ -78,6 +78,34 @@ public class PrayerRequestDAO {
         return false;
     }
 
+    public PrayerRequest getPrayerRequestById(int id) {
+        String query = "SELECT * FROM prayer_requests WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPrayerRequest(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean deletePrayerRequest(int id) {
+        String query = "DELETE FROM prayer_requests WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private PrayerRequest mapResultSetToPrayerRequest(ResultSet rs) throws SQLException {
         PrayerRequest request = new PrayerRequest();
         request.setId(rs.getInt("id"));
