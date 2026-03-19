@@ -59,9 +59,9 @@ export default function Layout({ children }) {
         <div className="min-h-screen bg-transparent text-mdOnSurface transition-colors duration-300 flex flex-col overflow-x-hidden">
             <Navbar isMobile={isMobile} />
             
-            <div className="flex flex-1 pt-16 md:pt-20">
+            <div className="flex flex-1 pt-12 md:pt-14">
                 <main className="flex-1 transition-all duration-300">
-                    <div className='p-4 md:p-6 lg:p-8 max-w-7xl mx-auto'>
+                    <div className='p-2 md:p-4 lg:p-6 max-w-7xl mx-auto'>
                         {children}
                     </div>
                 </main>

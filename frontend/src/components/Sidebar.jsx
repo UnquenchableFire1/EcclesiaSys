@@ -16,6 +16,7 @@ export default function Sidebar({
   setIsOpen, 
   userType, 
   userName, 
+  userEmail,
   onLogout,
   profilePictureUrl 
 }) {
@@ -68,6 +69,11 @@ export default function Sidebar({
             <div className="min-w-0">
               <p className="font-black text-mdOnSurface truncate">{userName}</p>
               <p className="text-xs font-bold uppercase tracking-widest text-mdPrimary">{userType === 'admin' ? 'Administrator' : 'Church Member'}</p>
+              {userEmail && (
+                <p className="text-sm font-medium text-mdOnSurfaceVariant truncate mt-0.5" title={userEmail}>
+                  {userEmail}
+                </p>
+              )}
             </div>
           </div>
         </div>

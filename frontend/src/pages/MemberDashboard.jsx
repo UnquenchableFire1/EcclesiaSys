@@ -8,8 +8,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     getNotifications, 
     markNotificationAsRead, 
+    markNotificationAsRead, 
     markAllNotificationsAsRead,
-    changePassword
+    changePassword,
+    getMemberById
 } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import ChangePassword from '../components/ChangePassword';
@@ -31,7 +33,8 @@ import {
     faPrayingHands,
     faBell,
     faCheck,
-    faCheckDouble
+    faCheckDouble,
+    faVideo
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import DailyVerse from '../components/DailyVerse';
@@ -131,10 +134,24 @@ export default function MemberDashboard() {
         }
 
         // Get member data
-        setMemberData({
-            email: memberEmail,
-            userId: userId
-        });
+        const fetchMemberInfo = async () => {
+            try {
+                const response = await getMemberById(userId);
+                if (response.data && response.data.success) {
+                    setMemberData({
+                        ...response.data.data,
+                        email: memberEmail,
+                        userId: userId
+                    });
+                } else {
+                    setMemberData({ email: memberEmail, userId: userId });
+                }
+            } catch (err) {
+                console.error("Failed to fetch member info:", err);
+                setMemberData({ email: memberEmail, userId: userId });
+            }
+        };
+        fetchMemberInfo();
 
         // Fetch announcements
         const fetchAnnouncements = async () => {
@@ -243,8 +260,9 @@ export default function MemberDashboard() {
                 setIsOpen={setIsSidebarOpen} 
                 userType="member"
                 userName={memberName}
+                userEmail={memberData?.email}
                 onLogout={handleLogout}
-                profilePictureUrl={memberData?.profile_picture_url}
+                profilePictureUrl={memberData?.profilePictureUrl || memberData?.profile_picture_url}
             />
 
             <div className="flex-1 flex flex-col min-w-0 md:pl-72 transition-all duration-300">
@@ -255,12 +273,12 @@ export default function MemberDashboard() {
                     <div className="w-10"></div>
                 </div>
 
-                <div className="flex-1 p-4 md:p-8 lg:p-12 max-w-[1600px] w-full mx-auto">
+                <div className="flex-1 px-4 py-2 md:px-8 md:py-4 lg:px-12 lg:py-6 max-w-[1600px] w-full mx-auto">
 
                 </div>
 
                 {/* Header Area */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 px-4 md:px-0 mt-8 md:mt-0">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 px-4 md:px-0 mt-4 md:mt-0">
                     <div>
                         <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2">
                             Member Dashboard

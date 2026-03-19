@@ -51,7 +51,7 @@ export default function Announcements() {
 
     return (
         <Layout>
-            <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 animate-fade-in">
+            <div className="max-w-4xl mx-auto py-4 px-4 sm:px-6 animate-fade-in">
                 <div className="flex items-center gap-4 mb-2">
                     <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
                         <FontAwesomeIcon icon={faBullhorn} className="text-3xl sm:text-4xl text-mdPrimary" />

@@ -72,7 +72,7 @@ export default function Sermons() {
 
     return (
         <Layout>
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 animate-fade-in">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
                 {/* Header Section */}
                 <div className="mb-10 sm:mb-14">
                     <div className="flex items-center gap-4 mb-4">

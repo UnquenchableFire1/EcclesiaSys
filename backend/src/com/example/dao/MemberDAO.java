@@ -341,4 +341,19 @@ public class MemberDAO {
         }
         return false;
     }
+
+    public java.util.List<Integer> getAllActiveMemberIds() {
+        java.util.List<Integer> ids = new ArrayList<>();
+        String query = "SELECT id FROM members WHERE status = 'active'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                ids.add(rs.getInt("id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ids;
+    }
 }

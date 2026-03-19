@@ -25,7 +25,8 @@ import {
     getNotifications, 
     markNotificationAsRead, 
     markAllNotificationsAsRead,
-    changePassword
+    changePassword,
+    getAdminProfile
 } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import ChangePassword from '../components/ChangePassword';
@@ -360,8 +361,8 @@ export default function AdminDashboard() {
         try {
             setLoading(true);
 
-            let audioUrl = '';
-            let videoUrl = '';
+            let audioUrl = null;
+            let videoUrl = null;
 
             // Handle File Upload
             if (newSermon.mediaMode === 'upload' && newSermon.file) {
@@ -459,6 +460,7 @@ export default function AdminDashboard() {
                 setIsOpen={setIsSidebarOpen}
                 userType="admin"
                 userName={adminName}
+                userEmail={adminProfile?.email || sessionStorage.getItem('userEmail')}
                 onLogout={handleLogout}
                 profilePictureUrl={adminProfile?.profilePictureUrl}
             />

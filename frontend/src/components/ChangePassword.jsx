@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faKey, faLock, faCheckCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faKey, faLock, faCheckCircle, faExclamationTriangle, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { changePassword } from '../services/api';
 
 export default function ChangePassword({ userType, userId }) {
   const [formData, setFormData] = useState({
+    enteredEmail: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState(1); // 1: Password, 2: OTP
+  const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Passwords
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
 
@@ -20,19 +21,16 @@ export default function ChangePassword({ userType, userId }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRequestOtp = async (e) => {
+  const handleCheckEmail = async (e) => {
     e.preventDefault();
-    if (formData.newPassword !== formData.confirmPassword) {
-      setStatus({ type: 'error', message: 'New passwords do not match' });
-      return;
-    }
-    if (formData.newPassword.length < 6) {
-      setStatus({ type: 'error', message: 'New password must be at least 6 characters' });
+    setStatus({ type: '', message: '' });
+
+    if (formData.enteredEmail.trim().toLowerCase() !== userEmail?.toLowerCase()) {
+      setStatus({ type: 'error', message: 'Email does not match your registered personal email.' });
       return;
     }
 
     setLoading(true);
-    setStatus({ type: '', message: '' });
 
     try {
       const response = await fetch('/api/verification/send-otp', {
@@ -54,16 +52,58 @@ export default function ChangePassword({ userType, userId }) {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setStatus({ type: '', message: '' });
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/verification/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, otp: otp })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setStep(3);
+        setStatus({ type: 'success', message: 'Email verified. Please enter your new password.' });
+      } else {
+        setStatus({ type: 'error', message: data.message || 'Invalid verification code' });
+      }
+    } catch (error) {
+      setStatus({ type: 'error', message: 'Failed to connect to verification service' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitPassword = async (e) => {
+    e.preventDefault();
+    setStatus({ type: '', message: '' });
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      setStatus({ type: 'error', message: 'New passwords do not match' });
+      return;
+    }
+    
+    if (formData.newPassword === formData.currentPassword) {
+      setStatus({ type: 'error', message: 'New password cannot be same as old password' });
+      return;
+    }
+
+    if (formData.newPassword.length < 6) {
+      setStatus({ type: 'error', message: 'New password must be at least 6 characters' });
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const response = await changePassword(userType, userId, formData.currentPassword, formData.newPassword, otp);
       if (response.data.success) {
         setStatus({ type: 'success', message: 'Password updated successfully!' });
-        setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setFormData({ enteredEmail: '', currentPassword: '', newPassword: '', confirmPassword: '' });
         setOtp('');
         setStep(1);
       } else {
@@ -87,7 +127,19 @@ export default function ChangePassword({ userType, userId }) {
           <p className="text-white/80 font-medium">Keep your account secure</p>
         </div>
 
-        <form onSubmit={step === 1 ? handleRequestOtp : handleSubmit} className="p-10 space-y-6">
+        <div className="px-10 pt-8">
+          {/* Step Indicator */}
+          <div className="flex justify-between items-center mb-8 relative">
+            <div className="absolute top-1/2 left-0 right-0 h-1 bg-mdOutline/20 -z-10 -translate-y-1/2 rounded-full"></div>
+            <div className="absolute top-1/2 left-0 h-1 bg-mdSecondary -z-10 -translate-y-1/2 rounded-full transition-all duration-500" style={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}></div>
+            
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${step >= 1 ? 'bg-mdSecondary text-white' : 'bg-mdSurfaceVariant text-mdOnSurfaceVariant'}`}>1</div>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${step >= 2 ? 'bg-mdSecondary text-white' : 'bg-mdSurfaceVariant text-mdOnSurfaceVariant'}`}>2</div>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${step >= 3 ? 'bg-mdSecondary text-white' : 'bg-mdSurfaceVariant text-mdOnSurfaceVariant'}`}>3</div>
+          </div>
+        </div>
+
+        <form onSubmit={step === 1 ? handleCheckEmail : step === 2 ? handleVerifyOtp : handleSubmitPassword} className="px-10 pb-10 space-y-6">
           {status.message && (
             <div className={`p-4 rounded-2xl flex items-center gap-4 animate-bounce ${status.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
               <FontAwesomeIcon icon={status.type === 'success' ? faCheckCircle : faExclamationTriangle} />
@@ -95,8 +147,64 @@ export default function ChangePassword({ userType, userId }) {
             </div>
           )}
 
-          {step === 1 ? (
-            <div className="space-y-4">
+          {step === 1 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="bg-mdSecondary/10 p-4 rounded-2xl mb-4 text-center">
+                <p className="text-sm text-mdSecondary font-bold">Please verify your email address to continue.</p>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-mdOnSurfaceVariant mb-2 ml-1">Enter Your Email</label>
+                <div className="relative">
+                  <FontAwesomeIcon icon={faEnvelope} className="absolute left-5 top-1/2 -translate-y-1/2 text-mdOutline" />
+                  <input
+                    type="email"
+                    name="enteredEmail"
+                    value={formData.enteredEmail}
+                    onChange={handleChange}
+                    required
+                    className="w-full pl-12 pr-6 py-4 bg-mdSurfaceVariant/30 border border-mdOutline/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-mdSecondary transition-all"
+                    placeholder="Enter your registered email"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="bg-mdSecondary/10 p-4 rounded-2xl mb-4 text-center">
+                <p className="text-sm text-mdSecondary font-bold">
+                  Please enter the 6-digit code sent to<br/>
+                  <span className="text-mdOnSurface">{userEmail}</span>
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-mdOnSurfaceVariant mb-2 ml-1">Verification Code</label>
+                <div className="relative">
+                  <FontAwesomeIcon icon={faCheckCircle} className="absolute left-5 top-1/2 -translate-y-1/2 text-mdOutline" />
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    required
+                    maxLength={6}
+                    className="w-full pl-12 pr-6 py-4 bg-mdSurfaceVariant/30 border border-mdOutline/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-mdSecondary transition-all text-center text-2xl tracking-[0.5em] font-black"
+                    placeholder="000000"
+                  />
+                </div>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setStep(1)}
+                className="text-sm font-bold text-mdSecondary hover:underline w-full text-center"
+              >
+                ← Use a different email
+              </button>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4 animate-fade-in">
               <div>
                 <label className="block text-sm font-bold text-mdOnSurfaceVariant mb-2 ml-1">Current Password</label>
                 <div className="relative">
@@ -145,37 +253,6 @@ export default function ChangePassword({ userType, userId }) {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="space-y-4 animate-fade-in">
-              <div className="bg-mdSecondary/10 p-4 rounded-2xl mb-4">
-                <p className="text-sm text-mdSecondary font-bold text-center">
-                  Please enter the 6-digit code sent to<br/>
-                  <span className="text-mdOnSurface">{userEmail}</span>
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-mdOnSurfaceVariant mb-2 ml-1">Verification Code</label>
-                <div className="relative">
-                  <FontAwesomeIcon icon={faCheckCircle} className="absolute left-5 top-1/2 -translate-y-1/2 text-mdOutline" />
-                  <input
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    required
-                    maxLength={6}
-                    className="w-full pl-12 pr-6 py-4 bg-mdSurfaceVariant/30 border border-mdOutline/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-mdSecondary transition-all text-center text-2xl tracking-[0.5em] font-black"
-                    placeholder="000000"
-                  />
-                </div>
-              </div>
-              <button 
-                type="button" 
-                onClick={() => setStep(1)}
-                className="text-sm font-bold text-mdSecondary hover:underline w-full text-center"
-              >
-                ← Back to change passwords
-              </button>
-            </div>
           )}
 
           <button
@@ -187,8 +264,9 @@ export default function ChangePassword({ userType, userId }) {
               <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                <FontAwesomeIcon icon={faKey} />
-                {step === 1 ? 'Send Verification Code' : 'Verify & Update Password'}
+                {step === 1 && <><FontAwesomeIcon icon={faEnvelope} /> Send Verification Code</>}
+                {step === 2 && <><FontAwesomeIcon icon={faCheckCircle} /> Verify Code</>}
+                {step === 3 && <><FontAwesomeIcon icon={faKey} /> Update Password</>}
               </>
             )}
           </button>
