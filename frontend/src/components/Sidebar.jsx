@@ -4,7 +4,6 @@ import {
   faSignOutAlt, 
   faChevronLeft, 
   faKey,
-  faKey,
   faUserCircle,
   faBell
 } from '@fortawesome/free-solid-svg-icons';
