@@ -145,6 +145,8 @@ public class AdminDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
     public boolean updateAdminPassword(int id, String newPassword) {
         String query = "UPDATE admins SET password = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();

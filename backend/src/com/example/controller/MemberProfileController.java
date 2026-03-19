@@ -154,7 +154,9 @@ public class MemberProfileController {
             response.put("message", "Server error: " + e.getMessage());
             e.printStackTrace();
         }
-        
+        return response;
+    }
+
     @PostMapping("/{id}/change-password")
     public Map<String, Object> changePassword(@PathVariable int id, @RequestBody Map<String, String> request) {
         Map<String, Object> response = new HashMap<>();

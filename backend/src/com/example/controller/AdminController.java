@@ -200,6 +200,9 @@ public class AdminController {
             response.put("success", false);
             response.put("message", "Server error: " + e.getMessage());
         }
+        return response;
+    }
+
     @PostMapping("/{id}/change-password")
     public Map<String, Object> changePassword(@PathVariable int id, @RequestBody Map<String, String> request) {
         Map<String, Object> response = new HashMap<>();

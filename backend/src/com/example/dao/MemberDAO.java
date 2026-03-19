@@ -327,6 +327,8 @@ public class MemberDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+
     public boolean updateMemberPassword(int id, String newPassword) {
         String query = "UPDATE members SET password = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
