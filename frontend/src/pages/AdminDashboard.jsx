@@ -100,6 +100,9 @@ export default function AdminDashboard() {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const [adminProfile, setAdminProfile] = useState(null);
+    const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
+    const [isPostingAnnouncement, setIsPostingAnnouncement] = useState(false);
+    const [isPublishingEvent, setIsPublishingEvent] = useState(false);
     const { theme, toggleTheme } = useTheme();
 
 
@@ -197,7 +200,7 @@ export default function AdminDashboard() {
                 getEvents(),
                 getSermons(),
                 getPrayerRequests(),
-                axios.get('/api/summary/counts'),
+                api.get('/summary/counts'),
                 getAdminProfile(adminId)
             ];
 
@@ -271,6 +274,7 @@ export default function AdminDashboard() {
 
     const handleCreateAdmin = async (e) => {
         e.preventDefault();
+        setIsCreatingAdmin(true);
         try {
             await createAdmin({ name: newAdminName, email: newAdminEmail, password: newAdminPassword, createdBy: adminId });
             setNewAdminName('');
@@ -281,12 +285,15 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error('Error creating admin:', error);
             setAlertDialog({ title: 'Error', message: 'Failed to create admin.', isError: true });
+        } finally {
+            setIsCreatingAdmin(false);
         }
     };
 
 
     // Announcement Management
     const handleAddAnnouncement = async () => {
+        setIsPostingAnnouncement(true);
         try {
             let announcementData = { ...newAnnouncement, createdBy: adminId };
             
@@ -296,6 +303,8 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error('Error adding announcement:', error);
             setAlertDialog({ title: 'Error', message: 'Error creating announcement: ' + error.message, isError: true });
+        } finally {
+            setIsPostingAnnouncement(false);
         }
     };
 
@@ -316,6 +325,7 @@ export default function AdminDashboard() {
 
     // Event Management
     const handleAddEvent = async () => {
+        setIsPublishingEvent(true);
         try {
             let eventData = { ...newEvent, createdBy: adminId, documentUrl: null };
             
@@ -325,6 +335,8 @@ export default function AdminDashboard() {
         } catch (error) {
             console.error('Error adding event:', error);
             setAlertDialog({ title: 'Error', message: 'Error creating event: ' + error.message, isError: true });
+        } finally {
+            setIsPublishingEvent(false);
         }
     };
 
@@ -671,108 +683,6 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
-            {/* Detail View Modal */}
-            {selectedItem && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-fade-in">
-                    <div className="bg-white rounded-[2.5rem] shadow-premium max-w-2xl w-full mx-auto relative overflow-hidden flex flex-col max-h-[90vh]">
-                        {/* Modal Header/Decorative */}
-                        <div className={`h-32 w-full shrink-0 relative ${
-                            modalType === 'event' ? 'bg-gradient-to-r from-mdPrimary to-mdPrimaryContainer' : 
-                            modalType === 'announcement' ? 'bg-gradient-to-r from-mdSecondary to-mdSecondaryContainer' : 
-                            'bg-gradient-to-r from-mdPrimary to-mdPrimaryContainer'
-                        }`}>
-                            <button 
-                                onClick={() => setSelectedItem(null)}
-                                className="absolute top-6 right-6 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10"
-                            >
-                                <span className="text-2xl">&times;</span>
-                            </button>
-                            <div className="absolute -bottom-10 left-10 w-20 h-20 rounded-3xl bg-white shadow-lifted flex items-center justify-center text-3xl">
-                                <FontAwesomeIcon 
-                                    icon={modalType === 'event' ? faCalendarAlt : modalType === 'announcement' ? faBullhorn : faMicrophone} 
-                                    className={modalType === 'event' ? 'text-mdPrimary' : modalType === 'announcement' ? 'text-mdSecondary' : 'text-mdPrimary'}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="p-10 pt-16 overflow-y-auto">
-                            <h3 className="text-3xl font-black text-onSurface mb-4 leading-tight">
-                                {selectedItem.title}
-                            </h3>
-                            
-                            <div className="flex flex-wrap gap-4 mb-8">
-                                {modalType === 'event' && selectedItem.eventDate && (
-                                    <div className="flex items-center gap-2 bg-mdPrimaryContainer text-mdOnPrimaryContainer px-4 py-2 rounded-full font-bold text-sm">
-                                        <FontAwesomeIcon icon={faClock} />
-                                        {new Date(selectedItem.eventDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                                    </div>
-                                )}
-                                {selectedItem.location && (
-                                    <div className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-full font-bold text-sm">
-                                        <FontAwesomeIcon icon={faMapMarkerAlt} />
-                                        {selectedItem.location}
-                                    </div>
-                                )}
-                                {selectedItem.speaker && (
-                                    <div className="flex items-center gap-2 bg-mdPrimaryContainer text-mdOnPrimaryContainer px-4 py-2 rounded-full font-bold text-sm">
-                                        <FontAwesomeIcon icon={faUser} />
-                                        {selectedItem.speaker}
-                                    </div>
-                                )}
-                                {selectedItem.sermonDate && (
-                                    <div className="flex items-center gap-2 bg-mdPrimaryContainer text-mdOnPrimaryContainer px-4 py-2 rounded-full font-bold text-sm">
-                                        <FontAwesomeIcon icon={faCalendarAlt} />
-                                        {new Date(selectedItem.sermonDate).toLocaleDateString()}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="space-y-6">
-                                <p className="text-mdOnSurfaceVariant text-lg leading-relaxed whitespace-pre-line">
-                                    {selectedItem.description || selectedItem.message}
-                                </p>
-                                
-                                {modalType === 'sermon' && (
-                                    <div className="flex flex-col gap-4 pt-4">
-                                        {selectedItem.audioUrl && (
-                                            <a 
-                                                href={selectedItem.audioUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-3 bg-mdPrimary text-mdOnPrimary px-8 py-4 rounded-full font-bold shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all w-max"
-                                            >
-                                                <FontAwesomeIcon icon={faMicrophone} />
-                                                Listen to Sermon
-                                            </a>
-                                        )}
-                                        {selectedItem.videoUrl && (
-                                            <a 
-                                                href={selectedItem.videoUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-3 bg-mdSecondary text-mdOnSecondary px-8 py-4 rounded-full font-bold shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all w-max"
-                                            >
-                                                <FontAwesomeIcon icon={faVideo} />
-                                                Watch Sermon
-                                            </a>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <div className="p-8 border-t border-mdSurfaceVariant bg-mdSurface shrink-0">
-                            <button 
-                                onClick={() => setSelectedItem(null)}
-                                className="w-full bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary py-4 rounded-full font-bold shadow-premium hover:shadow-lifted transition-all"
-                            >
-                                Close Detail
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Loading State */}
             {loading && <div className="flex justify-center p-12"><p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Loading data...</p></div>}
@@ -930,12 +840,26 @@ export default function AdminDashboard() {
                                         onChange={(e) => setNewAdminPassword(e.target.value)}
                                         className="flex-1 px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
                                     />
-                                    <button
-                                        type="submit"
-                                        className="bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 px-6 rounded-2xl shadow-md1 hover:shadow-md2 transition-all duration-300"
-                                    >
-                                        Create Admin
-                                    </button>
+                                 <button
+                                    type="submit"
+                                    disabled={isCreatingAdmin}
+                                    className="w-full bg-mdPrimary text-mdOnPrimary hover:bg-mdSecondary px-6 py-4 rounded-2xl font-black shadow-md1 hover:shadow-md2 transition-all duration-300 flex items-center justify-center gap-2 group-hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isCreatingAdmin ? (
+                                        <>
+                                            <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Creating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FontAwesomeIcon icon={faPlus} />
+                                            Create Admin Account
+                                        </>
+                                    )}
+                                </button>
                                 </div>
                             </div>
                         </form>
@@ -1019,13 +943,25 @@ export default function AdminDashboard() {
                                     onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
                                     className="w-full px-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 min-h-[160px]"
                                 />
-                            </div>
-
-                            <button
+                            </div>                            <button
                                 onClick={handleAddAnnouncement}
-                                className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 px-8 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
+                                disabled={isPostingAnnouncement}
+                                className="w-full bg-mdPrimary text-mdOnPrimary hover:bg-mdSecondary px-6 py-4 rounded-2xl font-black shadow-md1 hover:shadow-md2 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Post Announcement
+                                {isPostingAnnouncement ? (
+                                    <>
+                                        <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Posting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faPlus} />
+                                        Post Announcement
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -1036,20 +972,27 @@ export default function AdminDashboard() {
                             {announcements.map(ann => (
                                 <div 
                                     key={ann.id} 
-                                    onClick={() => { setSelectedItem(ann); setModalType('announcement'); }}
-                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 cursor-pointer group"
+                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 group"
                                 >
                                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-extrabold text-xl text-mdOnSurface mb-2 group-hover:text-mdPrimary transition-colors">{ann.title}</h3>
                                             <p className="text-mdOnSurfaceVariant text-base leading-relaxed line-clamp-2">{ann.message}</p>
                                         </div>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); handleDeleteAnnouncement(ann.id); }}
-                                            className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-4 py-2 text-sm rounded-full transition-colors font-bold flex-shrink-0"
-                                        >
-                                            Delete
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => navigate(`/announcements?id=${ann.id}`)}
+                                                className="bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-mdOnPrimary px-4 py-2 text-xs rounded-full transition-colors font-bold"
+                                            >
+                                                View
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteAnnouncement(ann.id); }}
+                                                className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-4 py-2 text-xs rounded-full transition-colors font-bold flex-shrink-0"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -1116,12 +1059,25 @@ export default function AdminDashboard() {
                             </div>
                             
 
-                            
-                            <button
+                                                       <button
                                 onClick={handleAddEvent}
-                                className="w-full sm:w-auto bg-mdSecondary hover:bg-mdPrimary text-mdOnSecondary font-bold py-4 px-8 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
+                                disabled={isPublishingEvent}
+                                className="w-full bg-mdPrimary text-mdOnPrimary hover:bg-mdSecondary px-6 py-4 rounded-2xl font-black shadow-md1 hover:shadow-md2 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Publish Event
+                                {isPublishingEvent ? (
+                                    <>
+                                        <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Publishing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faPlus} />
+                                        Publish Event
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -1132,18 +1088,25 @@ export default function AdminDashboard() {
                             {events.map(event => (
                                 <div 
                                     key={event.id} 
-                                    onClick={() => { setSelectedItem(event); setModalType('event'); }}
-                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col cursor-pointer group"
+                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col group"
                                 >
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-4">
                                             <h3 className="font-extrabold text-xl text-mdOnSurface group-hover:text-mdSecondary transition-colors">{event.title}</h3>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); handleDeleteEvent(event.id); }}
-                                                className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-3 py-1.5 text-xs rounded-full transition-colors font-bold ml-4 shrink-0"
-                                            >
-                                                Delete
-                                            </button>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => navigate(`/events?id=${event.id}`)}
+                                                    className="bg-mdSecondary/10 text-mdSecondary hover:bg-mdSecondary hover:text-mdOnSecondary px-3 py-1.5 text-xs rounded-full transition-colors font-bold"
+                                                >
+                                                    View
+                                                </button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteEvent(event.id); }}
+                                                    className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-3 py-1.5 text-xs rounded-full transition-colors font-bold ml-4 shrink-0"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </div>
                                         
                                         <div className="space-y-3 mb-6">
@@ -1315,9 +1278,23 @@ export default function AdminDashboard() {
                             
                             <button
                                 onClick={handleAddSermon}
-                                className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 px-8 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
+                                disabled={loading}
+                                className="w-full bg-mdPrimary text-mdOnPrimary hover:bg-mdSecondary px-6 py-4 rounded-2xl font-black shadow-md1 hover:shadow-md2 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Publish Sermon
+                                {loading ? (
+                                    <>
+                                        <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={faPlus} />
+                                        Publish Sermon
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -1328,8 +1305,7 @@ export default function AdminDashboard() {
                             {sermons.map(sermon => (
                                 <div 
                                     key={sermon.id} 
-                                    onClick={() => { setSelectedItem(sermon); setModalType('sermon'); }}
-                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col sm:flex-row gap-6 cursor-pointer group"
+                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col sm:flex-row gap-6 group"
                                 >
                                     <div className="flex-1 space-y-4">
                                         <div className="flex justify-between items-start">
@@ -1358,8 +1334,6 @@ export default function AdminDashboard() {
                                                 {sermon.audioUrl && (
                                                     <a 
                                                         href={sermon.audioUrl} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
                                                         className="px-3 py-1.5 bg-mdPrimaryContainer/30 text-mdPrimary rounded-full text-xs font-bold hover:bg-mdPrimary hover:text-mdOnPrimary transition-colors"
                                                     >
                                                         Listen
@@ -1368,13 +1342,17 @@ export default function AdminDashboard() {
                                                 {sermon.videoUrl && (
                                                     <a 
                                                         href={sermon.videoUrl} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
                                                         className="px-3 py-1.5 bg-mdSecondaryContainer/30 text-mdSecondary rounded-full text-xs font-bold hover:bg-mdSecondary hover:text-mdOnSecondary transition-colors"
                                                     >
                                                         Watch
                                                     </a>
                                                 )}
+                                                <button
+                                                    onClick={() => navigate(`/sermons?id=${sermon.id}`)}
+                                                    className="bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-mdOnPrimary px-3 py-1.5 text-xs rounded-full transition-colors font-bold"
+                                                >
+                                                    View
+                                                </button>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleDeleteSermon(sermon.id); }}
                                                     className="bg-mdError/10 text-mdError hover:bg-mdError hover:text-mdOnError px-3 py-1.5 text-xs rounded-full transition-colors font-bold ml-2"

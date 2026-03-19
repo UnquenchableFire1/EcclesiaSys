@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getAnnouncements } from '../services/api';
 import Layout from '../layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,6 +9,7 @@ export default function Announcements() {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getAnnouncements().then(response => {
@@ -51,12 +52,23 @@ export default function Announcements() {
 
     return (
         <Layout>
-            <div className="max-w-4xl mx-auto py-4 px-4 sm:px-6 animate-fade-in">
-                <div className="flex items-center gap-4 mb-2">
-                    <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
-                        <FontAwesomeIcon icon={faBullhorn} className="text-3xl sm:text-4xl text-mdPrimary" />
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
+                <div className="mb-10 sm:mb-14">
+                    <button 
+                        onClick={() => navigate(sessionStorage.getItem('userType') === 'admin' ? '/admin' : '/member-dashboard')}
+                        className="w-max flex items-center gap-2 text-mdPrimary font-bold hover:underline mb-6 transition-all"
+                    >
+                        <FontAwesomeIcon icon={faBullhorn} className="rotate-90" />
+                        Back to Dashboard
+                    </button>
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
+                            <FontAwesomeIcon icon={faBullhorn} className="text-3xl sm:text-4xl text-mdPrimary" />
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mdOnSurface tracking-tight">
+                            Announcements
+                        </h1>
                     </div>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-mdOnSurface tracking-tight">Announcements</h1>
                 </div>
                 <p className="text-mdOnSurfaceVariant text-lg mb-8 sm:mb-12 font-medium">Latest news and updates from EcclesiaSys</p>
                 

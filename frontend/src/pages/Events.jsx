@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getEvents } from '../services/api';
 import Layout from '../layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,6 +9,7 @@ export default function Events() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getEvents().then(response => {
@@ -51,14 +52,27 @@ export default function Events() {
 
     return (
         <Layout>
-            <div className="max-w-5xl mx-auto py-4 px-4 sm:px-6 animate-fade-in">
-                <div className="flex items-center gap-4 mb-2">
-                    <div className="bg-mdSecondaryContainer p-3 sm:p-4 rounded-2xl">
-                        <FontAwesomeIcon icon={faCalendarAlt} className="text-3xl sm:text-4xl text-mdSecondary" />
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
+                <div className="mb-10 sm:mb-14">
+                    <button 
+                        onClick={() => navigate(sessionStorage.getItem('userType') === 'admin' ? '/admin' : '/member-dashboard')}
+                        className="w-max flex items-center gap-2 text-mdSecondary font-bold hover:underline mb-6 transition-all"
+                    >
+                        <FontAwesomeIcon icon={faClock} className="rotate-90" />
+                        Back to Dashboard
+                    </button>
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-mdSecondaryContainer p-3 sm:p-4 rounded-2xl">
+                            <FontAwesomeIcon icon={faCalendarAlt} className="text-3xl sm:text-4xl text-mdSecondary" />
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mdOnSurface tracking-tight">
+                            Events
+                        </h1>
                     </div>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-mdOnSurface tracking-tight">Church Events</h1>
+                    <p className="text-mdOnSurfaceVariant text-xl font-medium max-w-2xl">
+                        Stay connected with our upcoming church activities and gatherings
+                    </p>
                 </div>
-                <p className="text-mdOnSurfaceVariant text-lg mb-8 sm:mb-12 font-medium">Join us for our upcoming services and community events</p>
                 
                 {events.length === 0 ? (
                     <div className="bg-mdSurfaceVariant/30 border border-mdOutline/20 p-10 rounded-3xl text-center">
@@ -101,8 +115,6 @@ export default function Events() {
                                     <div className="pt-4 border-t border-mdSurfaceVariant/50 mt-auto">
                                         <a
                                             href={event.documentUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
                                             className="inline-flex items-center gap-2 bg-mdSecondaryContainer/50 hover:bg-mdSecondary text-mdSecondary hover:text-mdOnSecondary px-5 py-2.5 rounded-full font-bold transition-all duration-300"
                                         >
                                             <FontAwesomeIcon icon={faDownload} /> Download Info

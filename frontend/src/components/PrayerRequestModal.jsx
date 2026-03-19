@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPrayingHands, faTimes, faCheckCircle, faExclamationCircle, faUserSecret, faUser } from '@fortawesome/free-solid-svg-icons';
 import { submitPrayerRequest } from '../services/api';
@@ -12,6 +12,18 @@ export default function PrayerRequestModal({ isOpen, onClose }) {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState({ text: '', isError: false });
+
+    // Lock scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -132,7 +144,10 @@ export default function PrayerRequestModal({ isOpen, onClose }) {
                                 className="w-full py-4 bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-black rounded-2xl shadow-md2 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
                             >
                                 {isSubmitting ? (
-                                    <span className="animate-pulse">Submitting...</span>
+                                    <>
+                                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                                        Submitting...
+                                    </>
                                 ) : (
                                     <>
                                         <FontAwesomeIcon icon={faPrayingHands} />

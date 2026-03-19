@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Logo from '../components/Logo';
 import { register } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faEye, faEyeSlash, faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
@@ -94,9 +93,9 @@ export default function Register() {
                     <a href="/" className="absolute left-0 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-colors flex items-center gap-1 text-sm font-bold">
                         <FontAwesomeIcon icon={faArrowLeft} /> Home
                     </a>
-                    <div className="flex justify-center mb-6">
-                <Logo className="h-16 w-auto" />
-              </div>
+                    <div className="flex justify-center mb-6 text-mdPrimary">
+                        <h1 className="text-4xl font-black">EcclesiaSys</h1>
+                    </div>
                     <p className="text-mdOnSurfaceVariant font-medium">Create your member account</p>
                 </div>
 

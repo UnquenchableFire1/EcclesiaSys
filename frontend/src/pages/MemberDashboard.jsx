@@ -55,8 +55,6 @@ export default function MemberDashboard() {
     const [sermons, setSermons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [modalType, setModalType] = useState(null);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
@@ -235,10 +233,10 @@ export default function MemberDashboard() {
 
     const dashboardTabs = [
         { id: 'home', label: 'Overview', icon: faHome },
-        { id: 'announcements', label: 'Announcements', icon: faBullhorn },
-        { id: 'events', label: 'Events', icon: faCalendarAlt },
-        { id: 'sermons', label: 'Sermons', icon: faMicrophone },
-        { id: 'prayer', label: 'Prayer Request', icon: faPrayingHands },
+        { id: 'announcements', label: 'Announcements', icon: faBullhorn, path: '/announcements' },
+        { id: 'events', label: 'Events', icon: faCalendarAlt, path: '/events' },
+        { id: 'sermons', label: 'Sermons', icon: faMicrophone, path: '/sermons' },
+        { id: 'prayer', label: 'Prayer Request', icon: faPrayingHands, path: '/prayer-request' },
         { id: 'directory', label: 'Members', icon: faUsers },
         { id: 'profile', label: 'Profile', icon: faUser },
     ];
@@ -246,14 +244,8 @@ export default function MemberDashboard() {
     return (
         <div className="min-h-screen bg-mdSurface flex">
             <Sidebar 
-                activeTab={activeTab === 'prayer' ? 'home' : activeTab} 
-                setActiveTab={(tab) => {
-                    if (tab === 'prayer') {
-                        setIsPrayerModalOpen(true);
-                    } else {
-                        setActiveTab(tab);
-                    }
-                }} 
+                activeTab={activeTab} 
+                setActiveTab={setActiveTab} 
                 tabs={dashboardTabs} 
                 isOpen={isSidebarOpen} 
                 setIsOpen={setIsSidebarOpen} 
@@ -262,6 +254,8 @@ export default function MemberDashboard() {
                 userEmail={memberData?.email}
                 onLogout={handleLogout}
                 profilePictureUrl={memberData?.profilePictureUrl || memberData?.profile_picture_url}
+                unreadCount={unreadCount}
+                onNotificationClick={() => setActiveTab('notifications')}
             />
 
             <div className="flex-1 flex flex-col min-w-0 md:pl-72 transition-all duration-300">
@@ -278,13 +272,28 @@ export default function MemberDashboard() {
 
                 {/* Header Area */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 px-4 md:px-0 mt-4 md:mt-0">
-                    <div>
-                        <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2">
-                            Member Dashboard
-                        </h1>
-                        <p className="text-mdOnSurfaceVariant font-medium text-lg">
-                            Welcome back, <span className="text-mdPrimary font-bold">{memberName}</span>.
-                        </p>
+                    <div className="flex items-center gap-6">
+                        <div className="relative group">
+                            {memberData?.profilePictureUrl || memberData?.profile_picture_url ? (
+                                <img 
+                                    src={memberData?.profilePictureUrl || memberData?.profile_picture_url} 
+                                    alt="Profile" 
+                                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-mdPrimaryContainer shadow-md1 transition-transform group-hover:scale-105 duration-300"
+                                />
+                            ) : (
+                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-mdPrimary text-white flex items-center justify-center text-3xl font-black shadow-md">
+                                    {memberName.charAt(0)}
+                                </div>
+                            )}
+                        </div>
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-1">
+                                {memberName}
+                            </h1>
+                            <p className="text-mdPrimary font-black text-lg uppercase tracking-widest bg-mdPrimary/5 px-4 py-1 rounded-full w-max">
+                                Church Member
+                            </p>
+                        </div>
                     </div>
 
                     <div className="relative">
@@ -373,125 +382,10 @@ export default function MemberDashboard() {
                 )}
 
                 <div className="max-w-[1600px] mx-auto w-full px-4 md:px-0">
-      {/* Detail View Modal */}
-            {selectedItem && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-fade-in">
-                    <div className="bg-white rounded-[2.5rem] shadow-premium max-w-2xl w-full mx-auto relative overflow-hidden flex flex-col max-h-[90vh]">
-                        {/* Modal Header/Decorative */}
-                        <div className={`h-32 w-full shrink-0 relative ${
-                            modalType === 'event' ? 'bg-gradient-to-r from-accent to-accent-dark' : 
-                            modalType === 'announcement' ? 'bg-gradient-to-r from-secondary to-blue-900' : 
-                            'bg-gradient-to-r from-primary to-teal-800'
-                        }`}>
-                            <button 
-                                onClick={() => setSelectedItem(null)}
-                                className="absolute top-6 right-6 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10"
-                            >
-                                <span className="text-2xl">&times;</span>
-                            </button>
-                            <div className="absolute -bottom-10 left-10 w-20 h-20 rounded-3xl bg-white shadow-lifted flex items-center justify-center text-3xl">
-                                <FontAwesomeIcon 
-                                    icon={modalType === 'event' ? faCalendarAlt : modalType === 'announcement' ? faBullhorn : faMicrophone} 
-                                    className={modalType === 'event' ? 'text-accent' : modalType === 'announcement' ? 'text-secondary' : 'text-primary'}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="p-10 pt-16 overflow-y-auto">
-                            <h3 className="text-3xl font-black text-onSurface mb-4 leading-tight">
-                                {selectedItem.title}
-                            </h3>
-                            
-                            <div className="flex flex-wrap gap-4 mb-8">
-                                {modalType === 'event' && selectedItem.event_date && (
-                                    <div className="flex items-center gap-2 bg-accent/10 text-accent-dark px-4 py-2 rounded-full font-bold text-sm">
-                                        <FontAwesomeIcon icon={faClock} />
-                                        {new Date(selectedItem.event_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                                    </div>
-                                )}
-                                {selectedItem.location && (
-                                    <div className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-full font-bold text-sm">
-                                        <FontAwesomeIcon icon={faMapMarkerAlt} />
-                                        {selectedItem.location}
-                                    </div>
-                                )}
-                                {selectedItem.speaker && (
-                                    <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm">
-                                        <FontAwesomeIcon icon={faUser} />
-                                        {selectedItem.speaker}
-                                    </div>
-                                )}
-                                {selectedItem.sermonDate && (
-                                    <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm">
-                                        <FontAwesomeIcon icon={faCalendarAlt} />
-                                        {new Date(selectedItem.sermonDate).toLocaleDateString()}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="space-y-6">
-                                <p className="text-onSurface-variant text-lg leading-relaxed whitespace-pre-line">
-                                    {selectedItem.description || selectedItem.message}
-                                </p>
-                                
-                                {modalType === 'sermon' && (
-                                    <div className="flex flex-col gap-4 pt-4">
-                                        {selectedItem.audioUrl && (
-                                            <a 
-                                                href={selectedItem.audioUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-3 bg-mdPrimary text-mdOnPrimary px-8 py-4 rounded-full font-bold shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all w-max"
-                                            >
-                                                <FontAwesomeIcon icon={faMicrophone} />
-                                                Listen to Sermon
-                                            </a>
-                                        )}
-                                        {selectedItem.videoUrl && (
-                                            <a 
-                                                href={selectedItem.videoUrl} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-3 bg-mdSecondary text-mdOnSecondary px-8 py-4 rounded-full font-bold shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all w-max"
-                                            >
-                                                <FontAwesomeIcon icon={faVideo} />
-                                                Watch Sermon
-                                            </a>
-                                        )}
-                                    </div>
-                                )}
-                                
-                                {selectedItem.file_url && (
-                                    <a 
-                                        href={selectedItem.file_url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-3 bg-secondary text-white px-8 py-4 rounded-full font-bold shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all"
-                                    >
-                                        <FontAwesomeIcon icon={faFileAlt} />
-                                        View Attached Document
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <div className="p-8 border-t border-gray-100 bg-gray-50 shrink-0">
-                            <button 
-                                onClick={() => setSelectedItem(null)}
-                                className="w-full bg-onSurface text-white py-4 rounded-full font-bold shadow-premium hover:shadow-lifted transition-all"
-                            >
-                                Close Detail
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Content Area */}
-            <div className="max-w-7xl mx-auto">
-                {/* Home Tab */}
-                {activeTab === 'home' && (
+                {/* Content Area */}
+                <div className="max-w-7xl mx-auto">
+                    {/* Home Tab */}
+                    {activeTab === 'home' && (
                     <div className="space-y-8 animate-fade-in">
                         {/* Welcome Section */}
                         <div className="bg-mdPrimaryContainer px-8 py-10 rounded-[2rem] shadow-sm mb-8 border border-white/40 relative overflow-hidden">
@@ -509,137 +403,113 @@ export default function MemberDashboard() {
                             </div>
                         </div>
 
-                        {/* Daily Bible Verse */}
-                        <div className="mb-8">
-                            <DailyVerse />
-                        </div>
-                    </div>
-                )}
-
-                {/* Announcements Tab */}
-                {activeTab === 'announcements' && (
-                    <div className="space-y-6 animate-fade-in">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-secondary/10 p-4 rounded-2xl">
-                                <FontAwesomeIcon icon={faBullhorn} className="text-2xl text-secondary" />
-                            </div>
-                            <h2 className="text-3xl font-extrabold text-secondary tracking-tight">Recent Announcements</h2>
-                        </div>
-                        {announcements.length > 0 ? (
-                            <div className="grid gap-6">
-                                {announcements.map((announcement) => (
+                                {/* Quick Links / Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                                     <div 
-                                        key={announcement.id} 
-                                        onClick={() => { setSelectedItem(announcement); setModalType('announcement'); }}
-                                        className="bg-white p-8 rounded-[2rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                                        onClick={() => navigate('/sermons')}
+                                        className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
                                     >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <h3 className="font-black text-2xl text-onSurface group-hover:text-secondary transition-colors">{announcement.title}</h3>
-                                            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <FontAwesomeIcon icon={faChevronRight} />
-                                            </div>
+                                        <div className="w-16 h-16 bg-mdPrimary/10 rounded-2xl flex items-center justify-center text-mdPrimary text-2xl mb-6 group-hover:scale-110 transition-transform">
+                                            <FontAwesomeIcon icon={faMicrophone} />
                                         </div>
-                                        <p className="text-onSurface-variant text-base leading-relaxed line-clamp-3">{announcement.message}</p>
+                                        <h3 className="text-2xl font-black text-mdOnSurface mb-2">Latest Sermons</h3>
+                                        <p className="text-mdOnSurfaceVariant font-medium">Watch and listen to recent messages.</p>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white/50 border border-white/40 rounded-[2rem] p-16 text-center">
-                                <p className="text-onSurface-variant text-lg font-medium">No announcements at this time.</p>
+
+                                    <div 
+                                        onClick={() => navigate('/events')}
+                                        className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                                    >
+                                        <div className="w-16 h-16 bg-mdSecondary/10 rounded-2xl flex items-center justify-center text-mdSecondary text-2xl mb-6 group-hover:scale-110 transition-transform">
+                                            <FontAwesomeIcon icon={faCalendarAlt} />
+                                        </div>
+                                        <h3 className="text-2xl font-black text-mdOnSurface mb-2">Upcoming Events</h3>
+                                        <p className="text-mdOnSurfaceVariant font-medium">Stay updated with church activities.</p>
+                                    </div>
+
+                                    <div 
+                                        onClick={() => navigate('/announcements')}
+                                        className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                                    >
+                                        <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-600 text-2xl mb-6 group-hover:scale-110 transition-transform">
+                                            <FontAwesomeIcon icon={faBullhorn} />
+                                        </div>
+                                        <h3 className="text-2xl font-black text-mdOnSurface mb-2">Announcements</h3>
+                                        <p className="text-mdOnSurfaceVariant font-medium">Important news and updates.</p>
+                                    </div>
+                                </div>
+
+                                {/* Daily Bible Verse */}
+                                <div className="mb-8">
+                                    <DailyVerse />
+                                </div>
                             </div>
                         )}
-                    </div>
-                )}
 
-                {/* Events Tab */}
-                {activeTab === 'events' && (
+
+
+
+                {/* Notifications Tab */}
+                {activeTab === 'notifications' && (
                     <div className="space-y-6 animate-fade-in">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-accent/10 p-4 rounded-2xl">
-                                <FontAwesomeIcon icon={faCalendarAlt} className="text-2xl text-accent-dark" />
+                        <div className="flex justify-between items-center mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-mdPrimary/10 p-4 rounded-2xl">
+                                    <FontAwesomeIcon icon={faBell} className="text-2xl text-mdPrimary" />
+                                </div>
+                                <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Your Notifications</h2>
                             </div>
-                            <h2 className="text-3xl font-extrabold text-accent-dark tracking-tight">Upcoming Events</h2>
+                            {unreadCount > 0 && (
+                                <button 
+                                    onClick={handleMarkAllAsRead}
+                                    className="bg-mdPrimary/10 hover:bg-mdPrimary text-mdPrimary hover:text-white px-6 py-3 rounded-2xl font-black text-sm transition-all active:scale-95"
+                                >
+                                    Mark All as Read
+                                </button>
+                            )}
                         </div>
-                        {events.length > 0 ? (
-                            <div className="grid md:grid-cols-2 gap-8">
-                                {events.map((event) => (
-                                    <div 
-                                        key={event.id} 
-                                        onClick={() => { setSelectedItem(event); setModalType('event'); }}
-                                        className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer group"
-                                    >
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <h3 className="font-black text-2xl text-onSurface group-hover:text-accent-dark transition-colors">{event.title}</h3>
-                                                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent-dark opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <FontAwesomeIcon icon={faChevronRight} />
-                                                </div>
-                                            </div>
-                                            <p className="text-onSurface-variant text-base leading-relaxed line-clamp-4 mb-6">{event.description}</p>
-                                        </div>
-                                        {event.event_date && (
-                                            <div className="mt-auto inline-flex items-center gap-3 bg-accent/10 text-accent-dark px-6 py-3 rounded-full font-black text-sm w-max uppercase tracking-widest shadow-sm">
-                                                <FontAwesomeIcon icon={faClock} />
-                                                {new Date(event.event_date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                                            </div>
-                                        )}
+                        <div className="bg-white dark:bg-mdSurface rounded-[2.5rem] border border-mdOutline/10 overflow-hidden divide-y divide-mdOutline/5 shadow-premium">
+                            {!Array.isArray(notifications) || notifications.length === 0 ? (
+                                <div className="p-20 text-center">
+                                    <div className="w-24 h-24 bg-mdSurfaceVariant/30 rounded-full flex items-center justify-center mx-auto mb-6 opacity-40">
+                                        <FontAwesomeIcon icon={faBell} className="text-4xl text-mdPrimary" />
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white/50 border border-white/40 rounded-[2rem] p-16 text-center">
-                                <p className="text-onSurface-variant text-lg font-medium">No events scheduled at this time.</p>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Sermons Tab */}
-                {activeTab === 'sermons' && (
-                    <div className="space-y-6 animate-fade-in">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="bg-primary/10 p-4 rounded-2xl">
-                                <FontAwesomeIcon icon={faMicrophone} className="text-2xl text-primary" />
-                            </div>
-                            <h2 className="text-3xl font-extrabold text-primary tracking-tight">Sermon Library</h2>
-                        </div>
-                        {sermons.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {sermons.map((sermon) => (
+                                    <p className="text-xl font-black text-mdOnSurface mb-1">All caught up!</p>
+                                    <p className="text-mdOnSurfaceVariant font-medium">You don't have any notifications at the moment.</p>
+                                </div>
+                            ) : (
+                                notifications.map((notif) => (
                                     <div 
-                                        key={sermon.id} 
-                                        onClick={() => { setSelectedItem(sermon); setModalType('sermon'); }}
-                                        className="bg-white p-8 rounded-[2.5rem] shadow-premium border border-white/20 hover:shadow-lifted hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer group"
+                                        key={notif.id} 
+                                        className={`p-8 transition-all duration-300 relative ${!notif.read ? 'bg-mdPrimaryContainer/10 border-l-8 border-mdPrimary' : 'hover:bg-mdSurfaceVariant/5'}`}
                                     >
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <h3 className="font-black text-2xl text-onSurface group-hover:text-primary transition-colors leading-tight">{sermon.title}</h3>
-                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                                    <FontAwesomeIcon icon={faChevronRight} />
-                                                </div>
+                                        <div className="flex justify-between items-start gap-4 mb-3">
+                                            <div className="flex-1">
+                                                <h3 className={`text-xl font-black leading-tight mb-2 ${!notif.read ? 'text-mdPrimary' : 'text-mdOnSurface'}`}>
+                                                    {notif.title}
+                                                </h3>
+                                                <p className="text-lg text-mdOnSurfaceVariant font-medium leading-relaxed">
+                                                    {notif.message}
+                                                </p>
                                             </div>
-                                            <p className="text-onSurface-variant text-sm leading-relaxed mb-6 line-clamp-3">{sermon.description}</p>
-                                        </div>
-                                        <div className="mt-auto space-y-3 pt-6 border-t border-gray-100 text-sm font-bold text-gray-500">
-                                            {sermon.speaker && (
-                                                <p className="flex items-center gap-3">
-                                                    <FontAwesomeIcon icon={faUser} className="text-primary" /> {sermon.speaker}
-                                                </p>
-                                            )}
-                                            {sermon.sermonDate && (
-                                                <p className="flex items-center gap-3">
-                                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-primary" /> {new Date(sermon.sermonDate).toLocaleDateString()}
-                                                </p>
+                                            {!notif.read && (
+                                                <button 
+                                                    onClick={() => handleMarkAsRead(notif.id)}
+                                                    className="shrink-0 w-12 h-12 bg-mdPrimary text-white rounded-2xl flex items-center justify-center shadow-md hover:shadow-md2 transition-all active:scale-90"
+                                                    title="Mark as read"
+                                                >
+                                                    <FontAwesomeIcon icon={faCheck} />
+                                                </button>
                                             )}
                                         </div>
+                                        <div className="flex items-center gap-2 text-xs font-bold text-mdOutline uppercase tracking-widest mt-4">
+                                            <FontAwesomeIcon icon={faClock} className="text-mdPrimary/50" />
+                                            {new Date(notif.createdAt).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="bg-white/50 border border-white/40 rounded-[2rem] p-16 text-center">
-                                <p className="text-onSurface-variant text-lg font-medium">No sermons available yet.</p>
-                            </div>
-                        )}
+                                ))
+                            )}
+                        </div>
                     </div>
                 )}
 

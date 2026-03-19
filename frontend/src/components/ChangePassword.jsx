@@ -153,7 +153,7 @@ export default function ChangePassword({ userType, userId }) {
                 <p className="text-sm text-mdSecondary font-bold">Please verify your email address to continue.</p>
               </div>
               <div>
-                <label className="block text-sm font-bold text-mdOnSurfaceVariant mb-2 ml-1">Enter Your Email</label>
+                <label className="block text-sm font-bold text-mdOnSurfaceVariant mb-2 ml-1">Enter your email</label>
                 <div className="relative">
                   <FontAwesomeIcon icon={faEnvelope} className="absolute left-5 top-1/2 -translate-y-1/2 text-mdOutline" />
                   <input
@@ -261,7 +261,10 @@ export default function ChangePassword({ userType, userId }) {
             className={`w-full py-4 rounded-full font-black text-lg shadow-md1 hover:shadow-md2 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3 ${loading ? 'bg-mdOutline/20 text-mdOutline' : 'bg-mdSecondary text-white'}`}
           >
             {loading ? (
-              <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+              <>
+                <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                {step === 1 ? 'Sending...' : step === 2 ? 'Verifying...' : 'Updating...'}
+              </>
             ) : (
               <>
                 {step === 1 && <><FontAwesomeIcon icon={faEnvelope} /> Send Verification Code</>}

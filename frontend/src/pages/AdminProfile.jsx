@@ -12,8 +12,9 @@ export default function AdminProfile() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [previewUrl, setPreviewUrl] = useState(null);
-    const [history, setHistory] = useState([]);
     const [fetchingHistory, setFetchingHistory] = useState(false);
+    const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+    const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
     const adminId = sessionStorage.getItem('userId');
 
     const getDefaultAvatar = (gender, name) => {
@@ -79,6 +80,7 @@ export default function AdminProfile() {
         try {
             setError('');
             setSuccess('');
+            setIsUpdatingProfile(true);
             const updateData = {
                 phoneNumber: formData.phoneNumber,
                 bio: formData.bio,
@@ -95,6 +97,8 @@ export default function AdminProfile() {
             }
         } catch (err) {
             setError('Error updating profile: ' + err.message);
+        } finally {
+            setIsUpdatingProfile(false);
         }
     };
 
@@ -117,6 +121,7 @@ export default function AdminProfile() {
         try {
             setError('');
             setSuccess('');
+            setIsUploadingPortrait(true);
             
             const formDataObj = new FormData();
             formDataObj.append('file', file);
@@ -134,6 +139,8 @@ export default function AdminProfile() {
             }
         } catch (err) {
             setError('Error uploading profile picture: ' + err.message);
+        } finally {
+            setIsUploadingPortrait(false);
         }
     };
 
@@ -188,12 +195,20 @@ export default function AdminProfile() {
                                         alt="Preview" 
                                         className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-mdPrimary shadow-lifted transition-transform duration-300"
                                     />
-                                    <div className="absolute inset-0 bg-black/20 rounded-full flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-black/40 rounded-full flex flex-col items-center justify-center p-4">
                                         <button 
                                             onClick={handleProfilePictureUpload}
-                                            className="bg-mdPrimary text-white px-4 py-2 rounded-full text-xs font-black shadow-premium hover:bg-mdSecondary transition-all animate-bounce"
+                                            disabled={isUploadingPortrait}
+                                            className="bg-mdPrimary text-white px-4 py-2 rounded-full text-xs font-black shadow-premium hover:bg-mdSecondary transition-all flex items-center gap-2"
                                         >
-                                            UPLOAD NOW
+                                            {isUploadingPortrait ? (
+                                                <>
+                                                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    SAVING...
+                                                </>
+                                            ) : (
+                                                'UPLOAD NOW'
+                                            )}
                                         </button>
                                     </div>
                                     <button 
@@ -291,9 +306,17 @@ export default function AdminProfile() {
 
                                         <button
                                             onClick={handleUpdateProfile}
-                                            className="w-full mt-6 bg-mdPrimary text-mdOnPrimary font-bold py-3 rounded-full hover:bg-mdSecondary shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
+                                            disabled={isUpdatingProfile}
+                                            className="w-full mt-6 bg-mdPrimary text-mdOnPrimary font-bold py-3 rounded-full hover:bg-mdSecondary shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-50"
                                         >
-                                            Save Changes
+                                            {isUpdatingProfile ? (
+                                                <>
+                                                    <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    Saving Details...
+                                                </>
+                                            ) : (
+                                                'Save Changes'
+                                            )}
                                         </button>
                                     </div>
                                 ) : (

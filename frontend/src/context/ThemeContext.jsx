@@ -6,7 +6,7 @@ export function ThemeProvider({ children }) {
     const [theme, setTheme] = useState(() => {
         // Run on initial load
         if (typeof window !== 'undefined') {
-            const savedTheme = localStorage.getItem('appTheme');
+            const savedTheme = sessionStorage.getItem('appTheme');
             if (savedTheme) {
                 return savedTheme;
             }
@@ -19,7 +19,7 @@ export function ThemeProvider({ children }) {
     });
 
     useEffect(() => {
-        localStorage.setItem('appTheme', theme);
+        sessionStorage.setItem('appTheme', theme);
         const root = document.documentElement;
         
         if (theme === 'dark') {

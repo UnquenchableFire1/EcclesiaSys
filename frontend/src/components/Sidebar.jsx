@@ -1,12 +1,14 @@
-import React from 'react';
-import Logo from './Logo';
+import React, { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faSignOutAlt, 
   faChevronLeft, 
   faKey,
-  faUserCircle
+  faKey,
+  faUserCircle,
+  faBell
 } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Sidebar({ 
   activeTab, 
@@ -18,9 +20,25 @@ export default function Sidebar({
   userName, 
   userEmail,
   onLogout,
-  profilePictureUrl 
+  profilePictureUrl,
+  unreadCount = 0,
+  onNotificationClick
 }) {
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Prevent background scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isOpen && window.innerWidth < 768) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const handleLogoutClick = () => {
     setShowLogoutConfirm(true);
@@ -47,7 +65,7 @@ export default function Sidebar({
       `}>
         {/* Brand/Header */}
         <div className="h-24 flex items-center justify-between px-6 border-b border-mdOutline/5 bg-white dark:bg-mdSurface">
-          <Logo />
+          <h2 className="text-2xl font-black text-mdPrimary">EcclesiaSys</h2>
           <button 
             onClick={() => setIsOpen(false)}
             className="md:hidden text-mdPrimary hover:bg-mdPrimary/10 p-2 rounded-xl"
@@ -80,26 +98,61 @@ export default function Sidebar({
 
         {/* Navigation Tabs */}
         <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2 custom-scrollbar">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                if (window.innerWidth < 768) setIsOpen(false);
-              }}
-              className={`
-                w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-200
-                ${activeTab === tab.id 
-                  ? 'bg-mdPrimary text-white shadow-md2 translate-x-1' 
-                  : 'text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/50 hover:text-mdPrimary'}
-              `}
-            >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${activeTab === tab.id ? 'bg-white/20' : 'bg-mdSurfaceVariant/30 group-hover:bg-mdPrimaryContainer'}`}>
-                <FontAwesomeIcon icon={tab.icon} className={activeTab === tab.id ? 'text-white' : 'text-mdPrimary'} />
-              </div>
-              <span className="flex-1 text-left">{tab.label}</span>
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const isActive = tab.path ? location.pathname === tab.path : activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  if (tab.path) {
+                    navigate(tab.path);
+                  } else {
+                    setActiveTab(tab.id);
+                  }
+                  if (window.innerWidth < 768) setIsOpen(false);
+                }}
+                className={`
+                  w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-200
+                  ${isActive 
+                    ? 'bg-mdPrimary text-white shadow-md2 translate-x-1' 
+                    : 'text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/50 hover:text-mdPrimary'}
+                `}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isActive ? 'bg-white/20' : 'bg-mdSurfaceVariant/30 group-hover:bg-mdPrimaryContainer'}`}>
+                  <FontAwesomeIcon icon={tab.icon} className={isActive ? 'text-white' : 'text-mdPrimary'} />
+                </div>
+                <span className="flex-1 text-left">{tab.label}</span>
+              </button>
+            );
+          })}
+
+          {/* New Notifications Tab */}
+          <button
+            onClick={() => {
+              if (onNotificationClick) {
+                onNotificationClick();
+              } else {
+                setActiveTab('notifications');
+              }
+              if (window.innerWidth < 768) setIsOpen(false);
+            }}
+            className={`
+              w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-200 relative
+              ${activeTab === 'notifications' 
+                ? 'bg-accent text-white shadow-md2 translate-x-1' 
+                : 'text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/50 hover:text-accent'}
+            `}
+          >
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${activeTab === 'notifications' ? 'bg-white/20' : 'bg-mdSurfaceVariant/30'}`}>
+              <FontAwesomeIcon icon={faBell} className={activeTab === 'notifications' ? 'text-white' : 'text-accent'} />
+            </div>
+            <span className="flex-1 text-left">Notifications</span>
+            {unreadCount > 0 && (
+              <span className="absolute top-3 right-6 bg-mdError text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm animate-bounce">
+                {unreadCount}
+              </span>
+            )}
+          </button>
 
           {/* Change Password Link */}
           <button

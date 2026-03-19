@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getSermons } from '../services/api';
 import Layout from '../layouts/Layout';
 import analytics from '../services/analyticsTracker';
@@ -12,6 +12,7 @@ export default function Sermons() {
     const [expandedSermon, setExpandedSermon] = useState(null);
     const [filterSpeaker, setFilterSpeaker] = useState('');
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         analytics.trackPageView('Sermons Library');
@@ -75,14 +76,23 @@ export default function Sermons() {
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
                 {/* Header Section */}
                 <div className="mb-10 sm:mb-14">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
-                            <FontAwesomeIcon icon={faMicrophone} className="text-3xl sm:text-4xl text-mdPrimary" />
+                        <div className="flex flex-col gap-4 mb-4">
+                            <button 
+                                onClick={() => navigate(sessionStorage.getItem('userType') === 'admin' ? '/admin' : '/member-dashboard')}
+                                className="w-max flex items-center gap-2 text-mdPrimary font-bold hover:underline mb-2 transition-all"
+                            >
+                                <FontAwesomeIcon icon={faChevronDown} className="rotate-90" />
+                                Back to Dashboard
+                            </button>
+                            <div className="flex items-center gap-4">
+                                <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-2xl">
+                                    <FontAwesomeIcon icon={faMicrophone} className="text-3xl sm:text-4xl text-mdPrimary" />
+                                </div>
+                                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mdOnSurface tracking-tight">
+                                    Sermons
+                                </h1>
+                            </div>
                         </div>
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-mdOnSurface tracking-tight">
-                            Sermons
-                        </h1>
-                    </div>
                     <p className="text-mdOnSurfaceVariant text-xl font-medium max-w-2xl">
                         Watch and listen to inspiring messages from our pastoral team
                     </p>

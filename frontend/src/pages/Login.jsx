@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Logo from '../components/Logo';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt, faEye, faEyeSlash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { login } from '../services/api';
@@ -57,8 +57,8 @@ export default function Login() {
             <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Home
           </a>
           <div className="text-center mb-8">
-              <div className="flex justify-center mb-6">
-                <Logo className="h-16 w-auto" />
+              <div className="flex justify-center mb-6 text-mdPrimary">
+                <h1 className="text-4xl font-black">EcclesiaSys</h1>
               </div>
           </div>
           <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">
