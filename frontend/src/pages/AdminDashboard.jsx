@@ -1351,7 +1351,7 @@ export default function AdminDashboard() {
                                         
                                         <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-mdSurfaceVariant/50">
                                             <p className="text-mdOnSurfaceVariant text-xs font-semibold">
-                                                Added {new Date(sermon.createdAt || sermon.sermonDate).toLocaleDateString()}
+                                                Added {new Date(sermon.uploadedDate || sermon.sermonDate).toLocaleDateString()}
                                             </p>
                                             
                                             <div className="flex gap-2 ml-auto">

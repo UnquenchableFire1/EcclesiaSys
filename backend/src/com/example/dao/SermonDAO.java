@@ -18,7 +18,9 @@ public class SermonDAO {
             "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS speaker VARCHAR(100)",
             "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS sermon_date DATETIME",
             "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS audio_url VARCHAR(500)",
-            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)"
+            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)",
+            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS uploaded_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS uploaded_by INT"
         };
         
         try (Connection conn = DBConnection.getConnection();

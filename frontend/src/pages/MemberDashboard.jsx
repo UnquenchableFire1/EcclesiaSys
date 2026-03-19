@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     getNotifications, 
     markNotificationAsRead, 
-    markNotificationAsRead, 
     markAllNotificationsAsRead,
     changePassword,
     getMemberById
