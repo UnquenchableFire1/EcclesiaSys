@@ -10,6 +10,10 @@ public class Admin {
     
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+    private String profilePictureUrl;
+    private String gender;
+    private String bio;
+    private String phoneNumber;
     private int createdBy;
     private LocalDateTime createdDate;
     private LocalDateTime updatedAt;
@@ -33,6 +37,18 @@ public class Admin {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+    
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
+    
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     public int getCreatedBy() { return createdBy; }
     public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }

@@ -327,5 +327,16 @@ public class MemberDAO {
             e.printStackTrace();
         }
         return 0;
+    public boolean updateMemberPassword(int id, String newPassword) {
+        String query = "UPDATE members SET password = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, newPassword);
+            stmt.setInt(2, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

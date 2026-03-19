@@ -155,6 +155,44 @@ public class MemberProfileController {
             e.printStackTrace();
         }
         
+    @PostMapping("/{id}/change-password")
+    public Map<String, Object> changePassword(@PathVariable int id, @RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String currentPassword = request.get("currentPassword");
+            String newPassword = request.get("newPassword");
+
+            if (currentPassword == null || newPassword == null || currentPassword.isEmpty() || newPassword.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Current and new passwords are required.");
+                return response;
+            }
+
+            MemberDAO memberDao = new MemberDAO();
+            Member member = memberDao.getMemberById(id);
+            if (member == null) {
+                response.put("success", false);
+                response.put("message", "Member not found.");
+                return response;
+            }
+
+            if (!member.getPassword().equals(currentPassword)) {
+                response.put("success", false);
+                response.put("message", "Incorrect current password.");
+                return response;
+            }
+
+            if (memberDao.updateMemberPassword(id, newPassword)) {
+                response.put("success", true);
+                response.put("message", "Password changed successfully.");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to update password.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Server error: " + e.getMessage());
+        }
         return response;
     }
 }

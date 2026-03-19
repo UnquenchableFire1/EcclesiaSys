@@ -9,13 +9,17 @@ import com.example.db.DBConnection;
 public class AdminDAO {
 
     public boolean addAdmin(Admin admin) {
-        String query = "INSERT INTO admins (name, email, password, created_by) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO admins (name, email, password, created_by, profile_picture_url, gender, bio, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, admin.getName());
             stmt.setString(2, admin.getEmail());
             stmt.setString(3, admin.getPassword());
             stmt.setInt(4, admin.getCreatedBy());
+            stmt.setString(5, admin.getProfilePictureUrl());
+            stmt.setString(6, admin.getGender());
+            stmt.setString(7, admin.getBio());
+            stmt.setString(8, admin.getPhoneNumber());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -36,6 +40,10 @@ public class AdminDAO {
                 admin.setEmail(rs.getString("email"));
                 admin.setPassword(rs.getString("password"));
                 admin.setCreatedBy(rs.getInt("created_by"));
+                admin.setProfilePictureUrl(rs.getString("profile_picture_url"));
+                admin.setGender(rs.getString("gender"));
+                admin.setBio(rs.getString("bio"));
+                admin.setPhoneNumber(rs.getString("phone_number"));
                 return admin;
             }
         } catch (SQLException e) {
@@ -57,6 +65,10 @@ public class AdminDAO {
                 admin.setEmail(rs.getString("email"));
                 admin.setPassword(rs.getString("password"));
                 admin.setCreatedBy(rs.getInt("created_by"));
+                admin.setProfilePictureUrl(rs.getString("profile_picture_url"));
+                admin.setGender(rs.getString("gender"));
+                admin.setBio(rs.getString("bio"));
+                admin.setPhoneNumber(rs.getString("phone_number"));
                 return admin;
             }
         } catch (SQLException e) {
@@ -78,6 +90,10 @@ public class AdminDAO {
                 admin.setEmail(rs.getString("email"));
                 admin.setPassword(rs.getString("password"));
                 admin.setCreatedBy(rs.getInt("created_by"));
+                admin.setProfilePictureUrl(rs.getString("profile_picture_url"));
+                admin.setGender(rs.getString("gender"));
+                admin.setBio(rs.getString("bio"));
+                admin.setPhoneNumber(rs.getString("phone_number"));
                 admins.add(admin);
             }
         } catch (SQLException e) {
@@ -87,13 +103,17 @@ public class AdminDAO {
     }
 
     public boolean updateAdmin(Admin admin) {
-        String query = "UPDATE admins SET name = ?, email = ?, password = ? WHERE id = ?";
+        String query = "UPDATE admins SET name = ?, email = ?, password = ?, profile_picture_url = ?, gender = ?, bio = ?, phone_number = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, admin.getName());
             stmt.setString(2, admin.getEmail());
             stmt.setString(3, admin.getPassword());
-            stmt.setInt(4, admin.getId());
+            stmt.setString(4, admin.getProfilePictureUrl());
+            stmt.setString(5, admin.getGender());
+            stmt.setString(6, admin.getBio());
+            stmt.setString(7, admin.getPhoneNumber());
+            stmt.setInt(8, admin.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -121,6 +141,17 @@ public class AdminDAO {
             stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
             return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    public boolean updateAdminPassword(int id, String newPassword) {
+        String query = "UPDATE admins SET password = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, newPassword);
+            stmt.setInt(2, id);
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }

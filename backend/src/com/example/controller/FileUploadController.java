@@ -105,14 +105,25 @@ public class FileUploadController {
     @PostMapping("/profile-picture")
     public Map<String, Object> uploadProfilePicture(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("memberId") int memberId) {
+            @RequestParam(value = "userId", required = false) Integer userId,
+            @RequestParam(value = "memberId", required = false) Integer memberId,
+            @RequestParam(value = "userType", defaultValue = "member") String userType) {
         
         Map<String, Object> response = new HashMap<>();
+        
+        // Handle backward compatibility for memberId
+        int finalUserId = (userId != null) ? userId : (memberId != null ? memberId : 0);
+        
+        if (finalUserId == 0) {
+            response.put("success", false);
+            response.put("message", "User ID is required");
+            return response;
+        }
         
         try {
             // Validate file type
             String fileName = file.getOriginalFilename();
-            if (!fileName.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif)$")) {
+            if (fileName == null || !fileName.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif)$")) {
                 response.put("success", false);
                 response.put("message", "Only JPG, PNG, and GIF files are allowed");
                 return response;
@@ -143,22 +154,35 @@ public class FileUploadController {
                 return response;
             }
 
-            // Update member profile picture in database
-            MemberDAO memberDao = new MemberDAO();
-            Member member = memberDao.getMemberById(memberId);
-            if (member != null) {
-                member.setProfilePictureUrl(fileUrl);
-                if (memberDao.updateMember(member)) {
-                    response.put("success", true);
-                    response.put("message", "Profile picture uploaded successfully");
-                    response.put("profilePictureUrl", fileUrl);
-                } else {
-                    response.put("success", false);
-                    response.put("message", "Failed to save profile picture");
+            // Update user profile picture in database
+            boolean updateSuccess = false;
+            if ("admin".equalsIgnoreCase(userType)) {
+                com.example.dao.AdminDAO adminDao = new com.example.dao.AdminDAO();
+                com.example.model.Admin admin = adminDao.getAdminById(finalUserId);
+                if (admin != null) {
+                    admin.setProfilePictureUrl(fileUrl);
+                    updateSuccess = adminDao.updateAdmin(admin);
                 }
             } else {
+                MemberDAO memberDao = new MemberDAO();
+                Member member = memberDao.getMemberById(finalUserId);
+                if (member != null) {
+                    member.setProfilePictureUrl(fileUrl);
+                    updateSuccess = memberDao.updateMember(member);
+                }
+            }
+
+            if (updateSuccess) {
+                // Save to history
+                com.example.dao.UserProfilePictureDAO historyDao = new com.example.dao.UserProfilePictureDAO();
+                historyDao.addProfilePicture(finalUserId, userType, fileUrl);
+                
+                response.put("success", true);
+                response.put("message", "Profile picture uploaded successfully");
+                response.put("profilePictureUrl", fileUrl);
+            } else {
                 response.put("success", false);
-                response.put("message", "Member not found");
+                response.put("message", "Failed to save profile picture to database");
             }
 
             // Clean up temp file
@@ -174,6 +198,64 @@ public class FileUploadController {
             e.printStackTrace();
         }
 
+        return response;
+    }
+
+    @GetMapping("/profile-picture/history")
+    public Map<String, Object> getProfilePictureHistory(
+            @RequestParam("userId") int userId,
+            @RequestParam(value = "userType", defaultValue = "member") String userType) {
+        
+        Map<String, Object> response = new HashMap<>();
+        try {
+            com.example.dao.UserProfilePictureDAO historyDao = new com.example.dao.UserProfilePictureDAO();
+            java.util.List<String> history = historyDao.getProfilePictureHistory(userId, userType);
+            response.put("success", true);
+            response.put("history", history);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error fetching history: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @PostMapping("/profile-picture/select")
+    public Map<String, Object> selectProfilePicture(
+            @RequestParam("userId") int userId,
+            @RequestParam(value = "userType", defaultValue = "member") String userType,
+            @RequestParam("url") String url) {
+        
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean updateSuccess = false;
+            if ("admin".equalsIgnoreCase(userType)) {
+                com.example.dao.AdminDAO adminDao = new com.example.dao.AdminDAO();
+                com.example.model.Admin admin = adminDao.getAdminById(userId);
+                if (admin != null) {
+                    admin.setProfilePictureUrl(url);
+                    updateSuccess = adminDao.updateAdmin(admin);
+                }
+            } else {
+                MemberDAO memberDao = new MemberDAO();
+                Member member = memberDao.getMemberById(userId);
+                if (member != null) {
+                    member.setProfilePictureUrl(url);
+                    updateSuccess = memberDao.updateMember(member);
+                }
+            }
+
+            if (updateSuccess) {
+                response.put("success", true);
+                response.put("message", "Profile picture updated successfully");
+                response.put("profilePictureUrl", url);
+            } else {
+                response.put("success", false);
+                response.put("message", "User not found or update failed");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
         return response;
     }
 

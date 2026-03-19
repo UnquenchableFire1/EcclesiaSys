@@ -24,8 +24,12 @@ import {
     createAdmin,
     getNotifications, 
     markNotificationAsRead, 
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead,
+    changePassword
 } from '../services/api';
+import Sidebar from '../components/Sidebar';
+import ChangePassword from '../components/ChangePassword';
+import AdminProfile from './AdminProfile';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -45,6 +49,7 @@ import {
     faPrayingHands,
     faCheckCircle,
     faUserShield,
+    faUser,
     faSearch,
     faUserPlus,
     faBell,
@@ -80,7 +85,7 @@ export default function AdminDashboard() {
     const navigate = useNavigate();
 
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState(null);
     const [alertDialog, setAlertDialog] = useState(null);
@@ -427,8 +432,39 @@ export default function AdminDashboard() {
         });
     };
 
+    const dashboardTabs = [
+        { id: 'home', label: 'Overview', icon: faHome },
+        { id: 'members', label: 'Members', icon: faUsers },
+        { id: 'admins', label: 'Admins', icon: faUserShield, hidden: !isSuperAdmin },
+        { id: 'announcements', label: 'Announcements', icon: faBullhorn },
+        { id: 'events', label: 'Events', icon: faCalendarAlt },
+        { id: 'sermons', label: 'Sermons', icon: faMicrophone },
+        { id: 'prayer-requests', label: 'Prayer Requests', icon: faPrayingHands },
+        { id: 'profile', label: 'Profile', icon: faUser },
+    ].filter(t => !t.hidden);
+
     return (
-        <div className="min-h-[80vh] bg-mdSurface outline-none animate-fade-in relative z-10 transition-colors duration-300 py-4">
+        <div className="min-h-screen bg-mdSurface flex">
+            <Sidebar 
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                tabs={dashboardTabs}
+                isOpen={isSidebarOpen}
+                setIsOpen={setIsSidebarOpen}
+                userType="admin"
+                userName={adminName}
+                onLogout={handleLogout}
+            />
+
+            <div className="flex-1 flex flex-col min-w-0 md:pl-72 transition-all duration-300">
+                {/* Mobile Top Bar */}
+                <div className="md:hidden h-16 bg-mdPrimary flex items-center justify-between px-4 text-white sticky top-0 z-50 shadow-md">
+                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-2xl">☰</button>
+                    <span className="font-black tracking-tighter">EcclesiaSys Admin</span>
+                    <div className="w-10"></div>
+                </div>
+
+                <div className="flex-1 p-4 md:p-8 lg:p-12 max-w-[1600px] w-full mx-auto">
             {/* Custom Dialogs */}
             
             {/* Confirm Dialog */}
@@ -504,7 +540,9 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
-            )}            {/* Header Area */}
+            )}
+
+            {/* Header Area */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 px-4 md:px-0">
                 <div>
                     <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2">
@@ -515,131 +553,97 @@ export default function AdminDashboard() {
                     </p>
                 </div>
 
-            </div>
+                <div className="relative">
+                    <button 
+                        onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
+                        className="relative p-4 rounded-2xl bg-mdPrimary text-white shadow-md1 hover:shadow-md2 hover:-translate-y-0.5 transition-all duration-200"
+                        aria-label="Notifications"
+                    >
+                        <FontAwesomeIcon icon={faBell} className="text-xl" />
+                        {unreadCount > 0 && (
+                            <span className="absolute top-1.5 right-1.5 inline-flex items-center justify-center px-2 py-1 text-[10px] font-black leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-mdSecondary rounded-full shadow-sm ring-2 ring-white">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </button>
 
-            {/* Navigation Bar */}
-            <div className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 mx-4 md:mx-0 overflow-hidden mb-10">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="flex justify-between items-center py-4 gap-4">
-                        <div className="flex-1"></div>
-                        
-                        {/* Notifications Dropdown */}
-                        <div className="relative">
-                            <button 
-                                onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
-                                className="relative p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-                                aria-label="Notifications"
-                            >
-                                <FontAwesomeIcon icon={faBell} className="text-xl" />
-                                {unreadCount > 0 && (
-                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-mdSecondary rounded-full">
-                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                    </span>
-                                )}
-                            </button>
-
-                            {isNotificationOpen && (
-                                <>
-                                    <div 
-                                        className="fixed inset-0 z-[100]" 
-                                        onClick={() => setIsNotificationOpen(false)}
-                                    ></div>
-                                    <div className="absolute right-0 mt-4 w-80 sm:w-96 bg-mdSurface text-mdOnSurface rounded-[2rem] shadow-md3 border border-mdOutline/10 overflow-hidden z-[101] animate-fade-in-up">
-                                        <div className="p-5 border-b border-mdOutline/10 flex justify-between items-center bg-mdSurfaceVariant/50">
-                                            <h3 className="font-black text-lg">Notifications</h3>
-                                            {unreadCount > 0 && (
-                                                <button 
-                                                    onClick={handleMarkAllAsRead}
-                                                    className="text-xs font-bold text-mdPrimary hover:underline uppercase tracking-wider"
-                                                >
-                                                    Mark all read
-                                                </button>
-                                            )}
+                    {isNotificationOpen && (
+                        <>
+                            <div className="fixed inset-0 z-[100]" onClick={() => setIsNotificationOpen(false)}></div>
+                            <div className="absolute right-0 mt-4 w-80 sm:w-96 bg-white dark:bg-mdSurface text-mdOnSurface rounded-[2.5rem] shadow-premium border border-mdOutline/10 overflow-hidden z-[101] animate-fade-in-up">
+                                <div className="p-6 border-b border-mdOutline/10 flex justify-between items-center bg-mdSurfaceVariant/20">
+                                    <h3 className="font-black text-xl">Notifications</h3>
+                                    {unreadCount > 0 && (
+                                        <button 
+                                            onClick={handleMarkAllAsRead}
+                                            className="text-xs font-black text-mdPrimary hover:underline uppercase tracking-widest"
+                                        >
+                                            Mark all read
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                    {notifications.length === 0 ? (
+                                        <div className="p-12 text-center">
+                                            <div className="w-20 h-20 bg-mdSurfaceVariant/50 rounded-full flex items-center justify-center mx-auto mb-6 opacity-40">
+                                                <FontAwesomeIcon icon={faBell} className="text-3xl" />
+                                            </div>
+                                            <p className="text-mdOnSurfaceVariant font-black text-lg">No notifications yet</p>
+                                            <p className="text-xs text-mdOnSurfaceVariant/60 mt-2 uppercase tracking-[0.2em] font-bold">Watching over the flock</p>
                                         </div>
-                                        <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
-                                            {notifications.length === 0 ? (
-                                                <div className="p-10 text-center">
-                                                    <div className="w-16 h-16 bg-mdSurfaceVariant rounded-full flex items-center justify-center mx-auto mb-4 opacity-40">
-                                                        <FontAwesomeIcon icon={faBell} className="text-2xl" />
-                                                    </div>
-                                                    <p className="text-mdOnSurfaceVariant font-bold">No notifications yet</p>
-                                                    <p className="text-xs text-mdOnSurfaceVariant/60 mt-1 uppercase tracking-widest">Watching over the flock</p>
+                                    ) : (
+                                        notifications.map((notif) => (
+                                            <div 
+                                                key={notif.id} 
+                                                className={`p-6 border-b border-mdOutline/5 transition-colors duration-200 relative group ${!notif.read ? 'bg-mdPrimaryContainer/10 border-l-4 border-l-mdPrimary' : 'hover:bg-mdSurfaceVariant/10'}`}
+                                            >
+                                                <div className="flex justify-between items-start gap-3 mb-2">
+                                                    <h4 className={`font-black text-base leading-tight ${!notif.read ? 'text-mdPrimary' : 'text-mdOnSurface'}`}>
+                                                        {notif.title}
+                                                    </h4>
+                                                    {!notif.read && (
+                                                        <button 
+                                                            onClick={() => handleMarkAsRead(notif.id)}
+                                                            className="p-2 text-mdPrimary hover:bg-mdPrimary/10 rounded-xl transition-colors"
+                                                            title="Mark as read"
+                                                        >
+                                                            <FontAwesomeIcon icon={faCheck} className="text-xs" />
+                                                        </button>
+                                                    )}
                                                 </div>
-                                            ) : (
-                                                notifications.map((notif) => (
-                                                    <div 
-                                                        key={notif.id} 
-                                                        className={`p-5 border-b border-mdOutline/5 transition-colors duration-200 relative group ${!notif.read ? 'bg-mdPrimaryContainer/10 border-l-4 border-l-mdPrimary' : 'hover:bg-mdSurfaceVariant/30'}`}
-                                                    >
-                                                        <div className="flex justify-between items-start gap-3 mb-2">
-                                                            <h4 className={`font-black text-base leading-tight ${!notif.read ? 'text-mdPrimary' : 'text-mdOnSurface'}`}>
-                                                                {notif.title}
-                                                            </h4>
-                                                            {!notif.read && (
-                                                                <button 
-                                                                    onClick={() => handleMarkAsRead(notif.id)}
-                                                                    className="p-1.5 text-mdPrimary hover:bg-mdPrimary/10 rounded-full transition-colors"
-                                                                    title="Mark as read"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faCheck} className="text-xs" />
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                        <p className="text-sm text-mdOnSurfaceVariant font-medium leading-relaxed mb-3">
-                                                            {notif.message}
-                                                        </p>
-                                                        <div className="flex items-center justify-between">
-                                                            <span className="text-[10px] font-bold text-mdOutline uppercase tracking-widest">
-                                                                {new Date(notif.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                            </span>
-                                                            {notif.read && (
-                                                                <span className="text-mdPrimary/40">
-                                                                    <FontAwesomeIcon icon={faCheckDouble} className="text-[10px]" />
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-
-                        {/* Hamburger Menu Button - Mobile Only */}
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors flex items-center justify-center w-12 h-12"
-                            aria-label="Toggle menu"
-                        >
-                            {mobileMenuOpen ? '✕' : '☰'}
-                        </button>
-
-                        <button
-                            onClick={handleLogout}
-                            className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdPrimary px-4 py-2 sm:px-6 sm:py-2 text-sm md:text-base rounded-full shadow-md1 transition-all duration-200 font-bold flex-shrink-0"
-                        >
-                            {isMobile ? 'Logout' : `Logout (${adminName})`}
-                        </button>
-                    </div>
-
-                    {/* Tabs row */}
-                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
-                         <TabButton tab="home" label="Overview" icon={<FontAwesomeIcon icon={faHome} />} />
-                         <TabButton tab="members" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
-                         {isSuperAdmin && <TabButton tab="admins" label="Admins" icon={<FontAwesomeIcon icon={faUserShield} />} />}
-                         <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
-                         <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
-                         <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
-                         <TabButton tab="prayer-requests" label="Prayer Requests" icon={<FontAwesomeIcon icon={faPrayingHands} />} />
-                    </div>
+                                                <p className="text-sm text-mdOnSurfaceVariant font-medium leading-relaxed mb-4">
+                                                    {notif.message}
+                                                </p>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[10px] font-bold text-mdOutline uppercase tracking-widest">
+                                                        {new Date(notif.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                    {notif.read && (
+                                                        <span className="text-mdPrimary/40">
+                                                            <FontAwesomeIcon icon={faCheckDouble} className="text-[10px]" />
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto">
-                {/* Summary Cards - Only show on Home or at the top of other tabs if preferred, but user wants them to link to tabs */}
-                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
+            </div>
+
+            {/* Change Password Tab */}
+            {activeTab === 'password' && !loading && (
+                <ChangePassword userType="admin" userId={adminId} />
+            )}
+
+            <div className="max-w-[1600px] mx-auto w-full">
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10 px-4 md:px-0">
                     {[
                         { id: 'members', label: 'Members', count: counts.members, icon: faUsers, color: 'bg-mdPrimaryContainer text-mdOnPrimaryContainer' },
                         { id: 'announcements', label: 'Announcements', count: counts.announcements, icon: faBullhorn, color: 'bg-mdSecondaryContainer text-mdOnSecondaryContainer' },
@@ -1407,7 +1411,21 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
-                {/* Prayer Requests Tab */}
+
+            {/* Profile Tab */}
+            {activeTab === 'profile' && !loading && (
+                <div className="space-y-6 animate-fade-in mb-12">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="bg-mdPrimaryContainer p-4 rounded-2xl">
+                            <FontAwesomeIcon icon={faUser} className="text-2xl text-mdPrimary" />
+                        </div>
+                        <h2 className="text-3xl font-extrabold text-mdPrimary tracking-tight">Profile Management</h2>
+                    </div>
+                    <AdminProfile />
+                </div>
+            )}
+
+            {/* Prayer Requests Tab */}
                 {activeTab === 'prayer-requests' && !loading && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="flex items-center gap-4 mb-8">
@@ -1511,6 +1529,7 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 )}
+                </div>
             </div>
         </div>
     );

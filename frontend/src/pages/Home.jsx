@@ -33,7 +33,7 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-mdSecondary opacity-5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4"></div>
         
         <div className="relative z-10 px-6 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-mdPrimary leading-[1.1]">
+          <h1 className="text-3xl md:text-7xl font-black mb-8 tracking-tight text-mdPrimary leading-[1.1]">
             Experience Higher <br/>
             <span className="text-mdSecondary">Connection</span> with God
           </h1>
@@ -44,27 +44,27 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             {!userType ? (
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link to="/register" className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-black px-12 py-5 text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1">
+                <Link to="/register" className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-black px-8 md:px-12 py-4 md:py-5 text-lg md:text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1">
                   Start Your Journey
                 </Link>
-                <Link to="/login" className="w-full sm:w-auto bg-mdSurface/80 backdrop-blur-md border-2 border-mdPrimary/20 hover:border-mdPrimary text-mdPrimary font-black px-12 py-5 text-xl rounded-full transition-all duration-300">
+                <Link to="/login" className="w-full sm:w-auto bg-mdSurface/80 backdrop-blur-md border-2 border-mdPrimary/20 hover:border-mdPrimary text-mdPrimary font-black px-8 md:px-12 py-4 md:py-5 text-lg md:text-xl rounded-full transition-all duration-300">
                   Member Login
                 </Link>
                 <button 
                   onClick={() => setIsPrayerModalOpen(true)}
-                  className="w-full sm:w-auto bg-mdSecondary hover:bg-mdPrimary text-white font-black px-12 py-5 text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1"
+                  className="w-full sm:w-auto bg-mdSecondary hover:bg-mdPrimary text-white font-black px-8 md:px-12 py-4 md:py-5 text-lg md:text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1"
                 >
                   Request Prayer
                 </button>
               </div>
             ) : (
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link to={userType === 'admin' ? '/admin' : '/member-dashboard'} className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-black px-12 py-5 text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1">
+                <Link to={userType === 'admin' ? '/admin' : '/member-dashboard'} className="w-full sm:w-auto bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-black px-8 md:px-12 py-4 md:py-5 text-lg md:text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1">
                   Go to Dashboard
                 </Link>
                 <button 
                   onClick={() => setIsPrayerModalOpen(true)}
-                  className="w-full sm:w-auto bg-mdSecondary hover:bg-mdPrimary text-white font-black px-12 py-5 text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1"
+                  className="w-full sm:w-auto bg-mdSecondary hover:bg-mdPrimary text-white font-black px-8 md:px-12 py-4 md:py-5 text-lg md:text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1"
                 >
                   Request Prayer
                 </button>

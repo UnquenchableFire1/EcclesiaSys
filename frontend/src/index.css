@@ -46,10 +46,15 @@
     --color-md-on-error-container: #FFDAD6;
   }
 
-  body {
-    @apply text-mdOnSurface font-sans antialiased bg-mdSurface;
-    min-height: 100vh;
-  }
+html, body {
+  @apply overflow-x-hidden;
+  width: 100%;
+}
+
+body {
+  @apply text-mdOnSurface font-sans antialiased bg-mdSurface;
+  min-height: 100vh;
+}
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;

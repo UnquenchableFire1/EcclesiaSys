@@ -189,6 +189,15 @@ export const updateProfilePrivacy = (memberId, isPublic) => {
   return api.put(`/member/${memberId}/privacy`, { isProfilePublic: isPublic });
 };
 
+// Admin Profile APIs
+export const getAdminProfile = (adminId) => {
+  return api.get(`/admins/${adminId}`);
+};
+
+export const updateAdminProfile = (adminId, data) => {
+  return api.put(`/admins/${adminId}/profile`, data);
+};
+
 export const getPublicMembers = () => {
   return api.get('/members/public');
 };
@@ -202,7 +211,20 @@ export const submitPrayerRequest = (data) => {
   return api.post('/prayer-requests', data);
 };
 
-export const getPrayerRequests = () => {
+// Profile Picture History
+export const getProfilePictureHistory = (userId, userType) => {
+    return api.get('/upload/profile-picture/history', { // Changed to use 'api' instance
+        params: { userId, userType }
+    });
+};
+
+export const selectProfilePicture = (userId, userType, url) => {
+    return api.post('/upload/profile-picture/select', null, { // Changed to use 'api' instance
+        params: { userId, userType, url }
+    });
+};
+
+export const getPrayerRequests = () => { // Restored original structure, changed to use 'api' instance
   return api.get('/prayer-requests');
 };
 
@@ -225,6 +247,11 @@ export const markNotificationAsRead = (id, memberId) => {
 
 export const markAllNotificationsAsRead = (memberId) => {
   return api.put(`/notifications/member/${memberId}/read-all`);
+};
+
+export const changePassword = (userType, userId, currentPassword, newPassword) => {
+  const endpoint = userType === 'admin' ? `/admins/${userId}/change-password` : `/member/${userId}/change-password`;
+  return api.post(endpoint, { currentPassword, newPassword });
 };
 
 export default api;

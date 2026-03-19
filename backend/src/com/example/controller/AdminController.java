@@ -35,6 +35,57 @@ public class AdminController {
         return response;
     }
 
+    @GetMapping("/{id}")
+    public Map<String, Object> getAdminById(@PathVariable int id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Admin admin = adminDAO.getAdminById(id);
+            if (admin != null) {
+                admin.setPassword(null); // Never send password
+                response.put("success", true);
+                response.put("data", admin);
+            } else {
+                response.put("success", false);
+                response.put("message", "Admin not found");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Server error: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @PutMapping("/{id}/profile")
+    public Map<String, Object> updateAdminProfile(@PathVariable int id, @RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Admin admin = adminDAO.getAdminById(id);
+            if (admin == null) {
+                response.put("success", false);
+                response.put("message", "Admin not found");
+                return response;
+            }
+
+            if (request.containsKey("name")) admin.setName((String) request.get("name"));
+            if (request.containsKey("bio")) admin.setBio((String) request.get("bio"));
+            if (request.containsKey("phoneNumber")) admin.setPhoneNumber((String) request.get("phoneNumber"));
+            if (request.containsKey("gender")) admin.setGender((String) request.get("gender"));
+
+            boolean success = adminDAO.updateAdmin(admin);
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Profile updated successfully");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to update profile");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Server error: " + e.getMessage());
+        }
+        return response;
+    }
+
     @PostMapping
     public Map<String, Object> createAdmin(@RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
@@ -144,6 +195,43 @@ public class AdminController {
             } else {
                 response.put("success", false);
                 response.put("message", "Failed to delete admin or admin not found");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Server error: " + e.getMessage());
+        }
+    @PostMapping("/{id}/change-password")
+    public Map<String, Object> changePassword(@PathVariable int id, @RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String currentPassword = request.get("currentPassword");
+            String newPassword = request.get("newPassword");
+
+            if (currentPassword == null || newPassword == null || currentPassword.isEmpty() || newPassword.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Current and new passwords are required.");
+                return response;
+            }
+
+            Admin admin = adminDAO.getAdminById(id);
+            if (admin == null) {
+                response.put("success", false);
+                response.put("message", "Admin not found.");
+                return response;
+            }
+
+            if (!admin.getPassword().equals(currentPassword)) {
+                response.put("success", false);
+                response.put("message", "Incorrect current password.");
+                return response;
+            }
+
+            if (adminDAO.updateAdminPassword(id, newPassword)) {
+                response.put("success", true);
+                response.put("message", "Password changed successfully.");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to update password.");
             }
         } catch (Exception e) {
             response.put("success", false);

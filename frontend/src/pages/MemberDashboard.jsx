@@ -5,7 +5,14 @@ import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import MemberProfile from './MemberProfile';
 import MemberDirectory from './MemberDirectory';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/api';
+import { 
+    getNotifications, 
+    markNotificationAsRead, 
+    markAllNotificationsAsRead,
+    changePassword
+} from '../services/api';
+import Sidebar from '../components/Sidebar';
+import ChangePassword from '../components/ChangePassword';
 import { 
     faHome, 
     faBullhorn, 
@@ -49,7 +56,7 @@ export default function MemberDashboard() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [modalType, setModalType] = useState(null);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -211,8 +218,37 @@ export default function MemberDashboard() {
         );
     }
 
+    const dashboardTabs = [
+        { id: 'home', label: 'Overview', icon: faHome },
+        { id: 'announcements', label: 'Announcements', icon: faBullhorn },
+        { id: 'events', label: 'Events', icon: faCalendarAlt },
+        { id: 'sermons', label: 'Sermons', icon: faMicrophone },
+        { id: 'directory', label: 'Members', icon: faUsers },
+        { id: 'profile', label: 'Profile', icon: faUser },
+    ];
+
     return (
-        <div className="min-h-[80vh] bg-mdSurface outline-none animate-fade-in relative z-10 transition-colors duration-300 py-4">
+        <div className="min-h-screen bg-mdSurface flex">
+            <Sidebar 
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                tabs={dashboardTabs}
+                isOpen={isSidebarOpen}
+                setIsOpen={setIsSidebarOpen}
+                userType="member"
+                userName={memberName}
+                onLogout={handleLogout}
+            />
+
+            <div className="flex-1 flex flex-col min-w-0 md:pl-72 transition-all duration-300">
+                {/* Mobile Top Bar */}
+                <div className="md:hidden h-16 bg-mdPrimary flex items-center justify-between px-4 text-white sticky top-0 z-50 shadow-md">
+                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-2xl">☰</button>
+                    <span className="font-black tracking-tighter">EcclesiaSys</span>
+                    <div className="w-10"></div>
+                </div>
+
+                <div className="flex-1 p-4 md:p-8 lg:p-12 max-w-[1600px] w-full mx-auto">
             {/* Logout Confirmation Modal */}
             {showLogoutConfirm && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -236,129 +272,26 @@ export default function MemberDashboard() {
                     </div>
                 </div>
             )}
+                </div>
 
-            {/* Navigation Bar */}
-            <div className="bg-mdPrimary text-mdOnPrimary rounded-3xl shadow-md2 mx-4 md:mx-6 overflow-hidden mb-10">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="flex justify-between items-center py-4 gap-4">
-                        <h1 className="text-xl md:text-2xl font-extrabold flex-1 tracking-tight">
+                {/* Header Area */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 px-4 md:px-0 mt-8 md:mt-0">
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2">
                             Member Dashboard
                         </h1>
-                        
-                        {/* Notifications Dropdown */}
-                        <div className="relative">
-                            <button 
-                                onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
-                                className="relative p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-                                aria-label="Notifications"
-                            >
-                                <FontAwesomeIcon icon={faBell} className="text-xl" />
-                                {unreadCount > 0 && (
-                                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-1 text-[10px] font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-mdSecondary rounded-full">
-                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                    </span>
-                                )}
-                            </button>
-
-                            {isNotificationOpen && (
-                                <>
-                                    <div 
-                                        className="fixed inset-0 z-[100]" 
-                                        onClick={() => setIsNotificationOpen(false)}
-                                    ></div>
-                                    <div className="absolute right-0 mt-4 w-80 sm:w-96 bg-mdSurface text-mdOnSurface rounded-[2rem] shadow-md3 border border-mdOutline/10 overflow-hidden z-[101] animate-fade-in-up">
-                                        <div className="p-5 border-b border-mdOutline/10 flex justify-between items-center bg-mdSurfaceVariant/50">
-                                            <h3 className="font-black text-lg">Notifications</h3>
-                                            {unreadCount > 0 && (
-                                                <button 
-                                                    onClick={handleMarkAllAsRead}
-                                                    className="text-xs font-bold text-mdPrimary hover:underline uppercase tracking-wider"
-                                                >
-                                                    Mark all read
-                                                </button>
-                                            )}
-                                        </div>
-                                        <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
-                                            {notifications.length === 0 ? (
-                                                <div className="p-10 text-center">
-                                                    <div className="w-16 h-16 bg-mdSurfaceVariant rounded-full flex items-center justify-center mx-auto mb-4 opacity-40">
-                                                        <FontAwesomeIcon icon={faBell} className="text-2xl" />
-                                                    </div>
-                                                    <p className="text-mdOnSurfaceVariant font-bold">Your notification inbox is empty</p>
-                                                    <p className="text-xs text-mdOnSurfaceVariant/60 mt-1 uppercase tracking-widest">Steady as she goes</p>
-                                                </div>
-                                            ) : (
-                                                notifications.map((notif) => (
-                                                    <div 
-                                                        key={notif.id} 
-                                                        className={`p-5 border-b border-mdOutline/5 transition-colors duration-200 relative group ${!notif.read ? 'bg-mdPrimaryContainer/10 border-l-4 border-l-mdPrimary' : 'hover:bg-mdSurfaceVariant/30'}`}
-                                                    >
-                                                        <div className="flex justify-between items-start gap-3 mb-2">
-                                                            <h4 className={`font-black text-base leading-tight ${!notif.read ? 'text-mdPrimary' : 'text-mdOnSurface'}`}>
-                                                                {notif.title}
-                                                            </h4>
-                                                            {!notif.read && (
-                                                                <button 
-                                                                    onClick={() => handleMarkAsRead(notif.id)}
-                                                                    className="p-1.5 text-mdPrimary hover:bg-mdPrimary/10 rounded-full transition-colors"
-                                                                    title="Mark as read"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faCheck} className="text-xs" />
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                        <p className="text-sm text-mdOnSurfaceVariant font-medium leading-relaxed mb-3">
-                                                            {notif.message}
-                                                        </p>
-                                                        <div className="flex items-center justify-between">
-                                                            <span className="text-[10px] font-bold text-mdOutline uppercase tracking-widest">
-                                                                {new Date(notif.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                            </span>
-                                                            {notif.read && (
-                                                                <span className="text-mdPrimary/40">
-                                                                    <FontAwesomeIcon icon={faCheckDouble} className="text-[10px]" />
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-
-                        {/* Hamburger Menu Button - Mobile Only */}
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors flex items-center justify-center w-12 h-12"
-                            aria-label="Toggle menu"
-                        >
-                            {mobileMenuOpen ? '✕' : '☰'}
-                        </button>
-
-                        <button
-                            onClick={handleLogout}
-                            className="bg-mdSurface hover:bg-mdSurfaceVariant text-mdPrimary px-4 py-2 sm:px-6 sm:py-2 text-sm md:text-base rounded-full shadow-md1 transition-all duration-200 font-bold flex-shrink-0"
-                        >
-                            {isMobile ? 'Logout' : `Logout (${memberName})`}
-                        </button>
-                    </div>
-
-                    {/* Tabs row */}
-                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row gap-2 pb-2 md:pb-0 pt-2`}>
-                        <TabButton tab="home" label="Overview" icon={<FontAwesomeIcon icon={faHome} />} />
-                        <TabButton tab="announcements" label="Announcements" icon={<FontAwesomeIcon icon={faBullhorn} />} />
-                        <TabButton tab="events" label="Events" icon={<FontAwesomeIcon icon={faCalendarAlt} />} />
-                        <TabButton tab="sermons" label="Sermons" icon={<FontAwesomeIcon icon={faMicrophone} />} />
-                        <TabButton tab="directory" label="Members" icon={<FontAwesomeIcon icon={faUsers} />} />
-                        <TabButton tab="profile" label="Profile" icon={<FontAwesomeIcon icon={faUser} />} />
+                        <p className="text-mdOnSurfaceVariant font-medium text-lg">
+                            Welcome back, <span className="text-mdPrimary font-bold">{memberName}</span>.
+                        </p>
                     </div>
                 </div>
-            </div>
+                {/* Change Password Tab */}
+                {activeTab === 'password' && !loading && (
+                    <ChangePassword userType="member" userId={sessionStorage.getItem('userId')} />
+                )}
 
-            {/* Detail View Modal */}
+                <div className="max-w-[1600px] mx-auto w-full px-4 md:px-0">
+      {/* Detail View Modal */}
             {selectedItem && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-fade-in">
                     <div className="bg-white rounded-[2.5rem] shadow-premium max-w-2xl w-full mx-auto relative overflow-hidden flex flex-col max-h-[90vh]">
@@ -735,6 +668,7 @@ export default function MemberDashboard() {
 
                 {/* Profile Tab */}
                 {activeTab === 'profile' && <MemberProfile />}
+                </div>
             </div>
             <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
         </div>
