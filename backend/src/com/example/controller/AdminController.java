@@ -210,9 +210,10 @@ public class AdminController {
             String currentPassword = request.get("currentPassword");
             String newPassword = request.get("newPassword");
 
-            if (currentPassword == null || newPassword == null || currentPassword.isEmpty() || newPassword.isEmpty()) {
+            String otp = request.get("otp");
+            if (otp == null || otp.isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Current and new passwords are required.");
+                response.put("message", "Verification code is required.");
                 return response;
             }
 
@@ -220,6 +221,12 @@ public class AdminController {
             if (admin == null) {
                 response.put("success", false);
                 response.put("message", "Admin not found.");
+                return response;
+            }
+
+            if (!VerificationController.isValidOtp(admin.getEmail(), otp)) {
+                response.put("success", false);
+                response.put("message", "Invalid or expired verification code.");
                 return response;
             }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import Logo from './Logo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faSignOutAlt, 
@@ -15,8 +16,15 @@ export default function Sidebar({
   setIsOpen, 
   userType, 
   userName, 
-  onLogout 
+  onLogout,
+  profilePictureUrl 
 }) {
+  const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
+
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
   return (
     <>
       {/* Mobile Backdrop */}
@@ -37,11 +45,11 @@ export default function Sidebar({
         flex flex-col shadow-premium
       `}>
         {/* Brand/Header */}
-        <div className="h-20 flex items-center justify-between px-8 border-b border-mdOutline/5 bg-mdPrimary">
-          <span className="text-2xl font-black tracking-tighter text-white">EcclesiaSys</span>
+        <div className="h-24 flex items-center justify-between px-6 border-b border-mdOutline/5 bg-white dark:bg-mdSurface">
+          <Logo />
           <button 
             onClick={() => setIsOpen(false)}
-            className="md:hidden text-white/80 hover:text-white p-2"
+            className="md:hidden text-mdPrimary hover:bg-mdPrimary/10 p-2 rounded-xl"
           >
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
@@ -50,8 +58,12 @@ export default function Sidebar({
         {/* User Info */}
         <div className="p-6 bg-mdPrimaryContainer/20 border-b border-mdOutline/5">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-mdPrimary flex items-center justify-center text-white shadow-md1">
-              <FontAwesomeIcon icon={faUserCircle} className="text-2xl" />
+            <div className="w-12 h-12 rounded-2xl bg-mdPrimary flex items-center justify-center text-white shadow-md1 overflow-hidden">
+              {profilePictureUrl ? (
+                <img src={profilePictureUrl} alt={userName} className="w-full h-full object-cover" />
+              ) : (
+                <FontAwesomeIcon icon={faUserCircle} className="text-2xl" />
+              )}
             </div>
             <div className="min-w-0">
               <p className="font-black text-mdOnSurface truncate">{userName}</p>
@@ -106,7 +118,7 @@ export default function Sidebar({
         {/* Footer / Logout */}
         <div className="p-6 border-t border-mdOutline/10 bg-mdSurfaceVariant/10">
           <button
-            onClick={onLogout}
+            onClick={handleLogoutClick}
             className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-mdError hover:bg-mdError/10 transition-all duration-200 group"
           >
             <div className="w-10 h-10 rounded-xl bg-mdError/10 flex items-center justify-center group-hover:bg-mdError group-hover:text-white transition-all">
@@ -116,6 +128,31 @@ export default function Sidebar({
           </button>
         </div>
       </aside>
+
+      {/* Logout Confirmation Modal - Higher Z-Index and positioned for Sidebar */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[200] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white dark:bg-mdSurface rounded-3xl shadow-premium p-8 max-w-sm w-full mx-auto border border-mdOutline/10 transform animate-scale-in">
+            <h3 className="text-2xl font-black text-mdOnSurface mb-4 tracking-tight text-center">Confirm Logout</h3>
+            <p className="text-mdOnSurfaceVariant mb-8 text-lg font-medium text-center">Are you sure you want to logout of your account?</p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 bg-mdSurfaceVariant hover:bg-mdOutline/20 text-mdOnSurfaceVariant font-bold py-4 rounded-2xl transition-all duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onLogout}
+                className="flex-1 bg-mdError hover:bg-red-700 text-mdOnError font-bold py-4 rounded-2xl shadow-md1 transition-all duration-200"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

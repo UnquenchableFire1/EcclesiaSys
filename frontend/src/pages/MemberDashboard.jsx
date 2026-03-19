@@ -57,7 +57,6 @@ export default function MemberDashboard() {
     const [modalType, setModalType] = useState(null);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -223,6 +222,7 @@ export default function MemberDashboard() {
         { id: 'announcements', label: 'Announcements', icon: faBullhorn },
         { id: 'events', label: 'Events', icon: faCalendarAlt },
         { id: 'sermons', label: 'Sermons', icon: faMicrophone },
+        { id: 'prayer', label: 'Prayer Request', icon: faPrayingHands },
         { id: 'directory', label: 'Members', icon: faUsers },
         { id: 'profile', label: 'Profile', icon: faUser },
     ];
@@ -230,14 +230,21 @@ export default function MemberDashboard() {
     return (
         <div className="min-h-screen bg-mdSurface flex">
             <Sidebar 
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                tabs={dashboardTabs}
-                isOpen={isSidebarOpen}
-                setIsOpen={setIsSidebarOpen}
+                activeTab={activeTab === 'prayer' ? 'home' : activeTab} 
+                setActiveTab={(tab) => {
+                    if (tab === 'prayer') {
+                        setIsPrayerModalOpen(true);
+                    } else {
+                        setActiveTab(tab);
+                    }
+                }} 
+                tabs={dashboardTabs} 
+                isOpen={isSidebarOpen} 
+                setIsOpen={setIsSidebarOpen} 
                 userType="member"
                 userName={memberName}
                 onLogout={handleLogout}
+                profilePictureUrl={memberData?.profile_picture_url}
             />
 
             <div className="flex-1 flex flex-col min-w-0 md:pl-72 transition-all duration-300">
@@ -249,29 +256,7 @@ export default function MemberDashboard() {
                 </div>
 
                 <div className="flex-1 p-4 md:p-8 lg:p-12 max-w-[1600px] w-full mx-auto">
-            {/* Logout Confirmation Modal */}
-            {showLogoutConfirm && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-mdSurface rounded-3xl shadow-md3 p-8 max-w-sm w-full mx-auto">
-                        <h3 className="text-2xl font-bold text-mdOnSurface mb-4">Confirm Logout</h3>
-                        <p className="text-mdOnSurfaceVariant mb-8 text-lg">Are you sure you want to logout?</p>
-                        <div className="flex gap-4">
-                            <button
-                                onClick={() => setShowLogoutConfirm(false)}
-                                className="flex-1 bg-mdSurfaceVariant hover:bg-mdOutline/20 text-mdOnSurfaceVariant font-bold py-3 rounded-full transition-colors duration-200"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={confirmLogout}
-                                className="flex-1 bg-mdError hover:bg-red-700 text-mdOnError font-bold py-3 rounded-full shadow-md1 transition-all duration-200"
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+
                 </div>
 
                 {/* Header Area */}
@@ -283,6 +268,86 @@ export default function MemberDashboard() {
                         <p className="text-mdOnSurfaceVariant font-medium text-lg">
                             Welcome back, <span className="text-mdPrimary font-bold">{memberName}</span>.
                         </p>
+                    </div>
+
+                    <div className="relative">
+                        <button 
+                            onClick={() => setIsNotificationOpen(!isNotificationOpen)} 
+                            className="relative p-4 rounded-2xl bg-mdPrimary text-white shadow-md1 hover:shadow-md2 hover:-translate-y-0.5 transition-all duration-200"
+                            aria-label="Notifications"
+                        >
+                            <FontAwesomeIcon icon={faBell} className="text-xl" />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1.5 right-1.5 inline-flex items-center justify-center px-2 py-1 text-[10px] font-black leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-mdSecondary rounded-full shadow-sm ring-2 ring-white">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </button>
+
+                        {isNotificationOpen && (
+                            <>
+                                <div className="fixed inset-0 z-[100]" onClick={() => setIsNotificationOpen(false)}></div>
+                                <div className="absolute right-0 mt-4 w-80 sm:w-96 bg-white dark:bg-mdSurface text-mdOnSurface rounded-[2.5rem] shadow-premium border border-mdOutline/10 overflow-hidden z-[101] animate-fade-in-up">
+                                    <div className="p-6 border-b border-mdOutline/10 flex justify-between items-center bg-mdSurfaceVariant/20">
+                                        <h3 className="font-black text-xl">Notifications</h3>
+                                        {unreadCount > 0 && (
+                                            <button 
+                                                onClick={handleMarkAllAsRead}
+                                                className="text-xs font-black text-mdPrimary hover:underline uppercase tracking-widest"
+                                            >
+                                                Mark all read
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                        {!Array.isArray(notifications) || notifications.length === 0 ? (
+                                            <div className="p-12 text-center">
+                                                <div className="w-20 h-20 bg-mdSurfaceVariant/50 rounded-full flex items-center justify-center mx-auto mb-6 opacity-40">
+                                                    <FontAwesomeIcon icon={faBell} className="text-3xl" />
+                                                </div>
+                                                <p className="text-mdOnSurfaceVariant font-black text-lg">No notifications yet</p>
+                                                <p className="text-xs text-mdOnSurfaceVariant/60 mt-2 uppercase tracking-[0.2em] font-bold">Safe and Sound</p>
+                                            </div>
+                                        ) : (
+                                            notifications.map((notif) => (
+                                                <div 
+                                                    key={notif.id} 
+                                                    className={`p-6 border-b border-mdOutline/5 transition-colors duration-200 relative group ${!notif.read ? 'bg-mdPrimaryContainer/10 border-l-4 border-l-mdPrimary' : 'hover:bg-mdSurfaceVariant/10'}`}
+                                                >
+                                                    <div className="flex justify-between items-start gap-3 mb-2">
+                                                        <h4 className={`font-black text-base leading-tight ${!notif.read ? 'text-mdPrimary' : 'text-mdOnSurface'}`}>
+                                                            {notif.title}
+                                                        </h4>
+                                                        {!notif.read && (
+                                                            <button 
+                                                                onClick={() => handleMarkAsRead(notif.id)}
+                                                                className="p-2 text-mdPrimary hover:bg-mdPrimary/10 rounded-xl transition-colors"
+                                                                title="Mark as read"
+                                                            >
+                                                                <FontAwesomeIcon icon={faCheck} className="text-xs" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-sm text-mdOnSurfaceVariant font-medium leading-relaxed mb-4">
+                                                        {notif.message}
+                                                    </p>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[10px] font-bold text-mdOutline uppercase tracking-widest">
+                                                            {new Date(notif.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                        {notif.read && (
+                                                            <span className="text-mdPrimary/40">
+                                                                <FontAwesomeIcon icon={faCheckDouble} className="text-[10px]" />
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
                 {/* Change Password Tab */}
@@ -430,63 +495,6 @@ export default function MemberDashboard() {
                         {/* Daily Bible Verse */}
                         <div className="mb-8">
                             <DailyVerse />
-                        </div>
-
-                        {/* Quick Links with Counts */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            {/* Card 1 */}
-                            <button
-                                onClick={() => { setActiveTab('announcements'); }}
-                                className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
-                            >
-                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6"></div>
-                                <div>
-                                    <p className="text-4xl font-extrabold text-mdPrimary mb-1 tracking-tight">{announcements.length}</p>
-                                    <p className="text-mdOnSurfaceVariant font-semibold text-lg">Announcements</p>
-                                </div>
-                            </button>
-
-                            {/* Card 2 */}
-                            <button
-                                onClick={() => { setActiveTab('events'); }}
-                                className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
-                            >
-                                <div className="bg-mdSecondaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">
-                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-mdSecondary" />
-                                </div>
-                                <div>
-                                    <p className="text-4xl font-extrabold text-mdSecondary mb-1 tracking-tight">{events.length}</p>
-                                    <p className="text-mdOnSurfaceVariant font-semibold text-lg">Events</p>
-                                </div>
-                            </button>
-
-                            {/* Card 3 */}
-                            <button
-                                onClick={() => { setActiveTab('sermons'); sessionStorage.setItem('memberActiveTab', 'sermons'); }}
-                                className="bg-mdSurface rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSurfaceVariant cursor-pointer group flex items-center p-6 h-full text-left"
-                            >
-                                <div className="bg-mdPrimaryContainer w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">
-                                    <FontAwesomeIcon icon={faMicrophone} className="text-mdPrimary" />
-                                </div>
-                                <div>
-                                    <p className="text-4xl font-extrabold text-mdPrimary mb-1 tracking-tight">{sermons.length}</p>
-                                    <p className="text-mdOnSurfaceVariant font-semibold text-lg">Sermons</p>
-                                </div>
-                            </button>
-
-                            {/* Prayer Request Card */}
-                            <button
-                                onClick={() => setIsPrayerModalOpen(true)}
-                                className="bg-mdSecondaryContainer/20 rounded-3xl shadow-sm hover:shadow-md3 transition-all duration-300 border border-mdSecondaryContainer/30 cursor-pointer group flex items-center p-6 h-full text-left backdrop-blur-md"
-                            >
-                                <div className="bg-mdSecondary text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shrink-0 shadow-sm mr-6">
-                                    <FontAwesomeIcon icon={faPrayingHands} />
-                                </div>
-                                <div>
-                                    <p className="text-mdOnSurface font-black text-xl mb-1 tracking-tight">Need Prayer?</p>
-                                    <p className="text-mdOnSurfaceVariant font-semibold text-sm">Submit a request</p>
-                                </div>
-                            </button>
                         </div>
                     </div>
                 )}
@@ -668,10 +676,10 @@ export default function MemberDashboard() {
 
                 {/* Profile Tab */}
                 {activeTab === 'profile' && <MemberProfile />}
-                </div>
             </div>
-            <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
         </div>
+        <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
     </div>
+</div>
     );
 }

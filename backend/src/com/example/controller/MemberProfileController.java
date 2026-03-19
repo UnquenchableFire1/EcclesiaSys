@@ -163,6 +163,13 @@ public class MemberProfileController {
         try {
             String currentPassword = request.get("currentPassword");
             String newPassword = request.get("newPassword");
+            String otp = request.get("otp");
+
+            if (otp == null || otp.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Verification code is required.");
+                return response;
+            }
 
             if (currentPassword == null || newPassword == null || currentPassword.isEmpty() || newPassword.isEmpty()) {
                 response.put("success", false);
@@ -175,6 +182,12 @@ public class MemberProfileController {
             if (member == null) {
                 response.put("success", false);
                 response.put("message", "Member not found.");
+                return response;
+            }
+
+            if (!VerificationController.isValidOtp(member.getEmail(), otp)) {
+                response.put("success", false);
+                response.put("message", "Invalid or expired verification code.");
                 return response;
             }
 

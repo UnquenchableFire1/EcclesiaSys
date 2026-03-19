@@ -98,6 +98,7 @@ export default function AdminDashboard() {
     const [notifications, setNotifications] = useState([]);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [adminProfile, setAdminProfile] = useState(null);
     const { theme, toggleTheme } = useTheme();
 
 
@@ -195,7 +196,8 @@ export default function AdminDashboard() {
                 getEvents(),
                 getSermons(),
                 getPrayerRequests(),
-                axios.get('/api/summary/counts')
+                axios.get('/api/summary/counts'),
+                getAdminProfile(adminId)
             ];
 
             if (isSuperAdmin) {
@@ -209,7 +211,8 @@ export default function AdminDashboard() {
             const sermonsRes = results[3];
             const prayerRequestsRes = results[4];
             const summaryRes = results[5];
-            const adminsRes = isSuperAdmin ? results[6] : null;
+            const adminProfileRes = results[6];
+            const adminsRes = isSuperAdmin ? results[7] : null;
 
             setMembers(membersRes.data?.data || []);
             setAnnouncements(announcementsRes.data?.data || []);
@@ -218,6 +221,9 @@ export default function AdminDashboard() {
             setPrayerRequests(prayerRequestsRes.data?.data || []);
             setCounts(summaryRes.data?.data || { members: 0, events: 0, announcements: 0, sermons: 0, prayerRequests: 0 });
             
+            if (adminProfileRes.data?.success) {
+                setAdminProfile(adminProfileRes.data.data);
+            }
             if (isSuperAdmin && adminsRes) {
                 setAdmins(adminsRes.data?.data || []);
             }
@@ -454,6 +460,7 @@ export default function AdminDashboard() {
                 userType="admin"
                 userName={adminName}
                 onLogout={handleLogout}
+                profilePictureUrl={adminProfile?.profilePictureUrl}
             />
 
             <div className="flex-1 flex flex-col min-w-0 md:pl-72 transition-all duration-300">
@@ -583,7 +590,7 @@ export default function AdminDashboard() {
                                     )}
                                 </div>
                                 <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
-                                    {notifications.length === 0 ? (
+                                    {!Array.isArray(notifications) || notifications.length === 0 ? (
                                         <div className="p-12 text-center">
                                             <div className="w-20 h-20 bg-mdSurfaceVariant/50 rounded-full flex items-center justify-center mx-auto mb-6 opacity-40">
                                                 <FontAwesomeIcon icon={faBell} className="text-3xl" />
@@ -642,33 +649,6 @@ export default function AdminDashboard() {
             )}
 
             <div className="max-w-[1600px] mx-auto w-full">
-                {/* Summary Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10 px-4 md:px-0">
-                    {[
-                        { id: 'members', label: 'Members', count: counts.members, icon: faUsers, color: 'bg-mdPrimaryContainer text-mdOnPrimaryContainer' },
-                        { id: 'announcements', label: 'Announcements', count: counts.announcements, icon: faBullhorn, color: 'bg-mdSecondaryContainer text-mdOnSecondaryContainer' },
-                        { id: 'events', label: 'Events', count: counts.events, icon: faCalendarAlt, color: 'bg-mdPrimaryContainer/60 text-mdOnPrimaryContainer' },
-                        { id: 'sermons', label: 'Sermons', count: counts.sermons, icon: faMicrophone, color: 'bg-mdSecondaryContainer/60 text-mdOnSecondaryContainer' },
-                        { id: 'prayer-requests', label: 'Prayer+', count: counts.prayerRequests, icon: faPrayingHands, color: 'bg-mdPrimaryContainer/40 text-mdOnPrimaryContainer' },
-                    ].map((stat) => (
-                        <button
-                            key={stat.id}
-                            onClick={() => {
-                                setActiveTab(stat.id);
-                            }}
-                            className={`flex flex-col items-center justify-center p-6 rounded-[2.5rem] border-2 transition-all duration-300 group shadow-sm hover:shadow-md2 hover:-translate-y-1 ${
-                                activeTab === stat.id ? 'bg-white border-mdPrimary' : 'bg-white/50 border-transparent'
-                            }`}
-                        >
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 shadow-sm ${stat.color}`}>
-                                <FontAwesomeIcon icon={stat.icon} className="text-xl" />
-                            </div>
-                            <span className="text-4xl font-black text-mdOnSurface leading-none mb-1">{stat.count}</span>
-                            <span className="text-xs font-bold uppercase tracking-widest text-mdOnSurfaceVariant">{stat.label}</span>
-                        </button>
-                    ))}
-                </div>
-
                 {/* Home View Placeholder / Welcome */}
                 {activeTab === 'home' && !loading && (
                     <div className="bg-mdSurface rounded-[3rem] p-12 text-center border-2 border-dashed border-mdOutline/10 animate-fade-in py-20">
@@ -677,7 +657,7 @@ export default function AdminDashboard() {
                          </div>
                          <h2 className="text-4xl font-black text-mdOnSurface mb-4">Welcome, Admin</h2>
                          <p className="text-xl text-mdOnSurfaceVariant max-w-lg mx-auto font-medium">
-                            Select a category above or use the navigation tabs to manage your church community.
+                            Explore the sidebar navigation to manage your church community.
                          </p>
                     </div>
                 )}

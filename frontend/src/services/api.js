@@ -249,9 +249,9 @@ export const markAllNotificationsAsRead = (memberId) => {
   return api.put(`/notifications/member/${memberId}/read-all`);
 };
 
-export const changePassword = (userType, userId, currentPassword, newPassword) => {
+export const changePassword = (userType, userId, currentPassword, newPassword, otp) => {
   const endpoint = userType === 'admin' ? `/admins/${userId}/change-password` : `/member/${userId}/change-password`;
-  return api.post(endpoint, { currentPassword, newPassword });
+  return api.post(endpoint, { currentPassword, newPassword, otp });
 };
 
 export default api;

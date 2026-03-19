@@ -2,6 +2,7 @@ package com.example.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.Statement;
 import com.example.config.ConfigManager;
 
 public class DBConnection {
@@ -41,6 +42,10 @@ public class DBConnection {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(url, username, password);
             conn.setAutoCommit(true);
+            
+            // Run automatic schema fix to ensure consistency
+            runSchemaFix(conn);
+            
             System.out.println("✓ Database connected (" + env + ") with autocommit=true");
             System.out.println("  URL: " + url.substring(0, Math.min(50, url.length())) + "...");
             return conn;
@@ -52,6 +57,28 @@ public class DBConnection {
         return null;
     }
     
+    private static void runSchemaFix(Connection conn) {
+        try (Statement stmt = conn.createStatement()) {
+            // Add missing columns to admins table if they don't exist
+            String[] queries = {
+                "ALTER TABLE admins ADD COLUMN profile_picture_url TEXT",
+                "ALTER TABLE admins ADD COLUMN gender VARCHAR(20)",
+                "ALTER TABLE admins ADD COLUMN bio TEXT",
+                "ALTER TABLE admins ADD COLUMN phone_number VARCHAR(20)"
+            };
+            
+            for (String query : queries) {
+                try {
+                    stmt.execute(query);
+                } catch (Exception e) {
+                    // Ignore "Duplicate column name" errors
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("⚠ Failed to run automatic schema fix: " + e.getMessage());
+        }
+    }
+
     // Test connection
     public static boolean testConnection() {
         try (Connection conn = getConnection()) {
