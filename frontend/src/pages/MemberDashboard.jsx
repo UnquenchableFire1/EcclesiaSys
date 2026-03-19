@@ -672,5 +672,6 @@ export default function MemberDashboard() {
             </div>
             <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
         </div>
+    </div>
     );
 }
