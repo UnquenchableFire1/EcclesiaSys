@@ -71,6 +71,10 @@ export default function AdminProfile() {
                 if (data.profilePictureUrl) {
                     sessionStorage.setItem('profilePictureUrl', data.profilePictureUrl);
                 }
+                if (data.email) {
+                    sessionStorage.setItem('adminEmail', data.email);
+                    sessionStorage.setItem('userEmail', data.email);
+                }
             } else {
                 setError('Failed to load profile');
             }

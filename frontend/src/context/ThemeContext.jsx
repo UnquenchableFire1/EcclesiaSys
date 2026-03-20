@@ -3,34 +3,19 @@ import { createContext, useState, useEffect, useContext } from 'react';
 export const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-    const [theme, setTheme] = useState(() => {
-        // Run on initial load
-        if (typeof window !== 'undefined') {
-            const savedTheme = sessionStorage.getItem('appTheme');
-            if (savedTheme) {
-                return savedTheme;
-            }
-            // Check system preference
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                return 'dark';
-            }
-        }
-        return 'light';
-    });
+    // Force light theme as per user's request to remove dark theme completely
+    const [theme] = useState('light');
 
     useEffect(() => {
-        sessionStorage.setItem('appTheme', theme);
+        // Ensure dark classes are removed from the root
         const root = document.documentElement;
-        
-        if (theme === 'dark') {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-        }
-    }, [theme]);
+        root.classList.remove('dark');
+        sessionStorage.setItem('appTheme', 'light');
+    }, []);
 
     const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+        // No-op since dark theme is removed
+        console.log("Theme toggle is disabled. Light mode is permanent.");
     };
 
     return (
@@ -41,4 +26,3 @@ export function ThemeProvider({ children }) {
 }
 
 export const useTheme = () => useContext(ThemeContext);
-

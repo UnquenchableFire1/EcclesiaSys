@@ -7,6 +7,25 @@ import com.example.model.Admin;
 import com.example.db.DBConnection;
 
 public class AdminDAO {
+    
+    public AdminDAO() {
+        syncAdminEmail();
+    }
+
+    private void syncAdminEmail() {
+        String targetEmail = "benjaminbuckmanjunior@gmail.com";
+        String query = "UPDATE admins SET email = ? WHERE email = 'benjamin@ecclesiasy.com' OR email = 'benjamin@bbj.com' OR id = 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, targetEmail);
+            int updated = stmt.executeUpdate();
+            if (updated > 0) {
+                System.out.println("✓ Synchronized admin email to: " + targetEmail);
+            }
+        } catch (SQLException e) {
+            System.err.println("! Admin email sync skipped: " + e.getMessage());
+        }
+    }
 
     public boolean addAdmin(Admin admin) {
         String query = "INSERT INTO admins (name, email, password, created_by, profile_picture_url, gender, bio, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";

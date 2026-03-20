@@ -6,7 +6,7 @@ import java.sql.Statement;
 
 public class SchemaFix {
     public static void main(String[] args) {
-        System.out.println("Starting Schema Fix...");
+        System.out.println("Starting Schema and Data Fix...");
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             
@@ -39,6 +39,18 @@ public class SchemaFix {
                 System.out.println("✓ Added phone_number to admins");
             } catch (Exception e) {
                 System.out.println("- phone_number already exists or error: " + e.getMessage());
+            }
+
+            // Sync Admin Email to the desired one
+            try {
+                int updated = stmt.executeUpdate("UPDATE admins SET email = 'benjaminbuckmanjunior@gmail.com' WHERE email = 'benjamin@ecclesiasy.com' OR id = 1");
+                if (updated > 0) {
+                    System.out.println("✓ Updated admin email to benjaminbuckmanjunior@gmail.com");
+                } else {
+                    System.out.println("- Admin email already updated or not found");
+                }
+            } catch (Exception e) {
+                System.err.println("! Error updating admin email: " + e.getMessage());
             }
             
             System.out.println("Schema update completed successfully.");

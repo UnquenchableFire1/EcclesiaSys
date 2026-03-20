@@ -7,7 +7,8 @@ import {
     faTrash, faPhone, faEnvelope, faMapMarkerAlt, faVideo, 
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
-    faTimes, faChevronRight, faClock, faLink
+    faTimes, faChevronRight, faClock,  faChartBar,
+  faChevronRight
 } from '@fortawesome/free-solid-svg-icons';
 
 import { 

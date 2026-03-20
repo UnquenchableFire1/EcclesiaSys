@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faHome, faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands,
     faUser, faChevronRight, faClock, faPlayCircle, faCalendarCheck,
-    faArrowRight, faTimes, faCheck, faQuoteLeft, faBookOpen
+    faArrowRight, faTimes, faCheck, faQuoteLeft, faUserEdit, faBookOpen
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 

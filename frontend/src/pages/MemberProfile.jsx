@@ -72,6 +72,10 @@ export default function MemberProfile() {
                 if (response.data.profilePictureUrl) {
                     sessionStorage.setItem('profilePictureUrl', response.data.profilePictureUrl);
                 }
+                if (response.data.email) {
+                    sessionStorage.setItem('memberEmail', response.data.email);
+                    sessionStorage.setItem('userEmail', response.data.email);
+                }
             } else {
                 setError('Failed to load profile');
             }
