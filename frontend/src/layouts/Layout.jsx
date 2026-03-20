@@ -14,7 +14,11 @@ import {
     faUsers, 
     faUser,
     faSignOutAlt,
-    faComments
+    faComments,
+    faUserShield,
+    faUserCircle,
+    faBell,
+    faTimes
 } from '@fortawesome/free-solid-svg-icons';
 import { getNotifications, markNotificationAsRead } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
@@ -108,7 +112,7 @@ export default function Layout({ children }) {
     const handleTabChange = (tabId) => {
         setLayoutActiveTab(tabId);
         const targetDashboard = userType === 'admin' ? '/admin' : '/member-dashboard';
-        const eventName = userType === 'admin' ? 'setActiveTab' : 'setMemberActiveTab';
+        const eventName = 'setActiveTab';
         
         if (location.pathname !== targetDashboard) {
             navigate(targetDashboard);
