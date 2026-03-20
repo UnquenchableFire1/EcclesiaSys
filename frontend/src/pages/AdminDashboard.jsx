@@ -111,10 +111,7 @@ export default function AdminDashboard() {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
     };
 
-    const [profileLoaded, setProfileLoaded] = useState(false);
-
     const fetchAllData = useCallback(async () => {
-        if (!profileLoaded) return;
         setLoading(true);
         try {
             const [mem, ann, eve, ser, pra, cou, adm, bra] = await Promise.all([
@@ -127,20 +124,20 @@ export default function AdminDashboard() {
                 getAdmins(),
                 getBranches()
             ]);
-            setMembers(mem.data.data || mem.data || []);
-            setAnnouncements(ann.data || []);
-            setEvents(eve.data || []);
-            setSermons(ser.data || []);
-            setPrayerRequests(pra.data.data || pra.data || []);
+            setMembers(Array.isArray(mem.data.data) ? mem.data.data : (Array.isArray(mem.data) ? mem.data : []));
+            setAnnouncements(Array.isArray(ann.data.data) ? ann.data.data : (Array.isArray(ann.data) ? ann.data : []));
+            setEvents(Array.isArray(eve.data.data) ? eve.data.data : (Array.isArray(eve.data) ? eve.data : []));
+            setSermons(Array.isArray(ser.data.data) ? ser.data.data : (Array.isArray(ser.data) ? ser.data : []));
+            setPrayerRequests(Array.isArray(pra.data.data) ? pra.data.data : (Array.isArray(pra.data) ? pra.data : []));
             setCounts(cou.data || { members: 0, announcements: 0, events: 0, sermons: 0, prayerRequests: 0 });
-            setAdmins(adm.data.data || adm.data || []);
-            setBranches(bra.data || []);
+            setAdmins(Array.isArray(adm.data.data) ? adm.data.data : (Array.isArray(adm.data) ? adm.data : []));
+            setBranches(Array.isArray(bra.data) ? bra.data : []);
         } catch (err) {
             console.error("Data Load Error:", err);
         } finally {
             setLoading(false);
         }
-    }, [selectedBranchId, profileLoaded]);
+    }, [selectedBranchId]);
 
     const fetchNotifications = async () => {
         try {
@@ -158,14 +155,13 @@ export default function AdminDashboard() {
             const res = await getAdminProfile(adminId);
             if (res.data) {
                 const profile = res.data.data || res.data;
+                setProfileLoaded(true);
                 setAdminData(profile);
-                
                 // If not super admin, lock to their branch
                 const isSuper = profile.role === 'SUPER_ADMIN' || profile.email === 'benjaminbuckmanjunior@gmail.com';
                 if (!isSuper && profile.branchId) {
                     setSelectedBranchId(profile.branchId);
                 }
-                setProfileLoaded(true);
             }
         } catch (err) {
             console.error("Profile Fetch Error:", err);

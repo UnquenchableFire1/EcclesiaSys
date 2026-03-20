@@ -42,8 +42,9 @@ export default function Sermons({ embedded = false, branchId = null }) {
             setLoading(false);
         }
     };
- stories
+
     const handleDelete = (id, e) => {
+
         e.stopPropagation();
         setConfirmModal({
             isOpen: true,
