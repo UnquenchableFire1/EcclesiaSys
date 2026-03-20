@@ -59,6 +59,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
+    const [activeTab, setActiveTabInternal] = useState(() => {
+        return sessionStorage.getItem('adminActiveTab') || 'home';
+    });
+
     const setActiveTab = (tab) => {
         setActiveTabInternal(tab);
         sessionStorage.setItem('adminActiveTab', tab);

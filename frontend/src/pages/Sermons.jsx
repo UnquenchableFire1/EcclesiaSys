@@ -16,11 +16,26 @@ export default function Sermons() {
     useEffect(() => {
         analytics.trackPageView('Sermons Library');
         
+        // Watchdog timeout to prevent indefinite loading
+        const timer = setTimeout(() => {
+            if (loading) {
+                setLoading(false);
+                if (sermons.length === 0) {
+                    console.warn("Loading timed out for sermons.");
+                }
+            }
+        }, 10000);
+
         getSermons().then(response => {
             const data = response.data;
             const fetchedSermons = data.data || data || [];
-            setSermons(Array.isArray(fetchedSermons) ? fetchedSermons : []);
+            if (Array.isArray(fetchedSermons)) {
+                setSermons(fetchedSermons);
+            } else {
+                setSermons([]);
+            }
             setLoading(false);
+            clearTimeout(timer);
 
             // Check for id in query params
             const params = new URLSearchParams(location.search);
@@ -39,7 +54,10 @@ export default function Sermons() {
             console.error('Error fetching sermons:', err);
             analytics.trackError('Failed to load sermons', 'API_ERROR');
             setLoading(false);
+            clearTimeout(timer);
         });
+
+        return () => clearTimeout(timer);
     }, []);
 
     const handleMediaPlay = (sermon, mediaType) => {

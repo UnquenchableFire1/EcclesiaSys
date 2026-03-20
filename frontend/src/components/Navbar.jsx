@@ -108,68 +108,72 @@ export default function Navbar({ isMobile }) {
           {/* Desktop Navigation */}
           {!isMobileView && (
             <div className="flex items-center space-x-2 font-medium">
-              <Link to="/" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/')}`}>Home</Link>
-              {userType && (
-                <>
-                  {!isMobileView && userType === 'member' && (
-                    <>
-                      <Link to="/announcements" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/announcements')}`}>Announcements</Link>
-                      <Link to="/events" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/events')}`}>Events</Link>
-                      <Link to="/sermons" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/sermons')}`}>Sermons</Link>
-                    </>
-                  )}
-                  <Link to={userType === 'admin' ? '/admin' : '/member-dashboard'} className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive(userType === 'admin' ? '/admin' : '/member-dashboard')}`}>
-                    {userType === 'admin' ? 'Admin Dashboard' : 'My Dashboard'}
-                  </Link>
-
-                  <div className="relative ml-2 flex items-center gap-2">
-                    {/* Notifications Dropdown */}
-                    <div className="relative">
-                      <button 
-                          onClick={() => {
-                              setIsNotificationOpen(!isNotificationOpen);
-                              setIsDropdownOpen(false);
-                          }} 
-                          className="relative p-2 rounded-full text-mdOnSurface hover:bg-mdSurfaceVariant transition-colors"
-                          aria-label="Notifications"
-                      >
-                          <FontAwesomeIcon icon={faBell} className="text-xl" />
-                          {unreadCount > 0 && (
-                              <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
-                                  {unreadCount}
-                              </span>
-                          )}
-                      </button>
-                      
-                    </div>
-
-                    <button onClick={() => {
-                        setIsDropdownOpen(!isDropdownOpen);
-                        setIsNotificationOpen(false);
-                    }} className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-mdSurfaceVariant transition-colors duration-200 font-bold text-mdPrimary">
-                      <span>{userName || userType}</span>
-                      <svg className={`w-4 h-4 transform transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.585l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                    {isDropdownOpen && (
-                      <div className="absolute right-0 top-full mt-3 bg-mdSurface border border-mdSurfaceVariant rounded-2xl shadow-md2 py-2 w-48 overflow-hidden z-50">
-                        <button onClick={handleLogout} className="w-full text-left px-5 py-3 hover:bg-mdErrorContainer hover:text-mdError font-medium transition-colors duration-200">Logout</button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
               {!userType && (
                 <>
+                  <Link to="/" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/')}`}>Home</Link>
                   <Link to="/login" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/login')}`}>Login</Link>
                   <Link to="/register" className="ml-2 px-6 py-2 rounded-full bg-mdPrimary text-mdOnPrimary font-semibold hover:bg-mdSecondary hover:shadow-md1 transition-all duration-200">Register</Link>
                 </>
               )}
+
+              {userType && (
+                <div className="relative ml-2 flex items-center gap-4">
+                  {/* Notifications Dropdown */}
+                  <div className="relative">
+                    <button 
+                        onClick={() => {
+                            setIsNotificationOpen(!isNotificationOpen);
+                            setIsDropdownOpen(false);
+                        }} 
+                        className="relative p-2.5 rounded-2xl text-mdOnSurface bg-mdSurfaceVariant/50 hover:bg-mdPrimary hover:text-white transition-all duration-200 shadow-sm"
+                        aria-label="Notifications"
+                    >
+                        <FontAwesomeIcon icon={faBell} className="text-xl" />
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-[10px] font-black leading-none text-white bg-mdSecondary rounded-full shadow-sm ring-2 ring-mdSurface">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </button>
+                  </div>
+
+                  <button onClick={() => {
+                      setIsDropdownOpen(!isDropdownOpen);
+                      setIsNotificationOpen(false);
+                  }} className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-mdPrimary/10 hover:bg-mdPrimary/20 transition-all duration-200 font-extrabold text-mdPrimary group">
+                    <div className="w-8 h-8 rounded-full bg-mdPrimary text-white flex items-center justify-center text-xs font-black shadow-sm group-hover:scale-110 transition-transform">
+                      {userName?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <span>{userName || (userType === 'admin' ? 'Administrator' : 'Member')}</span>
+                    <svg className={`w-4 h-4 transform transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.585l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-4 bg-mdSurface/90 backdrop-blur-xl border border-mdOutline/10 rounded-[2rem] shadow-premium py-3 w-56 overflow-hidden z-50 animate-fade-in-up">
+                      <div className="px-5 py-3 border-b border-mdOutline/5 mb-2">
+                        <p className="text-[10px] font-black text-mdOnSurfaceVariant uppercase tracking-widest leading-none mb-1">Signed in as</p>
+                        <p className="text-sm font-bold text-mdOnSurface truncate">{userName}</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          window.location.href = userType === 'admin' ? '/admin-profile' : '/member-profile';
+                        }}
+                        className="w-full text-left px-5 py-3 hover:bg-mdPrimary/10 hover:text-mdPrimary font-bold text-sm transition-colors duration-200"
+                      >
+                        My Profile
+                      </button>
+                      <button onClick={handleLogout} className="w-full text-left px-5 py-3 hover:bg-mdError/10 hover:text-mdError font-bold text-sm transition-colors duration-200">Logout</button>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {/* Theme Toggle Navbar Button */}
               <button 
                   onClick={toggleTheme} 
-                  className="ml-3 p-2 rounded-full text-mdOnSurface bg-mdSurfaceVariant/50 hover:bg-mdSurfaceVariant transition-colors flex items-center justify-center"
+                  className="ml-2 p-2.5 rounded-2xl text-mdOnSurface bg-mdSurfaceVariant/50 hover:bg-mdPrimary hover:text-white transition-all duration-200 flex items-center justify-center shadow-sm"
                   aria-label="Toggle Theme"
               >
                   <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} className="text-lg" />

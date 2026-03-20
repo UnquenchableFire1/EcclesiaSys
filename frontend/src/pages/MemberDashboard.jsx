@@ -14,7 +14,10 @@ import {
     getNotifications, 
     markNotificationAsRead, 
     markAllNotificationsAsRead,
-    getMemberById
+    getMemberById,
+    getAnnouncements,
+    getEvents,
+    getSermons
 } from '../services/api';
 import ChangePassword from '../components/ChangePassword';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
@@ -123,68 +126,56 @@ export default function MemberDashboard() {
         }
 
         // Get member data
-        const fetchMemberInfo = async () => {
-            try {
-                const response = await getMemberById(userId);
-                if (response.data && response.data.success) {
-                    setMemberData({
-                        ...response.data.data,
-                        email: memberEmail,
-                        userId: userId
-                    });
-                } else {
-                    setMemberData({ email: memberEmail, userId: userId });
-                }
-            } catch (err) {
-                console.error("Failed to fetch member info:", err);
-                setMemberData({ email: memberEmail, userId: userId });
-            }
-        };
-        fetchMemberInfo();
+        const loadDashboardData = async () => {
+            setLoading(true);
+            
+            // Watchdog timeout
+            const timer = setTimeout(() => {
+                setLoading(false);
+            }, 10000);
 
-        // Fetch announcements
-        const fetchAnnouncements = async () => {
             try {
-                const response = await fetch('/api/announcements');
-                if (response.ok) {
-                    const data = await response.json();
-                    setAnnouncements(data.data || data);
-                }
-            } catch (err) {
-                console.error('Error fetching announcements:', err);
-            }
-        };
+                // Member Info
+                try {
+                    const memberRes = await getMemberById(userId);
+                    if (memberRes.data?.success) {
+                        setMemberData({
+                            ...memberRes.data.data,
+                            email: memberEmail,
+                            userId: userId
+                        });
+                    }
+                } catch (e) { console.error("Member info fetch failed", e); }
 
-        // Fetch events
-        const fetchEvents = async () => {
-            try {
-                const response = await fetch('/api/events');
-                if (response.ok) {
-                    const data = await response.json();
-                    setEvents(data.data || data);
-                }
-            } catch (err) {
-                console.error('Error fetching events:', err);
-            }
-        };
+                // Concurrent fetching for library data
+                const [annRes, eveRes, serRes] = await Promise.allSettled([
+                    getAnnouncements(),
+                    getEvents(),
+                    getSermons()
+                ]);
 
-        // Fetch sermons
-        const fetchSermons = async () => {
-            try {
-                const response = await fetch('/api/sermons');
-                if (response.ok) {
-                    const data = await response.json();
-                    setSermons(data.data || data);
+                if (annRes.status === 'fulfilled') {
+                    const d = annRes.value.data;
+                    setAnnouncements(Array.isArray(d?.data) ? d.data : (Array.isArray(d) ? d : []));
                 }
+                if (eveRes.status === 'fulfilled') {
+                    const d = eveRes.value.data;
+                    setEvents(Array.isArray(d?.data) ? d.data : (Array.isArray(d) ? d : []));
+                }
+                if (serRes.status === 'fulfilled') {
+                    const d = serRes.value.data;
+                    setSermons(Array.isArray(d?.data) ? d.data : (Array.isArray(d) ? d : []));
+                }
+
             } catch (err) {
-                console.error('Error fetching sermons:', err);
+                console.error("Dashboard data load failure:", err);
+            } finally {
+                setLoading(false);
+                clearTimeout(timer);
             }
         };
 
-        fetchAnnouncements();
-        fetchEvents();
-        fetchSermons();
-        setLoading(false);
+        loadDashboardData();
     }, [navigate]);
 
     const handleLogout = () => {
