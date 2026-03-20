@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { faSun, faMoon, faCheck, faCheckDouble, faClock, faHeadset, faEnvelope, faHome, faBullhorn, faCalendarAlt, faMicrophone, faUser, faUsers, faPrayingHands, faBell, faVideo } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faSun, faMoon, faCheck, faCheckDouble, faClock, faHeadset, faEnvelope, 
+    faHome, faBullhorn, faCalendarAlt, faMicrophone, faUser, faUsers, 
+    faPrayingHands, faBell, faVideo, faSignOutAlt, faPhone, faChevronRight, 
+    faMapMarkerAlt, faFileAlt 
+} from '@fortawesome/free-solid-svg-icons';
 import MemberProfile from './MemberProfile';
 import MemberDirectory from './MemberDirectory';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,30 +17,6 @@ import {
     getMemberById
 } from '../services/api';
 import ChangePassword from '../components/ChangePassword';
-import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
-import DailyVerse from '../components/DailyVerse';
-import PrayerRequestModal from '../components/PrayerRequestModal';
-import { 
-    faHome, 
-    faBullhorn, 
-    faCalendarAlt, 
-    faMicrophone, 
-    faHeadset, 
-    faUser, 
-    faSignOutAlt,
-    faEnvelope,
-    faPhone,
-    faUsers,
-    faChevronRight,
-    faClock,
-    faMapMarkerAlt,
-    faFileAlt,
-    faPrayingHands,
-    faBell,
-    faCheck,
-    faCheckDouble,
-    faVideo
-} from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import DailyVerse from '../components/DailyVerse';
 import PrayerRequestModal from '../components/PrayerRequestModal';
