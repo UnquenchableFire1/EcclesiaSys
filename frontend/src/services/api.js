@@ -207,7 +207,7 @@ export const getPublicMemberProfile = (memberId) => {
 };
 
 // Prayer Request APIs
-export const submitPrayerRequest = (data) => {
+export const createPrayerRequest = (data) => {
   return api.post('/prayer-requests', data);
 };
 
@@ -247,6 +247,18 @@ export const markNotificationAsRead = (id, memberId) => {
 
 export const markAllNotificationsAsRead = (memberId) => {
   return api.put(`/notifications/member/${memberId}/read-all`);
+};
+
+export const getCounts = () => {
+    return api.get('/stats/counts');
+};
+
+export const toggleMemberStatus = (id) => {
+    return api.put(`/members/${id}/toggle-status`);
+};
+
+export const deleteAdmin = (id) => {
+    return api.delete(`/admins/${id}`);
 };
 
 export const changePassword = (userType, userId, currentPassword, newPassword, otp) => {
