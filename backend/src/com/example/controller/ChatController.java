@@ -4,85 +4,89 @@ import com.example.dao.ChatDAO;
 import com.example.model.ChatMessage;
 import com.example.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@WebServlet("/api/chat/*")
-public class ChatController extends HttpServlet {
+@RestController
+@RequestMapping("/api/chat")
+@CrossOrigin(origins = "*", maxAge = 3600)
+public class ChatController {
     private final ChatDAO chatDAO = new ChatDAO();
-    private final Gson gson = new Gson();
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String pathInfo = req.getPathInfo();
-        resp.setContentType("application/json");
-
-        if ("/conversations".equals(pathInfo)) {
-            int userId = Integer.parseInt(req.getParameter("userId"));
+    @GetMapping("/conversations")
+    public Map<String, Object> getConversations(@RequestParam int userId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
             List<ChatMessage> list = chatDAO.getAdminConversations(userId);
-            resp.getWriter().write(gson.toJson(new ApiResponse(true, "Conversations retrieved", list)));
-        } else if ("/history".equals(pathInfo)) {
-            int user1Id = Integer.parseInt(req.getParameter("user1Id"));
-            int user2Id = Integer.parseInt(req.getParameter("user2Id"));
-            List<ChatMessage> messages = chatDAO.getConversation(user1Id, user2Id);
-            resp.getWriter().write(gson.toJson(new ApiResponse(true, "Messages retrieved", messages)));
+            response.put("success", true);
+            response.put("message", "Conversations retrieved");
+            response.put("data", list);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
         }
+        return response;
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String pathInfo = req.getPathInfo();
-        resp.setContentType("application/json");
+    @GetMapping("/history")
+    public Map<String, Object> getHistory(@RequestParam int user1Id, @RequestParam int user2Id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<ChatMessage> messages = chatDAO.getConversation(user1Id, user2Id);
+            response.put("success", true);
+            response.put("message", "Messages retrieved");
+            response.put("data", messages);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        return response;
+    }
 
-        if ("/send".equals(pathInfo)) {
-            JsonObject data = gson.fromJson(req.getReader(), JsonObject.class);
+    @PostMapping("/send")
+    public Map<String, Object> sendMessage(@RequestBody Map<String, Object> data) {
+        Map<String, Object> response = new HashMap<>();
+        try {
             ChatMessage message = new ChatMessage(
-                data.get("senderId").getAsInt(),
-                "member", // Default, can be refined based on session
-                data.get("receiverId").getAsInt(),
-                "admin",  // Default
-                data.get("content").getAsString()
+                (Integer) data.get("senderId"),
+                "member",
+                (Integer) data.get("receiverId"),
+                "admin",
+                (String) data.get("content")
             );
 
             if (chatDAO.sendMessage(message)) {
-                resp.getWriter().write(gson.toJson(new ApiResponse(true, "Message sent", message)));
+                response.put("success", true);
+                response.put("message", "Message sent");
+                response.put("data", message);
             } else {
-                resp.getWriter().write(gson.toJson(new ApiResponse(false, "Failed to send message", null)));
+                response.put("success", false);
+                response.put("message", "Failed to send message");
             }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
         }
+        return response;
     }
 
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String pathInfo = req.getPathInfo();
-        resp.setContentType("application/json");
-
-        if ("/read".equals(pathInfo)) {
-            int messageId = Integer.parseInt(req.getParameter("messageId"));
-            // We could also mark a whole conversation as read, but for now we follow api.js
+    @PutMapping("/read")
+    public Map<String, Object> markAsRead(@RequestParam int messageId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
             if (chatDAO.markAsRead(messageId)) {
-                resp.getWriter().write(gson.toJson(new ApiResponse(true, "Message marked as read", null)));
+                response.put("success", true);
+                response.put("message", "Message marked as read");
             } else {
-                resp.getWriter().write(gson.toJson(new ApiResponse(false, "Failed to mark as read", null)));
+                response.put("success", false);
+                response.put("message", "Failed to mark as read");
             }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
         }
-    }
-
-    private static class ApiResponse {
-        boolean success;
-        String message;
-        Object data;
-
-        ApiResponse(boolean success, String message, Object data) {
-            this.success = success;
-            this.message = message;
-            this.data = data;
-        }
+        return response;
     }
 }
