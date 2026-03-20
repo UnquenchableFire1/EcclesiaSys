@@ -5,7 +5,7 @@ import {
     faInbox, faClock, faCheck, faCheckDouble, faComments
 } from '@fortawesome/free-solid-svg-icons';
 import { 
-    sendChatMessage, getChatHistory, getConversations, markChatMessageAsRead 
+    sendChatMessage, getChatHistory, getConversations, markChatMessageAsRead, getAdminTeam 
 } from '../services/api';
 
 export default function Chat() {
@@ -21,17 +21,31 @@ export default function Chat() {
 
     // Initial load
     useEffect(() => {
-        if (userType === 'admin') {
-            fetchConversations();
-        } else {
-            // For members, there's only one "conversation" (with the admin team)
-            // We use receiverId = -1 (or any special ID the backend understands as "Admin Team")
-            // Based on our ChatController, we use receiverId=1 for Admin if that's the primary admin,
-            // or we could have a "Support" account. Let's assume receiverId 1 for simplicity for now,
-            // or fetch the first admin.
-            setActiveConversation({ id: 1, name: 'Sanctuary Support', type: 'admin' });
-        }
-        setLoading(false);
+        const initChat = async () => {
+            if (userType === 'admin') {
+                await fetchConversations();
+            } else {
+                // For members, dynamically discover the support admin
+                try {
+                    const res = await getAdminTeam();
+                    if (res.data.success) {
+                        setActiveConversation({ 
+                            id: res.data.adminId, 
+                            name: res.data.adminName || 'Sanctuary Support', 
+                            type: 'admin' 
+                        });
+                    } else {
+                        // Fallback if no admin is found
+                        setActiveConversation({ id: 1, name: 'Sanctuary Support', type: 'admin' });
+                    }
+                } catch (err) {
+                    console.error("Discovery error:", err);
+                    setActiveConversation({ id: 1, name: 'Sanctuary Support', type: 'admin' });
+                }
+            }
+            setLoading(false);
+        };
+        initChat();
     }, [userType, userId]);
 
     // Fetch conversation history when active conversation changes
@@ -54,7 +68,7 @@ export default function Chat() {
         try {
             const res = await getConversations(userId);
             if (res.data.success) {
-                setConversations(res.data.conversations || []);
+                setConversations(res.data.data || res.data.conversations || []);
             }
         } catch (err) {
             console.error("Failed to fetch conversations:", err);
@@ -66,7 +80,7 @@ export default function Chat() {
         try {
             const res = await getChatHistory(userId, activeConversation.id);
             if (res.data.success) {
-                const newMessages = res.data.messages || [];
+                const newMessages = res.data.data || res.data.messages || [];
                 setMessages(newMessages);
                 
                 // Mark unread messages as read
@@ -89,7 +103,9 @@ export default function Chat() {
         try {
             const res = await sendChatMessage({
                 senderId: userId,
+                senderType: userType, // Pass sender type
                 receiverId: activeConversation.id,
+                receiverType: userType === 'admin' ? 'member' : 'admin', // Pass receiver type
                 content: newMessage.trim()
             });
 
@@ -100,6 +116,7 @@ export default function Chat() {
             }
         } catch (err) {
             console.error("Failed to send message:", err);
+            alert("Connection error. The Sanctuary could not transmit your message at this time.");
         } finally {
             setSending(false);
         }

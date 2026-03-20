@@ -1,6 +1,8 @@
 package com.example.controller;
 
+import com.example.dao.AdminDAO;
 import com.example.dao.ChatDAO;
+import com.example.model.Admin;
 import com.example.model.ChatMessage;
 import com.example.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -14,6 +16,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ChatController {
     private final ChatDAO chatDAO = new ChatDAO();
+    private final AdminDAO adminDAO = new AdminDAO();
 
     @GetMapping("/conversations")
     public Map<String, Object> getConversations(@RequestParam int userId) {
@@ -45,16 +48,53 @@ public class ChatController {
         return response;
     }
 
+    @GetMapping("/admin-team")
+    public Map<String, Object> getAdminTeam() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Admin mainAdmin = adminDAO.getAdminByEmail("benjaminbuckmanjunior@gmail.com");
+            if (mainAdmin == null) {
+                // Fallback to the first admin in the system if primary is missing
+                List<Admin> admins = adminDAO.getAllAdmins();
+                if (!admins.isEmpty()) {
+                    mainAdmin = admins.get(0);
+                }
+            }
+            
+            if (mainAdmin != null) {
+                response.put("success", true);
+                response.put("adminId", mainAdmin.getId());
+                response.put("adminName", mainAdmin.getName());
+            } else {
+                response.put("success", false);
+                response.put("message", "No admin available");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        return response;
+    }
+
     @PostMapping("/send")
     public Map<String, Object> sendMessage(@RequestBody Map<String, Object> data) {
         Map<String, Object> response = new HashMap<>();
         try {
+            // Safe numeric extraction from JSON (Jackson parses numbers as Long or Double)
+            int senderId = ((Number) data.get("senderId")).intValue();
+            int receiverId = ((Number) data.get("receiverId")).intValue();
+            String content = (String) data.get("content");
+            
+            // Determine types dynamically or accept them from payload
+            String senderType = (String) data.getOrDefault("senderType", "member");
+            String receiverType = (String) data.getOrDefault("receiverType", "admin");
+
             ChatMessage message = new ChatMessage(
-                (Integer) data.get("senderId"),
-                "member",
-                (Integer) data.get("receiverId"),
-                "admin",
-                (String) data.get("content")
+                senderId,
+                senderType,
+                receiverId,
+                receiverType,
+                content
             );
 
             if (chatDAO.sendMessage(message)) {
@@ -67,7 +107,8 @@ public class ChatController {
             }
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error: " + e.getMessage());
+            response.put("message", "Error casting/extracting data: " + e.getMessage());
+            e.printStackTrace();
         }
         return response;
     }

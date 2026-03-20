@@ -12,7 +12,7 @@ import {
 import { 
     getMemberProfile, getAnnouncements, getEvents, getSermons,
     createPrayerRequest, getNotifications, markNotificationAsRead,
-    markAllNotificationsAsRead, getMembers
+    markAllNotificationsAsRead, getMembers, getPublicMembers
 } from '../services/api';
 
 import Announcements from './Announcements';
@@ -54,8 +54,8 @@ export default function MemberDashboard() {
                 setActiveTab(e.detail);
             }
         };
-        window.addEventListener('setActiveTabMember', handleTabChange);
-        return () => window.removeEventListener('setActiveTabMember', handleTabChange);
+        window.addEventListener('setActiveTab', handleTabChange);
+        return () => window.removeEventListener('setActiveTab', handleTabChange);
     }, []);
 
     const fetchMemberData = async () => {
@@ -64,7 +64,7 @@ export default function MemberDashboard() {
         try {
             const [profileRes, membersRes] = await Promise.all([
                 getMemberProfile(memberId),
-                getMembers()
+                getPublicMembers()
             ]);
             setMemberProfile(profileRes.data?.data || profileRes.data || {});
             setMembers(membersRes.data?.data || membersRes.data || []);

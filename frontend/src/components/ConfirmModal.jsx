@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle, faTrash, faTimes, faCheckCircle, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 export default function ConfirmModal({ 

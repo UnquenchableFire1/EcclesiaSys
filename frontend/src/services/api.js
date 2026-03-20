@@ -279,6 +279,10 @@ export const markChatMessageAsRead = (messageId) => {
   return api.put('/chat/read', null, { params: { messageId } });
 };
 
+export const getAdminTeam = () => {
+    return api.get('/chat/admin-team');
+};
+
 export const changePassword = (userType, userId, currentPassword, newPassword, otp) => {
   const endpoint = userType === 'admin' ? `/admins/${userId}/change-password` : `/member/${userId}/change-password`;
   return api.post(endpoint, { currentPassword, newPassword, otp });

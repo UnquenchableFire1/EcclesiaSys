@@ -70,3 +70,14 @@ CREATE TABLE IF NOT EXISTS events(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY(created_by) REFERENCES admins(id)
 );
+
+CREATE TABLE IF NOT EXISTS chat_messages(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    sender_type VARCHAR(20) NOT NULL,
+    receiver_id INT NOT NULL,
+    receiver_type VARCHAR(20) NOT NULL,
+    content TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT false
+);

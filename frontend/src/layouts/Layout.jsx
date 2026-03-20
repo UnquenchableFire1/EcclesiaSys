@@ -95,7 +95,6 @@ export default function Layout({ children }) {
         { id: 'chat', label: 'Sanctuary Chat', icon: faComments },
         { id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands },
         ...(isSuperAdmin ? [{ id: 'admins', label: 'Commanders', icon: faUserShield }] : []),
-        { id: 'profile', label: 'My Sanctuary', icon: faUser },
     ];
 
     const memberTabs = [
@@ -106,7 +105,6 @@ export default function Layout({ children }) {
         { id: 'sermons', label: 'Sermons', icon: faMicrophone },
         { id: 'chat', label: 'Support Chat', icon: faComments },
         { id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands },
-        { id: 'profile', label: 'My Sanctuary', icon: faUser },
     ];
 
     const handleTabChange = (tabId) => {

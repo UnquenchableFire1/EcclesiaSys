@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -82,8 +82,8 @@ export default function AdminDashboard() {
     // Listen for tab changes from Sidebar
     useEffect(() => {
         const handleTabChange = (e) => { if (e.detail) setActiveTab(e.detail); };
-        window.addEventListener('setActiveTabAdmin', handleTabChange);
-        return () => window.removeEventListener('setActiveTabAdmin', handleTabChange);
+        window.addEventListener('setActiveTab', handleTabChange);
+        return () => window.removeEventListener('setActiveTab', handleTabChange);
     }, []);
 
     // -- Deletion Confirmation State --
