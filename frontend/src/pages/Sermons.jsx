@@ -6,9 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone, faVideo, faCalendarAlt, faUser, faPlay, faDownload, faFilter, faSearch, faChevronDown, faShareAlt, faHeart } from '@fortawesome/free-solid-svg-icons';
 
 export default function Sermons() {
-    const [sermons, setSermons] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [expandedSermon, setExpandedSermon] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [sermons, setSermons] = useState([]);
     const [filterSpeaker, setFilterSpeaker] = useState('');
     const location = useLocation();
     const navigate = useNavigate();

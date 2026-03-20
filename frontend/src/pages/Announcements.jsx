@@ -6,6 +6,9 @@ import { faBullhorn, faDownload } from '@fortawesome/free-solid-svg-icons';
 
 export default function Announcements() {
     const [expandedId, setExpandedId] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [announcements, setAnnouncements] = useState([]);
+    const location = useLocation();
 
     useEffect(() => {
         // Watchdog timeout to prevent indefinite loading

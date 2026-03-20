@@ -6,6 +6,8 @@ import { faCalendarAlt, faMapMarkerAlt, faClock, faDownload } from '@fortawesome
 
 export default function Events() {
     const [expandedEvent, setExpandedEvent] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [events, setEvents] = useState([]);
 
     useEffect(() => {
         // Watchdog timeout to prevent indefinite loading

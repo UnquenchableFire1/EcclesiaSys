@@ -5,9 +5,12 @@ import {
   faChevronLeft, 
   faKey,
   faUserCircle,
-  faBell
+  faBell,
+  faSun,
+  faMoon
 } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Sidebar({ 
   activeTab, 
@@ -23,6 +26,7 @@ export default function Sidebar({
   unreadCount = 0,
   onNotificationClick
 }) {
+  const { theme, toggleTheme } = useTheme();
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -83,7 +87,7 @@ export default function Sidebar({
                 <FontAwesomeIcon icon={faUserCircle} className="text-2xl" />
               )}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="font-black text-mdOnSurface truncate">{userName}</p>
               <p className="text-xs font-bold uppercase tracking-widest text-mdPrimary">{userType === 'admin' ? 'Administrator' : 'Church Member'}</p>
               {userEmail && (
@@ -92,6 +96,13 @@ export default function Sidebar({
                 </p>
               )}
             </div>
+            <button 
+                onClick={toggleTheme}
+                className="w-10 h-10 rounded-xl bg-mdSurfaceVariant/30 flex items-center justify-center text-mdPrimary hover:bg-mdPrimary hover:text-white transition-all duration-300 shadow-sm"
+                title="Toggle Theme"
+            >
+                <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
+            </button>
           </div>
         </div>
 

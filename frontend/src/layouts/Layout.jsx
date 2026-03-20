@@ -78,19 +78,10 @@ export default function Layout({ children }) {
         const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
         events.forEach(event => window.addEventListener(event, handleActivity));
 
-        // Check for inactivity
         const inactivityInterval = setInterval(() => {
             const timeSinceLastActivity = Date.now() - lastActivity;
             if (timeSinceLastActivity > inactivityTimeout) {
-                // Logout user
-                sessionStorage.removeItem('userId');
-                sessionStorage.removeItem('userType');
-                sessionStorage.removeItem('memberEmail');
-                sessionStorage.removeItem('userName');
-                sessionStorage.removeItem('adminActiveTab');
-                sessionStorage.removeItem('memberActiveTab');
-                sessionStorage.removeItem('sessionId');
-                window.location.href = '/login';
+                handleLogout();
             }
         }, 30000); // Check every 30 seconds
 
@@ -100,11 +91,24 @@ export default function Layout({ children }) {
         };
     }, [lastActivity, inactivityTimeout]);
 
+    // Handle back button logout from overview
+    useEffect(() => {
+        const handlePopState = () => {
+            const isDashboardHome = location.pathname === '/admin' || location.pathname === '/member-dashboard';
+            if (isDashboardHome) {
+                handleLogout();
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [location.pathname]);
+
     return (
         <div className="min-h-screen bg-transparent text-mdOnSurface transition-colors duration-300 flex flex-col overflow-x-hidden">
-            <Navbar isMobile={isMobile} />
+            {!userId && <Navbar isMobile={isMobile} />}
             
-            <div className="flex flex-1 pt-16 md:pt-20">
+            <div className={`flex flex-1 ${!userId ? 'pt-16 md:pt-20' : ''}`}>
                 {shouldShowSidebar && (
                     <Sidebar 
                         tabs={userType === 'admin' ? adminTabs : memberTabs}
