@@ -65,8 +65,18 @@ function ProtectedRoute({ requiredRole, children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   if (requiredRole && userType !== requiredRole) {
-    return <Navigate to="/home" />;
+    return userType === 'admin'
+      ? <Navigate to="/admin" replace />
+      : <Navigate to="/member-dashboard" replace />;
   }
+  return children;
+}
+
+// Redirects already-logged-in users away from public pages
+function PublicOnlyRoute({ children }) {
+  const userType = sessionStorage.getItem('userType');
+  if (userType === 'admin') return <Navigate to="/admin" replace />;
+  if (userType === 'member') return <Navigate to="/member-dashboard" replace />;
   return children;
 }
 
@@ -75,11 +85,11 @@ export default function App() {
     <ErrorBoundary>
       <SessionTimer />
       <Routes>
-        <Route path="/" element={<Layout><Home /></Layout>} />
-        <Route path="/home" element={<Layout><Home /></Layout>} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<PublicOnlyRoute><Layout><Home /></Layout></PublicOnlyRoute>} />
+        <Route path="/home" element={<PublicOnlyRoute><Layout><Home /></Layout></PublicOnlyRoute>} />
+        <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+        <Route path="/admin-login" element={<PublicOnlyRoute><AdminLogin /></PublicOnlyRoute>} />
+        <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route

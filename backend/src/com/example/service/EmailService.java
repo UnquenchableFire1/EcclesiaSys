@@ -82,8 +82,7 @@ public class EmailService {
     private boolean sendEmailViaBrevo(String to, String subject, String text) throws Exception {
         if ("null".equals(apiKey) || apiKey == null || apiKey.trim().isEmpty()) {
             logger.warn("Brevo API key is not configured. Email to {} was not sent.", to);
-            // In dev without API key, pretend it sent
-            return true; 
+            return false; 
         }
 
         JSONObject payload = new JSONObject();

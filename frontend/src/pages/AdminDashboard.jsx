@@ -13,7 +13,11 @@ import {
 
 import { 
     getAdminProfile, getCounts, toggleMemberStatus, deleteAdmin,
-    getBranches, createBranch
+    getBranches, createBranch, getMembers, getAnnouncements,
+    getEvents, getSermons, getAdmins, getNotifications,
+    getPrayerRequests, updatePrayerRequestStatus, deletePrayerRequest,
+    deleteMember, createAnnouncement, createEvent, createSermon,
+    createAdmin, promoteMemberToAdmin
 } from '../services/api';
 
 import Announcements from './Announcements';
@@ -58,6 +62,7 @@ export default function AdminDashboard() {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState(null);
     const [alertDialog, setAlertDialog] = useState(null);
+    const [adminData, setAdminData] = useState(null);
 
     // Form States
     const [showAnnForm, setShowAnnForm] = useState(false);
@@ -106,7 +111,10 @@ export default function AdminDashboard() {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
     };
 
+    const [profileLoaded, setProfileLoaded] = useState(false);
+
     const fetchAllData = useCallback(async () => {
+        if (!profileLoaded) return;
         setLoading(true);
         try {
             const [mem, ann, eve, ser, pra, cou, adm, bra] = await Promise.all([
@@ -132,16 +140,42 @@ export default function AdminDashboard() {
         } finally {
             setLoading(false);
         }
-    }, [selectedBranchId]);
+    }, [selectedBranchId, profileLoaded]);
 
     const fetchNotifications = async () => {
         try {
             const res = await getNotifications(adminId);
             const data = res.data?.data || [];
-            setNotifications(data);
-            setUnreadCount(data.filter(n => !n.read).length);
+            if (Array.isArray(data)) {
+                setNotifications(data);
+                setUnreadCount(data.filter(n => !n.read).length);
+            }
         } catch (err) { console.error("Notification Error:", err); }
     };
+
+    const fetchProfile = useCallback(async () => {
+        try {
+            const res = await getAdminProfile(adminId);
+            if (res.data) {
+                const profile = res.data.data || res.data;
+                setAdminData(profile);
+                
+                // If not super admin, lock to their branch
+                const isSuper = profile.role === 'SUPER_ADMIN' || profile.email === 'benjaminbuckmanjunior@gmail.com';
+                if (!isSuper && profile.branchId) {
+                    setSelectedBranchId(profile.branchId);
+                }
+                setProfileLoaded(true);
+            }
+        } catch (err) {
+            console.error("Profile Fetch Error:", err);
+            setProfileLoaded(true); // Proceed even if profile fails, to avoid infinite loading
+        }
+    }, [adminId]);
+
+    useEffect(() => {
+        fetchProfile();
+    }, [fetchProfile]);
 
     useEffect(() => {
         if (!adminId) { navigate('/login'); return; }
@@ -385,7 +419,7 @@ export default function AdminDashboard() {
                                         onChange={(e) => setMemberSearchQuery(e.target.value)}
                                     />
                                 </div>
-                                {isSuperAdmin && (
+                                {(isSuperAdmin || (adminData?.role === 'SUPER_ADMIN')) && (
                                     <select 
                                         value={selectedBranchId || ''} 
                                         onChange={(e) => setSelectedBranchId(e.target.value ? parseInt(e.target.value) : null)}
@@ -396,6 +430,12 @@ export default function AdminDashboard() {
                                             <option key={b.id} value={b.id}>{b.name}</option>
                                         ))}
                                     </select>
+                                )}
+                                {(!isSuperAdmin && adminData?.role !== 'SUPER_ADMIN' && branches.length > 0) && (
+                                    <div className="p-3 bg-mdSecondary/10 text-mdSecondary border-none rounded-xl font-bold text-sm flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faBuilding} className="text-xs" />
+                                        {branches.find(b => b.id === selectedBranchId)?.name || 'Designated Branch'}
+                                    </div>
                                 )}
                                 <button onClick={() => downloadMembersAsExcel(members)} className="p-3 bg-green-600 text-white rounded-xl shadow-sm hover:scale-105 transition-all">
                                     <FontAwesomeIcon icon={faFileExcel} />
