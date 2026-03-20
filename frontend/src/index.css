@@ -133,7 +133,11 @@ body {
   @apply bg-transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-mdOutline/10 rounded-full border-2 border-transparent bg-clip-padding hover:bg-mdPrimary/30 transition-colors;
+  @apply rounded-full border-2 border-transparent bg-clip-padding transition-colors;
+  background-color: color-mix(in srgb, var(--color-md-outline), transparent 90%);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-md-primary), transparent 70%);
 }
 
 /* Animations */
