@@ -79,7 +79,8 @@ body {
   
   .glass-card::before {
     content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none bg-mdPrimary/5;
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none;
+    background-color: color-mix(in srgb, var(--color-md-primary, #006A6A), transparent 95%);
   }
 
   .glass-card:hover::before {
