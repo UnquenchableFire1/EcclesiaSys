@@ -83,7 +83,8 @@ body {
   
   .glass-card::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-tr from-mdPrimary/5 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none;
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none;
+    background: linear-gradient(to top right, var(--color-md-primary-alpha-5, rgba(26, 47, 95, 0.05)), transparent);
   }
 
   .glass-card:hover::before {
@@ -91,7 +92,8 @@ body {
   }
 
   .glass-card:hover {
-    @apply shadow-lifted border-mdPrimary/10 -translate-y-1;
+    @apply shadow-lifted -translate-y-1;
+    border-color: color-mix(in srgb, var(--color-md-primary), transparent 90%);
   }
 
   .text-gradient {
