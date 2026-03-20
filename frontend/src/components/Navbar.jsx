@@ -14,6 +14,7 @@ export default function Navbar({ isMobile }) {
   const [notifications, setNotifications] = useState([]);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
