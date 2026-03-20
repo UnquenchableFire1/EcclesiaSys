@@ -84,9 +84,10 @@ export default function MemberDashboard() {
         const userId = sessionStorage.getItem('userId');
         if (!userId) return;
         try {
-            const data = await getNotifications(userId);
-            setNotifications(data);
-            setUnreadCount(data.filter(n => !n.read).length);
+            const response = await getNotifications(userId);
+            const data = response.data?.data || response.data || [];
+            setNotifications(Array.isArray(data) ? data : []);
+            setUnreadCount(Array.isArray(data) ? data.filter(n => !n.read).length : 0);
         } catch (err) {
             console.error("Failed to fetch notifications:", err);
         }
@@ -541,7 +542,7 @@ export default function MemberDashboard() {
                                             <p className="text-onSurface font-black truncate">Support Team</p>
                                         </div>
                                     </a>
-                                    <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="flex items-center gap-5 p-6 bg-emerald-50 hover:bg-emerald-100 rounded-3xl transition-all duration-300 group">
+                                    <a href="https://wa.me/message/DMJE5W7QXC2MF1" className="flex items-center gap-5 p-6 bg-emerald-50 hover:bg-emerald-100 rounded-3xl transition-all duration-300 group">
                                         <div className="bg-emerald-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lifted transition-transform group-hover:scale-110">
                                             <FontAwesomeIcon icon={faWhatsapp} />
                                         </div>

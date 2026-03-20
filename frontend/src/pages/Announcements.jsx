@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAnnouncements } from '../services/api';
-import Layout from '../layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBullhorn, faDownload } from '@fortawesome/free-solid-svg-icons';
 
@@ -42,17 +41,14 @@ export default function Announcements() {
     }, []);
 
     if (loading) return (
-        <Layout>
-            <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
-                <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin mb-4"></div>
-                <div className="text-mdOnSurfaceVariant font-bold tracking-wide">Loading announcements...</div>
-            </div>
-        </Layout>
+        <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
+            <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin mb-4"></div>
+            <div className="text-mdOnSurfaceVariant font-bold tracking-wide">Loading announcements...</div>
+        </div>
     );
 
     return (
-        <Layout>
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
                 <div className="mb-10 sm:mb-14">
                     <button 
                         onClick={() => navigate(sessionStorage.getItem('userType') === 'admin' ? '/admin' : '/member-dashboard')}
@@ -106,6 +102,6 @@ export default function Announcements() {
                     </div>
                 )}
             </div>
-        </Layout>
+        </div>
     );
 }

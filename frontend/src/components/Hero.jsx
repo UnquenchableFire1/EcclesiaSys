@@ -14,7 +14,7 @@ export default function Hero({ title, subtitle, ctaText, ctaLink = '/', small = 
       );
     }
     return (
-      <a href={ctaLink} className="inline-flex items-center bg-accent text-primary px-6 py-3 rounded-lg font-semibold hover:opacity-95 transition" target="_blank" rel="noopener noreferrer">
+      <a href={ctaLink} className="inline-flex items-center bg-accent text-primary px-6 py-3 rounded-lg font-semibold hover:opacity-95 transition">
         {ctaText}
       </a>
     );

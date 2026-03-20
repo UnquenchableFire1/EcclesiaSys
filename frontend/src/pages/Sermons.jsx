@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getSermons } from '../services/api';
-import Layout from '../layouts/Layout';
 import analytics from '../services/analyticsTracker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMicrophone, faVideo, faCalendarAlt, faUser, faPlay, faDownload, faFilter, faSearch, faChevronDown, faShareAlt, faHeart } from '@fortawesome/free-solid-svg-icons';
@@ -63,17 +62,14 @@ export default function Sermons() {
     const uniqueSpeakers = [...new Set(sermons.map(s => s.speaker).filter(Boolean))];
 
     if (loading) return (
-        <Layout>
-            <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
-                <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin mb-4"></div>
-                <div className="text-mdOnSurfaceVariant font-bold tracking-wide">Loading sermons...</div>
-            </div>
-        </Layout>
+        <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
+            <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin mb-4"></div>
+            <div className="text-mdOnSurfaceVariant font-bold tracking-wide">Loading sermons...</div>
+        </div>
     );
 
     return (
-        <Layout>
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
                 {/* Header Section */}
                 <div className="mb-10 sm:mb-14">
                         <div className="flex flex-col gap-4 mb-4">
@@ -298,6 +294,6 @@ export default function Sermons() {
                     </div>
                 )}
             </div>
-        </Layout>
+        </div>
     );
 }

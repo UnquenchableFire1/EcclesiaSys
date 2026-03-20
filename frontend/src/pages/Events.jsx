@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getEvents } from '../services/api';
-import Layout from '../layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faMapMarkerAlt, faClock, faDownload } from '@fortawesome/free-solid-svg-icons';
 
@@ -42,17 +41,14 @@ export default function Events() {
     }, []);
 
     if (loading) return (
-        <Layout>
-            <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
-                <div className="w-12 h-12 border-4 border-mdSecondary/30 border-t-mdSecondary rounded-full animate-spin mb-4"></div>
-                <div className="text-mdOnSurfaceVariant font-bold tracking-wide">Loading events...</div>
-            </div>
-        </Layout>
+        <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
+            <div className="w-12 h-12 border-4 border-mdSecondary/30 border-t-mdSecondary rounded-full animate-spin mb-4"></div>
+            <div className="text-mdOnSurfaceVariant font-bold tracking-wide">Loading events...</div>
+        </div>
     );
 
     return (
-        <Layout>
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in">
                 <div className="mb-10 sm:mb-14">
                     <button 
                         onClick={() => navigate(sessionStorage.getItem('userType') === 'admin' ? '/admin' : '/member-dashboard')}
@@ -126,6 +122,6 @@ export default function Events() {
                     </div>
                 )}
             </div>
-        </Layout>
+        </div>
     );
 }

@@ -26,7 +26,8 @@ import {
     markNotificationAsRead, 
     markAllNotificationsAsRead,
     changePassword,
-    getAdminProfile
+    getAdminProfile,
+    default as api
 } from '../services/api';
 import Sidebar from '../components/Sidebar';
 import ChangePassword from '../components/ChangePassword';
@@ -143,9 +144,10 @@ export default function AdminDashboard() {
         const userId = sessionStorage.getItem('userId');
         if (!userId) return;
         try {
-            const data = await getNotifications(userId);
-            setNotifications(data);
-            setUnreadCount(data.filter(n => !n.read).length);
+            const response = await getNotifications(userId);
+            const data = response.data?.data || response.data || [];
+            setNotifications(Array.isArray(data) ? data : []);
+            setUnreadCount(Array.isArray(data) ? data.filter(n => !n.read).length : 0);
         } catch (err) {
             console.error("Failed to fetch notifications:", err);
         }

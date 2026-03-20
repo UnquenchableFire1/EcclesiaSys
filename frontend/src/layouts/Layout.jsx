@@ -59,9 +59,9 @@ export default function Layout({ children }) {
         <div className="min-h-screen bg-transparent text-mdOnSurface transition-colors duration-300 flex flex-col overflow-x-hidden">
             <Navbar isMobile={isMobile} />
             
-            <div className="flex flex-1 pt-4 md:pt-6">
+            <div className="flex flex-1 pt-16 md:pt-20">
                 <main className="flex-1 transition-all duration-300">
-                    <div className='p-2 md:p-4 lg:p-6 max-w-7xl mx-auto'>
+                    <div className='p-2 md:p-3 lg:p-4 max-w-7xl mx-auto'>
                         {children}
                     </div>
                 </main>
@@ -83,7 +83,7 @@ export default function Layout({ children }) {
                                     </a>
                                 </p>
                                 <p>
-                                    <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="hover:text-mdPrimary transition-colors duration-200 font-medium flex items-center justify-center md:justify-start gap-2">
+                                    <a href="https://wa.me/message/DMJE5W7QXC2MF1" className="hover:text-mdPrimary transition-colors duration-200 font-medium flex items-center justify-center md:justify-start gap-2">
                                         <FontAwesomeIcon icon={faWhatsapp} /> WhatsApp
                                     </a>
                                 </p>

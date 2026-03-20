@@ -90,6 +90,7 @@ export default function Navbar({ isMobile }) {
   };
 
   const confirmLogout = () => {
+    sessionStorage.clear();
     localStorage.clear();
     window.location.href = '/login';
   };

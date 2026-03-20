@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentMemberProfile, updateMemberProfile, updateProfilePrivacy, uploadProfilePicture } from '../services/api';
+import { getCurrentMemberProfile, updateMemberProfile, updateProfilePrivacy, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCamera, faLock, faLockOpen, faCalendarAlt, faPhone, faEnvelope, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -12,6 +12,7 @@ export default function MemberProfile() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [history, setHistory] = useState([]);
     const [fetchingHistory, setFetchingHistory] = useState(false);
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);

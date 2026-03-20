@@ -12,6 +12,7 @@ export default function AdminProfile() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [history, setHistory] = useState([]);
     const [fetchingHistory, setFetchingHistory] = useState(false);
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
