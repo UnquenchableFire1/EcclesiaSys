@@ -2,6 +2,7 @@ package com.example.controller;
 
 import org.springframework.web.bind.annotation.*;
 import com.example.dao.AnnouncementDAO;
+import com.example.dao.NotificationDAO;
 import com.example.model.Announcement;
 import java.util.HashMap;
 import java.util.List;
@@ -69,9 +70,22 @@ public class AnnouncementController {
             
             AnnouncementDAO dao = new AnnouncementDAO();
             if (dao.addAnnouncement(announcement)) {
-                // Send email notifications to all active members
+                // Send email and in-app notifications to all active members
                 try {
+                    NotificationDAO notificationDao = new NotificationDAO();
+                    java.util.List<Integer> memberIds = memberDao.getAllActiveMemberIds();
                     java.util.List<String> memberEmails = memberDao.getAllActiveMemberEmails();
+                    
+                    // In-app notifications
+                    for (Integer memberId : memberIds) {
+                        notificationDao.addNotification(
+                            memberId, 
+                            "New Announcement: " + announcement.getTitle(), 
+                            announcement.getMessage()
+                        );
+                    }
+
+                    // Email notifications
                     for (String email : memberEmails) {
                         emailService.sendAnnouncementNotificationEmail(
                             email, 

@@ -29,7 +29,13 @@ public class MemberProfileController {
                 response.put("lastName", member.getLastName());
                 response.put("email", member.getEmail());
                 response.put("phoneNumber", member.getPhoneNumber());
-                response.put("profilePictureUrl", member.getProfilePictureUrl());
+                String profilePictureUrl = member.getProfilePictureUrl();
+                if (profilePictureUrl == null || profilePictureUrl.isEmpty()) {
+                    profilePictureUrl = "https://ui-avatars.com/api/?name=" + 
+                                       member.getFirstName() + "+" + member.getLastName() + 
+                                       "&background=random&color=fff&size=256";
+                }
+                response.put("profilePictureUrl", profilePictureUrl);
                 response.put("bio", member.getBio());
                 response.put("isProfilePublic", member.getIsProfilePublic());
                 response.put("joinedDate", member.getJoinedDate());
@@ -137,12 +143,19 @@ public class MemberProfileController {
             MemberDAO memberDao = new MemberDAO();
             Member member = memberDao.getMemberById(memberId);
             
-            if (member != null && member.getIsProfilePublic()) {
+            if (member != null) {
+                String profilePictureUrl = member.getProfilePictureUrl();
+                if (profilePictureUrl == null || profilePictureUrl.isEmpty()) {
+                    profilePictureUrl = "https://ui-avatars.com/api/?name=" + 
+                                       member.getFirstName() + "+" + member.getLastName() + 
+                                       "&background=random&color=fff&size=256";
+                }
+                
                 response.put("success", true);
                 response.put("id", member.getId());
                 response.put("firstName", member.getFirstName());
                 response.put("lastName", member.getLastName());
-                response.put("profilePictureUrl", member.getProfilePictureUrl());
+                response.put("profilePictureUrl", profilePictureUrl);
                 response.put("bio", member.getBio());
                 response.put("joinedDate", member.getJoinedDate());
             } else {

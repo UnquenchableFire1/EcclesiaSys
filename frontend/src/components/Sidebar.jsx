@@ -57,144 +57,123 @@ export default function Sidebar({
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 bottom-0 z-[101] 
-        bg-white dark:bg-mdSurface 
+      {/* Sidebar - Desktop Only */}
+      <aside className="
+        hidden md:flex fixed top-0 left-0 bottom-0 z-[101] 
+        bg-white/70 dark:bg-mdSurface/70 backdrop-blur-2xl
         border-r border-mdOutline/10
-        transition-all duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0 md:w-72'}
-        flex flex-col shadow-premium
-      `}>
+        w-72 flex-col shadow-premium transition-all duration-500
+      ">
         {/* Brand/Header */}
-        <div className="h-24 flex items-center justify-between px-6 border-b border-mdOutline/5 bg-white dark:bg-mdSurface">
-          <h2 className="text-2xl font-black text-mdPrimary">EcclesiaSys</h2>
-          <button 
-            onClick={() => setIsOpen(false)}
-            className="md:hidden text-mdPrimary hover:bg-mdPrimary/10 p-2 rounded-xl"
-          >
-            <FontAwesomeIcon icon={faChevronLeft} />
-          </button>
+        <div className="h-28 flex items-center px-8 border-b border-mdOutline/5 relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-mdPrimary to-mdSecondary opacity-50"></div>
+          <div className="flex flex-col">
+            <h2 className="text-3xl font-black text-mdPrimary tracking-tighter leading-none mb-1">EcclesiaSys</h2>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-mdOnSurfaceVariant opacity-50">Digital Sanctuary</p>
+          </div>
+          <div className="absolute -right-4 -top-4 w-20 h-20 bg-mdPrimary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
         </div>
 
-        {/* User Info */}
-        <div className="p-6 bg-mdPrimaryContainer/20 border-b border-mdOutline/5">
+        {/* User Info - Sleeker Design */}
+        <div className="p-8 group">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-mdPrimary flex items-center justify-center text-white shadow-md1 overflow-hidden">
-              {profilePictureUrl ? (
-                <img src={profilePictureUrl} alt={userName} className="w-full h-full object-cover" />
-              ) : (
-                <FontAwesomeIcon icon={faUserCircle} className="text-2xl" />
-              )}
+            <div className="relative">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-mdPrimary to-mdSecondary p-[2px] shadow-lifted group-hover:rotate-6 transition-transform duration-500">
+                <div className="w-full h-full rounded-[14px] bg-white dark:bg-mdSurface overflow-hidden">
+                  {profilePictureUrl ? (
+                    <img src={profilePictureUrl} alt={userName} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-mdPrimary text-xl">
+                      <FontAwesomeIcon icon={faUserCircle} />
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-4 border-white dark:border-mdSurface rounded-full"></div>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-black text-mdOnSurface truncate">{userName}</p>
-              <p className="text-xs font-bold uppercase tracking-widest text-mdPrimary">{userType === 'admin' ? 'Administrator' : 'Church Member'}</p>
-              {userEmail && (
-                <p className="text-sm font-medium text-mdOnSurfaceVariant truncate mt-0.5" title={userEmail}>
-                  {userEmail}
-                </p>
-              )}
+              <p className="font-black text-mdOnSurface truncate text-lg tracking-tight">{userName}</p>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-mdPrimary"></span>
+                <p className="text-[10px] font-black uppercase tracking-widest text-mdPrimary">{userType}</p>
+              </div>
             </div>
-            <button 
-                onClick={toggleTheme}
-                className="w-10 h-10 rounded-xl bg-mdSurfaceVariant/30 flex items-center justify-center text-mdPrimary hover:bg-mdPrimary hover:text-white transition-all duration-300 shadow-sm"
-                title="Toggle Theme"
-            >
-                <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
-            </button>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2 custom-scrollbar">
+        {/* Navigation Tabs - More Interactive */}
+        <nav className="flex-1 overflow-y-auto py-4 px-6 space-y-3 custom-scrollbar">
           {tabs.map((tab) => {
-            const isActive = tab.path ? location.pathname === tab.path : activeTab === tab.id;
+            const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
-                onClick={() => {
-                  if (tab.path) {
-                    navigate(tab.path);
-                  } else {
-                    setActiveTab(tab.id);
-                  }
-                  if (window.innerWidth < 768) setIsOpen(false);
-                }}
+                onClick={() => setActiveTab(tab.id)}
                 className={`
-                  w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-500 group relative
+                  show-on-desktop
+                  w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-black transition-all duration-500 group relative overflow-hidden
                   ${isActive 
-                    ? 'bg-mdPrimary text-white shadow-[0_10px_30px_-10px_rgba(0,106,106,0.5)] translate-x-2' 
+                    ? 'bg-mdPrimary text-white shadow-lifted translate-x-1' 
                     : 'text-mdOnSurfaceVariant hover:bg-mdPrimary/5 hover:text-mdPrimary'}
                 `}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-white/20 rotate-6 shadow-inner' : 'bg-mdSurfaceVariant/30 group-hover:bg-mdPrimaryContainer group-hover:rotate-3'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-white/20 rotate-6' : 'bg-mdSurfaceVariant/30 group-hover:bg-mdPrimaryContainer group-hover:rotate-3'}`}>
                   <FontAwesomeIcon icon={tab.icon} className={isActive ? 'text-white' : 'text-mdPrimary'} />
                 </div>
-                <span className="flex-1 text-left tracking-tight">{tab.label}</span>
-                {isActive && <div className="absolute left-0 w-1.5 h-6 bg-white rounded-full animate-pulse-soft"></div>}
+                <span className="flex-1 text-left tracking-tight uppercase text-[11px]">{tab.label}</span>
+                
+                {isActive && (
+                  <>
+                    <div className="absolute left-0 w-1.5 h-6 bg-white rounded-full animate-glow-pulse"></div>
+                    <div className="absolute right-4 opacity-50 text-[10px]">
+                      <FontAwesomeIcon icon={faChevronRight} className="animate-slide-right" />
+                    </div>
+                  </>
+                )}
               </button>
             );
           })}
 
-          {/* New Notifications Tab */}
-          <button
-            onClick={() => {
-              if (onNotificationClick) {
-                onNotificationClick();
-              } else {
-                setActiveTab('notifications');
-              }
-              if (window.innerWidth < 768) setIsOpen(false);
-            }}
-            className={`
-              w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-200 relative
-              ${activeTab === 'notifications' 
-                ? 'bg-accent text-white shadow-md2 translate-x-1' 
-                : 'text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/50 hover:text-accent'}
-            `}
-          >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${activeTab === 'notifications' ? 'bg-white/20' : 'bg-mdSurfaceVariant/30'}`}>
-              <FontAwesomeIcon icon={faBell} className={activeTab === 'notifications' ? 'text-white' : 'text-accent'} />
-            </div>
-            <span className="flex-1 text-left">Notifications</span>
-            {unreadCount > 0 && (
-              <span className="absolute top-3 right-6 bg-mdError text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm animate-bounce">
-                {unreadCount}
-              </span>
-            )}
-          </button>
+          <div className="h-px bg-mdOutline/5 my-8 mx-4"></div>
 
-          {/* Change Password Link */}
+          {/* Action Links */}
           <button
-            onClick={() => {
-              setActiveTab('password');
-              if (window.innerWidth < 768) setIsOpen(false);
-            }}
+            onClick={() => setActiveTab('password')}
             className={`
-              w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-200
+              w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-black transition-all duration-500
               ${activeTab === 'password' 
                 ? 'bg-mdSecondary text-white shadow-md2 translate-x-1' 
-                : 'text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/50 hover:text-mdSecondary'}
+                : 'text-mdOnSurfaceVariant hover:bg-mdSecondary/10 hover:text-mdSecondary'}
             `}
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${activeTab === 'password' ? 'bg-white/20' : 'bg-mdSurfaceVariant/30'}`}>
-              <FontAwesomeIcon icon={faKey} className={activeTab === 'password' ? 'text-white' : 'text-mdSecondary'} />
+              <FontAwesomeIcon icon={faKey} />
             </div>
-            <span className="flex-1 text-left">Change Password</span>
+            <span className="flex-1 text-left uppercase text-[11px]">Security</span>
           </button>
         </nav>
 
-        {/* Footer / Logout */}
-        <div className="p-6 border-t border-mdOutline/10 bg-mdSurfaceVariant/10">
+        {/* Brand Theme Toggle & Logout Footer */}
+        <div className="p-8 border-t border-mdOutline/5 bg-mdSurfaceVariant/5 space-y-6">
+          <div className="flex items-center justify-between px-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant opacity-60">Theme Mode</span>
+            <button 
+                onClick={toggleTheme}
+                className="w-12 h-6 rounded-full bg-mdSurfaceVariant/30 relative transition-all duration-500 border border-mdOutline/10"
+            >
+                <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center transition-all duration-500 ${theme === 'dark' ? 'right-1 bg-white text-mdSurface' : 'left-1 bg-mdPrimary text-white shadow-md1'}`}>
+                  <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} className="text-[8px]" />
+                </div>
+            </button>
+          </div>
           <button
             onClick={handleLogoutClick}
-            className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-mdError hover:bg-mdError/10 transition-all duration-200 group"
+            className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-mdError hover:bg-mdError/10 transition-all duration-300 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-mdError/10 flex items-center justify-center group-hover:bg-mdError group-hover:text-white transition-all">
+            <div className="w-10 h-10 rounded-xl bg-mdError/5 flex items-center justify-center group-hover:bg-mdError group-hover:text-white transition-all shadow-sm">
               <FontAwesomeIcon icon={faSignOutAlt} />
             </div>
-            <span>Logout</span>
+            <span className="uppercase text-[11px] tracking-widest">Logout</span>
           </button>
         </div>
       </aside>

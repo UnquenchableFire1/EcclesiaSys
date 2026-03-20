@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdminProfile, updateAdminProfile, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminProfile() {
     const navigate = useNavigate();
@@ -66,6 +66,11 @@ export default function AdminProfile() {
                     bio: data.bio || '',
                     gender: data.gender || 'unspecified'
                 });
+                
+                // Update session storage details
+                if (data.profilePictureUrl) {
+                    sessionStorage.setItem('profilePictureUrl', data.profilePictureUrl);
+                }
             } else {
                 setError('Failed to load profile');
             }
@@ -90,7 +95,7 @@ export default function AdminProfile() {
             
             const response = await updateAdminProfile(adminId, updateData);
             if (response.data.success) {
-                setSuccess('Profile updated successfully!');
+                setSuccess('Admin profile updated!');
                 setEditing(false);
                 fetchProfile();
             } else {
@@ -131,10 +136,13 @@ export default function AdminProfile() {
 
             const response = await uploadProfilePicture(formDataObj);
             if (response.data.success) {
-                setSuccess('Profile picture uploaded successfully!');
+                setSuccess('Admin portrait updated!');
                 setPreviewUrl(null);
-                fetchProfile();
-                fetchHistory();
+                await fetchProfile();
+                await fetchHistory();
+                
+                if (fileInput) fileInput.value = '';
+                window.dispatchEvent(new Event('profileUpdated'));
             } else {
                 setError(response.data.message || 'Failed to upload profile picture');
             }
@@ -146,13 +154,16 @@ export default function AdminProfile() {
     };
 
     const handleSelectFromHistory = async (url) => {
+        if (profile.profilePictureUrl === url) return;
+
         try {
             setError('');
             setSuccess('');
             const response = await selectProfilePicture(adminId, 'admin', url);
             if (response.data.success) {
-                setSuccess('Profile picture updated from history!');
-                fetchProfile();
+                setSuccess('Profile picture updated from vault!');
+                await fetchProfile();
+                window.dispatchEvent(new Event('profileUpdated'));
             } else {
                 setError(response.data.message || 'Failed to update profile picture');
             }
@@ -163,8 +174,11 @@ export default function AdminProfile() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center p-12">
-                <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Loading profile...</p>
+            <div className="flex justify-center p-12">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin"></div>
+                    <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Securing admin terminal...</p>
+                </div>
             </div>
         );
     }
@@ -172,204 +186,244 @@ export default function AdminProfile() {
     return (
         <div className="animate-fade-in space-y-6">
             {error && (
-                <div className="bg-mdErrorContainer text-mdError px-6 py-4 rounded-3xl shadow-sm text-sm sm:text-base animate-pulse font-medium mb-6">
-                    <p className="font-bold mb-1">Error</p>
-                    <p>{error}</p>
+                <div className="bg-mdError/10 text-mdError px-8 py-5 rounded-3xl mb-12 border border-mdError/20 flex items-center gap-4 shadow-sm">
+                    <FontAwesomeIcon icon={faInfoCircle} />
+                    <span className="font-bold">{error}</span>
                 </div>
             )}
 
             {success && (
-                <div className="bg-mdPrimaryContainer text-mdPrimary px-6 py-4 rounded-3xl shadow-sm text-sm sm:text-base animate-fade-in font-medium mb-6">
-                    <p className="font-bold mb-1">Success</p>
-                    <p>{success}</p>
+                <div className="bg-mdPrimary/10 text-mdPrimary px-8 py-5 rounded-3xl mb-12 border border-mdPrimary/20 flex items-center gap-4 shadow-sm animate-fade-in">
+                    <FontAwesomeIcon icon={faCheck} />
+                    <span className="font-bold">{success}</span>
                 </div>
             )}
 
             {profile && (
                 <>
-                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8 flex flex-col md:flex-row gap-8 items-center md:items-start transition-all hover:shadow-md2">
-                        <div className="relative group">
-                            {previewUrl ? (
-                                <div className="relative">
-                                    <img 
-                                        src={previewUrl} 
-                                        alt="Preview" 
-                                        className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-mdPrimary shadow-lifted transition-transform duration-300"
-                                    />
-                                    <div className="absolute inset-0 bg-black/40 rounded-full flex flex-col items-center justify-center p-4">
-                                        <button 
-                                            onClick={handleProfilePictureUpload}
-                                            disabled={isUploadingPortrait}
-                                            className="bg-mdPrimary text-white px-4 py-2 rounded-full text-xs font-black shadow-premium hover:bg-mdSecondary transition-all flex items-center gap-2"
-                                        >
-                                            {isUploadingPortrait ? (
-                                                <>
-                                                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    SAVING...
-                                                </>
-                                            ) : (
-                                                'UPLOAD NOW'
-                                            )}
-                                        </button>
-                                    </div>
-                                    <button 
-                                        onClick={() => setPreviewUrl(null)}
-                                        className="absolute -top-2 -right-2 bg-mdError text-white w-8 h-8 rounded-full flex items-center justify-center shadow-md hover:bg-red-700 transition-colors"
-                                    >
-                                        &times;
-                                    </button>
+                    {/* Admin Profile Header */}
+                    <div className="glass-card p-10 flex flex-col md:flex-row gap-12 items-center md:items-start group">
+                        <div className="relative">
+                            <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[3rem] p-1 bg-gradient-to-br from-mdPrimary/40 via-mdSecondary/40 to-mdPrimary/40 animate-gradient-slow group-hover:rotate-3 transition-transform duration-700 shadow-premium">
+                                <div className="w-full h-full rounded-[2.9rem] bg-white dark:bg-mdSurface overflow-hidden relative">
+                                    {previewUrl ? (
+                                        <img 
+                                            src={previewUrl} 
+                                            alt="Preview" 
+                                            className="w-full h-full object-cover animate-fade-in"
+                                        />
+                                    ) : profile.profilePictureUrl ? (
+                                        <img 
+                                            src={profile.profilePictureUrl} 
+                                            alt="Profile" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5">
+                                            {profile.name.charAt(0)}
+                                        </div>
+                                    )}
+                                    
+                                    {previewUrl && (
+                                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                                            <button 
+                                                onClick={handleProfilePictureUpload}
+                                                disabled={isUploadingPortrait}
+                                                className="w-full bg-white text-mdPrimary font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest shadow-lifted hover:scale-105 transition-all disabled:opacity-50"
+                                            >
+                                                {isUploadingPortrait ? 'SAVING...' : 'UPLOAD'}
+                                            </button>
+                                            <button 
+                                                onClick={() => setPreviewUrl(null)}
+                                                className="mt-2 text-white/70 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
-                            ) : profile.profilePictureUrl ? (
-                                <img 
-                                    src={profile.profilePictureUrl} 
-                                    alt="Profile" 
-                                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-mdPrimaryContainer shadow-md1 transition-transform group-hover:scale-105 duration-300"
-                                />
-                            ) : (
-                                <img 
-                                    src={getDefaultAvatar(profile.gender, profile.name)}
-                                    alt="Default Avatar" 
-                                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-mdPrimaryContainer shadow-md1 transition-transform group-hover:scale-105 duration-300"
-                                />
+                            </div>
+                            
+                            {!previewUrl && (
+                                <label className="absolute -bottom-4 -right-4 w-14 h-14 bg-mdOnSurface text-mdSurface rounded-2xl flex items-center justify-center shadow-premium cursor-pointer hover:bg-mdPrimary hover:text-white hover:scale-110 transition-all duration-300">
+                                    <FontAwesomeIcon icon={faCamera} className="text-xl" />
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        onChange={handleFileChange}
+                                        id="adminProfilePictureInput"
+                                        className="hidden"
+                                    />
+                                </label>
                             )}
-                            <label className="absolute bottom-0 right-0 bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary w-10 h-10 rounded-full flex items-center justify-center shadow-md2 cursor-pointer transition-colors duration-200">
-                                <FontAwesomeIcon icon={faCamera} />
-                                <input 
-                                    type="file" 
-                                    accept="image/*" 
-                                    onChange={handleFileChange}
-                                    id="adminProfilePictureInput"
-                                    className="hidden"
-                                />
-                            </label>
                         </div>
 
-                        <div className="flex-1 text-center md:text-left space-y-2">
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-mdOnSurface tracking-tight">
-                                {profile.name}
-                            </h2>
-                            <p className="text-mdPrimary font-bold">{profile.email}</p>
-                             <div className="inline-flex mt-2 bg-mdSurfaceVariant/50 text-mdOnSurfaceVariant px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
-                                <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary" />
-                                Administrator
+                        <div className="flex-1 text-center md:text-left pt-4">
+                            <div className="space-y-2 mb-8">
+                                <h1 className="text-4xl sm:text-5xl font-black text-mdOnSurface tracking-tighter">
+                                    {profile.name}
+                                </h1>
+                                <p className="text-mdPrimary font-black text-[10px] uppercase tracking-[0.3em] opacity-70 flex items-center justify-center md:justify-start gap-2">
+                                    <FontAwesomeIcon icon={faShieldAlt} /> System Administrator
+                                </p>
+                            </div>
+                            
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                                <div className="glass-card px-6 py-3 border-none flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary/60" />
+                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">{profile.email}</span>
+                                </div>
+                                <div className="glass-card px-6 py-3 border-none flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary/60" />
+                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">Control Terminal Access</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <div className="md:col-span-3 bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8 hover:shadow-md2 transition-all">
-                            <div className="flex justify-between items-center mb-8 pb-4 border-b border-mdSurfaceVariant">
-                                <h3 className="text-xl font-extrabold text-mdOnSurface">Admin Profile Details</h3>
-                                <button
-                                    onClick={() => setEditing(!editing)}
-                                    className="bg-mdSecondaryContainer text-mdSecondary px-4 py-2 text-sm rounded-full hover:bg-mdSecondary hover:text-mdOnSecondary transition-colors font-bold shadow-sm"
-                                >
-                                    {editing ? 'Cancel' : 'Edit Profile'}
-                                </button>
-                            </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 space-y-8">
+                            <div className="glass-card p-10">
+                                <div className="flex justify-between items-center mb-10 pb-6 border-b border-mdOutline/5">
+                                    <h3 className="text-2xl font-black text-mdOnSurface tracking-tight">Admin Credentials</h3>
+                                    <button
+                                        onClick={() => setEditing(!editing)}
+                                        className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${editing ? 'bg-mdError/10 text-mdError' : 'bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-white'}`}
+                                    >
+                                        {editing ? 'Cancel Editing' : 'Modify Access'}
+                                    </button>
+                                </div>
 
-                            <div className="space-y-6">
                                 {editing ? (
-                                    <div className="space-y-6 pt-4">
-                                        <div className="grid sm:grid-cols-2 gap-6">
-                                            <div>
-                                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Phone Number</label>
+                                    <div className="space-y-8 animate-slide-up">
+                                        <div className="grid sm:grid-cols-2 gap-8">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">Phone Number</label>
                                                 <input
                                                     type="text"
                                                     value={formData.phoneNumber}
                                                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                                    className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                                    className="w-full bg-mdSurfaceVariant/20 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-mdPrimary transition-all font-bold text-sm"
+                                                    placeholder="+1 234 567 890"
                                                 />
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Gender</label>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">Gender Identification</label>
                                                 <select
                                                     value={formData.gender}
                                                     onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                                                    className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
+                                                    className="w-full bg-mdSurfaceVariant/20 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-mdPrimary transition-all font-bold text-sm appearance-none"
                                                 >
-                                                    <option value="unspecified">Unspecified</option>
-                                                    <option value="male">Male</option>
-                                                    <option value="female">Female</option>
+                                                    <option value="unspecified">Unspecified Space</option>
+                                                    <option value="male">Male Identity</option>
+                                                    <option value="female">Female Identity</option>
                                                 </select>
                                             </div>
                                         </div>
 
-                                        <div>
-                                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Bio</label>
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">Administrative Bio</label>
                                             <textarea
                                                 value={formData.bio}
                                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                                                className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 min-h-[120px]"
-                                                placeholder="Professional bio..."
+                                                className="w-full bg-mdSurfaceVariant/20 border-none rounded-[2rem] py-6 px-8 focus:ring-2 focus:ring-mdPrimary transition-all font-bold text-sm min-h-[160px] custom-scrollbar"
+                                                placeholder="Professional administrative profile summary..."
                                             />
                                         </div>
 
                                         <button
                                             onClick={handleUpdateProfile}
                                             disabled={isUpdatingProfile}
-                                            className="w-full mt-6 bg-mdPrimary text-mdOnPrimary font-bold py-3 rounded-full hover:bg-mdSecondary shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-50"
+                                            className="w-full bg-mdOnSurface text-mdSurface py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transform active:scale-95 transition-all shadow-lifted hover:bg-mdPrimary hover:text-white disabled:opacity-50"
                                         >
-                                            {isUpdatingProfile ? (
-                                                <>
-                                                    <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    Saving Details...
-                                                </>
-                                            ) : (
-                                                'Save Changes'
-                                            )}
+                                            {isUpdatingProfile ? 'Synching Terminal...' : 'Update Admin Records'}
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="space-y-6">
-                                        <div className="grid sm:grid-cols-2 gap-6">
-                                            <div className="bg-mdSurfaceVariant/20 p-4 rounded-2xl border border-mdSurfaceVariant/50">
-                                                <label className="text-mdOnSurfaceVariant text-xs font-bold uppercase tracking-wider mb-1 block">Phone Number</label>
-                                                <p className="text-base font-semibold text-mdOnSurface">{profile.phoneNumber || 'Not provided'}</p>
+                                    <div className="space-y-8 animate-fade-in">
+                                        <div className="grid sm:grid-cols-2 gap-8">
+                                            <div className="glass-card bg-mdSurfaceVariant/5 border-none p-6">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-mdOutline mb-2">Secure Line</p>
+                                                <p className="font-black text-mdOnSurface tracking-tight">{profile.phoneNumber || 'Unlinked'}</p>
                                             </div>
-                                            <div className="bg-mdSurfaceVariant/20 p-4 rounded-2xl border border-mdSurfaceVariant/50">
-                                                <label className="text-mdOnSurfaceVariant text-xs font-bold uppercase tracking-wider mb-1 block">Gender</label>
-                                                <p className="text-base font-semibold text-mdOnSurface capitalize">{profile.gender || 'unspecified'}</p>
+                                            <div className="glass-card bg-mdSurfaceVariant/5 border-none p-6">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-mdOutline mb-2">Gender Designation</p>
+                                                <p className="font-black text-mdOnSurface tracking-tight capitalize">{profile.gender || 'Classified'}</p>
                                             </div>
                                         </div>
 
-                                        <div className="bg-mdSurfaceVariant/20 p-4 rounded-2xl border border-mdSurfaceVariant/50">
-                                            <label className="text-mdOnSurfaceVariant text-xs font-bold uppercase tracking-wider mb-1 block">Bio</label>
-                                            <p className="text-base text-mdOnSurface leading-relaxed whitespace-pre-wrap">{profile.bio || 'No bio provided'}</p>
+                                        <div className="glass-card bg-mdSurfaceVariant/5 border-none p-10 text-center">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-mdOutline mb-4">Official Bio</p>
+                                            <p className="font-bold text-mdOnSurfaceVariant leading-loose italic">
+                                                {profile.bio || "No administrative bio provided for this terminal."}
+                                            </p>
                                         </div>
                                     </div>
                                 )}
                             </div>
                         </div>
-                    </div>
 
-                    {history.length > 0 && (
-                        <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8 hover:shadow-md2 transition-all mt-6">
-                            <h3 className="text-xl font-extrabold text-mdOnSurface mb-6 pb-4 border-b border-mdSurfaceVariant">Previous Profile Pictures</h3>
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                                {history.map((url, index) => (
-                                    <div 
-                                        key={index} 
-                                        onClick={() => handleSelectFromHistory(url)}
-                                        className={`relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all hover:scale-105 ${profile.profilePictureUrl === url ? 'border-mdPrimary shadow-md' : 'border-transparent hover:border-mdPrimary/50'}`}
-                                    >
-                                        <img 
-                                            src={url} 
-                                            alt={`History ${index}`} 
-                                            className="w-full h-full object-cover"
-                                        />
-                                        {profile.profilePictureUrl === url && (
-                                            <div className="absolute inset-0 bg-mdPrimary/20 flex items-center justify-center">
-                                                <div className="bg-mdPrimary text-white rounded-full p-1 shadow-sm">
-                                                    <FontAwesomeIcon icon={faCheck} className="text-xs" />
-                                                </div>
-                                            </div>
-                                        )}
+                        {/* Sidebar: Admin Vault */}
+                        <div className="space-y-8">
+                            <div className="glass-card p-8 group overflow-hidden relative">
+                                <div className="absolute -top-12 -right-12 w-24 h-24 bg-mdPrimary/5 rounded-full blur-2xl group-hover:bg-mdPrimary/10 transition-all duration-700"></div>
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-10 h-10 rounded-xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary">
+                                        <FontAwesomeIcon icon={faShieldAlt} className="text-sm" />
                                     </div>
-                                ))}
+                                    <h3 className="text-xl font-black text-mdOnSurface tracking-tighter">Admin Vault</h3>
+                                </div>
+                                
+                                {history.length > 0 ? (
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {history.map((url, index) => (
+                                            <div 
+                                                key={index} 
+                                                onClick={() => handleSelectFromHistory(url)}
+                                                className={`relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all hover:scale-110 shadow-sm ${profile.profilePictureUrl === url ? 'border-mdPrimary' : 'border-transparent opacity-60 hover:opacity-100 hover:border-mdPrimary/40'}`}
+                                            >
+                                                <img 
+                                                    src={url} 
+                                                    alt={`Admin Vault ${index}`} 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                {profile.profilePictureUrl === url && (
+                                                    <div className="absolute inset-0 bg-mdPrimary/20 flex items-center justify-center backdrop-blur-[1px]">
+                                                        <div className="w-6 h-6 rounded-full bg-mdPrimary text-white shadow-lifted flex items-center justify-center animate-bounce-in">
+                                                            <FontAwesomeIcon icon={faCheck} className="text-[8px]" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="py-12 text-center opacity-30">
+                                        <FontAwesomeIcon icon={faCamera} className="text-3xl mb-4" />
+                                        <p className="text-[10px] font-black uppercase tracking-widest">Vault is empty</p>
+                                    </div>
+                                )}
+                                
+                                <p className="mt-8 text-[9px] font-bold text-mdOutline text-center uppercase tracking-widest leading-relaxed">
+                                    Encrypted historical record of administrative portraits
+                                </p>
+                            </div>
+
+                            <div className="glass-card p-8 bg-mdSurfaceVariant/10 border-none space-y-4">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-mdPrimary text-center">System Information</h4>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center py-2 border-b border-mdOutline/5">
+                                        <span className="text-[10px] font-bold text-mdOutline">Tier</span>
+                                        <span className="text-[10px] font-black text-mdOnSurface uppercase">God Mode</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 border-b border-mdOutline/5">
+                                        <span className="text-[10px] font-bold text-mdOutline">Status</span>
+                                        <span className="text-[10px] font-black text-mdSuccess uppercase">Encrypted</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </>
             )}
         </div>

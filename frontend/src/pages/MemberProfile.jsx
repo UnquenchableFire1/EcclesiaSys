@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentMemberProfile, updateMemberProfile, updateProfilePrivacy, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCamera, faLock, faLockOpen, faCalendarAlt, faPhone, faEnvelope, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCamera, faLock, faLockOpen, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 export default function MemberProfile() {
     const navigate = useNavigate();
@@ -46,7 +46,9 @@ export default function MemberProfile() {
             setFetchingHistory(true);
             const response = await getProfilePictureHistory(memberId, 'member');
             if (response.data.success) {
-                setHistory(response.data.history || []);
+                // Remove duplicates if any and ensure current is also in history if not already there
+                const historyList = response.data.history || [];
+                setHistory(historyList);
             }
         } catch (err) {
             console.error('Error fetching history', err);
@@ -65,6 +67,11 @@ export default function MemberProfile() {
                     bio: response.data.bio || '',
                     isProfilePublic: response.data.isProfilePublic !== undefined ? response.data.isProfilePublic : true
                 });
+                
+                // Update session storage details if they changed
+                if (response.data.profilePictureUrl) {
+                    sessionStorage.setItem('profilePictureUrl', response.data.profilePictureUrl);
+                }
             } else {
                 setError('Failed to load profile');
             }
@@ -151,8 +158,15 @@ export default function MemberProfile() {
             if (response.data.success) {
                 setSuccess('Profile picture uploaded successfully!');
                 setPreviewUrl(null);
-                fetchProfile();
-                fetchHistory();
+                // Important: refresh BOTH profile and history to update the vault immediately
+                await fetchProfile();
+                await fetchHistory();
+                
+                // Clear the input file
+                if (fileInput) fileInput.value = '';
+                
+                // Trigger a global event to update the sidebar avatar
+                window.dispatchEvent(new Event('profileUpdated'));
             } else {
                 setError(response.data.message || 'Failed to upload profile picture');
             }
@@ -164,13 +178,17 @@ export default function MemberProfile() {
     };
 
     const handleSelectFromHistory = async (url) => {
+        if (profile.profilePictureUrl === url) return;
+        
         try {
             setError('');
             setSuccess('');
             const response = await selectProfilePicture(memberId, 'member', url);
             if (response.data.success) {
                 setSuccess('Profile picture updated from history!');
-                fetchProfile();
+                await fetchProfile();
+                // Trigger a global event to update the sidebar avatar
+                window.dispatchEvent(new Event('profileUpdated'));
             } else {
                 setError(response.data.message || 'Failed to update profile picture');
             }
@@ -182,7 +200,10 @@ export default function MemberProfile() {
     if (loading) {
         return (
             <div className="flex items-center justify-center p-12">
-                <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Loading profile...</p>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin"></div>
+                    <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Entering the profile sanctuary...</p>
+                </div>
             </div>
         );
     }
@@ -190,236 +211,258 @@ export default function MemberProfile() {
     return (
         <div className="animate-fade-in space-y-6">
             {error && (
-                <div className="bg-mdErrorContainer text-mdError px-6 py-4 rounded-3xl shadow-sm text-sm sm:text-base animate-pulse font-medium mb-6">
-                    <p className="font-bold mb-1">Error</p>
-                    <p>{error}</p>
+                <div className="bg-mdError/10 text-mdError px-8 py-5 rounded-3xl mb-12 border border-mdError/20 flex items-center gap-4 shadow-sm">
+                    <FontAwesomeIcon icon={faInfoCircle} />
+                    <span className="font-bold">{error}</span>
                 </div>
             )}
 
             {success && (
-                <div className="bg-mdPrimaryContainer text-mdPrimary px-6 py-4 rounded-3xl shadow-sm text-sm sm:text-base animate-fade-in font-medium mb-6">
-                    <p className="font-bold mb-1">Success</p>
-                    <p>{success}</p>
+                <div className="bg-mdPrimary/10 text-mdPrimary px-8 py-5 rounded-3xl mb-12 border border-mdPrimary/20 flex items-center gap-4 shadow-sm animate-fade-in">
+                    <FontAwesomeIcon icon={faCheck} />
+                    <span className="font-bold">{success}</span>
                 </div>
             )}
 
             {profile && (
                 <>
-                    {/* Header Summary */}
-                    <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8 flex flex-col md:flex-row gap-8 items-center md:items-start transition-all hover:shadow-md2">
-                        <div className="relative group">
-                            {previewUrl ? (
-                                <div className="relative">
-                                    <img 
-                                        src={previewUrl} 
-                                        alt="Preview" 
-                                        className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-mdPrimary shadow-lifted transition-transform duration-300"
-                                    />
-                                    <div className="absolute inset-0 bg-black/40 rounded-full flex flex-col items-center justify-center p-4">
-                                        <button 
-                                            onClick={handleProfilePictureUpload}
-                                            disabled={isUploadingPortrait}
-                                            className="bg-mdPrimary text-white px-4 py-2 rounded-full text-xs font-black shadow-premium hover:bg-mdSecondary transition-all flex items-center gap-2"
-                                        >
-                                            {isUploadingPortrait ? (
-                                                <>
-                                                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    SAVING...
-                                                </>
-                                            ) : (
-                                                'UPLOAD NOW'
-                                            )}
-                                        </button>
-                                    </div>
-                                    <button 
-                                        onClick={() => setPreviewUrl(null)}
-                                        className="absolute -top-2 -right-2 bg-mdError text-white w-8 h-8 rounded-full flex items-center justify-center shadow-md hover:bg-red-700 transition-colors"
-                                    >
-                                        &times;
-                                    </button>
+                    {/* Premium Profile Header */}
+                    <div className="glass-card p-10 flex flex-col md:flex-row gap-12 items-center md:items-start group">
+                        <div className="relative">
+                            <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[3rem] p-1 bg-gradient-to-br from-mdPrimary/40 via-mdSecondary/40 to-mdPrimary/40 animate-gradient-slow group-hover:rotate-3 transition-transform duration-700 shadow-premium">
+                                <div className="w-full h-full rounded-[2.9rem] bg-white dark:bg-mdSurface overflow-hidden relative">
+                                    {previewUrl ? (
+                                        <img 
+                                            src={previewUrl} 
+                                            alt="Preview" 
+                                            className="w-full h-full object-cover animate-fade-in"
+                                        />
+                                    ) : profile.profilePictureUrl ? (
+                                        <img 
+                                            src={profile.profilePictureUrl} 
+                                            alt="Profile" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5">
+                                            {profile.firstName.charAt(0)}
+                                        </div>
+                                    )}
+                                    
+                                    {previewUrl && (
+                                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+                                            <button 
+                                                onClick={handleProfilePictureUpload}
+                                                disabled={isUploadingPortrait}
+                                                className="w-full bg-white text-mdPrimary font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest shadow-lifted hover:scale-105 transition-all disabled:opacity-50"
+                                            >
+                                                {isUploadingPortrait ? 'SAVING...' : 'UPLOAD'}
+                                            </button>
+                                            <button 
+                                                onClick={() => setPreviewUrl(null)}
+                                                className="mt-2 text-white/70 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
-                            ) : profile.profilePictureUrl ? (
-                                <img 
-                                    src={profile.profilePictureUrl} 
-                                    alt="Profile" 
-                                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-mdPrimaryContainer shadow-md1 transition-transform group-hover:scale-105 duration-300"
-                                />
-                            ) : (
-                                <img 
-                                    src={getDefaultAvatar(profile.gender, profile.firstName, profile.lastName)}
-                                    alt="Default Avatar" 
-                                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-mdPrimaryContainer shadow-md1 transition-transform group-hover:scale-105 duration-300"
-                                />
+                            </div>
+                            
+                            {!previewUrl && (
+                                <label className="absolute -bottom-4 -right-4 w-14 h-14 bg-mdOnSurface text-mdSurface rounded-2xl flex items-center justify-center shadow-premium cursor-pointer hover:bg-mdPrimary hover:text-white hover:scale-110 transition-all duration-300">
+                                    <FontAwesomeIcon icon={faCamera} className="text-xl" />
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        onChange={handleFileChange}
+                                        id="profilePictureInput"
+                                        className="hidden"
+                                    />
+                                </label>
                             )}
-                            <label className="absolute bottom-0 right-0 bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary w-10 h-10 rounded-full flex items-center justify-center shadow-md2 cursor-pointer transition-colors duration-200">
-                                <FontAwesomeIcon icon={faCamera} />
-                                <input 
-                                    type="file" 
-                                    accept="image/*" 
-                                    onChange={handleFileChange}
-                                    id="profilePictureInput"
-                                    className="hidden"
-                                />
-                            </label>
                         </div>
 
-                        <div className="flex-1 text-center md:text-left space-y-2">
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-mdOnSurface tracking-tight">
-                                {profile.firstName} {profile.lastName}
-                            </h2>
-                            <p className="text-mdPrimary font-bold">{profile.email}</p>
-                             <div className="inline-flex mt-2 bg-mdSurfaceVariant/50 text-mdOnSurfaceVariant px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2">
-                                <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary" />
-                                Member since {new Date(profile.joinedDate).toLocaleDateString()}
+                        <div className="flex-1 text-center md:text-left pt-4">
+                            <div className="space-y-2 mb-8">
+                                <h1 className="text-4xl sm:text-5xl font-black text-mdOnSurface tracking-tighter">
+                                    {profile.firstName} {profile.lastName}
+                                </h1>
+                                <p className="text-mdPrimary font-black text-[10px] uppercase tracking-[0.2em] opacity-70">
+                                    Member Profile Registry
+                                </p>
+                            </div>
+                            
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                                <div className="glass-card px-6 py-3 border-none flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary/60" />
+                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">{profile.email}</span>
+                                </div>
+                                <div className="glass-card px-6 py-3 border-none flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary/60" />
+                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">Joined {new Date(profile.joinedDate).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {/* Profile Information Section */}
-                        <div className="md:col-span-2 bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8 hover:shadow-md2 transition-all">
-                            <div className="flex justify-between items-center mb-8 pb-4 border-b border-mdSurfaceVariant">
-                                <h3 className="text-xl font-extrabold text-mdOnSurface">Personal Details</h3>
-                                <button
-                                    onClick={() => setEditing(!editing)}
-                                    className="bg-mdSecondaryContainer text-mdSecondary px-4 py-2 text-sm rounded-full hover:bg-mdSecondary hover:text-mdOnSecondary transition-colors font-bold shadow-sm"
-                                >
-                                    {editing ? 'Cancel' : 'Edit Profile'}
-                                </button>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div className="grid sm:grid-cols-2 gap-6">
-                                    <div className="bg-mdSurfaceVariant/20 p-4 rounded-2xl border border-mdSurfaceVariant/50">
-                                        <label className="text-mdOnSurfaceVariant text-xs font-bold uppercase tracking-wider mb-1 block">Full Name</label>
-                                        <p className="text-base font-semibold text-mdOnSurface">{profile.firstName} {profile.lastName}</p>
-                                    </div>
-                                    <div className="bg-mdSurfaceVariant/20 p-4 rounded-2xl border border-mdSurfaceVariant/50">
-                                        <label className="text-mdOnSurfaceVariant text-xs font-bold uppercase tracking-wider mb-1 block">Personal Email</label>
-                                        <p className="text-base font-semibold text-mdOnSurface">{profile.email}</p>
-                                    </div>
-
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Information Section */}
+                        <div className="lg:col-span-2 space-y-8">
+                            <div className="glass-card p-10">
+                                <div className="flex justify-between items-center mb-10 pb-6 border-b border-mdOutline/5">
+                                    <h3 className="text-2xl font-black text-mdOnSurface tracking-tight">Personal Details</h3>
+                                    <button
+                                        onClick={() => setEditing(!editing)}
+                                        className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${editing ? 'bg-mdError/10 text-mdError' : 'bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-white'}`}
+                                    >
+                                        {editing ? 'Cancel Editing' : 'Customize Profile'}
+                                    </button>
                                 </div>
 
                                 {editing ? (
-                                    <div className="space-y-6 pt-4 border-t border-mdSurfaceVariant/50">
-                                        <div className="bg-mdSurfaceVariant/10 p-5 rounded-2xl border border-mdPrimary/20">
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Phone Number</label>
-                                                    <input
-                                                        type="text"
-                                                        value={formData.phoneNumber}
-                                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                                        className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
-                                                    />
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Bio</label>
-                                                    <textarea
-                                                        value={formData.bio}
-                                                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                                                        className="w-full px-4 py-3 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 min-h-[120px]"
-                                                        placeholder="Tell us about yourself"
-                                                    />
+                                    <div className="space-y-8 animate-slide-up">
+                                        <div className="grid sm:grid-cols-2 gap-8">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">Phone Number</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.phoneNumber}
+                                                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                                    className="w-full bg-mdSurfaceVariant/20 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-mdPrimary transition-all font-bold text-sm"
+                                                    placeholder="+1 234 567 890"
+                                                />
+                                            </div>
+                                            <div className="space-y-3 opacity-60">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">Display Name (Read-only)</label>
+                                                <div className="w-full bg-mdSurfaceVariant/10 border-none rounded-2xl py-4 px-6 font-bold text-sm text-mdOnSurfaceVariant">
+                                                    {profile.firstName} {profile.lastName}
                                                 </div>
                                             </div>
-
-                                            <button
-                                                onClick={handleUpdateProfile}
-                                                disabled={isUpdatingProfile}
-                                                className="w-full mt-6 bg-mdPrimary text-mdOnPrimary font-bold py-3 rounded-full hover:bg-mdSecondary shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-50"
-                                            >
-                                                {isUpdatingProfile ? (
-                                                    <>
-                                                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                                                        Saving Details...
-                                                    </>
-                                                ) : (
-                                                    'Save Changes'
-                                                )}
-                                            </button>
                                         </div>
+
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">My Biography</label>
+                                            <textarea
+                                                value={formData.bio}
+                                                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                                                className="w-full bg-mdSurfaceVariant/20 border-none rounded-[2rem] py-6 px-8 focus:ring-2 focus:ring-mdPrimary transition-all font-bold text-sm min-h-[160px] custom-scrollbar"
+                                                placeholder="Tell the community about your journey with Christ..."
+                                            />
+                                        </div>
+
+                                        <button
+                                            onClick={handleUpdateProfile}
+                                            disabled={isUpdatingProfile}
+                                            className="w-full bg-mdOnSurface text-mdSurface py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transform active:scale-95 transition-all shadow-lifted hover:bg-mdPrimary hover:text-white disabled:opacity-50"
+                                        >
+                                            {isUpdatingProfile ? 'Synching Sanctuary...' : 'Update Records'}
+                                        </button>
                                     </div>
                                 ) : (
-                                    <div className="space-y-6">
-                                        <div className="bg-mdSurfaceVariant/20 p-4 rounded-2xl border border-mdSurfaceVariant/50">
-                                            <label className="text-mdOnSurfaceVariant text-xs font-bold uppercase tracking-wider mb-1 block">Phone Number</label>
-                                            <p className="text-base font-semibold text-mdOnSurface">{profile.phoneNumber || 'Not provided'}</p>
+                                    <div className="space-y-8 animate-fade-in">
+                                        <div className="grid sm:grid-cols-2 gap-8">
+                                            <div className="glass-card bg-mdSurfaceVariant/5 border-none p-6">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-mdOutline mb-2">Primary Contact</p>
+                                                <p className="font-black text-mdOnSurface tracking-tight">{profile.phoneNumber || 'Unlinked'}</p>
+                                            </div>
+                                            <div className="glass-card bg-mdSurfaceVariant/5 border-none p-6">
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-mdOutline mb-2">Registered Email</p>
+                                                <p className="font-black text-mdOnSurface tracking-tight truncate">{profile.email}</p>
+                                            </div>
                                         </div>
 
-                                        <div className="bg-mdSurfaceVariant/20 p-4 rounded-2xl border border-mdSurfaceVariant/50">
-                                            <label className="text-mdOnSurfaceVariant text-xs font-bold uppercase tracking-wider mb-1 block">Bio</label>
-                                            <p className="text-base text-mdOnSurface leading-relaxed whitespace-pre-wrap">{profile.bio || 'No bio provided'}</p>
+                                        <div className="glass-card bg-mdSurfaceVariant/5 border-none p-10">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-mdOutline mb-4">Life Story & Testimonial</p>
+                                            <p className="font-bold text-mdOnSurfaceVariant leading-loose italic">
+                                                {profile.bio || "Speak your journey. Update your profile to add a personal testimony that will inspire the sanctuary."}
+                                            </p>
                                         </div>
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Privacy Settings Section */}
-                        <div className="md:col-span-1 bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8 hover:shadow-md2 transition-all h-fit">
-                            <h3 className="text-xl font-extrabold text-mdOnSurface mb-6 pb-4 border-b border-mdSurfaceVariant">Privacy</h3>
-                            
-                            <div className="bg-mdSurfaceVariant/10 p-5 rounded-2xl border border-mdSurfaceVariant/50 text-center space-y-4">
-                                <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl shadow-sm ${formData.isProfilePublic ? 'bg-mdPrimaryContainer text-mdPrimary' : 'bg-mdSurfaceVariant text-mdOnSurfaceVariant'}`}>
-                                    <FontAwesomeIcon icon={formData.isProfilePublic ? faLockOpen : faLock} />
+                        {/* Sidebar Sections */}
+                        <div className="space-y-8">
+                             {/* History Vault Section */}
+                            <div className="glass-card p-8 group">
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-10 h-10 rounded-xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary">
+                                        <FontAwesomeIcon icon={faLock} className="text-sm" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-mdOnSurface tracking-tighter">Profile Vault</h3>
                                 </div>
                                 
-                                <div>
-                                    <p className="font-bold text-mdOnSurface text-lg mb-1">
-                                        {formData.isProfilePublic ? 'Public Profile' : 'Private Profile'}
-                                    </p>
-                                    <p className="text-mdOnSurfaceVariant text-sm">
-                                        {formData.isProfilePublic 
-                                            ? 'Visible to other members.' 
-                                            : 'Hidden from directory.'}
-                                    </p>
-                                </div>
+                                {history.length > 0 ? (
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {history.map((url, index) => (
+                                            <div 
+                                                key={index} 
+                                                onClick={() => handleSelectFromHistory(url)}
+                                                className={`relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all hover:scale-110 shadow-sm ${profile.profilePictureUrl === url ? 'border-mdPrimary' : 'border-transparent opacity-60 hover:opacity-100 hover:border-mdPrimary/40'}`}
+                                            >
+                                                <img 
+                                                    src={url} 
+                                                    alt={`Vault ${index}`} 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                {profile.profilePictureUrl === url && (
+                                                    <div className="absolute inset-0 bg-mdPrimary/20 flex items-center justify-center backdrop-blur-[1px]">
+                                                        <div className="w-6 h-6 rounded-full bg-mdPrimary text-white shadow-lifted flex items-center justify-center animate-bounce-in">
+                                                            <FontAwesomeIcon icon={faCheck} className="text-[8px]" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="py-12 text-center opacity-30">
+                                        <FontAwesomeIcon icon={faCamera} className="text-3xl mb-4" />
+                                        <p className="text-[10px] font-black uppercase tracking-widest">Vault is empty</p>
+                                    </div>
+                                )}
+                                
+                                <p className="mt-8 text-[9px] font-bold text-mdOutline text-center uppercase tracking-widest leading-relaxed">
+                                    Your personal historical sanctuary of profile identities
+                                </p>
+                            </div>
 
-                                <button
-                                    onClick={handlePrivacyToggle}
-                                    className={`w-full py-3 rounded-full font-bold shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 ${
-                                        formData.isProfilePublic 
-                                        ? 'bg-mdErrorContainer text-mdError hover:bg-mdError hover:text-mdOnError' 
-                                        : 'bg-mdPrimaryContainer text-mdPrimary hover:bg-mdPrimary hover:text-mdOnPrimary'
-                                    }`}
-                                >
-                                    {formData.isProfilePublic ? 'Make Private' : 'Make Public'}
-                                </button>
+                            {/* Privacy Controls */}
+                            <div className={`glass-card p-8 transition-colors duration-500 ${formData.isProfilePublic ? 'bg-mdPrimary/5' : 'bg-mdError/5'}`}>
+                                <h3 className="text-xl font-black text-mdOnSurface mb-6 tracking-tighter text-center">Sanctuary Privacy</h3>
+                                
+                                <div className="flex flex-col items-center gap-6">
+                                    <div className={`w-20 h-20 rounded-3xl flex items-center justify-center text-3xl shadow-premium animate-float ${formData.isProfilePublic ? 'bg-white text-mdPrimary' : 'bg-white text-mdError'}`}>
+                                        <FontAwesomeIcon icon={formData.isProfilePublic ? faLockOpen : faLock} />
+                                    </div>
+                                    
+                                    <div className="text-center space-y-2">
+                                        <p className="font-black text-mdOnSurface text-lg tracking-tight">
+                                            {formData.isProfilePublic ? 'Public Presence' : 'Private Mode'}
+                                        </p>
+                                        <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-widest leading-relaxed px-4">
+                                            {formData.isProfilePublic 
+                                                ? 'Your identity is shared with the church community.' 
+                                                : 'Your records are kept strictly confidential.'}
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={handlePrivacyToggle}
+                                        className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lifted transition-all active:scale-95 ${
+                                            formData.isProfilePublic 
+                                            ? 'bg-mdError text-white hover:bg-mdError/80' 
+                                            : 'bg-mdPrimary text-white hover:bg-mdPrimary/80'
+                                        }`}
+                                    >
+                                        Switch to {formData.isProfilePublic ? 'Private' : 'Public'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    {/* History Gallery Section */}
-                    {history.length > 0 && (
-                        <div className="bg-mdSurface rounded-[2rem] shadow-sm border border-mdSurfaceVariant p-6 sm:p-8 hover:shadow-md2 transition-all mt-6">
-                            <h3 className="text-xl font-extrabold text-mdOnSurface mb-6 pb-4 border-b border-mdSurfaceVariant">Previous Profile Pictures</h3>
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                                {history.map((url, index) => (
-                                    <div 
-                                        key={index} 
-                                        onClick={() => handleSelectFromHistory(url)}
-                                        className={`relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all hover:scale-105 ${profile.profilePictureUrl === url ? 'border-mdPrimary shadow-md' : 'border-transparent hover:border-mdPrimary/50'}`}
-                                    >
-                                        <img 
-                                            src={url} 
-                                            alt={`History ${index}`} 
-                                            className="w-full h-full object-cover"
-                                        />
-                                        {profile.profilePictureUrl === url && (
-                                            <div className="absolute inset-0 bg-mdPrimary/20 flex items-center justify-center">
-                                                <div className="bg-mdPrimary text-white rounded-full p-1 shadow-sm">
-                                                    <FontAwesomeIcon icon={faCheck} className="text-xs" />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </>
             )}
         </div>

@@ -20,6 +20,7 @@ import Events from './Events';
 import Sermons from './Sermons';
 import DailyVerse from '../components/DailyVerse';
 import PrayerRequestModal from '../components/PrayerRequestModal';
+import ChangePassword from '../components/ChangePassword';
 
 export default function MemberDashboard() {
     const navigate = useNavigate();
@@ -29,7 +30,8 @@ export default function MemberDashboard() {
     const [activeTab, setActiveTabInternal] = useState(() => sessionStorage.getItem('memberActiveTab') || 'home');
     const [loading, setLoading] = useState(true);
     const [memberProfile, setMemberProfile] = useState(null);
-    const [memberId] = useState(parseInt(sessionStorage.getItem('userId')));
+    const [memberId, setMemberId] = useState(parseInt(sessionStorage.getItem('userId')));
+    const [memberName, setMemberName] = useState(sessionStorage.getItem('userName'));
     
     // UI State
     const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
@@ -40,26 +42,27 @@ export default function MemberDashboard() {
     const setActiveTab = (tab) => {
         setActiveTabInternal(tab);
         sessionStorage.setItem('memberActiveTab', tab);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // Listen for tab changes from Sidebar
     useEffect(() => {
-        const handleTabChange = (e) => { if (e.detail) setActiveTab(e.detail); };
+        const handleTabChange = (e) => {
+            if (e.detail) {
+                setActiveTab(e.detail);
+            }
+        };
         window.addEventListener('setMemberActiveTab', handleTabChange);
         return () => window.removeEventListener('setMemberActiveTab', handleTabChange);
     }, []);
 
-    const fetchAllData = async () => {
-        if (!memberId) return;
+    const fetchMemberData = async () => {
+        if (!memberId) { navigate('/login'); return; }
         setLoading(true);
         try {
-            const [profile] = await Promise.all([
-                getMemberProfile(memberId)
-            ]);
-            setMemberProfile(profile.data?.data || null);
+            const res = await getMemberProfile(memberId);
+            setMemberProfile(res.data?.data || res.data || {});
         } catch (err) {
-            console.error("Fetch Data Error:", err);
+            console.error("Profile Error:", err);
         } finally {
             setLoading(false);
         }
@@ -67,16 +70,14 @@ export default function MemberDashboard() {
 
     const fetchNotifications = async () => {
         try {
-            const res = await getNotifications(memberId);
-            const data = res.data?.data || [];
-            setNotifications(data);
-            setUnreadCount(data.filter(n => !n.read).length);
+            await getNotifications(memberId);
+            // setNotifications(...)
         } catch (err) { console.error("Notification Error:", err); }
     };
 
     useEffect(() => {
         if (!memberId) { navigate('/login'); return; }
-        fetchAllData();
+        fetchMemberData();
         fetchNotifications();
         const interval = setInterval(fetchNotifications, 60000);
         return () => clearInterval(interval);
@@ -111,7 +112,7 @@ export default function MemberDashboard() {
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
-                        Peace be with you, <span className="text-mdPrimary font-black">{memberProfile?.name || memberProfile?.firstName || 'Friend'}</span>.
+                        Peace be with you, <span className="text-mdPrimary font-black">{memberProfile?.name || memberProfile?.firstName || memberName || 'Friend'}</span>.
                     </p>
                 </div>
             </header>
@@ -152,41 +153,35 @@ export default function MemberDashboard() {
                             </div>
 
                             {/* Quick Discovery */}
-                            <div className="lg:col-span-2 space-y-8">
-                                <div className="flex items-center justify-between">
-                                    <h2 className="text-3xl font-black text-mdOnSurface tracking-tight">Quick Discovery</h2>
-                                    <div className="w-12 h-1 bg-mdPrimary/20 rounded-full"></div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <DiscoveryCard 
-                                        title="Spiritual Library" 
-                                        desc="Access our comprehensive collection of sermons and teachings." 
-                                        icon={faMicrophone} 
-                                        tab="sermons" 
-                                        color="text-purple-500"
-                                    />
-                                    <DiscoveryCard 
-                                        title="Upcoming Union" 
-                                        desc="Stay updated with church events, services, and community gatherings." 
-                                        icon={faCalendarAlt} 
-                                        tab="events" 
-                                        color="text-mdSecondary"
-                                    />
-                                    <DiscoveryCard 
-                                        title="Community News" 
-                                        desc="The latest announcements and important updates from your church home." 
-                                        icon={faBullhorn} 
-                                        tab="announcements" 
-                                        color="text-amber-500"
-                                    />
-                                    <DiscoveryCard 
-                                        title="Prayer Wall" 
-                                        desc="Share your burdens and stand together in faith with our prayer team." 
-                                        icon={faPrayingHands} 
-                                        tab="prayer-requests" 
-                                        color="text-mdPrimary"
-                                    />
-                                </div>
+                            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <DiscoveryCard 
+                                    title="Announcements" 
+                                    desc="Stay updated with the latest news and updates from our community." 
+                                    icon={faBullhorn}
+                                    tab="announcements"
+                                    color="text-amber-500"
+                                />
+                                <DiscoveryCard 
+                                    title="Calendar" 
+                                    desc="Don't miss out on our upcoming fellowship and prayer meetings." 
+                                    icon={faCalendarAlt}
+                                    tab="events"
+                                    color="text-mdPrimary"
+                                />
+                                <DiscoveryCard 
+                                    title="Word Room" 
+                                    desc="Access our collection of sermons and spiritual resources anywhere." 
+                                    icon={faMicrophone}
+                                    tab="sermons"
+                                    color="text-indigo-500"
+                                />
+                                <DiscoveryCard 
+                                    title="Prayer Wall" 
+                                    desc="Submit and view prayer requests. Let us stand with you in faith." 
+                                    icon={faPrayingHands}
+                                    tab="prayer-requests"
+                                    color="text-emerald-500"
+                                />
                             </div>
                         </div>
                     </div>
@@ -194,21 +189,21 @@ export default function MemberDashboard() {
 
                 {/* 2. ANNOUNCEMENTS */}
                 {activeTab === 'announcements' && (
-                    <div className="animate-fade-in">
+                    <div className="space-y-10 animate-fade-in">
                         <Announcements embedded={true} />
                     </div>
                 )}
 
                 {/* 3. EVENTS */}
                 {activeTab === 'events' && (
-                    <div className="animate-fade-in">
+                    <div className="space-y-10 animate-fade-in">
                         <Events embedded={true} />
                     </div>
                 )}
 
                 {/* 4. SERMONS */}
                 {activeTab === 'sermons' && (
-                    <div className="animate-fade-in">
+                    <div className="space-y-10 animate-fade-in">
                         <Sermons embedded={true} />
                     </div>
                 )}
@@ -256,7 +251,16 @@ export default function MemberDashboard() {
                                         <h4 className="text-xl font-black">Urgent Support?</h4>
                                     </div>
                                     <p className="text-sm font-medium text-mdOnSurfaceVariant mb-6 opacity-80">For immediate assistance or counseling, connect with our team directly via WhatsApp.</p>
-                                    <a href="#" className="font-black text-mdSecondary hover:underline uppercase tracking-widest text-xs flex items-center gap-2">
+                                    <a 
+                                      href="https://wa.me/yourwhatsappnumber" 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => {
+                                        // Prevents accidental hash-based logout if the link is handled globally
+                                        e.stopPropagation();
+                                      }}
+                                      className="font-black text-mdSecondary hover:underline uppercase tracking-widest text-xs flex items-center gap-2"
+                                    >
                                         Connect on WhatsApp <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
                                     </a>
                                 </div>

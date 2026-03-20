@@ -2,6 +2,7 @@ package com.example.controller;
 
 import org.springframework.web.bind.annotation.*;
 import com.example.dao.EventDAO;
+import com.example.dao.NotificationDAO;
 import com.example.model.Event;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -91,9 +92,22 @@ public class EventController {
             
             EventDAO dao = new EventDAO();
             if (dao.addEvent(event)) {
-                // Send email notifications to all active members
+                // Send email and in-app notifications to all active members
                 try {
+                    NotificationDAO notificationDao = new NotificationDAO();
+                    java.util.List<Integer> memberIds = memberDao.getAllActiveMemberIds();
                     java.util.List<String> memberEmails = memberDao.getAllActiveMemberEmails();
+                    
+                    // In-app notifications
+                    for (Integer memberId : memberIds) {
+                        notificationDao.addNotification(
+                            memberId, 
+                            "Upcoming Event: " + event.getTitle(), 
+                            "New event scheduled for " + event.getEventDate().toString() + " at " + event.getLocation()
+                        );
+                    }
+
+                    // Email notifications
                     for (String email : memberEmails) {
                         emailService.sendEventNotificationEmail(
                             email, 
