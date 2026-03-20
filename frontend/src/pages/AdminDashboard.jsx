@@ -7,7 +7,8 @@ import {
     faTrash, faPhone, faEnvelope, faMapMarkerAlt, faVideo, 
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
-    faTimes, faChevronRight, faClock, faChartBar, faComments
+    faTimes, faChevronRight, faClock, faChartBar, faComments,
+    faExclamationTriangle, faSignOutAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 import { 
@@ -28,7 +29,6 @@ import ChangePassword from '../components/ChangePassword';
 import Chat from './Chat';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import ConfirmModal from '../components/ConfirmModal';
-import { faTrash, faExclamationTriangle, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
