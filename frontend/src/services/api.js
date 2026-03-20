@@ -210,6 +210,7 @@ export const getPublicMemberProfile = (memberId) => {
 export const createPrayerRequest = (data) => {
   return api.post('/prayer-requests', data);
 };
+export const submitPrayerRequest = createPrayerRequest;
 
 // Profile Picture History
 export const getProfilePictureHistory = (userId, userType) => {
