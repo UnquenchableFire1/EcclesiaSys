@@ -10,6 +10,7 @@ public class Event {
     private String location;
     private String documentFileUrl;
     private int createdBy;
+    private Integer branchId;
     private LocalDateTime createdDate;
     private LocalDateTime updatedAt;
 
@@ -49,4 +50,7 @@ public class Event {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Integer getBranchId() { return branchId; }
+    public void setBranchId(Integer branchId) { this.branchId = branchId; }
 }

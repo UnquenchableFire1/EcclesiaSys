@@ -24,11 +24,11 @@ public class EventController {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @GetMapping
-    public Map<String, Object> getAllEvents() {
+    public Map<String, Object> getAllEvents(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
             EventDAO dao = new EventDAO();
-            List<Event> events = dao.getAllEvents();
+            List<Event> events = dao.getAllEvents(branchId);
             response.put("success", true);
             response.put("data", events);
         } catch (Exception e) {
@@ -39,11 +39,11 @@ public class EventController {
     }
 
     @GetMapping("/upcoming")
-    public Map<String, Object> getUpcomingEvents() {
+    public Map<String, Object> getUpcomingEvents(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
             EventDAO dao = new EventDAO();
-            List<Event> events = dao.getUpcomingEvents();
+            List<Event> events = dao.getUpcomingEvents(branchId);
             response.put("success", true);
             response.put("data", events);
         } catch (Exception e) {
@@ -90,6 +90,13 @@ public class EventController {
                     ((Number) request.get("createdBy")).intValue()
             );
             
+            if (request.containsKey("branchId")) {
+                Object bIdObj = request.get("branchId");
+                if (bIdObj instanceof Number) {
+                    event.setBranchId(((Number) bIdObj).intValue());
+                }
+            }
+            
             EventDAO dao = new EventDAO();
             if (dao.addEvent(event)) {
                 // Send email and in-app notifications to all active members
@@ -102,8 +109,9 @@ public class EventController {
                     for (Integer memberId : memberIds) {
                         notificationDao.addNotification(
                             memberId, 
-                            "Upcoming Event: " + event.getTitle(), 
-                            "New event scheduled for " + event.getEventDate().toString() + " at " + event.getLocation()
+                            event.getTitle(), 
+                            "A new event has been scheduled for " + event.getEventDate().toString() + " at " + event.getLocation(),
+                            "event"
                         );
                     }
 
@@ -151,6 +159,12 @@ public class EventController {
                     (String) request.get("location"),
                     ((Number) request.get("createdBy")).intValue()
             );
+            if (request.containsKey("branchId")) {
+                Object bIdObj = request.get("branchId");
+                if (bIdObj instanceof Number) {
+                    event.setBranchId(((Number) bIdObj).intValue());
+                }
+            }
             event.setId(id);
             
             EventDAO dao = new EventDAO();

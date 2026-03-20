@@ -1,7 +1,6 @@
 package com.example.controller;
 
 import org.springframework.web.bind.annotation.*;
-import com.google.gson.JsonObject;
 import com.example.dao.MemberDAO;
 import com.example.dao.AdminDAO;
 import com.example.dao.PasswordResetDAO;

@@ -1,12 +1,9 @@
 package com.example.service;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Base64;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -181,9 +178,8 @@ public class B2FileUploadService {
             
             int uploadStatus = uploadConn.getResponseCode();
             if (uploadStatus == 200) {
-                JSONObject uploadResponse = new JSONObject(new String(uploadConn.getInputStream().readAllBytes()));
+                System.out.println("✓ File uploaded successfully to B2");
                 String fileUrl = "https://f000.backblazeb2.com/file/" + ConfigManager.getB2BucketName() + "/" + fileName;
-                System.out.println("✓ File uploaded successfully: " + fileUrl);
                 return fileUrl;
             } else {
                 String errorBody = new String(uploadConn.getErrorStream().readAllBytes());

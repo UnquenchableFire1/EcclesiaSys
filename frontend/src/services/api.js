@@ -49,8 +49,8 @@ export const register = (data) => {
 };
 
 // Member APIs
-export const getMembers = () => {
-  return api.get('/members');
+export const getMembers = (branchId) => {
+  return api.get('/members', { params: { branchId } });
 };
 
 export const getMemberById = (id) => {
@@ -79,8 +79,8 @@ export const promoteMemberToAdmin = (memberId, data) => {
 };
 
 // Announcement APIs
-export const getAnnouncements = () => {
-  return api.get('/announcements');
+export const getAnnouncements = (branchId) => {
+  return api.get('/announcements', { params: { branchId } });
 };
 
 export const getAnnouncementById = (id) => {
@@ -100,12 +100,12 @@ export const deleteAnnouncement = (id) => {
 };
 
 // Event APIs
-export const getEvents = () => {
-  return api.get('/events');
+export const getEvents = (branchId) => {
+  return api.get('/events', { params: { branchId } });
 };
 
-export const getUpcomingEvents = () => {
-  return api.get('/events?upcoming=true');
+export const getUpcomingEvents = (branchId) => {
+  return api.get('/events/upcoming', { params: { branchId } });
 };
 
 export const getEventById = (id) => {
@@ -125,8 +125,8 @@ export const deleteEvent = (id) => {
 };
 
 // Sermon APIs
-export const getSermons = () => {
-  return api.get('/sermons');
+export const getSermons = (branchId) => {
+  return api.get('/sermons', { params: { branchId } });
 };
 
 export const getSermonById = (id) => {
@@ -198,8 +198,8 @@ export const updateAdminProfile = (adminId, data) => {
   return api.put(`/admins/${adminId}/profile`, data);
 };
 
-export const getPublicMembers = () => {
-  return api.get('/members/public');
+export const getPublicMembers = (branchId) => {
+  return api.get('/members/public', { params: { branchId } });
 };
 
 export const getPublicMemberProfile = (memberId) => {
@@ -286,6 +286,15 @@ export const getAdminTeam = () => {
 export const changePassword = (userType, userId, currentPassword, newPassword, otp) => {
   const endpoint = userType === 'admin' ? `/admins/${userId}/change-password` : `/member/${userId}/change-password`;
   return api.post(endpoint, { currentPassword, newPassword, otp });
+};
+
+// Branch APIs
+export const getBranches = () => {
+  return api.get('/branches');
+};
+
+export const createBranch = (branchData) => {
+  return api.post('/branches', branchData);
 };
 
 export default api;

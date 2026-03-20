@@ -19,11 +19,11 @@ public class SermonController {
     private com.example.dao.MemberDAO memberDao;
 
     @GetMapping
-    public Map<String, Object> getAllSermons() {
+    public Map<String, Object> getAllSermons(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
             SermonDAO dao = new SermonDAO();
-            List<Sermon> sermons = dao.getAllSermons();
+            List<Sermon> sermons = dao.getAllSermons(branchId);
             response.put("success", true);
             response.put("data", sermons);
         } catch (Exception e) {
@@ -114,6 +114,13 @@ public class SermonController {
                 }
             }
             
+            if (request.containsKey("branchId")) {
+                Object bIdObj = request.get("branchId");
+                if (bIdObj instanceof Number) {
+                    sermon.setBranchId(((Number) bIdObj).intValue());
+                }
+            }
+            
             Object dateObj = request.get("sermonDate");
             if (dateObj != null) {
                 if (dateObj instanceof String) {
@@ -152,7 +159,7 @@ public class SermonController {
                     String notifTitle = "New Sermon: " + sermon.getTitle();
                     String notifMsg = "A new sermon by " + sermon.getSpeaker() + " has been posted. Check it out now!";
                     for (int memberId : memberIds) {
-                        notifDao.addNotification(memberId, notifTitle, notifMsg);
+                        notifDao.addNotification(memberId, notifTitle, notifMsg, "sermon");
                     }
                     System.out.println("✓ In-app notifications sent to " + memberIds.size() + " members.");
                 } catch (Exception e) {
@@ -185,6 +192,12 @@ public class SermonController {
                     (String) request.get("fileType"),
                     ((Number) request.get("uploadedBy")).intValue()
             );
+            if (request.containsKey("branchId")) {
+                Object bIdObj = request.get("branchId");
+                if (bIdObj instanceof Number) {
+                    sermon.setBranchId(((Number) bIdObj).intValue());
+                }
+            }
             sermon.setId(id);
             
             SermonDAO dao = new SermonDAO();

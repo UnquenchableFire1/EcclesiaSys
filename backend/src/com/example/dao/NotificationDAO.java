@@ -19,6 +19,7 @@ public class NotificationDAO {
                 "member_id INT NOT NULL, " +
                 "title VARCHAR(255) NOT NULL, " +
                 "message TEXT NOT NULL, " +
+                "type VARCHAR(50) DEFAULT 'general', " +
                 "is_read BOOLEAN DEFAULT FALSE, " +
                 "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
                 ")";
@@ -32,14 +33,15 @@ public class NotificationDAO {
         }
     }
 
-    public boolean addNotification(int memberId, String title, String message) {
-        String query = "INSERT INTO notifications (member_id, title, message, is_read, created_at) VALUES (?, ?, ?, FALSE, ?)";
+    public boolean addNotification(int memberId, String title, String message, String type) {
+        String query = "INSERT INTO notifications (member_id, title, message, type, is_read, created_at) VALUES (?, ?, ?, ?, FALSE, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, memberId);
             stmt.setString(2, title);
             stmt.setString(3, message);
-            stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setString(4, type != null ? type : "general");
+            stmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -94,7 +96,7 @@ public class NotificationDAO {
         List<com.example.model.Admin> admins = adminDao.getAllAdmins();
         boolean allSuccess = true;
         for (com.example.model.Admin admin : admins) {
-            if (!addNotification(admin.getId(), title, message)) {
+            if (!addNotification(admin.getId(), title, message, "general")) {
                 allSuccess = false;
             }
         }
@@ -107,6 +109,7 @@ public class NotificationDAO {
         n.setMemberId(rs.getInt("member_id"));
         n.setTitle(rs.getString("title"));
         n.setMessage(rs.getString("message"));
+        n.setType(rs.getString("type"));
         n.setRead(rs.getBoolean("is_read"));
         Timestamp ts = rs.getTimestamp("created_at");
         if (ts != null) {

@@ -8,17 +8,12 @@ import {
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
     faTimes, faChevronRight, faClock, faChartBar, faComments,
-    faExclamationTriangle, faSignOutAlt
+    faExclamationTriangle, faSignOutAlt, faBuilding
 } from '@fortawesome/free-solid-svg-icons';
 
 import { 
-    getMembers, getAnnouncements, getEvents, getSermons, 
-    deleteMember, createAnnouncement, deleteAnnouncement,
-    createEvent, deleteEvent, createSermon, deleteSermon,
-    getPrayerRequests, updatePrayerRequestStatus, deletePrayerRequest,
-    getAdmins, promoteMemberToAdmin, createAdmin,
-    getNotifications, markNotificationAsRead, markAllNotificationsAsRead,
-    getAdminProfile, getCounts, toggleMemberStatus, deleteAdmin
+    getAdminProfile, getCounts, toggleMemberStatus, deleteAdmin,
+    getBranches, createBranch
 } from '../services/api';
 
 import Announcements from './Announcements';
@@ -52,6 +47,8 @@ export default function AdminDashboard() {
     const [sermons, setSermons] = useState([]);
     const [prayerRequests, setPrayerRequests] = useState([]);
     const [admins, setAdmins] = useState([]);
+    const [branches, setBranches] = useState([]);
+    const [selectedBranchId, setSelectedBranchId] = useState(null);
     const [counts, setCounts] = useState({ members: 0, events: 0, announcements: 0, sermons: 0, prayerRequests: 0 });
     
     // UI State
@@ -112,9 +109,15 @@ export default function AdminDashboard() {
     const fetchAllData = useCallback(async () => {
         setLoading(true);
         try {
-            const [mem, ann, eve, ser, pra, cou, adm] = await Promise.all([
-                getMembers(), getAnnouncements(), getEvents(), 
-                getSermons(), getPrayerRequests(), getCounts(), getAdmins()
+            const [mem, ann, eve, ser, pra, cou, adm, bra] = await Promise.all([
+                getMembers(selectedBranchId), 
+                getAnnouncements(selectedBranchId), 
+                getEvents(selectedBranchId), 
+                getSermons(selectedBranchId), 
+                getPrayerRequests(), 
+                getCounts(), 
+                getAdmins(),
+                getBranches()
             ]);
             setMembers(mem.data.data || mem.data || []);
             setAnnouncements(ann.data || []);
@@ -123,12 +126,13 @@ export default function AdminDashboard() {
             setPrayerRequests(pra.data.data || pra.data || []);
             setCounts(cou.data || { members: 0, announcements: 0, events: 0, sermons: 0, prayerRequests: 0 });
             setAdmins(adm.data.data || adm.data || []);
+            setBranches(bra.data || []);
         } catch (err) {
             console.error("Data Load Error:", err);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [selectedBranchId]);
 
     const fetchNotifications = async () => {
         try {
@@ -209,6 +213,35 @@ export default function AdminDashboard() {
         finally { setFormLoading(false); }
     };
 
+    const handlePromoteToAdmin = async (memberId) => {
+        setFormLoading(true);
+        try {
+            await promoteMemberToAdmin(memberId, { createdBy: adminId });
+            setAlertDialog({ title: 'Success', message: 'Member has been promoted to administrator.' });
+            fetchAllData();
+        } catch (err) {
+            setAlertDialog({ title: 'Promotion Failed', message: err.response?.data?.message || 'Server error', isError: true });
+        } finally {
+            setFormLoading(false);
+        }
+    };
+
+    const handleBranchSubmit = async (e) => {
+        e.preventDefault();
+        const branchName = e.target.branchName.value;
+        setFormLoading(true);
+        try {
+            await createBranch({ name: branchName });
+            setAlertDialog({ title: 'Branch Created', message: `Branch "${branchName}" has been established.` });
+            e.target.reset();
+            fetchAllData();
+        } catch (err) {
+            setAlertDialog({ title: 'Creation Failed', message: 'Could not establish branch.', isError: true });
+        } finally {
+            setFormLoading(false);
+        }
+    };
+
     // -- Sub-Components --
     const MetricCard = ({ label, count, icon, color }) => (
         <div className="glass-card p-8 group hover:-translate-y-2 transition-all">
@@ -272,10 +305,23 @@ export default function AdminDashboard() {
                 {activeTab === 'home' && (
                     <div className="space-y-10 animate-fade-in">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <MetricCard label="Members" count={counts.members} icon={faUsers} color="text-mdPrimary" />
-                            <MetricCard label="Events" count={counts.events} icon={faCalendarAlt} color="text-mdSecondary" />
-                            <MetricCard label="Broadcasts" count={counts.announcements} icon={faBullhorn} color="text-amber-500" />
-                            <MetricCard label="Messages" count={counts.sermons} icon={faMicrophone} color="text-purple-500" />
+                            <button onClick={() => setActiveTab('members')} className="w-full text-left">
+                                <MetricCard label="Members" count={counts.members} icon={faUsers} color="text-mdPrimary" />
+                            </button>
+                            <button onClick={() => setActiveTab('events')} className="w-full text-left">
+                                <MetricCard label="Events" count={counts.events} icon={faCalendarAlt} color="text-mdSecondary" />
+                            </button>
+                            <button onClick={() => setActiveTab('announcements')} className="w-full text-left">
+                                <MetricCard label="Broadcasts" count={counts.announcements} icon={faBullhorn} color="text-amber-500" />
+                            </button>
+                            <button onClick={() => setActiveTab('sermons')} className="w-full text-left">
+                                <MetricCard label="Messages" count={counts.sermons} icon={faMicrophone} color="text-purple-500" />
+                            </button>
+                            {isSuperAdmin && (
+                                <button onClick={() => setActiveTab('branch-management')} className="w-full text-left">
+                                    <MetricCard label="Branches" count={branches.length} icon={faBuilding} color="text-emerald-500" />
+                                </button>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -289,6 +335,7 @@ export default function AdminDashboard() {
                                     <QuickAction label="Add Event" icon={faCalendarAlt} tab="events" desc="Update calendar" />
                                     <QuickAction label="Upload Word" icon={faVideo} tab="sermons" desc="Media library" />
                                     {isSuperAdmin && <QuickAction label="New Admin" icon={faUserPlus} tab="admins" desc="Grant access" />}
+                                    {isSuperAdmin && <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Manage network" />}
                                 </div>
                             </div>
                             
@@ -338,6 +385,18 @@ export default function AdminDashboard() {
                                         onChange={(e) => setMemberSearchQuery(e.target.value)}
                                     />
                                 </div>
+                                {isSuperAdmin && (
+                                    <select 
+                                        value={selectedBranchId || ''} 
+                                        onChange={(e) => setSelectedBranchId(e.target.value ? parseInt(e.target.value) : null)}
+                                        className="p-3 bg-mdSurfaceVariant/10 border-none rounded-xl font-bold text-sm text-mdOnSurface"
+                                    >
+                                        <option value="">All Branches</option>
+                                        {branches.map(b => (
+                                            <option key={b.id} value={b.id}>{b.name}</option>
+                                        ))}
+                                    </select>
+                                )}
                                 <button onClick={() => downloadMembersAsExcel(members)} className="p-3 bg-green-600 text-white rounded-xl shadow-sm hover:scale-105 transition-all">
                                     <FontAwesomeIcon icon={faFileExcel} />
                                 </button>
@@ -378,6 +437,19 @@ export default function AdminDashboard() {
                                         >
                                             {member.status === 'Active' ? 'Restrict' : 'Authorize'}
                                         </button>
+                                        {isSuperAdmin && (
+                                            <button 
+                                                onClick={() => openConfirm(
+                                                    "Promote to Admin?",
+                                                    `Do you want to grant ${member.firstName} administrative access?`,
+                                                    () => handlePromoteToAdmin(member.id),
+                                                    "primary"
+                                                )}
+                                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-white transition-all w-full"
+                                            >
+                                                Promote
+                                            </button>
+                                        )}
                                         <button 
                                             onClick={() => openConfirm(
                                                 "Expunge Record?", 
@@ -415,7 +487,7 @@ export default function AdminDashboard() {
                                 </form>
                             </div>
                         )}
-                        <Announcements embedded={true} />
+                        <Announcements embedded={true} branchId={selectedBranchId} />
                     </div>
                 )}
 
@@ -441,7 +513,7 @@ export default function AdminDashboard() {
                                 </form>
                             </div>
                         )}
-                        <Events embedded={true} />
+                        <Events embedded={true} branchId={selectedBranchId} />
                     </div>
                 )}
 
@@ -466,7 +538,7 @@ export default function AdminDashboard() {
                                 </form>
                             </div>
                         )}
-                        <Sermons embedded={true} />
+                        <Sermons embedded={true} branchId={selectedBranchId} />
                     </div>
                 )}
 
@@ -531,11 +603,21 @@ export default function AdminDashboard() {
 
                         {showAdminForm && (
                             <div className="glass-card p-10 animate-slide-up border-l-8 border-l-mdOnSurface">
-                                <form onSubmit={handleAdminSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <form onSubmit={handleAdminSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                     <input type="text" placeholder="Full Name" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.name} onChange={e => setAdminForm({...adminForm, name: e.target.value})} required />
                                     <input type="email" placeholder="Official Email" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.email} onChange={e => setAdminForm({...adminForm, email: e.target.value})} required />
                                     <input type="password" placeholder="Temp Password" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.password} onChange={e => setAdminForm({...adminForm, password: e.target.value})} required />
-                                    <button type="submit" disabled={formLoading} className="btn-premium md:col-span-3">{formLoading ? 'Authorizing...' : 'Create Staff Account'}</button>
+                                    <select 
+                                        className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" 
+                                        value={adminForm.branchId || ''} 
+                                        onChange={e => setAdminForm({...adminForm, branchId: e.target.value ? parseInt(e.target.value) : null})}
+                                    >
+                                        <option value="">Full Site (Super-Admin)</option>
+                                        {branches.map(b => (
+                                            <option key={b.id} value={b.id}>{b.name}</option>
+                                        ))}
+                                    </select>
+                                    <button type="submit" disabled={formLoading} className="btn-premium md:col-span-4">{formLoading ? 'Authorizing...' : 'Create Staff Account'}</button>
                                 </form>
                             </div>
                         )}
@@ -543,18 +625,76 @@ export default function AdminDashboard() {
                         <div className="glass-card overflow-hidden">
                             <table className="w-full text-left">
                                 <thead className="bg-mdSurfaceVariant/20 text-[10px] font-black uppercase tracking-widest text-mdOutline">
-                                    <tr><th className="p-6">Administrator</th><th className="p-6">Credentials</th><th className="p-6">Status</th></tr>
+                                    <tr>
+                                        <th className="p-6">Administrator</th>
+                                        <th className="p-6">Credentials</th>
+                                        <th className="p-6">Branch</th>
+                                        <th className="p-6">Actions</th>
+                                    </tr>
                                 </thead>
                                 <tbody className="divide-y divide-mdOutline/5">
                                     {admins.map(adm => (
                                         <tr key={adm.id} className="hover:bg-mdPrimary/5 transition-colors">
                                             <td className="p-6 font-black text-mdOnSurface">{adm.name}</td>
                                             <td className="p-6 font-medium text-mdOnSurfaceVariant">{adm.email}</td>
-                                            <td className="p-6"><span className="px-2 py-1 rounded bg-green-500/10 text-green-600 text-[10px] font-black uppercase tracking-widest">Active</span></td>
+                                            <td className="p-6">
+                                                <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${adm.branchId ? 'bg-mdSecondary/10 text-mdSecondary' : 'bg-mdPrimary/10 text-mdPrimary'}`}>
+                                                    {adm.branchId ? (branches.find(b => b.id === adm.branchId)?.name || 'Branch Office') : 'Super Admin'}
+                                                </span>
+                                            </td>
+                                            <td className="p-6">
+                                                {adm.email !== 'benjaminbuckmanjunior@gmail.com' && adm.id !== adminId && (
+                                                    <button 
+                                                        onClick={() => openConfirm("Revoke Access?", `Remove ${adm.name} from the staff?`, () => deleteAdmin(adm.id).then(fetchAllData))}
+                                                        className="text-mdError hover:scale-110 transition-all"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} />
+                                                    </button>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* 7.5 BRANCH MANAGEMENT */}
+                {isSuperAdmin && activeTab === 'branch-management' && (
+                    <div className="space-y-10 animate-fade-in mt-4">
+                        <div className="flex justify-between items-center">
+                            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Branch Network</h1>
+                        </div>
+
+                        <div className="glass-card p-10 border-l-8 border-l-emerald-500">
+                            <form onSubmit={handleBranchSubmit} className="flex flex-col md:flex-row gap-6">
+                                <input name="branchName" type="text" placeholder="Branch Name (e.g. Accra Central)" className="flex-1 p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" required />
+                                <button type="submit" disabled={formLoading} className="btn-premium whitespace-nowrap">{formLoading ? 'Establishing...' : 'Establish Branch'}</button>
+                            </form>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {branches.map(branch => (
+                                <div key={branch.id} className="glass-card p-8 group relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
+                                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xl mb-4">
+                                        <FontAwesomeIcon icon={faBuilding} />
+                                    </div>
+                                    <h4 className="text-xl font-black text-mdOnSurface mb-1">{branch.name}</h4>
+                                    <p className="text-[10px] font-black text-mdOnSurfaceVariant uppercase tracking-widest mb-6">Established Territory</p>
+                                    
+                                    <div className="pt-6 border-t border-mdOutline/10 flex justify-between items-center">
+                                        <span className="text-sm font-bold text-mdPrimary">Active Branch</span>
+                                        <button 
+                                            onClick={() => { setSelectedBranchId(branch.id); setActiveTab('members'); }}
+                                            className="text-xs font-black uppercase tracking-widest text-mdOnSurfaceVariant hover:text-mdPrimary transition-colors"
+                                        >
+                                            View Assets
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}

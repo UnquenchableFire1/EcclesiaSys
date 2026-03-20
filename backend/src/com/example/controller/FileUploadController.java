@@ -2,15 +2,12 @@ package com.example.controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.example.dao.SermonDAO;
 import com.example.dao.MemberDAO;
-import com.example.model.Sermon;
 import com.example.model.Member;
 import com.example.service.CloudinaryFileUploadService;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +32,7 @@ public class FileUploadController {
             
             // Validate file type
             String fileName = file.getOriginalFilename();
-            if (!fileName.endsWith(".mp3") && !fileName.endsWith(".mp4")) {
+            if (fileName == null || (!fileName.endsWith(".mp3") && !fileName.endsWith(".mp4"))) {
                 response.put("success", false);
                 response.put("message", "Only MP3 and MP4 files are allowed");
                 return response;
@@ -67,11 +64,6 @@ public class FileUploadController {
                 return response;
             }
 
-            // Extract file type
-            String fileType = fileName.endsWith(".mp4") ? "mp4" : "mp3";
-
-            response.put("success", true);
-            response.put("message", "Sermon file uploaded successfully");
             response.put("fileUrl", fileUrl);
 
             // Clean up temp file
@@ -269,7 +261,7 @@ public class FileUploadController {
         try {
             // Validate file type (PDF, DOCX, TXT, XLSX, etc.)
             String fileName = file.getOriginalFilename();
-            if (!fileName.toLowerCase().matches(".*\\.(pdf|doc|docx|txt|xlsx|xls|ppt|pptx)$")) {
+            if (fileName == null || !fileName.toLowerCase().matches(".*\\.(pdf|doc|docx|txt|xlsx|xls|ppt|pptx)$")) {
                 response.put("success", false);
                 response.put("message", "Only PDF, DOCX, TXT, XLSX, PPTX and similar files are allowed");
                 return response;

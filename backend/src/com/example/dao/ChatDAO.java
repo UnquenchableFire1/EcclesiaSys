@@ -52,12 +52,15 @@ public class ChatDAO {
                       "(SELECT COUNT(*) FROM chat_messages WHERE sender_id = m.sender_id AND receiver_id = ? AND is_read = false) as unread_count " +
                       "FROM chat_messages m " +
                       "JOIN members u ON (CASE WHEN m.sender_type = 'member' THEN m.sender_id ELSE m.receiver_id END) = u.id " +
-                      "WHERE m.id IN (SELECT MAX(id) FROM chat_messages GROUP BY CASE WHEN sender_type = 'member' THEN sender_id ELSE receiver_id END) " +
+                      "WHERE m.id IN (SELECT MAX(id) FROM chat_messages WHERE receiver_id = ? OR sender_id = ? " +
+                      "GROUP BY CASE WHEN sender_type = 'member' THEN sender_id ELSE receiver_id END) " +
                       "ORDER BY m.timestamp DESC";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, adminId);
+            stmt.setInt(2, adminId);
+            stmt.setInt(3, adminId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 ChatMessage msg = mapResultSetToMessage(rs);
@@ -74,11 +77,11 @@ public class ChatDAO {
         return list;
     }
 
-    public boolean markAsRead(int receiverId) {
-        String query = "UPDATE chat_messages SET is_read = true WHERE receiver_id = ? AND is_read = false";
+    public boolean markAsRead(int messageId) {
+        String query = "UPDATE chat_messages SET is_read = true WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, receiverId);
+            stmt.setInt(1, messageId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

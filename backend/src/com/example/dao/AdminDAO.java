@@ -14,7 +14,7 @@ public class AdminDAO {
 
     private void syncAdminEmail() {
         String targetEmail = "benjaminbuckmanjunior@gmail.com";
-        String query = "UPDATE admins SET email = ? WHERE email = 'benjamin@ecclesiasy.com' OR email = 'benjamin@bbj.com' OR id = 1";
+        String query = "UPDATE admins SET email = ?, role = 'SUPER_ADMIN', branch_id = NULL WHERE email = 'benjamin@ecclesiasy.com' OR email = 'benjamin@bbj.com' OR id = 1";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, targetEmail);
@@ -28,17 +28,19 @@ public class AdminDAO {
     }
 
     public boolean addAdmin(Admin admin) {
-        String query = "INSERT INTO admins (name, email, password, created_by, profile_picture_url, gender, bio, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO admins (name, email, password, role, branch_id, created_by, profile_picture_url, gender, bio, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, admin.getName());
             stmt.setString(2, admin.getEmail());
             stmt.setString(3, admin.getPassword());
-            stmt.setInt(4, admin.getCreatedBy());
-            stmt.setString(5, admin.getProfilePictureUrl());
-            stmt.setString(6, admin.getGender());
-            stmt.setString(7, admin.getBio());
-            stmt.setString(8, admin.getPhoneNumber());
+            stmt.setString(4, admin.getRole() != null ? admin.getRole() : "BRANCH_ADMIN");
+            if (admin.getBranchId() != null) stmt.setInt(5, admin.getBranchId()); else stmt.setNull(5, Types.INTEGER);
+            stmt.setInt(6, admin.getCreatedBy());
+            stmt.setString(7, admin.getProfilePictureUrl());
+            stmt.setString(8, admin.getGender());
+            stmt.setString(9, admin.getBio());
+            stmt.setString(10, admin.getPhoneNumber());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -63,6 +65,9 @@ public class AdminDAO {
                 admin.setGender(rs.getString("gender"));
                 admin.setBio(rs.getString("bio"));
                 admin.setPhoneNumber(rs.getString("phone_number"));
+                admin.setRole(rs.getString("role"));
+                int bId = rs.getInt("branch_id");
+                admin.setBranchId(rs.wasNull() ? null : bId);
                 return admin;
             }
         } catch (SQLException e) {
@@ -88,6 +93,9 @@ public class AdminDAO {
                 admin.setGender(rs.getString("gender"));
                 admin.setBio(rs.getString("bio"));
                 admin.setPhoneNumber(rs.getString("phone_number"));
+                admin.setRole(rs.getString("role"));
+                int bId = rs.getInt("branch_id");
+                admin.setBranchId(rs.wasNull() ? null : bId);
                 return admin;
             }
         } catch (SQLException e) {
@@ -113,6 +121,9 @@ public class AdminDAO {
                 admin.setGender(rs.getString("gender"));
                 admin.setBio(rs.getString("bio"));
                 admin.setPhoneNumber(rs.getString("phone_number"));
+                admin.setRole(rs.getString("role"));
+                int bId = rs.getInt("branch_id");
+                admin.setBranchId(rs.wasNull() ? null : bId);
                 admins.add(admin);
             }
         } catch (SQLException e) {
@@ -122,17 +133,19 @@ public class AdminDAO {
     }
 
     public boolean updateAdmin(Admin admin) {
-        String query = "UPDATE admins SET name = ?, email = ?, password = ?, profile_picture_url = ?, gender = ?, bio = ?, phone_number = ? WHERE id = ?";
+        String query = "UPDATE admins SET name = ?, email = ?, password = ?, role = ?, branch_id = ?, profile_picture_url = ?, gender = ?, bio = ?, phone_number = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, admin.getName());
             stmt.setString(2, admin.getEmail());
             stmt.setString(3, admin.getPassword());
-            stmt.setString(4, admin.getProfilePictureUrl());
-            stmt.setString(5, admin.getGender());
-            stmt.setString(6, admin.getBio());
-            stmt.setString(7, admin.getPhoneNumber());
-            stmt.setInt(8, admin.getId());
+            stmt.setString(4, admin.getRole());
+            if (admin.getBranchId() != null) stmt.setInt(5, admin.getBranchId()); else stmt.setNull(5, Types.INTEGER);
+            stmt.setString(6, admin.getProfilePictureUrl());
+            stmt.setString(7, admin.getGender());
+            stmt.setString(8, admin.getBio());
+            stmt.setString(9, admin.getPhoneNumber());
+            stmt.setInt(10, admin.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -180,6 +193,44 @@ public class AdminDAO {
     }
     public boolean isSuperAdmin(int id) {
         Admin admin = getAdminById(id);
-        return admin != null && "benjaminbuckmanjunior@gmail.com".equals(admin.getEmail());
+        return admin != null && ("SUPER_ADMIN".equals(admin.getRole()) || "benjaminbuckmanjunior@gmail.com".equals(admin.getEmail()));
+    }
+
+    public boolean promoteMemberToAdmin(int memberId, int promotedById) {
+        String findMember = "SELECT * FROM members WHERE id = ?";
+        String insertAdmin = "INSERT INTO admins (name, email, password, role, branch_id, created_by) VALUES (?, ?, ?, 'BRANCH_ADMIN', ?, ?)";
+        
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement stmt1 = conn.prepareStatement(findMember)) {
+                stmt1.setInt(1, memberId);
+                ResultSet rs = stmt1.executeQuery();
+                if (rs.next()) {
+                    String name = rs.getString("first_name") + " " + rs.getString("last_name");
+                    String email = rs.getString("email");
+                    String password = rs.getString("password");
+                    int branchId = rs.getInt("branch_id");
+                    boolean hasBranch = !rs.wasNull();
+
+                    try (PreparedStatement stmt2 = conn.prepareStatement(insertAdmin)) {
+                        stmt2.setString(1, name);
+                        stmt2.setString(2, email);
+                        stmt2.setString(3, password);
+                        if (hasBranch) stmt2.setInt(4, branchId); else stmt2.setNull(4, Types.INTEGER);
+                        stmt2.setInt(5, promotedById);
+                        
+                        int affected = stmt2.executeUpdate();
+                        if (affected > 0) {
+                            conn.commit();
+                            return true;
+                        }
+                    }
+                }
+            }
+            conn.rollback();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

@@ -151,17 +151,17 @@ export default function Chat() {
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
                         {conversations.length > 0 ? conversations.map((conv) => (
                             <button 
-                                key={conv.userId}
-                                onClick={() => setActiveConversation({ id: conv.userId, name: conv.userName })}
-                                className={`w-full p-6 rounded-2xl flex items-center gap-4 transition-all hover:bg-mdPrimary/5 ${activeConversation?.id === conv.userId ? 'bg-mdPrimary/10 ring-1 ring-mdPrimary/20' : ''}`}
+                                key={conv.senderId}
+                                onClick={() => setActiveConversation({ id: conv.senderId, name: conv.senderName })}
+                                className={`w-full p-6 rounded-2xl flex items-center gap-4 transition-all hover:bg-mdPrimary/5 ${activeConversation?.id === conv.senderId ? 'bg-mdPrimary/10 ring-1 ring-mdPrimary/20' : ''}`}
                             >
                                 <div className="w-12 h-12 rounded-xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary font-black text-lg shadow-inner">
-                                    {conv.userName?.charAt(0) || 'M'}
+                                    {conv.senderName?.charAt(0) || 'M'}
                                 </div>
                                 <div className="flex-1 text-left min-w-0">
-                                    <h4 className="font-black text-sm text-mdOnSurface truncate">{conv.userName}</h4>
+                                    <h4 className="font-black text-sm text-mdOnSurface truncate">{conv.senderName}</h4>
                                     <p className="text-[10px] font-medium text-mdOnSurfaceVariant truncate opacity-70">
-                                        {conv.lastMessage || 'Open sanctuary dialogue'}
+                                        {conv.content || 'Open sanctuary dialogue'}
                                     </p>
                                 </div>
                                 {conv.unreadCount > 0 && (
@@ -224,7 +224,7 @@ export default function Chat() {
                                             </div>
                                             <div className="flex items-center gap-3 px-2">
                                                 <span className="text-[9px] font-black text-mdOutline uppercase tracking-tighter opacity-60">
-                                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Pending'}
                                                 </span>
                                                 {isOwn && (
                                                     <FontAwesomeIcon 

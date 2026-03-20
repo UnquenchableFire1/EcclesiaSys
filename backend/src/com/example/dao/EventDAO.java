@@ -9,7 +9,7 @@ import com.example.db.DBConnection;
 public class EventDAO {
 
     public boolean addEvent(Event event) {
-        String query = "INSERT INTO events (title, description, event_date, location, document_url, created_by) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO events (title, description, event_date, location, document_url, created_by, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, event.getTitle());
@@ -18,6 +18,7 @@ public class EventDAO {
             stmt.setString(4, event.getLocation());
             stmt.setString(5, event.getDocumentFileUrl());
             stmt.setInt(6, event.getCreatedBy());
+            if (event.getBranchId() != null) stmt.setInt(7, event.getBranchId()); else stmt.setNull(7, Types.INTEGER);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             if (e.getMessage() != null && e.getMessage().contains("Unknown column 'document_url'")) {
@@ -49,12 +50,13 @@ public class EventDAO {
         return null;
     }
 
-    public List<Event> getAllEvents() {
+    public List<Event> getAllEvents(Integer branchId) {
         List<Event> events = new ArrayList<>();
-        String query = "SELECT * FROM events ORDER BY event_date ASC";
+        String query = branchId == null ? "SELECT * FROM events ORDER BY event_date ASC" : "SELECT * FROM events WHERE branch_id = ? ORDER BY event_date ASC";
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (branchId != null) stmt.setInt(1, branchId);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 events.add(mapResultSetToEvent(rs));
             }
@@ -64,12 +66,15 @@ public class EventDAO {
         return events;
     }
 
-    public List<Event> getUpcomingEvents() {
+    public List<Event> getUpcomingEvents(Integer branchId) {
         List<Event> events = new ArrayList<>();
-        String query = "SELECT * FROM events WHERE event_date >= NOW() ORDER BY event_date ASC";
+        String query = branchId == null ? 
+            "SELECT * FROM events WHERE event_date >= NOW() ORDER BY event_date ASC" :
+            "SELECT * FROM events WHERE event_date >= NOW() AND branch_id = ? ORDER BY event_date ASC";
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (branchId != null) stmt.setInt(1, branchId);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 events.add(mapResultSetToEvent(rs));
             }
@@ -80,7 +85,7 @@ public class EventDAO {
     }
 
     public boolean updateEvent(Event event) {
-        String query = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, document_url = ? WHERE id = ?";
+        String query = "UPDATE events SET title = ?, description = ?, event_date = ?, location = ?, document_url = ?, branch_id = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, event.getTitle());
@@ -88,7 +93,8 @@ public class EventDAO {
             stmt.setObject(3, event.getEventDate());
             stmt.setString(4, event.getLocation());
             stmt.setString(5, event.getDocumentFileUrl());
-            stmt.setInt(6, event.getId());
+            if (event.getBranchId() != null) stmt.setInt(6, event.getBranchId()); else stmt.setNull(6, Types.INTEGER);
+            stmt.setInt(7, event.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -122,6 +128,8 @@ public class EventDAO {
             event.setDocumentFileUrl(null);
         }
         event.setCreatedBy(rs.getInt("created_by"));
+        int bId = rs.getInt("branch_id");
+        event.setBranchId(rs.wasNull() ? null : bId);
         return event;
     }
 }

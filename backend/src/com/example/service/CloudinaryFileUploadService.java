@@ -104,6 +104,7 @@ public class CloudinaryFileUploadService {
         String body = new String(is.readAllBytes());
         if (resp >= 200 && resp < 300) {
             ObjectMapper mapper = new ObjectMapper();
+            @SuppressWarnings("unchecked")
             Map<String, Object> json = mapper.readValue(body, Map.class);
             Object secure = json.get("secure_url");
             if (secure == null) {

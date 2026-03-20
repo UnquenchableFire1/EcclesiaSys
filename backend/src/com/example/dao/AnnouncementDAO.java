@@ -9,13 +9,14 @@ import com.example.db.DBConnection;
 public class AnnouncementDAO {
 
     public boolean addAnnouncement(Announcement announcement) {
-        String query = "INSERT INTO announcements (title, message, created_by, file_url) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO announcements (title, message, created_by, file_url, branch_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, announcement.getTitle());
             stmt.setString(2, announcement.getMessage());
             stmt.setInt(3, announcement.getCreatedBy());
             stmt.setString(4, announcement.getFileUrl());
+            if (announcement.getBranchId() != null) stmt.setInt(5, announcement.getBranchId()); else stmt.setNull(5, Types.INTEGER);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             if (e.getMessage() != null && e.getMessage().contains("Unknown column 'file_url'")) {
@@ -47,12 +48,13 @@ public class AnnouncementDAO {
         return null;
     }
 
-    public List<Announcement> getAllAnnouncements() {
+    public List<Announcement> getAllAnnouncements(Integer branchId) {
         List<Announcement> announcements = new ArrayList<>();
-        String query = "SELECT * FROM announcements ORDER BY created_date DESC";
+        String query = branchId == null ? "SELECT * FROM announcements ORDER BY created_date DESC" : "SELECT * FROM announcements WHERE branch_id = ? ORDER BY created_date DESC";
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (branchId != null) stmt.setInt(1, branchId);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 announcements.add(mapResultSetToAnnouncement(rs));
             }
@@ -63,12 +65,13 @@ public class AnnouncementDAO {
     }
 
     public boolean updateAnnouncement(Announcement announcement) {
-        String query = "UPDATE announcements SET title = ?, message = ? WHERE id = ?";
+        String query = "UPDATE announcements SET title = ?, message = ?, branch_id = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, announcement.getTitle());
             stmt.setString(2, announcement.getMessage());
-            stmt.setInt(3, announcement.getId());
+            if (announcement.getBranchId() != null) stmt.setInt(3, announcement.getBranchId()); else stmt.setNull(3, Types.INTEGER);
+            stmt.setInt(4, announcement.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -112,6 +115,8 @@ public class AnnouncementDAO {
         } catch (SQLException ex) {
             // ignore if column missing
         }
+        int bId = rs.getInt("branch_id");
+        announcement.setBranchId(rs.wasNull() ? null : bId);
         return announcement;
     }
 }

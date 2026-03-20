@@ -15,12 +15,11 @@ import java.util.Map;
 public class MemberController {
 
     @GetMapping
-    @JsonView(Views.Admin.class)
-    public Map<String, Object> getAllMembers() {
+    public Map<String, Object> getAllMembers(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
             MemberDAO dao = new MemberDAO();
-            List<Member> members = dao.getAllMembers();
+            List<Member> members = dao.getAllMembers(branchId);
             response.put("success", true);
             response.put("data", members);
         } catch (Exception e) {
@@ -71,12 +70,11 @@ public class MemberController {
     }
 
     @GetMapping("/public")
-    @JsonView(Views.Member.class)
-    public Map<String, Object> getPublicMembers() {
+    public Map<String, Object> getPublicMembers(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
             MemberDAO dao = new MemberDAO();
-            List<Member> members = dao.getPublicMembers();
+            List<Member> members = dao.getPublicMembers(branchId);
             response.put("success", true);
             response.put("data", members);
         } catch (Exception e) {

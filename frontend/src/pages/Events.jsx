@@ -14,7 +14,7 @@ import {
     faTimes
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function Events({ embedded = false }) {
+export default function Events({ embedded = false, branchId = null }) {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -30,11 +30,11 @@ export default function Events({ embedded = false }) {
 
     useEffect(() => {
         fetchEvents();
-    }, []);
+    }, [branchId]);
 
     const fetchEvents = async () => {
         try {
-            const response = await getEvents();
+            const response = await getEvents(branchId);
             const data = response.data?.data || response.data || [];
             setEvents(Array.isArray(data) ? data : []);
         } catch (err) {

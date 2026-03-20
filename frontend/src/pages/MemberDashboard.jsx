@@ -64,7 +64,7 @@ export default function MemberDashboard() {
         try {
             const [profileRes, membersRes] = await Promise.all([
                 getMemberProfile(memberId),
-                getPublicMembers()
+                getPublicMembers(memberProfile?.branchId)
             ]);
             setMemberProfile(profileRes.data?.data || profileRes.data || {});
             setMembers(membersRes.data?.data || membersRes.data || []);
@@ -201,21 +201,21 @@ export default function MemberDashboard() {
                 {/* 2. ANNOUNCEMENTS */}
                 {activeTab === 'announcements' && (
                     <div className="space-y-10 animate-fade-in">
-                        <Announcements embedded={true} />
+                        <Announcements embedded={true} branchId={memberProfile?.branchId} />
                     </div>
                 )}
 
                 {/* 3. EVENTS */}
                 {activeTab === 'events' && (
                     <div className="space-y-10 animate-fade-in">
-                        <Events embedded={true} />
+                        <Events embedded={true} branchId={memberProfile?.branchId} />
                     </div>
                 )}
 
                 {/* 4. SERMONS */}
                 {activeTab === 'sermons' && (
                     <div className="space-y-10 animate-fade-in">
-                        <Sermons embedded={true} />
+                        <Sermons embedded={true} branchId={memberProfile?.branchId} />
                     </div>
                 )}
 

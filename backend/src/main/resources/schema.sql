@@ -1,3 +1,10 @@
+CREATE TABLE IF NOT EXISTS branches(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    location VARCHAR(200),
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS members(
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -11,17 +18,10 @@ CREATE TABLE IF NOT EXISTS members(
     gender VARCHAR(20),
     bio TEXT,
     status VARCHAR(10) NOT NULL DEFAULT 'active',
+    branch_id INT,
     joined_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS password_resets(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(100) NOT NULL,
-    actual_email VARCHAR(100),
-    token VARCHAR(255) NOT NULL UNIQUE,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(branch_id) REFERENCES branches(id)
 );
 
 CREATE TABLE IF NOT EXISTS admins(
@@ -29,10 +29,13 @@ CREATE TABLE IF NOT EXISTS admins(
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) DEFAULT 'BRANCH_ADMIN', -- 'SUPER_ADMIN' or 'BRANCH_ADMIN'
+    branch_id INT,
     created_by INT,
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY(created_by) REFERENCES admins(id)
+    FOREIGN KEY(created_by) REFERENCES admins(id),
+    FOREIGN KEY(branch_id) REFERENCES branches(id)
 );
 
 CREATE TABLE IF NOT EXISTS sermons(
@@ -42,9 +45,11 @@ CREATE TABLE IF NOT EXISTS sermons(
     file_path VARCHAR(500) NOT NULL,
     file_type ENUM('mp3', 'mp4') NOT NULL,
     uploaded_by INT NOT NULL,
+    branch_id INT,
     uploaded_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY(uploaded_by) REFERENCES admins(id)
+    FOREIGN KEY(uploaded_by) REFERENCES admins(id),
+    FOREIGN KEY(branch_id) REFERENCES branches(id)
 );
 
 CREATE TABLE IF NOT EXISTS announcements(
@@ -52,10 +57,12 @@ CREATE TABLE IF NOT EXISTS announcements(
     title VARCHAR(200) NOT NULL,
     message TEXT NOT NULL,
     created_by INT NOT NULL,
+    branch_id INT,
     file_url VARCHAR(500),
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY(created_by) REFERENCES admins(id)
+    FOREIGN KEY(created_by) REFERENCES admins(id),
+    FOREIGN KEY(branch_id) REFERENCES branches(id)
 );
 
 CREATE TABLE IF NOT EXISTS events(
@@ -64,11 +71,13 @@ CREATE TABLE IF NOT EXISTS events(
     description TEXT NOT NULL,
     event_date DATETIME NOT NULL,
     location VARCHAR(300),
+    branch_id INT,
     document_url VARCHAR(500),
     created_by INT NOT NULL,
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY(created_by) REFERENCES admins(id)
+    FOREIGN KEY(created_by) REFERENCES admins(id),
+    FOREIGN KEY(branch_id) REFERENCES branches(id)
 );
 
 CREATE TABLE IF NOT EXISTS chat_messages(

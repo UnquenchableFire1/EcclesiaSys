@@ -13,6 +13,7 @@ public class Sermon {
     private String videoUrl;
     private String fileType;
     private int uploadedBy;
+    private Integer branchId;
     private LocalDateTime uploadedDate;
     private LocalDateTime updatedAt;
 
@@ -61,4 +62,7 @@ public class Sermon {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Integer getBranchId() { return branchId; }
+    public void setBranchId(Integer branchId) { this.branchId = branchId; }
 }

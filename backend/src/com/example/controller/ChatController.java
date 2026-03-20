@@ -4,8 +4,6 @@ import com.example.dao.AdminDAO;
 import com.example.dao.ChatDAO;
 import com.example.model.Admin;
 import com.example.model.ChatMessage;
-import com.example.views.Views;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;

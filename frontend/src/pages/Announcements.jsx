@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getAnnouncements, deleteAnnouncement } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,7 +11,7 @@ import {
     faTimes 
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function Announcements({ embedded = false }) {
+export default function Announcements({ embedded = false, branchId = null }) {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -27,11 +27,11 @@ export default function Announcements({ embedded = false }) {
 
     useEffect(() => {
         fetchAnnouncements();
-    }, []);
+    }, [branchId]);
 
     const fetchAnnouncements = async () => {
         try {
-            const response = await getAnnouncements();
+            const response = await getAnnouncements(branchId);
             const data = response.data?.data || response.data || [];
             setAnnouncements(Array.isArray(data) ? data : []);
         } catch (err) {

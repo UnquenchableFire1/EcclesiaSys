@@ -61,10 +61,19 @@ public class DBConnection {
         try (Statement stmt = conn.createStatement()) {
             // Add missing columns to admins table if they don't exist
             String[] queries = {
+                "CREATE TABLE IF NOT EXISTS branches(id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100) NOT NULL, location VARCHAR(200), created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
+                "ALTER TABLE admins ADD COLUMN role VARCHAR(20) DEFAULT 'BRANCH_ADMIN'",
+                "ALTER TABLE admins ADD COLUMN branch_id INT",
+                "ALTER TABLE members ADD COLUMN branch_id INT",
+                "ALTER TABLE sermons ADD COLUMN branch_id INT",
+                "ALTER TABLE announcements ADD COLUMN branch_id INT",
+                "ALTER TABLE events ADD COLUMN branch_id INT",
                 "ALTER TABLE admins ADD COLUMN profile_picture_url TEXT",
                 "ALTER TABLE admins ADD COLUMN gender VARCHAR(20)",
                 "ALTER TABLE admins ADD COLUMN bio TEXT",
-                "ALTER TABLE admins ADD COLUMN phone_number VARCHAR(20)"
+                "ALTER TABLE admins ADD COLUMN phone_number VARCHAR(20)",
+                // Seed initial branch if none exists
+                "INSERT IGNORE INTO branches (id, name, location) VALUES (1, 'Main Sanctuary', 'Central')"
             };
             
             for (String query : queries) {

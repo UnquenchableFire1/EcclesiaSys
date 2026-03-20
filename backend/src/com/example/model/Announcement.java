@@ -7,6 +7,7 @@ public class Announcement {
     private String title;
     private String message;
     private int createdBy;
+    private Integer branchId;
     private LocalDateTime createdDate;
     private LocalDateTime updatedAt;
     private String fileUrl;
@@ -42,4 +43,7 @@ public class Announcement {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Integer getBranchId() { return branchId; }
+    public void setBranchId(Integer branchId) { this.branchId = branchId; }
 }

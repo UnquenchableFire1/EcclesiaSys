@@ -14,18 +14,14 @@ import java.util.Map;
 public class AnnouncementController {
 
     @org.springframework.beans.factory.annotation.Autowired
-    private com.example.service.EmailTemplateService emailService;
-
-    @org.springframework.beans.factory.annotation.Autowired
     private com.example.dao.MemberDAO memberDao;
 
-
     @GetMapping
-    public Map<String, Object> getAllAnnouncements() {
+    public Map<String, Object> getAllAnnouncements(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
             AnnouncementDAO dao = new AnnouncementDAO();
-            List<Announcement> announcements = dao.getAllAnnouncements();
+            List<Announcement> announcements = dao.getAllAnnouncements(branchId);
             response.put("success", true);
             response.put("data", announcements);
         } catch (Exception e) {
@@ -67,39 +63,29 @@ public class AnnouncementController {
             if (request.containsKey("fileUrl")) {
                 announcement.setFileUrl((String) request.get("fileUrl"));
             }
+            if (request.containsKey("branchId")) {
+                Object bIdObj = request.get("branchId");
+                if (bIdObj instanceof Number) {
+                    announcement.setBranchId(((Number) bIdObj).intValue());
+                }
+            }
             
             AnnouncementDAO dao = new AnnouncementDAO();
             if (dao.addAnnouncement(announcement)) {
-                // Send email and in-app notifications to all active members
+                // Send notifications
                 try {
                     NotificationDAO notificationDao = new NotificationDAO();
                     java.util.List<Integer> memberIds = memberDao.getAllActiveMemberIds();
-                    java.util.List<String> memberEmails = memberDao.getAllActiveMemberEmails();
                     
-                    // In-app notifications
                     for (Integer memberId : memberIds) {
-                        notificationDao.addNotification(
-                            memberId, 
-                            "New Announcement: " + announcement.getTitle(), 
-                            announcement.getMessage()
-                        );
+                        notificationDao.addNotification(memberId, announcement.getTitle(), "A new announcement has been posted in the sanctuary.", "announcement");
                     }
-
-                    // Email notifications
-                    for (String email : memberEmails) {
-                        emailService.sendAnnouncementNotificationEmail(
-                            email, 
-                            announcement.getTitle(), 
-                            announcement.getMessage(),
-                            String.valueOf(announcement.getId())
-                        );
-                    }
-                } catch (Exception e) {
-                    System.err.println("Failed to send announcement notifications: " + e.getMessage());
+                } catch (Exception ne) {
+                    ne.printStackTrace();
                 }
 
                 response.put("success", true);
-                response.put("message", "Announcement created");
+                response.put("message", "Announcement created successfully");
             } else {
                 response.put("success", false);
                 response.put("message", "Failed to create announcement");
@@ -120,12 +106,18 @@ public class AnnouncementController {
                     (String) request.get("message"),
                     ((Number) request.get("createdBy")).intValue()
             );
+            if (request.containsKey("branchId")) {
+                Object bIdObj = request.get("branchId");
+                if (bIdObj instanceof Number) {
+                    announcement.setBranchId(((Number) bIdObj).intValue());
+                }
+            }
             announcement.setId(id);
             
             AnnouncementDAO dao = new AnnouncementDAO();
             if (dao.updateAnnouncement(announcement)) {
                 response.put("success", true);
-                response.put("message", "Announcement updated");
+                response.put("message", "Announcement updated successfully");
             } else {
                 response.put("success", false);
                 response.put("message", "Failed to update announcement");
@@ -144,7 +136,7 @@ public class AnnouncementController {
             AnnouncementDAO dao = new AnnouncementDAO();
             if (dao.deleteAnnouncement(id)) {
                 response.put("success", true);
-                response.put("message", "Announcement deleted");
+                response.put("message", "Announcement deleted successfully");
             } else {
                 response.put("success", false);
                 response.put("message", "Failed to delete announcement");

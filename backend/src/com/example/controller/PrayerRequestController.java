@@ -98,7 +98,7 @@ public class PrayerRequestController {
                             
                             if (member != null) {
                                 NotificationDAO notifDao = new NotificationDAO();
-                                notifDao.addNotification(member.getId(), "Prayer Request Update", message);
+                                notifDao.addNotification(member.getId(), "Prayer Request Update", message, "prayer");
                             }
                             
                             if (emailService != null) {

@@ -1,3 +1,5 @@
+package test.java.com.example;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;

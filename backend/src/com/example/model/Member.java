@@ -56,6 +56,10 @@ public class Member {
     @JsonView(Views.Admin.class)
     private String status;
     
+    @Column(name = "branch_id")
+    @JsonView(Views.Admin.class)
+    private Integer branchId;
+    
     @CreationTimestamp
     @Column(name = "joined_date", nullable = false, updatable = false)
     @JsonView(Views.Public.class)
@@ -141,4 +145,7 @@ public class Member {
     
     public String getBio() { return bio; }
     public void setBio(String bio) { this.bio = bio; }
+
+    public Integer getBranchId() { return branchId; }
+    public void setBranchId(Integer branchId) { this.branchId = branchId; }
 }

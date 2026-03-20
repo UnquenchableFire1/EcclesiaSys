@@ -128,18 +128,25 @@ export default function Layout({ children }) {
             setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
             setUnreadCount(prev => Math.max(0, prev - 1));
             
-            // Navigate based on content
-            const content = (notif.title + ' ' + notif.message).toLowerCase();
-            if (content.includes('member')) {
+            // Navigate based on type
+            if (notif.type === 'member' || notif.type === 'members') {
                 handleTabChange('members');
-            } else if (content.includes('event')) {
+            } else if (notif.type === 'event' || notif.type === 'events') {
                 handleTabChange('events');
-            } else if (content.includes('sermon')) {
+            } else if (notif.type === 'sermon' || notif.type === 'sermons') {
                 handleTabChange('sermons');
-            } else if (content.includes('announcement')) {
+            } else if (notif.type === 'announcement' || notif.type === 'announcements') {
                 handleTabChange('announcements');
-            } else if (content.includes('prayer')) {
+            } else if (notif.type === 'prayer' || notif.type === 'prayer-requests') {
                 handleTabChange('prayer-requests');
+            } else {
+                // Fallback to substring matching if type is generic or missing
+                const content = (notif.title + ' ' + notif.message).toLowerCase();
+                if (content.includes('member')) handleTabChange('members');
+                else if (content.includes('event')) handleTabChange('events');
+                else if (content.includes('sermon')) handleTabChange('sermons');
+                else if (content.includes('announcement')) handleTabChange('announcements');
+                else if (content.includes('prayer')) handleTabChange('prayer-requests');
             }
             setShowNotifications(false);
         } catch (err) {

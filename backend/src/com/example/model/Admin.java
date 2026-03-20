@@ -14,6 +14,8 @@ public class Admin {
     private String gender;
     private String bio;
     private String phoneNumber;
+    private String role; // 'SUPER_ADMIN' or 'BRANCH_ADMIN'
+    private Integer branchId;
     private int createdBy;
     private LocalDateTime createdDate;
     private LocalDateTime updatedAt;
@@ -58,4 +60,10 @@ public class Admin {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
+    public Integer getBranchId() { return branchId; }
+    public void setBranchId(Integer branchId) { this.branchId = branchId; }
 }

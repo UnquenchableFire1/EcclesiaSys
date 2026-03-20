@@ -25,7 +25,6 @@ public class SermonDAO {
         
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
-            if (conn == null) return;
             
             for (String sql : columnsToAdd) {
                 try {
@@ -44,7 +43,7 @@ public class SermonDAO {
     }
 
     public boolean addSermon(Sermon sermon) {
-        String query = "INSERT INTO sermons (title, description, speaker, sermon_date, file_path, audio_url, video_url, file_type, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO sermons (title, description, speaker, sermon_date, file_path, audio_url, video_url, file_type, uploaded_by, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, sermon.getTitle());
@@ -56,6 +55,7 @@ public class SermonDAO {
             stmt.setString(7, sermon.getVideoUrl());
             stmt.setString(8, sermon.getFileType());
             stmt.setInt(9, sermon.getUploadedBy());
+            if (sermon.getBranchId() != null) stmt.setInt(10, sermon.getBranchId()); else stmt.setNull(10, Types.INTEGER);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -78,12 +78,13 @@ public class SermonDAO {
         return null;
     }
 
-    public List<Sermon> getAllSermons() {
+    public List<Sermon> getAllSermons(Integer branchId) {
         List<Sermon> sermons = new ArrayList<>();
-        String query = "SELECT * FROM sermons ORDER BY uploaded_date DESC";
+        String query = branchId == null ? "SELECT * FROM sermons ORDER BY uploaded_date DESC" : "SELECT * FROM sermons WHERE branch_id = ? ORDER BY uploaded_date DESC";
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (branchId != null) stmt.setInt(1, branchId);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 sermons.add(mapResultSetToSermon(rs));
             }
@@ -110,7 +111,7 @@ public class SermonDAO {
     }
 
     public boolean updateSermon(Sermon sermon) {
-        String query = "UPDATE sermons SET title = ?, description = ?, speaker = ?, sermon_date = ?, file_path = ?, audio_url = ?, video_url = ?, file_type = ? WHERE id = ?";
+        String query = "UPDATE sermons SET title = ?, description = ?, speaker = ?, sermon_date = ?, file_path = ?, audio_url = ?, video_url = ?, file_type = ?, branch_id = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, sermon.getTitle());
@@ -121,7 +122,8 @@ public class SermonDAO {
             stmt.setString(6, sermon.getAudioUrl());
             stmt.setString(7, sermon.getVideoUrl());
             stmt.setString(8, sermon.getFileType());
-            stmt.setInt(9, sermon.getId());
+            if (sermon.getBranchId() != null) stmt.setInt(9, sermon.getBranchId()); else stmt.setNull(9, Types.INTEGER);
+            stmt.setInt(10, sermon.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -156,6 +158,8 @@ public class SermonDAO {
         sermon.setVideoUrl(rs.getString("video_url"));
         sermon.setFileType(rs.getString("file_type"));
         sermon.setUploadedBy(rs.getInt("uploaded_by"));
+        int bId = rs.getInt("branch_id");
+        sermon.setBranchId(rs.wasNull() ? null : bId);
         Timestamp uploadedDate = rs.getTimestamp("uploaded_date");
         if (uploadedDate != null) {
             sermon.setUploadedDate(uploadedDate.toLocalDateTime());

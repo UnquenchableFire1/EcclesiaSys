@@ -7,6 +7,7 @@ public class Notification {
     private int memberId;
     private String title;
     private String message;
+    private String type;
     private boolean isRead;
     private LocalDateTime createdAt;
     
@@ -22,6 +23,9 @@ public class Notification {
     
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
+
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
     
     public boolean isRead() { return isRead; }
     public void setRead(boolean isRead) { this.isRead = isRead; }

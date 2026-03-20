@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getSermons, deleteSermon } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,7 +13,7 @@ import {
     faBroadcastTower
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function Sermons({ embedded = false }) {
+export default function Sermons({ embedded = false, branchId = null }) {
     const [sermons, setSermons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -29,11 +29,11 @@ export default function Sermons({ embedded = false }) {
 
     useEffect(() => {
         fetchSermons();
-    }, []);
+    }, [branchId]);
 
     const fetchSermons = async () => {
         try {
-            const response = await getSermons();
+            const response = await getSermons(branchId);
             const data = response.data?.data || response.data || [];
             setSermons(Array.isArray(data) ? data : []);
         } catch (err) {
@@ -42,7 +42,7 @@ export default function Sermons({ embedded = false }) {
             setLoading(false);
         }
     };
-
+ stories
     const handleDelete = (id, e) => {
         e.stopPropagation();
         setConfirmModal({
