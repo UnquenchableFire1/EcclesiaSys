@@ -21,8 +21,8 @@ export default function Hero({ title, subtitle, ctaText, ctaLink = '/', small = 
   };
 
   return (
-    <section className={`text-white ${heightClass} relative bg-mdPrimaryContainer`} aria-labelledby="hero-heading">
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-900/40 to-primary/30" aria-hidden="true" />
+    <section className={`text-white ${heightClass} relative bg-mdPrimary`} aria-labelledby="hero-heading">
+      <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
       <div className="relative max-w-6xl mx-auto px-4 text-center">
         <h1 id="hero-heading" className={`text-4xl sm:text-5xl font-bold mb-4 ${small ? '' : 'text-5xl'}`}>
           {title}

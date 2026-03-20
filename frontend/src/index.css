@@ -49,9 +49,6 @@ html, body {
 body {
   @apply text-mdOnSurface font-sans antialiased bg-mdSurface;
   min-height: 100vh;
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(220, 100%, 95%, 0.2) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(45, 100%, 95%, 0.15) 0px, transparent 50%);
 }
   
   h1, h2, h3, h4, h5, h6 {
@@ -61,8 +58,7 @@ body {
 
 @layer components {
   .btn-premium {
-    @apply px-8 py-4 rounded-2xl font-black transition-all duration-500 transform hover:-translate-y-1.5 shadow-md2 hover:shadow-premium active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-sm relative overflow-hidden;
-    background: linear-gradient(135deg, var(--color-md-primary), #2A4A8F);
+    @apply px-8 py-4 rounded-2xl font-black transition-all duration-500 transform hover:-translate-y-1.5 shadow-md2 hover:shadow-premium active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-sm relative overflow-hidden bg-mdPrimary;
     color: white;
   }
 
@@ -83,8 +79,7 @@ body {
   
   .glass-card::before {
     content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none;
-    background: linear-gradient(to top right, var(--color-md-primary-alpha-5, rgba(26, 47, 95, 0.05)), transparent);
+    @apply absolute inset-0 opacity-0 transition-opacity duration-500 pointer-events-none bg-mdPrimary/5;
   }
 
   .glass-card:hover::before {
@@ -97,7 +92,7 @@ body {
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-mdPrimary to-mdSecondary font-black;
+    @apply text-mdPrimary font-black;
   }
 
   /* Grain Texture Overlay */

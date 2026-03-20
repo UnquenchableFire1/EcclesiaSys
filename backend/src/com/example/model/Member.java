@@ -96,6 +96,7 @@ public class Member {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
+    @JsonView(Views.Public.class)
     public String getName() { return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : ""); }
     public void setName(String name) { 
         if (name != null) {

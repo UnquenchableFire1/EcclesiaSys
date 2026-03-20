@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
 import { getEvents, deleteEvent } from '../services/api';
+import ConfirmModal from '../components/ConfirmModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faCalendarAlt, 
@@ -18,6 +18,10 @@ export default function Events({ embedded = false }) {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        onConfirm: () => {}
+    });
     
     // Use session storage for consistent auth checks
     const userType = sessionStorage.getItem('userType');
@@ -39,16 +43,19 @@ export default function Events({ embedded = false }) {
         }
     };
 
-    const handleDelete = async (id, e) => {
+    const handleDelete = (id, e) => {
         e.stopPropagation();
-        if (window.confirm('Are you sure you want to delete this event?')) {
-            try {
-                await deleteEvent(id);
-                setEvents(events.filter(ev => ev.id !== id));
-            } catch (err) {
-                alert('Failed to delete event');
+        setConfirmModal({
+            isOpen: true,
+            onConfirm: async () => {
+                try {
+                    await deleteEvent(id);
+                    setEvents(events.filter(ev => ev.id !== id));
+                } catch (err) {
+                    console.error('Failed to delete event');
+                }
             }
-        }
+        });
     };
 
     const handleAddToCalendar = (event) => {
@@ -142,9 +149,9 @@ export default function Events({ embedded = false }) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredEvents.map((event) => (
-                        <div key={event.id} className="glass-card group overflow-hidden flex flex-col hover:border-mdSecondary/30 transition-all duration-500 rounded-[2.5rem] shadow-premium">
+                        <div key={event.id} className="glass-card group overflow-hidden flex flex-col hover:border-mdSecondary/30 transition-all duration-500 rounded-[2.5rem] shadow-premium bg-white">
                             {/* Visual Header */}
-                            <div className="h-3 relative bg-gradient-to-r from-mdPrimary to-mdSecondary"></div>
+                            <div className="h-3 relative bg-mdPrimary"></div>
                             
                             <div className="p-8 flex-1">
                                 <div className="flex items-center justify-between mb-6">
@@ -209,7 +216,7 @@ export default function Events({ embedded = false }) {
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" onClick={() => setSelectedEvent(null)}></div>
                     <div className="glass-card relative z-10 w-full max-w-3xl bg-white overflow-hidden shadow-premium animate-slide-up border-none rounded-[3rem]">
-                        <div className="h-2 bg-gradient-to-r from-mdPrimary to-mdSecondary"></div>
+                        <div className="h-2 bg-mdPrimary"></div>
                         
                         <div className="p-10">
                             <div className="flex justify-between items-start mb-10">
@@ -281,6 +288,15 @@ export default function Events({ embedded = false }) {
                     </div>
                 </div>
             )}
+            {/* Deletion Confirmation Modal */}
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title="Cancel Gathering?"
+                message="This will permanently remove the event from the sanctuary calendar. Proceed?"
+                type="danger"
+            />
         </div>
     );
 }

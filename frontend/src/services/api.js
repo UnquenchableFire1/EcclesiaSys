@@ -262,6 +262,23 @@ export const deleteAdmin = (id) => {
     return api.delete(`/admins/${id}`);
 };
 
+// Chat APIs
+export const sendChatMessage = (data) => {
+  return api.post('/chat/send', data);
+};
+
+export const getChatHistory = (user1Id, user2Id) => {
+  return api.get('/chat/history', { params: { user1Id, user2Id } });
+};
+
+export const getConversations = (userId) => {
+  return api.get('/chat/conversations', { params: { userId } });
+};
+
+export const markChatMessageAsRead = (messageId) => {
+  return api.put('/chat/read', null, { params: { messageId } });
+};
+
 export const changePassword = (userType, userId, currentPassword, newPassword, otp) => {
   const endpoint = userType === 'admin' ? `/admins/${userId}/change-password` : `/member/${userId}/change-password`;
   return api.post(endpoint, { currentPassword, newPassword, otp });

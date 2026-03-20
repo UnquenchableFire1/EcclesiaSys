@@ -197,7 +197,7 @@ export default function MemberProfile() {
                     {/* Premium Profile Header */}
                     <div className="glass-card p-10 flex flex-col md:flex-row gap-12 items-center md:items-start group rounded-[3rem] border-none shadow-premium">
                         <div className="relative">
-                            <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[3rem] p-1 bg-gradient-to-br from-mdPrimary/40 via-mdSecondary/40 to-mdPrimary/40 animate-gradient-slow group-hover:rotate-3 transition-transform duration-700 shadow-premium">
+                            <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[3rem] p-1 bg-mdPrimary animate-gradient-slow group-hover:rotate-3 transition-transform duration-700 shadow-premium">
                                 <div className="w-full h-full rounded-[2.9rem] bg-white overflow-hidden relative border-4 border-white shadow-inner">
                                     {previewUrl ? (
                                         <img 

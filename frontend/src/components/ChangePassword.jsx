@@ -15,7 +15,7 @@ export default function ChangePassword({ userType, userId }) {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', message: '' });
 
-  const userEmail = sessionStorage.getItem(userType === 'admin' ? 'userEmail' : 'memberEmail');
+  const userEmail = sessionStorage.getItem('userEmail');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,8 +25,8 @@ export default function ChangePassword({ userType, userId }) {
     e.preventDefault();
     setStatus({ type: '', message: '' });
 
-    if (formData.enteredEmail.trim().toLowerCase() !== userEmail?.toLowerCase()) {
-      setStatus({ type: 'error', message: 'Email does not match your registered personal email.' });
+    if (formData.enteredEmail.trim().toLowerCase() !== userEmail?.trim().toLowerCase()) {
+      setStatus({ type: 'error', message: 'Verification failed. Please ensure you are using the email linked to your account.' });
       return;
     }
 

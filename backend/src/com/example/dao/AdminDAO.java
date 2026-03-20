@@ -178,4 +178,8 @@ public class AdminDAO {
         }
         return false;
     }
+    public boolean isSuperAdmin(int id) {
+        Admin admin = getAdminById(id);
+        return admin != null && "benjaminbuckmanjunior@gmail.com".equals(admin.getEmail());
+    }
 }

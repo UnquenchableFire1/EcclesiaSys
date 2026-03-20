@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
 import { getAnnouncements, deleteAnnouncement } from '../services/api';
+import ConfirmModal from '../components/ConfirmModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faBullhorn, 
@@ -15,6 +15,10 @@ export default function Announcements({ embedded = false }) {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        onConfirm: () => {}
+    });
     
     // Use session storage for consistent auth checks
     const userType = sessionStorage.getItem('userType');
@@ -36,16 +40,19 @@ export default function Announcements({ embedded = false }) {
         }
     };
 
-    const handleDelete = async (id, e) => {
+    const handleDelete = (id, e) => {
         e.stopPropagation();
-        if (window.confirm('Are you sure you want to remove this announcement?')) {
-            try {
-                await deleteAnnouncement(id);
-                setAnnouncements(announcements.filter(ann => ann.id !== id));
-            } catch (err) {
-                alert('Failed to delete announcement');
+        setConfirmModal({
+            isOpen: true,
+            onConfirm: async () => {
+                try {
+                    await deleteAnnouncement(id);
+                    setAnnouncements(announcements.filter(ann => ann.id !== id));
+                } catch (err) {
+                    console.error('Failed to delete announcement');
+                }
             }
-        }
+        });
     };
 
     const filteredAnnouncements = useMemo(() => {
@@ -157,7 +164,7 @@ export default function Announcements({ embedded = false }) {
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" onClick={() => setSelectedAnnouncement(null)}></div>
                     <div className="glass-card relative z-10 w-full max-w-2xl bg-white overflow-hidden shadow-premium animate-slide-up border-none rounded-[3rem]">
-                        <div className="h-2 bg-gradient-to-r from-mdPrimary to-mdSecondary"></div>
+                        <div className="h-2 bg-mdPrimary"></div>
                         <div className="p-10 max-h-[80vh] overflow-y-auto custom-scrollbar">
                             <div className="flex items-center justify-between mb-8">
                                 <span className="px-5 py-2 rounded-full bg-mdPrimary/5 text-mdPrimary text-[10px] font-black uppercase tracking-[0.2em] border border-mdPrimary/10">
@@ -191,6 +198,15 @@ export default function Announcements({ embedded = false }) {
                     </div>
                 </div>
             )}
+            {/* Deletion Confirmation Modal */}
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title="Revoke Insight?"
+                message="This will permanently remove the announcement from the sanctuary newsfeed. Proceed?"
+                type="danger"
+            />
         </div>
     );
 }

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun, faBell, faCheck, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/api';
@@ -12,8 +11,6 @@ export default function Navbar({ isMobile }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const { theme, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState([]);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -170,14 +167,6 @@ export default function Navbar({ isMobile }) {
                 </div>
               )}
               
-              {/* Theme Toggle Navbar Button */}
-              <button 
-                  onClick={toggleTheme} 
-                  className="ml-2 p-2.5 rounded-2xl text-mdOnSurface bg-mdSurfaceVariant/50 hover:bg-mdPrimary hover:text-white transition-all duration-200 flex items-center justify-center shadow-sm"
-                  aria-label="Toggle Theme"
-              >
-                  <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} className="text-lg" />
-              </button>
             </div>
           )}
 
@@ -232,7 +221,7 @@ export default function Navbar({ isMobile }) {
               </>
             )}
             
-            {/* Mobile Theme & Notifications */}
+            {/* Mobile Notifications */}
             <div className="mx-4 flex gap-2">
                 <button 
                     onClick={() => {
@@ -240,7 +229,7 @@ export default function Navbar({ isMobile }) {
                         setIsDropdownOpen(false);
                         if (isNotificationOpen) setIsMobileMenuOpen(false);
                     }} 
-                    className="flex-1 flex items-center justify-center gap-3 p-3 rounded-2xl bg-mdSurfaceVariant/50 text-mdOnSurface font-bold transition-colors relative"
+                    className="w-full flex items-center justify-center gap-3 p-3 rounded-2xl bg-mdSurfaceVariant/50 text-mdOnSurface font-bold transition-colors relative"
                     aria-label="Notifications"
                 >
                     <FontAwesomeIcon icon={faBell} className="text-lg" />
@@ -250,13 +239,6 @@ export default function Navbar({ isMobile }) {
                             {unreadCount}
                         </span>
                     )}
-                </button>
-                <button 
-                    onClick={toggleTheme} 
-                    className="flex-1 flex items-center justify-center gap-3 p-3 rounded-2xl bg-mdSurfaceVariant/50 text-mdOnSurface font-bold transition-colors"
-                >
-                    <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} className="text-lg" />
-                    {theme === 'dark' ? 'Light' : 'Dark'}
                 </button>
             </div>
           </div>

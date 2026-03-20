@@ -51,26 +51,13 @@ export default function AuthNavbar({
         </div>
       </div>
 
-      {/* Profile & Notifications Hub */}
+      {/* User Hub */}
       <div className="flex items-center gap-6">
-        {/* Notifications Button */}
-        <button 
-          onClick={onNotificationClick}
-          className="relative w-12 h-12 rounded-2xl bg-mdSurfaceVariant/30 flex items-center justify-center text-mdPrimary hover:scale-110 active:scale-95 transition-all"
-        >
-          <FontAwesomeIcon icon={faBell} className="text-xl" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-mdError text-white text-[9px] font-black rounded-lg flex items-center justify-center border-2 border-white animate-pulse">
-              {unreadCount}
-            </span>
-          )}
-        </button>
-
-        {/* User Profile Mini-Card */}
+        {/* User Profile Hub Button */}
         <div className="relative">
           <button 
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center gap-3 p-1.5 pr-4 rounded-2xl bg-mdSurfaceVariant/20 hover:bg-mdSurfaceVariant/40 transition-all group"
+            className="flex items-center gap-3 p-1.5 pr-4 rounded-2xl bg-mdSurfaceVariant/40 hover:bg-mdPrimary/10 transition-all group relative border border-mdOutline/10"
           >
             <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-white shadow-sm transition-transform group-hover:rotate-6">
               {profilePictureUrl ? (
@@ -86,34 +73,64 @@ export default function AuthNavbar({
               <p className="text-[8px] font-black text-mdPrimary uppercase tracking-widest">{userType}</p>
             </div>
             <FontAwesomeIcon icon={faChevronDown} className={`text-[10px] text-mdOnSurfaceVariant transition-transform duration-300 ${showProfileMenu ? 'rotate-180' : ''}`} />
+            
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -left-1 w-5 h-5 bg-mdError text-white text-[9px] font-black rounded-lg flex items-center justify-center border-2 border-white animate-pulse shadow-sm">
+                {unreadCount}
+              </span>
+            )}
           </button>
 
-          {/* Dropdown Menu */}
+          {/* User Hub Dropdown Menu */}
           {showProfileMenu && (
             <>
               <div className="fixed inset-0 z-[-1]" onClick={() => setShowProfileMenu(false)}></div>
-              <div className="absolute top-16 right-0 w-56 bg-white rounded-3xl shadow-premium border border-mdOutline/10 p-4 animate-scale-in">
-                <button 
-                   onClick={() => { setActiveTab('profile'); setShowProfileMenu(false); }}
-                   className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-mdPrimary/5 text-mdOnSurfaceVariant hover:text-mdPrimary transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-mdPrimary/5 flex items-center justify-center group-hover:bg-mdPrimary group-hover:text-white transition-all">
-                    <FontAwesomeIcon icon={faUserCircle} />
-                  </div>
-                  <span className="font-black text-[11px] uppercase tracking-widest">My Sanctuary</span>
-                </button>
-                
-                <div className="h-px bg-mdOutline/5 my-3 mx-2"></div>
-                
-                <button 
-                  onClick={() => { onLogout(); setShowProfileMenu(false); }}
-                  className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-mdError/5 text-mdError transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-mdError/5 flex items-center justify-center group-hover:bg-mdError group-hover:text-white transition-all">
-                    <FontAwesomeIcon icon={faSignOutAlt} />
-                  </div>
-                  <span className="font-black text-[11px] uppercase tracking-widest">Logout</span>
-                </button>
+              <div className="absolute top-16 right-0 w-64 bg-white rounded-[2.5rem] shadow-premium border border-mdOutline/10 p-5 animate-scale-in origin-top-right">
+                <div className="px-4 py-2 mb-4 border-b border-mdOutline/5 pb-4">
+                    <p className="text-[9px] font-black text-mdOnSurfaceVariant uppercase tracking-[0.2em] mb-1">Authenticed Account</p>
+                    <p className="text-sm font-black text-mdPrimary truncate uppercase tracking-tight">{userName}</p>
+                </div>
+
+                <div className="space-y-1">
+                  <button 
+                    onClick={() => { setActiveTab('profile'); setShowProfileMenu(false); }}
+                    className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-mdPrimary/5 text-mdOnSurfaceVariant hover:text-mdPrimary transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-mdPrimary/5 flex items-center justify-center group-hover:bg-mdPrimary group-hover:text-white transition-all">
+                      <FontAwesomeIcon icon={faUserCircle} />
+                    </div>
+                    <span className="font-black text-[11px] uppercase tracking-widest">My Sanctuary</span>
+                  </button>
+
+                  <button 
+                    onClick={() => { onNotificationClick(); setShowProfileMenu(false); }}
+                    className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-mdPrimary/5 text-mdOnSurfaceVariant hover:text-mdPrimary transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-mdPrimary/5 flex items-center justify-center group-hover:bg-mdPrimary group-hover:text-white transition-all">
+                        <FontAwesomeIcon icon={faBell} />
+                      </div>
+                      <span className="font-black text-[11px] uppercase tracking-widest">Notifications</span>
+                    </div>
+                    {unreadCount > 0 && (
+                      <span className="px-2 py-0.5 bg-mdSecondary text-white text-[9px] font-black rounded-lg">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+                  
+                  <div className="h-px bg-mdOutline/5 my-3 mx-2"></div>
+                  
+                  <button 
+                    onClick={() => { onLogout(); setShowProfileMenu(false); }}
+                    className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-mdError/5 text-mdError transition-all group"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-mdError/5 flex items-center justify-center group-hover:bg-mdError group-hover:text-white transition-all">
+                      <FontAwesomeIcon icon={faSignOutAlt} />
+                    </div>
+                    <span className="font-black text-[11px] uppercase tracking-widest">Logout</span>
+                  </button>
+                </div>
               </div>
             </>
           )}

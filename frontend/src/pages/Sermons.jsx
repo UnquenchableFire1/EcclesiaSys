@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
 import { getSermons, deleteSermon } from '../services/api';
+import ConfirmModal from '../components/ConfirmModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faMicrophone, 
@@ -17,6 +17,10 @@ export default function Sermons({ embedded = false }) {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSermon, setSelectedSermon] = useState(null);
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        onConfirm: () => {}
+    });
     
     // Use session storage for consistent auth checks
     const userType = sessionStorage.getItem('userType');
@@ -38,16 +42,19 @@ export default function Sermons({ embedded = false }) {
         }
     };
 
-    const handleDelete = async (id, e) => {
+    const handleDelete = (id, e) => {
         e.stopPropagation();
-        if (window.confirm('Are you sure you want to remove this sermon from the archive?')) {
-            try {
-                await deleteSermon(id);
-                setSermons(sermons.filter(s => s.id !== id));
-            } catch (err) {
-                alert('Failed to delete sermon');
+        setConfirmModal({
+            isOpen: true,
+            onConfirm: async () => {
+                try {
+                    await deleteSermon(id);
+                    setSermons(sermons.filter(s => s.id !== id));
+                } catch (err) {
+                    console.error('Failed to delete sermon');
+                }
             }
-        }
+        });
     };
 
     const filteredSermons = useMemo(() => {
@@ -106,11 +113,11 @@ export default function Sermons({ embedded = false }) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredSermons.map((sermon) => (
-                        <div key={sermon.id} className="glass-card group overflow-hidden flex flex-col hover:border-mdPrimary/30 transition-all duration-500 rounded-[2.5rem] shadow-premium">
+                        <div key={sermon.id} className="glass-card group overflow-hidden flex flex-col hover:border-mdPrimary/30 transition-all duration-500 rounded-[2.5rem] shadow-premium bg-white">
                             <div className="relative h-48 bg-mdSurfaceVariant/20 overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-t from-mdPrimary/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
+                                <div className="absolute inset-0 bg-mdPrimary/40 opacity-60 group-hover:opacity-40 transition-opacity"></div>
                                 <div className="absolute inset-0 flex items-center justify-center text-mdSecondary/20 text-6xl group-hover:scale-110 transition-transform duration-700">
-                                    <FontAwesomeIcon icon={faPlayCircle} />
+                                    <FontAwesomeIcon icon={faMicrophone} />
                                 </div>
                                 <div className="absolute top-4 right-4 z-10 flex gap-2">
                                     {isAdmin && (
@@ -149,8 +156,8 @@ export default function Sermons({ embedded = false }) {
                                     onClick={() => setSelectedSermon(sermon)}
                                     className="w-full py-4 bg-mdPrimary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-premium hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                                 >
-                                    <FontAwesomeIcon icon={faPlayCircle} />
-                                    Listen to Word
+                                    <FontAwesomeIcon icon={faMicrophone} />
+                                    View Details
                                 </button>
                             </div>
                         </div>
@@ -169,27 +176,20 @@ export default function Sermons({ embedded = false }) {
                             </button>
                         </div>
 
-                        <div className="flex flex-col md:flex-row min-h-[500px]">
-                            {/* Player Section */}
-                            <div className="w-full md:w-3/5 bg-mdOnSurface flex items-center justify-center aspect-video md:aspect-auto">
-                                <div className="text-center p-12">
-                                    <div className="w-32 h-32 rounded-[2rem] bg-mdPrimary/20 flex items-center justify-center mx-auto mb-8 animate-pulse shadow-premium">
-                                        <FontAwesomeIcon icon={faMicrophone} className="text-5xl text-mdPrimary" />
+                        <div className="flex flex-col md:flex-row min-h-[400px]">
+                            {/* Visual Section */}
+                            <div className="w-full md:w-2/5 bg-mdPrimary flex items-center justify-center p-12">
+                                <div className="text-center">
+                                    <div className="w-32 h-32 rounded-[2.5rem] bg-white/10 flex items-center justify-center mx-auto mb-8 shadow-premium border border-white/10">
+                                        <FontAwesomeIcon icon={faMicrophone} className="text-5xl text-white" />
                                     </div>
-                                    <p className="text-white/40 font-black uppercase tracking-[0.3em] text-[10px]">Spiritual Broadcast</p>
-                                    <h3 className="text-white text-2xl font-black tracking-tighter mt-4 leading-tight">Word Presentation Ready</h3>
-                                    
-                                    <div className="mt-10 flex flex-col items-center">
-                                        <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden relative">
-                                            <div className="absolute inset-y-0 left-0 w-1/3 bg-mdSecondary animate-[slide-right_2s_infinite]"></div>
-                                        </div>
-                                        <p className="text-mdSecondary text-[10px] font-black uppercase tracking-widest mt-4">Streaming Word of God</p>
-                                    </div>
+                                    <p className="text-white/60 font-black uppercase tracking-[0.3em] text-[10px]">EcclesiaSys</p>
+                                    <h3 className="text-white text-2xl font-black tracking-tighter mt-4 leading-tight">Word Archive</h3>
                                 </div>
                             </div>
 
                             {/* Info Section */}
-                            <div className="w-full md:w-2/5 p-10 flex flex-col justify-between bg-mdSurfaceVariant/10 border-l border-mdOutline/5">
+                            <div className="w-full md:w-3/5 p-12 flex flex-col justify-between bg-white">
                                 <div>
                                     <span className="px-5 py-2 rounded-full bg-mdPrimary/5 text-mdPrimary text-[10px] font-black uppercase tracking-[0.2em] mb-8 inline-block border border-mdPrimary/10">
                                         Revelation Info
@@ -239,6 +239,15 @@ export default function Sermons({ embedded = false }) {
                     </div>
                 </div>
             )}
+            {/* Deletion Confirmation Modal */}
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title="Remove Revelation?"
+                message="This will permanently remove the sermon from the sanctuary archive. Proceed?"
+                type="danger"
+            />
         </div>
     );
 }

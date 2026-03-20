@@ -12,13 +12,16 @@ import {
 
 export default function BottomNav({ activeTab, setActiveTab, tabs, unreadCount = 0, onNotificationClick }) {
   // Mobile navigation includes all central pillars as per user request
-  const mobileTabIds = ['home', 'announcements', 'events', 'sermons', 'prayer-requests', 'profile'];
-  const mobileTabs = tabs.filter(t => mobileTabIds.includes(t.id));
+  const userType = sessionStorage.getItem('userType');
+  const mobileTabIds = ['home', 'members', 'announcements', 'events', 'sermons', 'chat', 'profile'];
+    
+  const mobileTabs = tabs.filter(t => mobileTabIds.includes(t.id))
+    .sort((a, b) => mobileTabIds.indexOf(a.id) - mobileTabIds.indexOf(b.id));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/95 backdrop-blur-xl border-t border-mdOutline/10 px-4 pb-safe pt-2 flex justify-between items-center shadow-premium">
+    <nav className="fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-white/95 backdrop-blur-xl border-t border-mdOutline/10 px-2 pb-safe pt-2 flex justify-between items-center shadow-premium overflow-x-auto no-scrollbar">
       {/* Dynamic Module Tabs */}
-      <div className="flex flex-1 justify-between items-center mr-4">
+      <div className="flex flex-1 justify-between items-center min-w-max gap-1 px-2">
         {mobileTabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -33,21 +36,6 @@ export default function BottomNav({ activeTab, setActiveTab, tabs, unreadCount =
             </button>
           );
         })}
-      </div>
-
-      {/* Persistent Notification Action on Mobile */}
-      <div className="border-l border-mdOutline/10 pl-4 py-1">
-        <button
-          onClick={onNotificationClick}
-          className={`relative w-11 h-11 rounded-2xl bg-mdSurfaceVariant/30 flex items-center justify-center text-mdPrimary transition-all duration-300 ${unreadCount > 0 ? 'opacity-100 ring-2 ring-mdError/20' : 'opacity-50 grayscale hover:opacity-100'}`}
-        >
-          <FontAwesomeIcon icon={faBell} className="text-lg" />
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-mdError text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-white animate-pulse">
-              {unreadCount}
-            </span>
-          )}
-        </button>
       </div>
     </nav>
   );

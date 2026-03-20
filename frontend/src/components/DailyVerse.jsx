@@ -73,7 +73,7 @@ const DailyVerse = () => {
   };
 
   return (
-    <div className="relative group overflow-hidden bg-gradient-to-br from-mdPrimary/5 to-mdSecondary/5 backdrop-blur-md border border-white/40 rounded-[2.5rem] p-8 md:p-10 shadow-premium transition-all duration-500 hover:shadow-lifted hover:-translate-y-1">
+    <div className="relative group overflow-hidden bg-mdSurfaceVariant/40 backdrop-blur-md border border-white/40 rounded-[2.5rem] p-8 md:p-10 shadow-premium transition-all duration-500 hover:shadow-lifted hover:-translate-y-1">
       {/* Decorative Elements */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-mdPrimary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-mdPrimary/20 transition-all duration-700"></div>
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-mdSecondary/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 group-hover:bg-mdSecondary/20 transition-all duration-700"></div>

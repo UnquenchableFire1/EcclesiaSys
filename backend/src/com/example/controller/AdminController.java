@@ -94,9 +94,15 @@ public class AdminController {
             String email = (String) request.get("email");
             String password = (String) request.get("password");
             
-            int createdBy = 0;
+            int requesterId = 0;
             if (request.get("createdBy") != null) {
-                createdBy = Integer.parseInt(request.get("createdBy").toString());
+                requesterId = Integer.parseInt(request.get("createdBy").toString());
+            }
+
+            if (!adminDAO.isSuperAdmin(requesterId)) {
+                response.put("success", false);
+                response.put("message", "Only the primary administrator can create other admins.");
+                return response;
             }
 
             if (name == null || email == null || password == null || name.isEmpty() || email.isEmpty() || password.isEmpty()) {
@@ -116,7 +122,7 @@ public class AdminController {
             newAdmin.setName(name);
             newAdmin.setEmail(email);
             newAdmin.setPassword(password);
-            newAdmin.setCreatedBy(createdBy);
+            newAdmin.setCreatedBy(requesterId);
 
             boolean success = adminDAO.addAdmin(newAdmin);
             
@@ -138,9 +144,15 @@ public class AdminController {
     public Map<String, Object> promoteMemberToAdmin(@PathVariable int memberId, @RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            int createdBy = 0;
+            int requesterId = 0;
             if (request.get("createdBy") != null) {
-                createdBy = Integer.parseInt(request.get("createdBy").toString());
+                requesterId = Integer.parseInt(request.get("createdBy").toString());
+            }
+
+            if (!adminDAO.isSuperAdmin(requesterId)) {
+                response.put("success", false);
+                response.put("message", "Only the primary administrator can promote members to admin.");
+                return response;
             }
 
             Member member = memberDAO.getMemberById(memberId);
@@ -166,7 +178,7 @@ public class AdminController {
             newAdmin.setName(member.getName());
             newAdmin.setEmail(member.getEmail());
             newAdmin.setPassword(member.getPassword()); // They can change it later or use same
-            newAdmin.setCreatedBy(createdBy);
+            newAdmin.setCreatedBy(requesterId);
 
             boolean success = adminDAO.addAdmin(newAdmin);
             

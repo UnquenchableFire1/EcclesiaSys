@@ -1,18 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faHome, faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands,
     faUser, faChevronRight, faClock, faPlayCircle, faCalendarCheck,
-    faArrowRight, faTimes, faCheck, faQuoteLeft, faUserEdit, faBookOpen
+    faArrowRight, faTimes, faCheck, faQuoteLeft, faUserEdit, faBookOpen,
+    faComments, faUsers, faEnvelope, faSearch
 } from '@fortawesome/free-solid-svg-icons';
-import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 import { 
     getMemberProfile, getAnnouncements, getEvents, getSermons,
     createPrayerRequest, getNotifications, markNotificationAsRead,
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead, getMembers
 } from '../services/api';
 
 import Announcements from './Announcements';
@@ -21,6 +21,7 @@ import Sermons from './Sermons';
 import DailyVerse from '../components/DailyVerse';
 import PrayerRequestModal from '../components/PrayerRequestModal';
 import ChangePassword from '../components/ChangePassword';
+import Chat from './Chat';
 
 export default function MemberDashboard() {
     const navigate = useNavigate();
@@ -30,13 +31,15 @@ export default function MemberDashboard() {
     const [activeTab, setActiveTabInternal] = useState(() => sessionStorage.getItem('memberActiveTab') || 'home');
     const [loading, setLoading] = useState(true);
     const [memberProfile, setMemberProfile] = useState(null);
-    const [memberId, setMemberId] = useState(parseInt(sessionStorage.getItem('userId')));
-    const [memberName, setMemberName] = useState(sessionStorage.getItem('userName'));
+    const [memberId] = useState(parseInt(sessionStorage.getItem('userId')));
+    const [memberName] = useState(sessionStorage.getItem('userName'));
     
     // UI State
     const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [members, setMembers] = useState([]);
+    const [memberSearchQuery, setMemberSearchQuery] = useState('');
 
     // -- Handlers --
     const setActiveTab = (tab) => {
@@ -44,43 +47,37 @@ export default function MemberDashboard() {
         sessionStorage.setItem('memberActiveTab', tab);
     };
 
-    // Listen for tab changes from Sidebar
+    // Listen for tab changes from Sidebar / BottomNav
     useEffect(() => {
         const handleTabChange = (e) => {
             if (e.detail) {
                 setActiveTab(e.detail);
             }
         };
-        window.addEventListener('setMemberActiveTab', handleTabChange);
-        return () => window.removeEventListener('setMemberActiveTab', handleTabChange);
+        window.addEventListener('setActiveTabMember', handleTabChange);
+        return () => window.removeEventListener('setActiveTabMember', handleTabChange);
     }, []);
 
     const fetchMemberData = async () => {
         if (!memberId) { navigate('/login'); return; }
         setLoading(true);
         try {
-            const res = await getMemberProfile(memberId);
-            setMemberProfile(res.data?.data || res.data || {});
+            const [profileRes, membersRes] = await Promise.all([
+                getMemberProfile(memberId),
+                getMembers()
+            ]);
+            setMemberProfile(profileRes.data?.data || profileRes.data || {});
+            setMembers(membersRes.data?.data || membersRes.data || []);
         } catch (err) {
-            console.error("Profile Error:", err);
+            console.error("Dashboard Data Error:", err);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchNotifications = async () => {
-        try {
-            await getNotifications(memberId);
-            // setNotifications(...)
-        } catch (err) { console.error("Notification Error:", err); }
-    };
-
     useEffect(() => {
         if (!memberId) { navigate('/login'); return; }
         fetchMemberData();
-        fetchNotifications();
-        const interval = setInterval(fetchNotifications, 60000);
-        return () => clearInterval(interval);
     }, [memberId]);
 
     // -- Sub-Components --
@@ -124,7 +121,7 @@ export default function MemberDashboard() {
                 {activeTab === 'home' && (
                     <div className="space-y-12">
                         {/* Hero Section */}
-                        <div className="glass-card p-10 md:p-16 bg-gradient-to-br from-mdPrimary to-mdSecondary text-white relative overflow-hidden group border-none shadow-lifted">
+                        <div className="glass-card p-10 md:p-16 bg-mdPrimary text-white relative overflow-hidden group border-none shadow-lifted rounded-[3rem]">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-1000"></div>
                             <div className="relative z-10 max-w-2xl">
                                 <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.4em] mb-8 inline-block border border-white/10">Member Sanctuary</span>
@@ -139,7 +136,7 @@ export default function MemberDashboard() {
                                     <button onClick={() => setActiveTab('sermons')} className="px-8 py-4 bg-white text-mdPrimary rounded-2xl font-black text-sm uppercase tracking-widest shadow-lifted hover:scale-105 transition-all">
                                         Listen to Word
                                     </button>
-                                    <button onClick={() => setIsPrayerModalOpen(true)} className="px-8 py-4 bg-mdPrimaryVariant/20 border border-white/30 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
+                                    <button onClick={() => setIsPrayerModalOpen(true)} className="px-8 py-4 bg-white/10 border border-white/30 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
                                         Request Prayer
                                     </button>
                                 </div>
@@ -182,6 +179,20 @@ export default function MemberDashboard() {
                                     tab="prayer-requests"
                                     color="text-emerald-500"
                                 />
+                                <DiscoveryCard 
+                                    title="Member Directory" 
+                                    desc="Connect with your brothers and sisters in the sanctuary." 
+                                    icon={faUsers} 
+                                    tab="members" 
+                                    color="text-mdPrimary" 
+                                />
+                                <DiscoveryCard 
+                                    title="Direct Chat" 
+                                    desc="Message our sanctuary administrators for support." 
+                                    icon={faComments} 
+                                    tab="chat" 
+                                    color="text-mdSecondary" 
+                                />
                             </div>
                         </div>
                     </div>
@@ -205,6 +216,58 @@ export default function MemberDashboard() {
                 {activeTab === 'sermons' && (
                     <div className="space-y-10 animate-fade-in">
                         <Sermons embedded={true} />
+                    </div>
+                )}
+
+                {/* 4.7 MEMBERS */}
+                {activeTab === 'members' && (
+                    <div className="space-y-10 animate-fade-in">
+                        <div className="max-w-4xl mx-auto text-center mb-12">
+                            <h1 className="text-5xl font-black text-mdOnSurface tracking-tighter mb-4">Member Directory</h1>
+                            <p className="text-lg text-mdOnSurfaceVariant font-medium">Meet the family of faith at EcclesiaSys Sanctuary.</p>
+                            
+                            <div className="mt-8 relative max-w-xl mx-auto">
+                                <FontAwesomeIcon icon={faSearch} className="absolute left-6 top-1/2 -translate-y-1/2 text-mdPrimary opacity-50" />
+                                <input 
+                                    type="text"
+                                    placeholder="Search by name or email..."
+                                    value={memberSearchQuery}
+                                    onChange={(e) => setMemberSearchQuery(e.target.value)}
+                                    className="w-full bg-white border-2 border-mdOutline/10 rounded-2xl py-4 pl-14 pr-6 font-bold text-sm focus:border-mdPrimary focus:ring-4 focus:ring-mdPrimary/5 transition-all outline-none shadow-sm"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {[...members.filter(m => (m.name || `${m.firstName || ''} ${m.lastName || ''}`).toLowerCase().includes(memberSearchQuery.toLowerCase()))]
+                                .sort((a, b) => a.id === memberId ? -1 : b.id === memberId ? 1 : 0)
+                                .map(member => (
+                                <div key={member.id} className={`glass-card group p-8 flex flex-col items-center text-center relative hover:border-mdPrimary/30 transition-all ${member.id === memberId ? 'bg-mdPrimary/5 border-mdPrimary shadow-lifted' : ''}`}>
+                                    <div className={`w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black mb-4 transition-all duration-500 ${member.id === memberId ? 'bg-mdPrimary text-white shadow-lifted' : 'bg-mdPrimary/10 text-mdPrimary group-hover:bg-mdPrimary group-hover:text-white'}`}>
+                                        {member.name?.[0] || member.firstName?.[0]}
+                                    </div>
+                                    <h4 className="text-lg font-black text-mdOnSurface truncate w-full flex items-center justify-center gap-2">
+                                        {member.name || `${member.firstName} ${member.lastName}`}
+                                        {member.id === memberId && <span className="text-xs text-mdPrimary bg-mdPrimary/10 px-2 py-0.5 rounded-lg">(YOU)</span>}
+                                    </h4>
+                                    <p className="text-[9px] font-black text-mdPrimary uppercase tracking-widest mb-6">Active Member</p>
+                                    
+                                    <div className="w-full pt-4 border-t border-mdOutline/5">
+                                        <div className="flex items-center justify-center gap-2 text-[11px] font-bold text-mdOnSurfaceVariant">
+                                            <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary opacity-50" />
+                                            <span className="truncate max-w-[150px]">{member.email}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* 4.5 CHAT */}
+                {activeTab === 'chat' && (
+                    <div className="space-y-10 animate-fade-in">
+                        <Chat />
                     </div>
                 )}
 
@@ -245,24 +308,18 @@ export default function MemberDashboard() {
                                         <li className="flex gap-3"><span className="text-mdPrimary font-black">•</span> Confidential Spiritual Support</li>
                                     </ul>
                                 </div>
-                                <div className="glass-card p-8 bg-mdSecondary/5 border-none">
+                                <div className="glass-card p-8 bg-mdSecondary/10 border-none">
                                     <div className="flex items-center gap-4 mb-6 text-mdSecondary">
-                                        <FontAwesomeIcon icon={faWhatsapp} className="text-2xl" />
-                                        <h4 className="text-xl font-black">Urgent Support?</h4>
+                                        <FontAwesomeIcon icon={faComments} className="text-2xl" />
+                                        <h4 className="text-xl font-black">Need Support?</h4>
                                     </div>
-                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-6 opacity-80">For immediate assistance or counseling, connect with our team directly via WhatsApp.</p>
-                                    <a 
-                                      href="https://wa.me/yourwhatsappnumber" 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      onClick={(e) => {
-                                        // Prevents accidental hash-based logout if the link is handled globally
-                                        e.stopPropagation();
-                                      }}
+                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-6 opacity-80">Our sanctuary administrators are available for direct messaging and spiritual support.</p>
+                                    <button 
+                                      onClick={() => setActiveTab('chat')}
                                       className="font-black text-mdSecondary hover:underline uppercase tracking-widest text-xs flex items-center gap-2"
                                     >
-                                        Connect on WhatsApp <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
-                                    </a>
+                                        Open Direct Chat <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -273,7 +330,7 @@ export default function MemberDashboard() {
                 {activeTab === 'profile' && (
                     <div className="animate-fade-in max-w-4xl mx-auto">
                         <div className="glass-card p-12 text-center relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-mdPrimary/20 to-mdSecondary/20"></div>
+                            <div className="absolute top-0 left-0 w-full h-32 bg-mdPrimary/10"></div>
                             <div className="relative z-10">
                                 <div className="w-32 h-32 rounded-full bg-white shadow-xl mx-auto -mt-16 flex items-center justify-center text-5xl font-black text-mdPrimary border-8 border-mdSurface">
                                     {memberProfile?.name?.[0] || 'M'}

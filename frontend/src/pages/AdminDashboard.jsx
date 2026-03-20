@@ -7,7 +7,7 @@ import {
     faTrash, faPhone, faEnvelope, faMapMarkerAlt, faVideo, 
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
-    faTimes, faChevronRight, faClock, faChartBar
+    faTimes, faChevronRight, faClock, faChartBar, faComments
 } from '@fortawesome/free-solid-svg-icons';
 
 import { 
@@ -25,7 +25,10 @@ import Events from './Events';
 import Sermons from './Sermons';
 import AdminProfile from './AdminProfile';
 import ChangePassword from '../components/ChangePassword';
+import Chat from './Chat';
 import { downloadMembersAsExcel } from '../services/excelExport';
+import ConfirmModal from '../components/ConfirmModal';
+import { faTrash, faExclamationTriangle, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -40,7 +43,7 @@ export default function AdminDashboard() {
     const [adminId] = useState(parseInt(sessionStorage.getItem('userId')));
     const [adminName] = useState(sessionStorage.getItem('userName'));
     const adminEmail = sessionStorage.getItem('userEmail');
-    const isSuperAdmin = adminEmail === 'benjamin@ecclesiasys.com';
+    const isSuperAdmin = adminEmail === 'benjaminbuckmanjunior@gmail.com';
 
     // Data
     const [members, setMembers] = useState([]);
@@ -65,7 +68,7 @@ export default function AdminDashboard() {
     const [showEventForm, setShowEventForm] = useState(false);
     const [eventForm, setEventForm] = useState({ title: '', description: '', startDate: '', endDate: '', location: '' });
     const [showSermonForm, setShowSermonForm] = useState(false);
-    const [sermonForm, setSermonForm] = useState({ title: '', preacherName: '', videoUrl: '', description: '' });
+    const [sermonForm, setSermonForm] = useState({ title: '', preacherName: '', description: '' });
     const [showAdminForm, setShowAdminForm] = useState(false);
     const [adminForm, setAdminForm] = useState({ name: '', email: '', password: '' });
     const [formLoading, setFormLoading] = useState(false);
@@ -79,31 +82,53 @@ export default function AdminDashboard() {
     // Listen for tab changes from Sidebar
     useEffect(() => {
         const handleTabChange = (e) => { if (e.detail) setActiveTab(e.detail); };
-        window.addEventListener('setActiveTab', handleTabChange);
-        return () => window.removeEventListener('setActiveTab', handleTabChange);
+        window.addEventListener('setActiveTabAdmin', handleTabChange);
+        return () => window.removeEventListener('setActiveTabAdmin', handleTabChange);
     }, []);
 
-    const fetchAllData = async () => {
+    // -- Deletion Confirmation State --
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {},
+        type: 'danger'
+    });
+
+    const openConfirm = (title, message, onConfirm, type = 'danger') => {
+        setConfirmModal({
+            isOpen: true,
+            title,
+            message,
+            onConfirm,
+            type
+        });
+    };
+
+    const closeConfirm = () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+    };
+
+    const fetchAllData = useCallback(async () => {
         setLoading(true);
         try {
             const [mem, ann, eve, ser, pra, cou, adm] = await Promise.all([
-                getMembers(), getAnnouncements(), getEvents(), getSermons(), 
-                getPrayerRequests(), getCounts(), isSuperAdmin ? getAdmins() : Promise.resolve({ data: { data: [] } })
+                getMembers(), getAnnouncements(), getEvents(), 
+                getSermons(), getPrayerRequests(), getCounts(), getAdmins()
             ]);
-            setMembers(mem.data?.data || []);
-            setAnnouncements(ann.data?.data || []);
-            setEvents(eve.data?.data || []);
-            setSermons(ser.data?.data || []);
-            setPrayerRequests(pra.data?.data || []);
-            setCounts(cou.data?.data || { members: 0, events: 0, announcements: 0, sermons: 0, prayerRequests: 0 });
-            if (isSuperAdmin) setAdmins(adm.data?.data || []);
+            setMembers(mem.data.data || mem.data || []);
+            setAnnouncements(ann.data || []);
+            setEvents(eve.data || []);
+            setSermons(ser.data || []);
+            setPrayerRequests(pra.data.data || pra.data || []);
+            setCounts(cou.data || { members: 0, announcements: 0, events: 0, sermons: 0, prayerRequests: 0 });
+            setAdmins(adm.data.data || adm.data || []);
         } catch (err) {
-            console.error("Fetch Data Error:", err);
-            setError("Failed to synchronize with server.");
+            console.error("Data Load Error:", err);
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     const fetchNotifications = async () => {
         try {
@@ -120,7 +145,7 @@ export default function AdminDashboard() {
         fetchNotifications();
         const interval = setInterval(fetchNotifications, 30000);
         return () => clearInterval(interval);
-    }, [adminId]);
+    }, [adminId, fetchAllData, navigate]);
 
     // Management Handlers
     const handleAnnouncementSubmit = async (e) => {
@@ -164,7 +189,7 @@ export default function AdminDashboard() {
                 createdBy: adminId
             });
             setAlertDialog({ title: 'Word Published', message: 'Sermon is now available in the library.' });
-            setSermonForm({ title: '', preacherName: '', videoUrl: '', description: '' });
+            setSermonForm({ title: '', preacherName: '', description: '' });
             setShowSermonForm(false);
             fetchAllData();
         } catch (err) { setAlertDialog({ title: 'Error', message: 'Upload failed.', isError: true }); }
@@ -182,17 +207,6 @@ export default function AdminDashboard() {
             fetchAllData();
         } catch (err) { setAlertDialog({ title: 'Error', message: 'Creation failed.', isError: true }); }
         finally { setFormLoading(false); }
-    };
-
-    const handleDeleteMember = (id) => {
-        setConfirmDialog({
-            title: 'Delete Member',
-            message: 'Are you sure? This action cannot be undone.',
-            onConfirm: async () => {
-                await deleteMember(id);
-                setMembers(members.filter(m => m.id !== id));
-            }
-        });
     };
 
     // -- Sub-Components --
@@ -241,7 +255,7 @@ export default function AdminDashboard() {
             <header className="mb-12 mt-4 px-4 md:px-0 animate-slide-up">
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
-                    <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-br from-mdOnSurface to-mdOnSurfaceVariant/60">
+                    <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2">
                         EcclesiaSys Sanctuary
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
@@ -307,7 +321,10 @@ export default function AdminDashboard() {
                     <div className="space-y-10 animate-fade-in">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                             <div>
-                                <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Congregation</h1>
+                                <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter flex items-center gap-4">
+                                    Congregation
+                                    <span className="text-xs bg-mdPrimary/10 text-mdPrimary px-3 py-1 rounded-full">{members.length} Members</span>
+                                </h1>
                                 <p className="text-mdPrimary font-black text-sm uppercase tracking-widest">Member Directory</p>
                             </div>
                             <div className="flex gap-4 w-full md:w-auto">
@@ -328,26 +345,49 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {members.filter(m => m.name?.toLowerCase().includes(memberSearchQuery.toLowerCase())).map(m => (
-                                <div key={m.id} className="glass-card group p-8 flex flex-col items-center text-center relative">
-                                    <button onClick={() => handleDeleteMember(m.id)} className="absolute top-4 right-4 text-mdOutline hover:text-mdError transition-colors opacity-0 group-hover:opacity-100">
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
+                            {[...members.filter(m => (m.name || `${m.firstName || ''} ${m.lastName || ''}`).toLowerCase().includes(memberSearchQuery.toLowerCase()))]
+                                .sort((a, b) => a.id === adminId ? -1 : b.id === adminId ? 1 : 0)
+                                .map(member => (
+                                <div key={member.id} className={`glass-card group p-8 flex flex-col items-center text-center relative ${member.id === adminId ? 'bg-mdPrimary/5 border-mdPrimary border-2' : ''}`}>
                                     <div className="w-20 h-20 rounded-full bg-mdPrimary/10 flex items-center justify-center text-3xl font-black text-mdPrimary mb-4">
-                                        {m.name?.[0] || m.firstName?.[0]}
+                                        {member.name?.[0] || member.firstName?.[0]}
                                     </div>
-                                    <h4 className="text-xl font-black text-mdOnSurface truncate w-full">{m.name || `${m.firstName} ${m.lastName}`}</h4>
+                                    <h4 className="text-xl font-black text-mdOnSurface truncate w-full flex items-center justify-center gap-2">
+                                        {member.name || `${member.firstName} ${member.lastName}`}
+                                        {member.id === adminId && <span className="text-[10px] text-mdPrimary bg-mdPrimary/10 px-2 py-0.5 rounded-lg">(YOU)</span>}
+                                    </h4>
                                     <div className="flex items-center gap-2 mb-6">
                                         <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-widest">Member</p>
-                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${m.status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-mdError/10 text-mdError'}`}>
-                                            {m.status || 'Active'}
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${member.status === 'Active' ? 'bg-green-500/10 text-green-600' : 'bg-mdError/10 text-mdError'}`}>
+                                            {member.status || 'Active'}
                                         </span>
                                     </div>
                                     <div className="w-full space-y-2 mt-auto">
                                         <div className="flex items-center gap-2 p-3 bg-mdSurfaceVariant/10 rounded-xl text-xs font-bold text-mdOnSurfaceVariant overflow-hidden">
                                             <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary" />
-                                            <span className="truncate">{m.email}</span>
+                                            <span className="truncate">{member.email}</span>
                                         </div>
+                                        <button 
+                                            onClick={() => openConfirm(
+                                                "Restrict Access?", 
+                                                `Are you sure you want to ${member.status === 'Active' ? 'Deactivate' : 'Reactivate'} ${member.firstName}?`,
+                                                () => toggleMemberStatus(member.id).then(fetchAllData)
+                                            )}
+                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${member.id === adminId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : member.status === 'Active' ? 'bg-mdError/10 text-mdError hover:bg-mdError hover:text-white' : 'bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white'}`}
+                                            disabled={member.id === adminId}
+                                        >
+                                            {member.status === 'Active' ? 'Restrict' : 'Authorize'}
+                                        </button>
+                                        <button 
+                                            onClick={() => openConfirm(
+                                                "Expunge Record?", 
+                                                `This will permanently remove ${member.firstName} from the sanctuary registry. Proceed?`,
+                                                () => deleteMember(member.id).then(fetchAllData)
+                                            )}
+                                            className="p-3 bg-mdSurfaceVariant/30 text-mdOnSurfaceVariant rounded-xl hover:bg-mdError hover:text-white transition-all shadow-sm"
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -420,14 +460,20 @@ export default function AdminDashboard() {
                             <div className="glass-card p-10 animate-slide-up border-l-8 border-l-purple-500">
                                 <form onSubmit={handleSermonSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <input type="text" placeholder="Sermon Title" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-bold" value={sermonForm.title} onChange={e => setSermonForm({...sermonForm, title: e.target.value})} required />
-                                    <input type="text" placeholder="Speaker" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl" value={sermonForm.preacherName} onChange={e => setSermonForm({...sermonForm, preacherName: e.target.value})} required />
-                                    <input type="text" placeholder="Media Link (YouTube/Direct)" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl" value={sermonForm.videoUrl} onChange={e => setSermonForm({...sermonForm, videoUrl: e.target.value})} required />
+                                    <input type="text" placeholder="Speaker" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-bold" value={sermonForm.preacherName} onChange={e => setSermonForm({...sermonForm, preacherName: e.target.value})} required />
                                     <textarea placeholder="Message highlight..." className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-medium h-32" value={sermonForm.description} onChange={e => setSermonForm({...sermonForm, description: e.target.value})} required />
                                     <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Publishing...' : 'Add to Library'}</button>
                                 </form>
                             </div>
                         )}
                         <Sermons embedded={true} />
+                    </div>
+                )}
+
+                {/* 5.5 CHAT */}
+                {activeTab === 'chat' && (
+                    <div className="space-y-10 animate-fade-in mt-4">
+                        <Chat />
                     </div>
                 )}
 
@@ -455,7 +501,14 @@ export default function AdminDashboard() {
                                                 <FontAwesomeIcon icon={faCheck} />
                                             </button>
                                         )}
-                                        <button onClick={() => deletePrayerRequest(pr.id).then(fetchAllData)} className="p-4 bg-mdError/10 text-mdError rounded-2xl hover:bg-mdError hover:text-white transition-all">
+                                        <button 
+                                            onClick={() => openConfirm(
+                                                "Archive Prayer?", 
+                                                "This prayer request will be permanently removed from the dashboard. Proceed?",
+                                                () => deletePrayerRequest(pr.id).then(fetchAllData)
+                                            )}
+                                            className="p-4 bg-mdError/10 text-mdError rounded-2xl hover:bg-mdError hover:text-white transition-all"
+                                        >
                                             <FontAwesomeIcon icon={faTrash} />
                                         </button>
                                     </div>
@@ -534,6 +587,15 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+            {/* Deletion Confirmation Modal */}
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen}
+                onClose={closeConfirm}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                type={confirmModal.type}
+            />
         </div>
     );
 }
