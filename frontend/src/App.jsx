@@ -90,7 +90,7 @@ export default function App() {
           path="/member-dashboard"
           element={
             <ProtectedRoute requiredRole="member">
-              <MemberDashboard />
+              <Layout><MemberDashboard /></Layout>
             </ProtectedRoute>
           }
         />
@@ -123,7 +123,7 @@ export default function App() {
           path="/prayer-request"
           element={
             <ProtectedRoute requiredRole="member">
-              <PrayerRequestPage />
+              <Layout><PrayerRequestPage /></Layout>
             </ProtectedRoute>
           }
         />
@@ -131,7 +131,7 @@ export default function App() {
           path="/admin"
           element={
             <ProtectedRoute requiredRole="admin">
-              <AdminDashboard />
+              <Layout><AdminDashboard /></Layout>
             </ProtectedRoute>
           }
         />

@@ -77,7 +77,18 @@ export default function Announcements() {
                 ) : (
                     <div className="space-y-6">
                         {announcements.map((announcement, index) => (
-                            <div key={announcement.id || index} id={`announcement-${announcement.id}`} className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 group">
+                            <div 
+                                key={announcement.id || index} 
+                                id={`announcement-${announcement.id}`} 
+                                onClick={(e) => {
+                                    const el = e.currentTarget;
+                                    el.classList.add('ring-4', 'ring-mdPrimary', 'transition-all', 'duration-1000');
+                                    setTimeout(() => {
+                                        el.classList.remove('ring-4', 'ring-mdPrimary');
+                                    }, 2000);
+                                }}
+                                className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 group cursor-pointer"
+                            >
                                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                                     <h3 className="text-2xl font-extrabold text-mdOnSurface group-hover:text-mdPrimary transition-colors">{announcement.title}</h3>
                                     <span className="inline-flex items-center px-3 py-1 rounded-full bg-mdSurfaceVariant text-mdOnSurfaceVariant text-sm font-bold whitespace-nowrap">

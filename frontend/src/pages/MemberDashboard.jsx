@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faSun, faMoon, faCheck, faCheckDouble, faClock, faHeadset, faEnvelope, faHome, faBullhorn, faCalendarAlt, faMicrophone, faUser, faUsers, faPrayingHands, faBell, faVideo } from '@fortawesome/free-solid-svg-icons';
 import MemberProfile from './MemberProfile';
 import MemberDirectory from './MemberDirectory';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,11 +9,12 @@ import {
     getNotifications, 
     markNotificationAsRead, 
     markAllNotificationsAsRead,
-    changePassword,
     getMemberById
 } from '../services/api';
-import Sidebar from '../components/Sidebar';
 import ChangePassword from '../components/ChangePassword';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import DailyVerse from '../components/DailyVerse';
+import PrayerRequestModal from '../components/PrayerRequestModal';
 import { 
     faHome, 
     faBullhorn, 
@@ -48,6 +49,15 @@ export default function MemberDashboard() {
         setActiveTabInternal(tab);
         sessionStorage.setItem('memberActiveTab', tab);
     };
+
+    // Listen for tab changes from the global Layout sidebar
+    useEffect(() => {
+        const handleTabChange = (e) => {
+            if (e.detail) setActiveTab(e.detail);
+        };
+        window.addEventListener('setActiveTab', handleTabChange);
+        return () => window.removeEventListener('setActiveTab', handleTabChange);
+    }, []);
     const navigate = useNavigate();
     const [memberData, setMemberData] = useState(null);
     const [announcements, setAnnouncements] = useState([]);
@@ -197,32 +207,14 @@ export default function MemberDashboard() {
     }, [navigate]);
 
     const handleLogout = () => {
-        setShowLogoutConfirm(true);
-    };
-
-    const confirmLogout = () => {
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userType');
-        localStorage.removeItem('memberEmail');
+        sessionStorage.clear();
+        localStorage.clear();
         navigate('/login');
     };
 
 
 
 
-    const TabButton = ({ tab, label, icon }) => (
-        <button
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
-                activeTab === tab
-                    ? 'bg-mdSurface text-mdPrimary border-b-4 border-mdPrimary'
-                    : 'text-mdOnPrimary hover:bg-white/10'
-            }`}
-        >
-            <span className="hidden sm:inline mr-2">{icon}</span>
-            {label}
-        </button>
-    );
 
     if (loading) {
         return (
@@ -232,44 +224,10 @@ export default function MemberDashboard() {
         );
     }
 
-    const dashboardTabs = [
-        { id: 'home', label: 'Overview', icon: faHome },
-        { id: 'announcements', label: 'Announcements', icon: faBullhorn, path: '/announcements' },
-        { id: 'events', label: 'Events', icon: faCalendarAlt, path: '/events' },
-        { id: 'sermons', label: 'Sermons', icon: faMicrophone, path: '/sermons' },
-        { id: 'prayer', label: 'Prayer Request', icon: faPrayingHands, path: '/prayer-request' },
-        { id: 'directory', label: 'Members', icon: faUsers },
-        { id: 'profile', label: 'Profile', icon: faUser },
-    ];
 
     return (
-        <div className="min-h-screen bg-mdSurface flex">
-            <Sidebar 
-                activeTab={activeTab} 
-                setActiveTab={setActiveTab} 
-                tabs={dashboardTabs} 
-                isOpen={isSidebarOpen} 
-                setIsOpen={setIsSidebarOpen} 
-                userType="member"
-                userName={memberName}
-                userEmail={memberData?.email}
-                onLogout={handleLogout}
-                profilePictureUrl={memberData?.profilePictureUrl || memberData?.profile_picture_url}
-                unreadCount={unreadCount}
-                onNotificationClick={() => setActiveTab('notifications')}
-            />
-
-            <div className="flex-1 flex flex-col min-w-0 md:pl-72 transition-all duration-300">
-                {/* Mobile Top Bar */}
-                <div className="md:hidden h-16 bg-mdPrimary flex items-center justify-between px-4 text-white sticky top-0 z-50 shadow-md">
-                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-2xl">☰</button>
-                    <span className="font-black tracking-tighter">EcclesiaSys</span>
-                    <div className="w-10"></div>
-                </div>
-
-                <div className="flex-1 px-4 py-2 md:px-8 md:py-4 lg:px-12 lg:py-6 max-w-[1600px] w-full mx-auto">
-
-                </div>
+        <div className="animate-fade-in pb-20">
+            <div className="max-w-7xl mx-auto px-4 md:px-0">
 
                 {/* Header Area */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 px-4 md:px-0 mt-4 md:mt-0">
@@ -566,8 +524,8 @@ export default function MemberDashboard() {
                 {activeTab === 'profile' && <MemberProfile />}
             </div>
         </div>
-        <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
+            <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
+        </div>
     </div>
-</div>
     );
 }

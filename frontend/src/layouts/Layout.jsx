@@ -1,14 +1,27 @@
 import Navbar from '../components/Navbar';
+import Sidebar from '../components/Sidebar';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faEnvelope, 
+    faHome, 
+    faBullhorn, 
+    faCalendarAlt, 
+    faMicrophone, 
+    faPrayingHands, 
+    faUsers, 
+    faUser 
+} from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 export default function Layout({ children }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [lastActivity, setLastActivity] = useState(Date.now());
-    const inactivityTimeout = 5 * 60 * 1000; // 5 minutes
+    const inactivityTimeout = 15 * 60 * 1000; // Increased to 15 minutes
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -16,9 +29,41 @@ export default function Layout({ children }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const location = useLocation();
-    const isDashboard = location.pathname.includes('/admin') || location.pathname.includes('/member-dashboard');
+    const userId = sessionStorage.getItem('userId');
     const userType = sessionStorage.getItem('userType');
+    const userName = sessionStorage.getItem('userName') || 'User';
+    const userEmail = sessionStorage.getItem('memberEmail') || sessionStorage.getItem('adminEmail');
+    const profilePictureUrl = sessionStorage.getItem('profilePictureUrl');
+
+    const isDashboard = location.pathname.includes('/admin') || location.pathname.includes('/member-dashboard');
+    const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+    const shouldShowSidebar = userId && !isAuthPage;
+
+    const adminTabs = [
+        { id: 'home', label: 'Overview', icon: faHome, path: '/admin' },
+        { id: 'members', label: 'Members', icon: faUsers },
+        { id: 'announcements', label: 'Announcements', icon: faBullhorn, path: '/announcements' },
+        { id: 'events', label: 'Events', icon: faCalendarAlt, path: '/events' },
+        { id: 'sermons', label: 'Sermons', icon: faMicrophone, path: '/sermons' },
+        { id: 'prayer', label: 'Prayer Requests', icon: faPrayingHands },
+        { id: 'profile', label: 'Profile', icon: faUser },
+    ];
+
+    const memberTabs = [
+        { id: 'home', label: 'Overview', icon: faHome, path: '/member-dashboard' },
+        { id: 'announcements', label: 'Announcements', icon: faBullhorn, path: '/announcements' },
+        { id: 'events', label: 'Events', icon: faCalendarAlt, path: '/events' },
+        { id: 'sermons', label: 'Sermons', icon: faMicrophone, path: '/sermons' },
+        { id: 'prayer', label: 'Prayer Request', icon: faPrayingHands, path: '/prayer-request' },
+        { id: 'directory', label: 'Members', icon: faUsers },
+        { id: 'profile', label: 'Profile', icon: faUser },
+    ];
+
+    const handleLogout = () => {
+        sessionStorage.clear();
+        localStorage.clear();
+        navigate('/login');
+    };
     
     // Activity tracking for session timeout
     useEffect(() => {
@@ -60,7 +105,33 @@ export default function Layout({ children }) {
             <Navbar isMobile={isMobile} />
             
             <div className="flex flex-1 pt-16 md:pt-20">
-                <main className="flex-1 transition-all duration-300">
+                {shouldShowSidebar && (
+                    <Sidebar 
+                        tabs={userType === 'admin' ? adminTabs : memberTabs}
+                        isOpen={isSidebarOpen}
+                        setIsOpen={setIsSidebarOpen}
+                        userType={userType}
+                        userName={userName}
+                        userEmail={userEmail}
+                        profilePictureUrl={profilePictureUrl}
+                        onLogout={handleLogout}
+                        activeTab={null} // Path based navigation will handle highlighting
+                        setActiveTab={(tabId) => {
+                            // If a tab has a path, navigate to it, otherwise set active tab in dashboard state
+                            // For standalone pages, we rely on path matching in Sidebar.jsx
+                            if (tabId === 'profile') {
+                                navigate(userType === 'admin' ? '/admin-profile' : '/member-profile');
+                            } else if (tabId === 'directory') {
+                                navigate('/member-directory');
+                            } else if (isDashboard) {
+                                // This allows the dashboards to still react to non-path tabs
+                                const event = new CustomEvent('setActiveTab', { detail: tabId });
+                                window.dispatchEvent(event);
+                            }
+                        }}
+                    />
+                )}
+                <main className={`flex-1 transition-all duration-300 ${shouldShowSidebar ? 'md:ml-72' : ''}`}>
                     <div className='p-2 md:p-3 lg:p-4 max-w-7xl mx-auto'>
                         {children}
                     </div>

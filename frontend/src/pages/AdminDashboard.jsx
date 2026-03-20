@@ -29,7 +29,6 @@ import {
     getAdminProfile,
     default as api
 } from '../services/api';
-import Sidebar from '../components/Sidebar';
 import ChangePassword from '../components/ChangePassword';
 import AdminProfile from './AdminProfile';
 import { downloadMembersAsExcel } from '../services/excelExport';
@@ -60,14 +59,19 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminDashboard() {
-    const [activeTab, setActiveTabInternal] = useState(() => {
-        return sessionStorage.getItem('adminActiveTab') || 'home';
-    });
-
     const setActiveTab = (tab) => {
         setActiveTabInternal(tab);
         sessionStorage.setItem('adminActiveTab', tab);
     };
+
+    // Listen for tab changes from the global Layout sidebar
+    useEffect(() => {
+        const handleTabChange = (e) => {
+            if (e.detail) setActiveTab(e.detail);
+        };
+        window.addEventListener('setActiveTab', handleTabChange);
+        return () => window.removeEventListener('setActiveTab', handleTabChange);
+    }, []);
     const [members, setMembers] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
     const [events, setEvents] = useState([]);
@@ -116,29 +120,10 @@ export default function AdminDashboard() {
     const isMobile = windowWidth < 768;
 
     const handleLogout = () => {
-        setShowLogoutConfirm(true);
-    };
-
-    const confirmLogout = () => {
         sessionStorage.clear();
+        localStorage.clear();
         navigate('/login');
     };
-    const TabButton = ({ tab, label, icon }) => (
-        <button
-            onClick={() => {
-                setActiveTab(tab);
-                setMobileMenuOpen(false);
-            }}
-            className={`px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base font-bold transition-all duration-300 whitespace-nowrap rounded-t-2xl ${
-                activeTab === tab
-                    ? 'bg-white text-mdPrimary border-b-4 border-mdPrimary'
-                    : 'text-mdOnPrimary hover:bg-white/10'
-            }`}
-        >
-            <span className="hidden sm:inline mr-2">{icon}</span>
-            {label}
-        </button>
-    );
 
     const fetchUserNotifications = async () => {
         const userId = sessionStorage.getItem('userId');
@@ -465,29 +450,8 @@ export default function AdminDashboard() {
     ].filter(t => !t.hidden);
 
     return (
-        <div className="min-h-screen bg-mdSurface flex">
-            <Sidebar 
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                tabs={dashboardTabs}
-                isOpen={isSidebarOpen}
-                setIsOpen={setIsSidebarOpen}
-                userType="admin"
-                userName={adminName}
-                userEmail={adminProfile?.email || sessionStorage.getItem('userEmail')}
-                onLogout={handleLogout}
-                profilePictureUrl={adminProfile?.profilePictureUrl}
-            />
-
-            <div className="flex-1 flex flex-col min-w-0 md:pl-72 transition-all duration-300">
-                {/* Mobile Top Bar */}
-                <div className="md:hidden h-16 bg-mdPrimary flex items-center justify-between px-4 text-white sticky top-0 z-50 shadow-md">
-                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-2xl">☰</button>
-                    <span className="font-black tracking-tighter">EcclesiaSys Admin</span>
-                    <div className="w-10"></div>
-                </div>
-
-                <div className="flex-1 p-4 md:p-8 lg:p-12 max-w-[1600px] w-full mx-auto">
+        <div className="animate-fade-in pb-20">
+            <div className="max-w-7xl mx-auto px-4 md:px-0">
             {/* Custom Dialogs */}
             
             {/* Confirm Dialog */}
@@ -541,29 +505,6 @@ export default function AdminDashboard() {
                 </div>
             )}
 
-            {/* Logout Confirmation Modal */}
-            {showLogoutConfirm && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-mdSurface rounded-3xl shadow-md3 p-8 max-w-sm w-full mx-auto">
-                        <h3 className="text-2xl font-bold text-mdOnSurface mb-4">Confirm Logout</h3>
-                        <p className="text-mdOnSurfaceVariant mb-8 text-lg">Are you sure you want to logout?</p>
-                        <div className="flex gap-4">
-                            <button
-                                onClick={() => setShowLogoutConfirm(false)}
-                                className="flex-1 bg-mdSurfaceVariant hover:bg-mdOutline/20 text-mdOnSurfaceVariant font-bold py-3 rounded-full transition-colors duration-200"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={confirmLogout}
-                                className="flex-1 bg-mdError hover:bg-red-700 text-mdOnError font-bold py-3 rounded-full shadow-md1 transition-all duration-200"
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Header Area */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 px-4 md:px-0">
@@ -974,7 +915,8 @@ export default function AdminDashboard() {
                             {announcements.map(ann => (
                                 <div 
                                     key={ann.id} 
-                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 group"
+                                    onClick={() => navigate(`/announcements?id=${ann.id}`)}
+                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 group cursor-pointer"
                                 >
                                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                         <div className="flex-1 min-w-0">
@@ -1090,7 +1032,8 @@ export default function AdminDashboard() {
                             {events.map(event => (
                                 <div 
                                     key={event.id} 
-                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col group"
+                                    onClick={() => navigate(`/events?id=${event.id}`)}
+                                    className="bg-mdSurface p-6 rounded-3xl shadow-sm border border-mdSurfaceVariant hover:shadow-md2 transition-all duration-300 flex flex-col group cursor-pointer"
                                 >
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-4">
@@ -1493,7 +1436,6 @@ export default function AdminDashboard() {
                 )}
                 </div>
             </div>
-        </div>
     );
 }
 

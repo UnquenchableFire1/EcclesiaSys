@@ -79,7 +79,18 @@ export default function Events() {
                 ) : (
                     <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
                         {events.map((event, index) => (
-                            <div key={event.id || index} id={`event-${event.id}`} className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col group">
+                            <div 
+                                key={event.id || index} 
+                                id={`event-${event.id}`} 
+                                onClick={(e) => {
+                                    const el = e.currentTarget;
+                                    el.classList.add('ring-4', 'ring-mdSecondary', 'transition-all', 'duration-1000');
+                                    setTimeout(() => {
+                                        el.classList.remove('ring-4', 'ring-mdSecondary');
+                                    }, 2000);
+                                }}
+                                className="bg-mdSurface p-6 sm:p-8 rounded-3xl border border-mdSurfaceVariant shadow-sm hover:shadow-md2 transition-all duration-300 flex flex-col group cursor-pointer"
+                            >
                                 <h3 className="text-2xl font-extrabold text-mdOnSurface group-hover:text-mdSecondary transition-colors mb-6">{event.title}</h3>
                                 
                                 <div className="space-y-4 mb-6 flex-grow">
