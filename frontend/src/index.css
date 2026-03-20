@@ -24,6 +24,11 @@
     --color-md-on-error: #FFFFFF;
     --color-md-error-container: #FFDAD6;
     --color-md-on-error-container: #410002;
+    
+    /* Presentation Grade Additions */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --premium-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
   }
 
   .dark {
@@ -44,30 +49,79 @@
     --color-md-on-error: #690005;
     --color-md-error-container: #93000A;
     --color-md-on-error-container: #FFDAD6;
+    
+    --glass-bg: rgba(14, 20, 20, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
   }
 
 html, body {
-  @apply overflow-x-hidden;
+  @apply overflow-x-hidden transition-colors duration-500;
   width: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
   @apply text-mdOnSurface font-sans antialiased bg-mdSurface;
   min-height: 100vh;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(180, 100%, 90%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(180, 100%, 80%, 0.1) 0px, transparent 50%);
 }
+
+  .dark body {
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(180, 100%, 10%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(180, 100%, 15%, 0.2) 0px, transparent 50%);
+  }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display;
+    @apply font-display tracking-tight;
   }
 }
 
 @layer components {
   .btn-premium {
-    @apply px-6 py-3 rounded-full font-bold transition-all duration-300 transform hover:-translate-y-0.5 shadow-premium hover:shadow-lifted active:scale-95;
+    @apply px-8 py-4 rounded-2xl font-black transition-all duration-500 transform hover:-translate-y-1.5 shadow-md2 hover:shadow-premium active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-sm relative overflow-hidden;
+    background: linear-gradient(135deg, var(--color-md-primary), #00A3A3);
+    color: white;
+  }
+
+  .btn-premium::after {
+    content: '';
+    @apply absolute inset-0 bg-white/20 translate-x-[-100%] transition-transform duration-1000 ease-in-out;
+  }
+
+  .btn-premium:hover::after {
+    @apply translate-x-[100%];
   }
   
   .glass-card {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-premium rounded-2xl;
+    @apply backdrop-blur-2xl border shadow-premium transition-all duration-500 relative overflow-hidden;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
+  }
+  
+  .glass-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none;
+  }
+
+  .glass-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .glass-card:hover {
+    @apply shadow-lifted border-white/40 -translate-y-1;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-mdPrimary to-mdSecondary font-black;
+  }
+
+  /* Grain Texture Overlay */
+  .grain {
+    @apply fixed inset-0 pointer-events-none opacity-[0.03] z-[999];
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='gradient' %3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23gradient)'/%3E%3C/svg%3E");
   }
 }
 
@@ -76,15 +130,36 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background-color: var(--color-md-surface-variant);
+  @apply bg-transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-md-outline);
-  border-radius: 9999px;
-  border: 2px solid var(--color-md-surface-variant);
-  background-clip: padding-box;
-}
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-md-primary);
+  @apply bg-mdOutline/10 rounded-full border-2 border-transparent bg-clip-padding hover:bg-mdPrimary/30 transition-colors;
 }
 
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(1deg); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(0.98); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 4s ease-in-out infinite;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

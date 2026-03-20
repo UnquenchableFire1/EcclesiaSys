@@ -42,20 +42,19 @@ export default function Layout({ children }) {
     const adminTabs = [
         { id: 'home', label: 'Overview', icon: faHome, path: '/admin' },
         { id: 'members', label: 'Members', icon: faUsers },
-        { id: 'announcements', label: 'Announcements', icon: faBullhorn, path: '/announcements' },
-        { id: 'events', label: 'Events', icon: faCalendarAlt, path: '/events' },
-        { id: 'sermons', label: 'Sermons', icon: faMicrophone, path: '/sermons' },
-        { id: 'prayer', label: 'Prayer Requests', icon: faPrayingHands },
+        { id: 'announcements', label: 'Announcements', icon: faBullhorn },
+        { id: 'events', label: 'Events', icon: faCalendarAlt },
+        { id: 'sermons', label: 'Sermons', icon: faMicrophone },
+        { id: 'prayer-requests', label: 'Prayer Requests', icon: faPrayingHands },
         { id: 'profile', label: 'Profile', icon: faUser },
     ];
 
     const memberTabs = [
         { id: 'home', label: 'Overview', icon: faHome, path: '/member-dashboard' },
-        { id: 'announcements', label: 'Announcements', icon: faBullhorn, path: '/announcements' },
-        { id: 'events', label: 'Events', icon: faCalendarAlt, path: '/events' },
-        { id: 'sermons', label: 'Sermons', icon: faMicrophone, path: '/sermons' },
-        { id: 'prayer', label: 'Prayer Request', icon: faPrayingHands, path: '/prayer-request' },
-        { id: 'directory', label: 'Members', icon: faUsers },
+        { id: 'announcements', label: 'Announcements', icon: faBullhorn },
+        { id: 'events', label: 'Events', icon: faCalendarAlt },
+        { id: 'sermons', label: 'Sermons', icon: faMicrophone },
+        { id: 'prayer-requests', label: 'Prayer Request', icon: faPrayingHands },
         { id: 'profile', label: 'Profile', icon: faUser },
     ];
 
@@ -121,22 +120,29 @@ export default function Layout({ children }) {
                         onLogout={handleLogout}
                         activeTab={null} // Path based navigation will handle highlighting
                         setActiveTab={(tabId) => {
-                            // If a tab has a path, navigate to it, otherwise set active tab in dashboard state
-                            // For standalone pages, we rely on path matching in Sidebar.jsx
-                            if (tabId === 'profile') {
-                                navigate(userType === 'admin' ? '/admin-profile' : '/member-profile');
-                            } else if (tabId === 'directory') {
-                                navigate('/member-directory');
-                            } else if (isDashboard) {
-                                // This allows the dashboards to still react to non-path tabs
-                                const event = new CustomEvent('setActiveTab', { detail: tabId });
-                                window.dispatchEvent(event);
+                            // Ensure we are on the dashboard
+                            const targetDashboard = userType === 'admin' ? '/admin' : '/member-dashboard';
+                            if (location.pathname !== targetDashboard) {
+                                navigate(targetDashboard);
+                                // Give a small timeout for the dashboard to mount and listen
+                                setTimeout(() => {
+                                    const eventName = userType === 'admin' ? 'setActiveTab' : 'setMemberActiveTab';
+                                    window.dispatchEvent(new CustomEvent(eventName, { detail: tabId }));
+                                }, 100);
+                            } else {
+                                const eventName = userType === 'admin' ? 'setActiveTab' : 'setMemberActiveTab';
+                                window.dispatchEvent(new CustomEvent(eventName, { detail: tabId }));
                             }
                         }}
                     />
                 )}
-                <main className={`flex-1 transition-all duration-300 ${shouldShowSidebar ? 'md:ml-72' : ''}`}>
-                    <div className='p-2 md:p-3 lg:p-4 max-w-7xl mx-auto'>
+                <main className={`flex-1 transition-all duration-300 ${shouldShowSidebar ? 'md:ml-72' : ''} relative`}>
+                    {/* Premium Aesthetic Overlays */}
+                    <div className="grain"></div>
+                    <div className="fixed top-[10%] right-[5%] w-[40rem] h-[40rem] bg-mdPrimary/5 rounded-full blur-[120px] -z-10 animate-float opacity-50"></div>
+                    <div className="fixed bottom-[10%] left-[10%] w-[30rem] h-[30rem] bg-mdSecondary/5 rounded-full blur-[100px] -z-10 animate-float opacity-30" style={{ animationDelay: '-3s' }}></div>
+                    
+                    <div className='p-4 md:p-6 lg:p-10 max-w-[1600px] mx-auto min-h-screen'>
                         {children}
                     </div>
                 </main>

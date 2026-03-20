@@ -1,169 +1,114 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
 import { getAnnouncements } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBullhorn, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faBullhorn, faClock, faSearch, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
-export default function Announcements() {
-    const [expandedId, setExpandedId] = useState(null);
-    const [loading, setLoading] = useState(true);
+export default function Announcements({ embedded = false }) {
     const [announcements, setAnnouncements] = useState([]);
-    const location = useLocation();
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        // Watchdog timeout to prevent indefinite loading
-        const timer = setTimeout(() => {
-            if (loading) {
+        const fetchAnnouncements = async () => {
+            try {
+                const response = await getAnnouncements();
+                const data = response.data?.data || response.data || [];
+                setAnnouncements(Array.isArray(data) ? data : []);
+            } catch (err) {
+                console.error("Failed to fetch announcements:", err);
+            } finally {
                 setLoading(false);
-                if (announcements.length === 0) {
-                    console.warn("Loading timed out for announcements.");
-                }
             }
-        }, 10000);
-
-        getAnnouncements().then(response => {
-            const data = response.data;
-            const fetchedAnnouncements = data.data || data || [];
-            setAnnouncements(Array.isArray(fetchedAnnouncements) ? fetchedAnnouncements : []);
-            setLoading(false);
-            clearTimeout(timer);
-
-            // Check for id in query params
-            const params = new URLSearchParams(location.search);
-            const announcementId = params.get('id');
-            if (announcementId) {
-                setExpandedId(parseInt(announcementId));
-                // Scroll to the announcement after a short delay
-                setTimeout(() => {
-                    const element = document.getElementById(`announcement-${announcementId}`);
-                    if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Add a temporary highlight class
-                        element.classList.add('ring-4', 'ring-mdPrimary', 'transition-all', 'duration-1000');
-                        setTimeout(() => {
-                            element.classList.remove('ring-4', 'ring-mdPrimary');
-                        }, 3000);
-                    }
-                }, 500);
-            }
-        }).catch(err => {
-            console.error('Error fetching announcements:', err);
-            setLoading(false);
-            clearTimeout(timer);
-        });
-
-        return () => clearTimeout(timer);
+        };
+        fetchAnnouncements();
     }, []);
 
-    if (loading) return (
-        <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
-            <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin mb-4"></div>
-            <div className="text-mdOnSurfaceVariant font-bold tracking-wide text-center">
-                Loading announcements...<br/>
-                <span className="text-xs opacity-50 font-medium uppercase tracking-widest">Checking the scrolls of wisdom</span>
-            </div>
-        </div>
-    );
+    const filteredAnnouncements = useMemo(() => {
+        return announcements.filter(ann => 
+            ann.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ann.message?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [announcements, searchTerm]);
 
     return (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in pb-24">
-                <div className="mb-10 sm:mb-14">
-                    <button 
-                        onClick={() => navigate(sessionStorage.getItem('userType') === 'admin' ? '/admin' : '/member-dashboard')}
-                        className="w-max flex items-center gap-2 text-mdPrimary font-black hover:bg-mdPrimary/10 px-4 py-2 rounded-xl transition-all mb-6"
-                    >
-                        <FontAwesomeIcon icon={faBullhorn} className="rotate-90" />
-                        Back to Dashboard
-                    </button>
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="bg-mdPrimaryContainer p-3 sm:p-4 rounded-3xl shadow-sm">
-                            <FontAwesomeIcon icon={faBullhorn} className="text-3xl sm:text-4xl text-mdPrimary" />
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-mdOnSurface tracking-tight">
+        <div className={`animate-fade-in ${embedded ? '' : 'max-w-7xl mx-auto px-4 py-12'}`}>
+            {!embedded && (
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2">Church News</h1>
+                        <p className="text-mdPrimary font-black text-lg uppercase tracking-widest bg-mdPrimary/5 px-4 py-1 rounded-full w-max">
                             Announcements
-                        </h1>
+                        </p>
                     </div>
                 </div>
-                <p className="text-mdOnSurfaceVariant text-lg mb-8 sm:mb-12 font-medium">Stay informed with the latest updates from your community.</p>
-                
-                {announcements.length === 0 ? (
-                    <div className="bg-mdSurfaceVariant/20 border-2 border-dashed border-mdOutline/20 p-20 rounded-[3rem] text-center">
-                        <div className="w-20 h-20 bg-mdSurfaceVariant/50 rounded-full flex items-center justify-center mx-auto mb-6 text-mdOutline">
-                            <FontAwesomeIcon icon={faBullhorn} className="text-3xl opacity-40" />
-                        </div>
-                        <h3 className="text-2xl font-black text-mdOnSurface mb-2">No announcements found</h3>
-                        <p className="text-mdOnSurfaceVariant text-lg">Check back later for new messages from the church family.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-6">
-                        {announcements.map((announcement, index) => (
-                            <div 
-                                key={announcement.id || index} 
-                                id={`announcement-${announcement.id}`} 
-                                onClick={() => setExpandedId(expandedId === announcement.id ? null : announcement.id)}
-                                className={`bg-mdSurface p-6 sm:p-8 rounded-[2.5rem] border transition-all duration-500 group cursor-pointer relative overflow-hidden ${
-                                    expandedId === announcement.id 
-                                    ? 'border-mdPrimary shadow-premium ring-1 ring-mdPrimary/20 translate-x-2' 
-                                    : 'border-mdSurfaceVariant shadow-sm hover:shadow-md1 hover:border-mdPrimary/30'
-                                }`}
-                            >
-                                <div className="absolute top-0 left-0 w-1.5 h-full bg-mdPrimary opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                
-                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-[10px] font-black text-mdPrimary uppercase tracking-[0.2em] bg-mdPrimary/10 px-2 py-0.5 rounded-md">Notification</span>
-                                            <span className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-widest">
-                                                {new Date(announcement.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-                                            </span>
-                                        </div>
-                                        <h3 className={`text-2xl sm:text-3xl font-black transition-colors duration-300 ${expandedId === announcement.id ? 'text-mdPrimary' : 'text-mdOnSurface'}`}>
-                                            {announcement.title}
-                                        </h3>
-                                    </div>
-                                    <div className={`p-3 rounded-full bg-mdSurfaceVariant/30 text-mdOnSurface font-black transition-transform duration-500 ${expandedId === announcement.id ? 'rotate-180 bg-mdPrimaryContainer text-mdPrimary' : ''}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </div>
+            )}
 
-                                <div className={`transition-all duration-500 ease-in-out ${expandedId === announcement.id ? 'max-h-[1000px] opacity-100' : 'max-h-24 opacity-80'}`}>
-                                    <p className={`text-mdOnSurfaceVariant text-lg leading-relaxed whitespace-pre-wrap ${expandedId === announcement.id ? '' : 'line-clamp-3'}`}>
-                                        {announcement.message}
-                                    </p>
-                                    
-                                    {expandedId === announcement.id && (
-                                        <div className="mt-8 animate-fade-in">
-                                            {announcement.fileUrl && (
-                                                <div className="pt-6 border-t border-mdOutline/10">
-                                                    <a
-                                                        href={announcement.fileUrl}
-                                                        download
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        className="inline-flex items-center gap-3 bg-mdPrimary text-mdOnPrimary px-8 py-3.5 rounded-2xl font-black shadow-md1 hover:shadow-md2 hover:scale-[1.02] transition-all duration-300"
-                                                    >
-                                                        <FontAwesomeIcon icon={faDownload} /> Download Attachment
-                                                    </a>
-                                                </div>
-                                            )}
-                                            
-                                            <div className="mt-6 flex justify-end">
-                                                <span className="text-xs font-bold text-mdOnSurfaceVariant/40 uppercase tracking-widest">End of announcement</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                {expandedId !== announcement.id && (
-                                    <div className="mt-4 flex items-center gap-1.5 text-mdPrimary font-bold text-xs uppercase tracking-widest group-hover:gap-3 transition-all">
-                                        Read full message <FontAwesomeIcon icon={faDownload} className="-rotate-90 text-[8px]" />
+            {/* Search and Filters */}
+            <div className={`glass-card p-6 mb-10 flex flex-col md:flex-row gap-4 items-center ${embedded ? 'mt-4' : ''}`}>
+                <div className="relative flex-1 w-full">
+                    <FontAwesomeIcon icon={faSearch} className="absolute left-5 top-1/2 -translate-y-1/2 text-mdOutline" />
+                    <input
+                        type="text"
+                        placeholder="Search announcements..."
+                        className="w-full pl-14 pr-6 py-4 bg-mdSurfaceVariant/20 border-none rounded-2xl focus:ring-2 focus:ring-mdPrimary transition-all font-medium"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="flex items-center gap-2 text-mdOnSurfaceVariant font-bold text-sm uppercase tracking-widest px-4">
+                    <FontAwesomeIcon icon={faBullhorn} className="text-mdPrimary" />
+                    <span>{filteredAnnouncements.length} Total</span>
+                </div>
+            </div>
+
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {[1, 2, 3, 4].map(n => (
+                        <div key={n} className="glass-card h-64 animate-pulse"></div>
+                    ))}
+                </div>
+            ) : filteredAnnouncements.length === 0 ? (
+                <div className="glass-card p-20 text-center">
+                    <div className="w-24 h-24 bg-mdSurfaceVariant/30 rounded-full flex items-center justify-center mx-auto mb-8 opacity-40">
+                        <FontAwesomeIcon icon={faBullhorn} className="text-4xl" />
+                    </div>
+                    <p className="text-2xl font-black text-mdOnSurface mb-2">No announcements found</p>
+                    <p className="text-mdOnSurfaceVariant font-medium">Try adjusting your search terms.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {filteredAnnouncements.map((ann) => (
+                        <div key={ann.id} className="glass-card group overflow-hidden flex flex-col">
+                            <div className="p-8 flex-1">
+                                <div className="flex items-center justify-between mb-6">
+                                    <span className="px-4 py-1.5 rounded-full bg-mdPrimary/10 text-mdPrimary text-[10px] font-black uppercase tracking-widest">
+                                        Announcement
+                                    </span>
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-mdOutline uppercase tracking-widest">
+                                        <FontAwesomeIcon icon={faClock} className="opacity-50" />
+                                        {new Date(ann.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </div>
+                                </div>
+                                <h3 className="text-2xl font-black text-mdOnSurface mb-4 group-hover:text-mdPrimary transition-colors line-clamp-2">
+                                    {ann.title}
+                                </h3>
+                                <p className="text-mdOnSurfaceVariant font-medium leading-relaxed mb-6 line-clamp-3">
+                                    {ann.message}
+                                </p>
+                            </div>
+                            <div className="px-8 py-5 bg-mdSurfaceVariant/10 border-t border-mdOutline/5 flex items-center justify-between">
+                                <button className="text-sm font-black text-mdPrimary hover:underline uppercase tracking-widest flex items-center gap-2">
+                                    Read Full Story
+                                    <FontAwesomeIcon icon={faInfoCircle} className="text-[10px]" />
+                                </button>
+                                {ann.isUrgent && (
+                                    <span className="w-2 h-2 bg-mdError rounded-full animate-ping"></span>
                                 )}
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }

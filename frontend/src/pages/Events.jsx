@@ -1,183 +1,131 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
 import { getEvents } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faMapMarkerAlt, faClock, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faClock, faMapMarkerAlt, faSearch, faInfoCircle, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-export default function Events() {
-    const [expandedEvent, setExpandedEvent] = useState(null);
-    const [loading, setLoading] = useState(true);
+export default function Events({ embedded = false }) {
     const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        // Watchdog timeout to prevent indefinite loading
-        const timer = setTimeout(() => {
-            if (loading) {
+        const fetchEvents = async () => {
+            try {
+                const response = await getEvents();
+                const data = response.data?.data || response.data || [];
+                setEvents(Array.isArray(data) ? data : []);
+            } catch (err) {
+                console.error("Failed to fetch events:", err);
+            } finally {
                 setLoading(false);
-                if (events.length === 0) {
-                    console.warn("Loading timed out for events.");
-                }
             }
-        }, 10000);
-
-        getEvents().then(response => {
-            const data = response.data;
-            const fetchedEvents = data.data || data || [];
-            setEvents(Array.isArray(fetchedEvents) ? fetchedEvents : []);
-            setLoading(false);
-            clearTimeout(timer);
-
-            // Check for id in query params
-            const params = new URLSearchParams(location.search);
-            const eventId = params.get('id');
-            if (eventId) {
-                setExpandedEvent(parseInt(eventId));
-                // Scroll to the event after a short delay
-                setTimeout(() => {
-                    const element = document.getElementById(`event-${eventId}`);
-                    if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Add a temporary highlight class
-                        element.classList.add('ring-4', 'ring-mdSecondary', 'transition-all', 'duration-1000');
-                        setTimeout(() => {
-                            element.classList.remove('ring-4', 'ring-mdSecondary');
-                        }, 3000);
-                    }
-                }, 500);
-            }
-        }).catch(err => {
-            console.error('Error fetching events:', err);
-            setLoading(false);
-            clearTimeout(timer);
-        });
-
-        return () => clearTimeout(timer);
+        };
+        fetchEvents();
     }, []);
 
-    if (loading) return (
-        <div className="flex justify-center flex-col items-center min-h-[50vh] animate-fade-in">
-            <div className="w-12 h-12 border-4 border-mdSecondary/30 border-t-mdSecondary rounded-full animate-spin mb-4"></div>
-            <div className="text-mdOnSurfaceVariant font-bold tracking-wide text-center">
-                Loading events...<br/>
-                <span className="text-xs opacity-50 font-medium uppercase tracking-widest leading-none">Preparing the grand celebration</span>
-            </div>
-        </div>
-    );
+    const filteredEvents = useMemo(() => {
+        return events.filter(event => 
+            event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            event.location?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [events, searchTerm]);
 
     return (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 animate-fade-in pb-24">
-                <div className="mb-10 sm:mb-14">
-                    <button 
-                        onClick={() => navigate(sessionStorage.getItem('userType') === 'admin' ? '/admin' : '/member-dashboard')}
-                        className="w-max flex items-center gap-2 text-mdSecondary font-black hover:bg-mdSecondary/10 px-4 py-2 rounded-xl transition-all mb-6"
-                    >
-                        <FontAwesomeIcon icon={faClock} className="rotate-90" />
-                        Back to Dashboard
-                    </button>
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="bg-mdSecondaryContainer p-3 sm:p-4 rounded-3xl shadow-sm">
-                            <FontAwesomeIcon icon={faCalendarAlt} className="text-3xl sm:text-4xl text-mdSecondary" />
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-mdOnSurface tracking-tight">
-                            Events
-                        </h1>
+        <div className={`animate-fade-in ${embedded ? '' : 'max-w-7xl mx-auto px-4 py-12'}`}>
+            {!embedded && (
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2">Upcoming Events</h1>
+                        <p className="text-mdSecondary font-black text-lg uppercase tracking-widest bg-mdSecondary/5 px-4 py-1 rounded-full w-max">
+                            Church Calendar
+                        </p>
                     </div>
                 </div>
-                
-                {events.length === 0 ? (
-                    <div className="bg-mdSurfaceVariant/20 border-2 border-dashed border-mdOutline/20 p-20 rounded-[3rem] text-center">
-                        <div className="w-20 h-20 bg-mdSurfaceVariant/50 rounded-full flex items-center justify-center mx-auto mb-6 text-mdOutline">
-                            <FontAwesomeIcon icon={faCalendarAlt} className="text-3xl opacity-40" />
-                        </div>
-                        <h3 className="text-2xl font-black text-mdOnSurface mb-2">No events scheduled</h3>
-                        <p className="text-mdOnSurfaceVariant text-lg">We're' planning' exciting' things'. Stay' tuned' for' updates'!</p>
+            )}
+
+            {/* Search and Filters */}
+            <div className={`glass-card p-6 mb-10 flex flex-col md:flex-row gap-4 items-center ${embedded ? 'mt-4' : ''}`}>
+                <div className="relative flex-1 w-full">
+                    <FontAwesomeIcon icon={faSearch} className="absolute left-5 top-1/2 -translate-y-1/2 text-mdOutline" />
+                    <input
+                        type="text"
+                        placeholder="Search events by name or location..."
+                        className="w-full pl-14 pr-6 py-4 bg-mdSurfaceVariant/20 border-none rounded-2xl focus:ring-2 focus:ring-mdSecondary transition-all font-medium"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="flex items-center gap-2 text-mdOnSurfaceVariant font-bold text-sm uppercase tracking-widest px-4">
+                    <FontAwesomeIcon icon={faCalendarAlt} className="text-mdSecondary" />
+                    <span>{filteredEvents.length} Events</span>
+                </div>
+            </div>
+
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {[1, 2, 3].map(n => (
+                        <div key={n} className="glass-card h-80 animate-pulse"></div>
+                    ))}
+                </div>
+            ) : filteredEvents.length === 0 ? (
+                <div className="glass-card p-20 text-center">
+                    <div className="w-24 h-24 bg-mdSurfaceVariant/30 rounded-full flex items-center justify-center mx-auto mb-8 opacity-40">
+                        <FontAwesomeIcon icon={faCalendarAlt} className="text-4xl" />
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 gap-6 sm:gap-8">
-                        {events.map((event, index) => (
-                            <div 
-                                key={event.id || index} 
-                                id={`event-${event.id}`} 
-                                onClick={() => setExpandedEvent(expandedEvent === event.id ? null : event.id)}
-                                className={`bg-mdSurface p-6 sm:p-8 rounded-[2.5rem] border transition-all duration-500 flex flex-col group cursor-pointer relative overflow-hidden ${
-                                    expandedEvent === event.id 
-                                    ? 'border-mdSecondary shadow-premium ring-1 ring-mdSecondary/20 translate-x-2' 
-                                    : 'border-mdSurfaceVariant shadow-sm hover:shadow-md1 hover:border-mdSecondary/30'
-                                }`}
-                            >
-                                <div className="absolute top-0 left-0 w-1.5 h-full bg-mdSecondary opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                
-                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-6">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-[10px] font-black text-mdSecondary uppercase tracking-[0.2em] bg-mdSecondary/10 px-2 py-0.5 rounded-md">Upcoming</span>
-                                            <span className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-widest">{event.location || 'Church Main Hall'}</span>
-                                        </div>
-                                        <h3 className={`text-2xl sm:text-4xl font-black transition-colors duration-300 ${expandedEvent === event.id ? 'text-mdSecondary' : 'text-mdOnSurface'}`}>
+                    <p className="text-2xl font-black text-mdOnSurface mb-2">No events found</p>
+                    <p className="text-mdOnSurfaceVariant font-medium">Try searching for something else.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredEvents.map((event) => (
+                        <div key={event.id} className="glass-card group overflow-hidden flex flex-col hover:border-mdSecondary/30">
+                            {/* Visual Header */}
+                            <div className="h-3 relative bg-gradient-to-r from-mdSecondary to-mdPrimary"></div>
+                            
+                            <div className="p-8 flex-1">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-mdSecondary/10 text-mdOnSurface">
+                                        <span className="text-lg font-black leading-none">
+                                            {new Date(event.startDate).getDate()}
+                                        </span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest">
+                                            {new Date(event.startDate).toLocaleDateString([], { month: 'short' })}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <h3 className="text-xl font-black text-mdOnSurface group-hover:text-mdSecondary transition-colors line-clamp-1">
                                             {event.title}
                                         </h3>
-                                    </div>
-                                    <div className={`shrink-0 flex items-center gap-3 p-2 rounded-2xl bg-mdSurfaceVariant/20 ${expandedEvent === event.id ? 'bg-mdSecondaryContainer/30 ring-1 ring-mdSecondary/10' : ''}`}>
-                                        <div className="flex flex-col items-center justify-center w-14 h-14 bg-mdSecondary rounded-xl text-white shadow-sm">
-                                            <span className="text-[10px] font-black uppercase leading-none mb-1">{event.eventDate ? new Date(event.eventDate).toLocaleDateString('en-US', { month: 'short' }) : '---'}</span>
-                                            <span className="text-xl font-black leading-none">{event.eventDate ? new Date(event.eventDate).getDate() : '--'}</span>
+                                        <div className="flex items-center gap-2 text-[10px] font-bold text-mdOutline uppercase tracking-widest">
+                                            <FontAwesomeIcon icon={faClock} className="text-mdSecondary" />
+                                            {new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
-                                </div>
-                                
-                                <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                                    <div className="flex items-start gap-4 p-4 rounded-3xl bg-mdSurfaceVariant/20 border border-mdOutline/5">
-                                        <div className="bg-mdSecondaryContainer/50 p-2 rounded-xl text-mdSecondary text-xl mt-0.5">
-                                            <FontAwesomeIcon icon={faClock} />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-mdOnSurfaceVariant uppercase tracking-widest mb-1">Schedule</p>
-                                            <p className="text-mdOnSurface font-black">{event.eventDate ? new Date(event.eventDate).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true }) : 'TBA'}</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-start gap-4 p-4 rounded-3xl bg-mdSurfaceVariant/20 border border-mdOutline/5">
-                                        <div className="bg-mdPrimaryContainer/50 p-2 rounded-xl text-mdPrimary text-xl mt-0.5">
-                                            <FontAwesomeIcon icon={faMapMarkerAlt} />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-mdOnSurfaceVariant uppercase tracking-widest mb-1">Venue</p>
-                                            <p className="text-mdOnSurface font-black truncate max-w-[150px]">{event.location || 'EcclesiaSys Plaza'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className={`transition-all duration-500 ease-in-out overflow-hidden ${expandedEvent === event.id ? 'max-h-[1000px] opacity-100' : 'max-h-24 opacity-80'}`}>
-                                    <p className={`text-mdOnSurfaceVariant text-lg leading-relaxed whitespace-pre-line ${expandedEvent === event.id ? '' : 'line-clamp-2'}`}>
-                                        {event.description}
-                                    </p>
-                                    
-                                    {expandedEvent === event.id && (
-                                        <div className="mt-8 animate-fade-in">
-                                            {event.documentUrl && (
-                                                <div className="pt-6 border-t border-mdOutline/10">
-                                                    <a
-                                                        href={event.documentUrl}
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        className="inline-flex items-center gap-3 bg-mdSecondary text-mdOnSecondary px-8 py-3.5 rounded-2xl font-black shadow-md1 hover:shadow-md2 hover:scale-[1.02] transition-all duration-300"
-                                                    >
-                                                        <FontAwesomeIcon icon={faDownload} /> Download Info Guide
-                                                    </a>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
 
-                                {expandedEvent !== event.id && (
-                                    <div className="mt-6 flex items-center gap-2 text-mdSecondary font-black text-xs uppercase tracking-widest group-hover:gap-4 transition-all">
-                                        Explore Details <FontAwesomeIcon icon={faCalendarAlt} className="text-[10px]" />
+                                <p className="text-sm text-mdOnSurfaceVariant font-medium leading-relaxed mb-6 line-clamp-3">
+                                    {event.description}
+                                </p>
+
+                                <div className="space-y-3 pt-6 border-t border-mdOutline/5">
+                                    <div className="flex items-center gap-3 text-xs font-bold text-mdOnSurfaceVariant">
+                                        <div className="w-8 h-8 rounded-lg bg-mdSurfaceVariant/30 flex items-center justify-center text-mdSecondary">
+                                            <FontAwesomeIcon icon={faMapMarkerAlt} />
+                                        </div>
+                                        <span className="truncate">{event.location || 'Church Main Hall'}</span>
                                     </div>
-                                )}
+                                </div>
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+
+                            <button className="w-full py-4 bg-mdSurfaceVariant/5 hover:bg-mdSecondary hover:text-white border-t border-mdOutline/5 transition-all font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3">
+                                Get Directions / Info
+                                <FontAwesomeIcon icon={faArrowRight} className="text-[8px]" />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 }

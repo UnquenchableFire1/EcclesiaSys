@@ -122,16 +122,17 @@ export default function Sidebar({
                   if (window.innerWidth < 768) setIsOpen(false);
                 }}
                 className={`
-                  w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-200
+                  w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-500 group relative
                   ${isActive 
-                    ? 'bg-mdPrimary text-white shadow-md2 translate-x-1' 
-                    : 'text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/50 hover:text-mdPrimary'}
+                    ? 'bg-mdPrimary text-white shadow-[0_10px_30px_-10px_rgba(0,106,106,0.5)] translate-x-2' 
+                    : 'text-mdOnSurfaceVariant hover:bg-mdPrimary/5 hover:text-mdPrimary'}
                 `}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isActive ? 'bg-white/20' : 'bg-mdSurfaceVariant/30 group-hover:bg-mdPrimaryContainer'}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-white/20 rotate-6 shadow-inner' : 'bg-mdSurfaceVariant/30 group-hover:bg-mdPrimaryContainer group-hover:rotate-3'}`}>
                   <FontAwesomeIcon icon={tab.icon} className={isActive ? 'text-white' : 'text-mdPrimary'} />
                 </div>
-                <span className="flex-1 text-left">{tab.label}</span>
+                <span className="flex-1 text-left tracking-tight">{tab.label}</span>
+                {isActive && <div className="absolute left-0 w-1.5 h-6 bg-white rounded-full animate-pulse-soft"></div>}
               </button>
             );
           })}

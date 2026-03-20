@@ -8,12 +8,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import MemberDashboard from "./pages/MemberDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import Announcements from "./pages/Announcements";
-import Events from "./pages/Events";
-import Sermons from "./pages/Sermons";
 import Layout from "./layouts/Layout";
 import SessionTimer from "./components/SessionTimer";
-import PrayerRequestPage from "./pages/PrayerRequestPage";
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -95,38 +91,6 @@ export default function App() {
           }
         />
 
-        <Route
-          path="/announcements"
-          element={
-            <ProtectedRoute>
-              <Layout><Announcements /></Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/events"
-          element={
-            <ProtectedRoute>
-              <Layout><Events /></Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sermons"
-          element={
-            <ProtectedRoute>
-              <Layout><Sermons /></Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/prayer-request"
-          element={
-            <ProtectedRoute requiredRole="member">
-              <Layout><PrayerRequestPage /></Layout>
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/admin"
           element={
