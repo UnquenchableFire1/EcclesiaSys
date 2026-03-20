@@ -242,7 +242,7 @@ export default function AdminDashboard() {
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
                     <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-br from-mdOnSurface to-mdOnSurfaceVariant/60">
-                        Command Center
+                        EcclesiaSys Sanctuary
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
                             <div className="lg:col-span-2 glass-card p-10">
                                 <h3 className="text-2xl font-black text-mdOnSurface mb-8 flex items-center gap-3">
                                     <span className="w-1.5 h-6 bg-mdPrimary rounded-full"></span>
-                                    Command Actions
+                                    Sanctuary Actions
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <QuickAction label="Post News" icon={faPlus} tab="announcements" desc="broadcast to all" />
@@ -337,7 +337,12 @@ export default function AdminDashboard() {
                                         {m.name?.[0] || m.firstName?.[0]}
                                     </div>
                                     <h4 className="text-xl font-black text-mdOnSurface truncate w-full">{m.name || `${m.firstName} ${m.lastName}`}</h4>
-                                    <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-widest mb-6">Member</p>
+                                    <div className="flex items-center gap-2 mb-6">
+                                        <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-widest">Member</p>
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${m.status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-mdError/10 text-mdError'}`}>
+                                            {m.status || 'Active'}
+                                        </span>
+                                    </div>
                                     <div className="w-full space-y-2 mt-auto">
                                         <div className="flex items-center gap-2 p-3 bg-mdSurfaceVariant/10 rounded-xl text-xs font-bold text-mdOnSurfaceVariant overflow-hidden">
                                             <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary" />

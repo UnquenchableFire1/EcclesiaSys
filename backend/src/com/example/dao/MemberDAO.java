@@ -134,7 +134,7 @@ public class MemberDAO {
 
     public List<Member> getAllMembers() {
         List<Member> members = new ArrayList<>();
-        String query = "SELECT * FROM members WHERE status = 'active'";
+        String query = "SELECT * FROM members";
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {

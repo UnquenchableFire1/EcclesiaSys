@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentMemberProfile, updateMemberProfile, updateProfilePrivacy, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture } from '../services/api';
+import { getCurrentMemberProfile, updateMemberProfile, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCamera, faLock, faLockOpen, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
 
 export default function MemberProfile() {
     const navigate = useNavigate();
@@ -18,16 +18,9 @@ export default function MemberProfile() {
     const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
     const memberId = sessionStorage.getItem('userId');
 
-    const getDefaultAvatar = (gender, firstName, lastName) => {
-        if (gender === 'male' || gender === 'Male') return 'https://avatar.iran.liara.run/public/boy';
-        if (gender === 'female' || gender === 'Female') return 'https://avatar.iran.liara.run/public/girl';
-        return `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=random`;
-    };
-    
     const [formData, setFormData] = useState({
         phoneNumber: '',
-        bio: '',
-        isProfilePublic: true
+        bio: ''
     });
 
     useEffect(() => {
@@ -46,9 +39,7 @@ export default function MemberProfile() {
             setFetchingHistory(true);
             const response = await getProfilePictureHistory(memberId, 'member');
             if (response.data.success) {
-                // Remove duplicates if any and ensure current is also in history if not already there
-                const historyList = response.data.history || [];
-                setHistory(historyList);
+                setHistory(response.data.history || []);
             }
         } catch (err) {
             console.error('Error fetching history', err);
@@ -64,11 +55,9 @@ export default function MemberProfile() {
                 setProfile(response.data);
                 setFormData({
                     phoneNumber: response.data.phoneNumber || '',
-                    bio: response.data.bio || '',
-                    isProfilePublic: response.data.isProfilePublic !== undefined ? response.data.isProfilePublic : true
+                    bio: response.data.bio || ''
                 });
                 
-                // Update session storage details if they changed
                 if (response.data.profilePictureUrl) {
                     sessionStorage.setItem('profilePictureUrl', response.data.profilePictureUrl);
                 }
@@ -99,7 +88,7 @@ export default function MemberProfile() {
             
             const response = await updateMemberProfile(memberId, updateData);
             if (response.data.success) {
-                setSuccess('Profile updated successfully!');
+                setSuccess('Sanctuary records updated!');
                 setEditing(false);
                 fetchProfile();
             } else {
@@ -112,30 +101,10 @@ export default function MemberProfile() {
         }
     };
 
-    const handlePrivacyToggle = async () => {
-        try {
-            setError('');
-            setSuccess('');
-            const newPrivacySetting = !formData.isProfilePublic;
-            
-            const response = await updateProfilePrivacy(memberId, newPrivacySetting);
-            if (response.data.success) {
-                setFormData({ ...formData, isProfilePublic: newPrivacySetting });
-                setSuccess(`Profile is now ${newPrivacySetting ? 'public' : 'private'}!`);
-                fetchProfile();
-            } else {
-                setError(response.data.message || 'Failed to update privacy settings');
-            }
-        } catch (err) {
-            setError('Error updating privacy settings: ' + err.message);
-        }
-    };
-
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Create preview
         const reader = new FileReader();
         reader.onloadend = () => {
             setPreviewUrl(reader.result);
@@ -160,16 +129,12 @@ export default function MemberProfile() {
 
             const response = await uploadProfilePicture(formDataObj);
             if (response.data.success) {
-                setSuccess('Profile picture uploaded successfully!');
+                setSuccess('Profile portrait uploaded!');
                 setPreviewUrl(null);
-                // Important: refresh BOTH profile and history to update the vault immediately
                 await fetchProfile();
                 await fetchHistory();
                 
-                // Clear the input file
                 if (fileInput) fileInput.value = '';
-                
-                // Trigger a global event to update the sidebar avatar
                 window.dispatchEvent(new Event('profileUpdated'));
             } else {
                 setError(response.data.message || 'Failed to upload profile picture');
@@ -189,9 +154,8 @@ export default function MemberProfile() {
             setSuccess('');
             const response = await selectProfilePicture(memberId, 'member', url);
             if (response.data.success) {
-                setSuccess('Profile picture updated from history!');
+                setSuccess('Profile identity updated from vault!');
                 await fetchProfile();
-                // Trigger a global event to update the sidebar avatar
                 window.dispatchEvent(new Event('profileUpdated'));
             } else {
                 setError(response.data.message || 'Failed to update profile picture');
@@ -206,7 +170,7 @@ export default function MemberProfile() {
             <div className="flex items-center justify-center p-12">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin"></div>
-                    <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Entering the profile sanctuary...</p>
+                    <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse italic">Entering the profile sanctuary...</p>
                 </div>
             </div>
         );
@@ -215,14 +179,14 @@ export default function MemberProfile() {
     return (
         <div className="animate-fade-in space-y-6">
             {error && (
-                <div className="bg-mdError/10 text-mdError px-8 py-5 rounded-3xl mb-12 border border-mdError/20 flex items-center gap-4 shadow-sm">
+                <div className="bg-mdError/10 text-mdError px-8 py-5 rounded-3xl mb-12 border border-mdError/20 flex items-center gap-4 shadow-sm animate-shake">
                     <FontAwesomeIcon icon={faInfoCircle} />
                     <span className="font-bold">{error}</span>
                 </div>
             )}
 
             {success && (
-                <div className="bg-mdPrimary/10 text-mdPrimary px-8 py-5 rounded-3xl mb-12 border border-mdPrimary/20 flex items-center gap-4 shadow-sm animate-fade-in">
+                <div className="bg-mdPrimary/10 text-mdPrimary px-8 py-5 rounded-3xl mb-12 border border-mdPrimary/20 flex items-center gap-4 shadow-sm animate-fade-in shadow-premium">
                     <FontAwesomeIcon icon={faCheck} />
                     <span className="font-bold">{success}</span>
                 </div>
@@ -231,10 +195,10 @@ export default function MemberProfile() {
             {profile && (
                 <>
                     {/* Premium Profile Header */}
-                    <div className="glass-card p-10 flex flex-col md:flex-row gap-12 items-center md:items-start group">
+                    <div className="glass-card p-10 flex flex-col md:flex-row gap-12 items-center md:items-start group rounded-[3rem] border-none shadow-premium">
                         <div className="relative">
                             <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[3rem] p-1 bg-gradient-to-br from-mdPrimary/40 via-mdSecondary/40 to-mdPrimary/40 animate-gradient-slow group-hover:rotate-3 transition-transform duration-700 shadow-premium">
-                                <div className="w-full h-full rounded-[2.9rem] bg-white dark:bg-mdSurface overflow-hidden relative">
+                                <div className="w-full h-full rounded-[2.9rem] bg-white overflow-hidden relative border-4 border-white shadow-inner">
                                     {previewUrl ? (
                                         <img 
                                             src={previewUrl} 
@@ -248,7 +212,7 @@ export default function MemberProfile() {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5">
+                                        <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5 italic">
                                             {profile.firstName.charAt(0)}
                                         </div>
                                     )}
@@ -258,13 +222,13 @@ export default function MemberProfile() {
                                             <button 
                                                 onClick={handleProfilePictureUpload}
                                                 disabled={isUploadingPortrait}
-                                                className="w-full bg-white text-mdPrimary font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest shadow-lifted hover:scale-105 transition-all disabled:opacity-50"
+                                                className="w-full bg-white text-mdPrimary font-black py-4 rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-premium hover:scale-105 transition-all disabled:opacity-50"
                                             >
-                                                {isUploadingPortrait ? 'SAVING...' : 'UPLOAD'}
+                                                {isUploadingPortrait ? 'SAVING...' : 'CONFIRM'}
                                             </button>
                                             <button 
                                                 onClick={() => setPreviewUrl(null)}
-                                                className="mt-2 text-white/70 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
+                                                className="mt-4 text-white/70 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
                                             >
                                                 Cancel
                                             </button>
@@ -274,7 +238,7 @@ export default function MemberProfile() {
                             </div>
                             
                             {!previewUrl && (
-                                <label className="absolute -bottom-4 -right-4 w-14 h-14 bg-mdOnSurface text-mdSurface rounded-2xl flex items-center justify-center shadow-premium cursor-pointer hover:bg-mdPrimary hover:text-white hover:scale-110 transition-all duration-300">
+                                <label className="absolute -bottom-4 -right-4 w-15 h-15 bg-mdOnSurface text-white rounded-2xl flex items-center justify-center shadow-premium cursor-pointer hover:bg-mdPrimary hover:scale-110 transition-all duration-300 border-4 border-white">
                                     <FontAwesomeIcon icon={faCamera} className="text-xl" />
                                     <input 
                                         type="file" 
@@ -288,23 +252,25 @@ export default function MemberProfile() {
                         </div>
 
                         <div className="flex-1 text-center md:text-left pt-4">
-                            <div className="space-y-2 mb-8">
-                                <h1 className="text-4xl sm:text-5xl font-black text-mdOnSurface tracking-tighter">
+                            <div className="space-y-3 mb-8">
+                                <h1 className="text-4xl sm:text-6xl font-black text-mdOnSurface tracking-tighter leading-none italic">
                                     {profile.firstName} {profile.lastName}
                                 </h1>
-                                <p className="text-mdPrimary font-black text-[10px] uppercase tracking-[0.2em] opacity-70">
-                                    Member Profile Registry
-                                </p>
+                                <div className="flex items-center justify-center md:justify-start gap-4">
+                                    <span className="px-4 py-1.5 rounded-full bg-mdPrimary/10 text-mdPrimary text-[10px] font-black uppercase tracking-[0.2em] border border-mdPrimary/10">
+                                        Member Registry
+                                    </span>
+                                </div>
                             </div>
                             
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                                <div className="glass-card px-6 py-3 border-none flex items-center gap-3">
-                                    <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary/60" />
-                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">{profile.email}</span>
+                                <div className="glass-card px-6 py-4 border-none flex items-center gap-3 bg-mdSurfaceVariant/20 rounded-2xl">
+                                    <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary" />
+                                    <span className="text-xs font-black text-mdOnSurfaceVariant uppercase tracking-tighter">{profile.email}</span>
                                 </div>
-                                <div className="glass-card px-6 py-3 border-none flex items-center gap-3">
-                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary/60" />
-                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">Joined {new Date(profile.joinedDate).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span>
+                                <div className="glass-card px-6 py-4 border-none flex items-center gap-3 bg-mdSecondary/10 rounded-2xl">
+                                    <FontAwesomeIcon icon={faCalendarAlt} className="text-mdSecondary" />
+                                    <span className="text-xs font-black text-mdOnSurfaceVariant uppercase tracking-tighter">EST. {new Date(profile.joinedDate).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span>
                                 </div>
                             </div>
                         </div>
@@ -313,73 +279,74 @@ export default function MemberProfile() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Information Section */}
                         <div className="lg:col-span-2 space-y-8">
-                            <div className="glass-card p-10">
-                                <div className="flex justify-between items-center mb-10 pb-6 border-b border-mdOutline/5">
-                                    <h3 className="text-2xl font-black text-mdOnSurface tracking-tight">Personal Details</h3>
+                            <div className="glass-card p-12 rounded-[3.5rem] border-none shadow-premium">
+                                <div className="flex justify-between items-center mb-12 pb-8 border-b border-mdOutline/5">
+                                    <h3 className="text-3xl font-black text-mdOnSurface tracking-tighter italic">Personal Sanctuary</h3>
                                     <button
                                         onClick={() => setEditing(!editing)}
-                                        className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${editing ? 'bg-mdError/10 text-mdError' : 'bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-white'}`}
+                                        className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-sm ${editing ? 'bg-mdError text-white' : 'bg-mdPrimary/5 text-mdPrimary hover:bg-mdPrimary hover:text-white shadow-lifted'}`}
                                     >
-                                        {editing ? 'Cancel Editing' : 'Customize Profile'}
+                                        {editing ? 'CANCEL' : 'MODIFY RECORDS'}
                                     </button>
                                 </div>
 
                                 {editing ? (
-                                    <div className="space-y-8 animate-slide-up">
-                                        <div className="grid sm:grid-cols-2 gap-8">
-                                            <div className="space-y-3">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">Phone Number</label>
+                                    <div className="space-y-10 animate-slide-up">
+                                        <div className="grid sm:grid-cols-2 gap-10">
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-mdPrimary ml-2">Phone Line</label>
                                                 <input
                                                     type="text"
                                                     value={formData.phoneNumber}
                                                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                                    className="w-full bg-mdSurfaceVariant/20 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-mdPrimary transition-all font-bold text-sm"
+                                                    className="w-full bg-mdSurfaceVariant/30 border-none rounded-[1.5rem] py-5 px-8 focus:ring-4 focus:ring-mdPrimary/20 transition-all font-black text-sm tracking-tight shadow-inner"
                                                     placeholder="+1 234 567 890"
                                                 />
                                             </div>
-                                            <div className="space-y-3 opacity-60">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">Display Name (Read-only)</label>
-                                                <div className="w-full bg-mdSurfaceVariant/10 border-none rounded-2xl py-4 px-6 font-bold text-sm text-mdOnSurfaceVariant">
+                                            <div className="space-y-4 opacity-40">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-mdOutline ml-2">Sanctuary Name</label>
+                                                <div className="w-full bg-mdSurfaceVariant/10 border-none rounded-[1.5rem] py-5 px-8 font-black text-sm text-mdOnSurfaceVariant shadow-inner">
                                                     {profile.firstName} {profile.lastName}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-2">My Biography</label>
+                                        <div className="space-y-4">
+                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-mdPrimary ml-2">Divine Bio</label>
                                             <textarea
                                                 value={formData.bio}
                                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                                                className="w-full bg-mdSurfaceVariant/20 border-none rounded-[2rem] py-6 px-8 focus:ring-2 focus:ring-mdPrimary transition-all font-bold text-sm min-h-[160px] custom-scrollbar"
-                                                placeholder="Tell the community about your journey with Christ..."
+                                                className="w-full bg-mdSurfaceVariant/30 border-none rounded-[2.5rem] py-8 px-10 focus:ring-4 focus:ring-mdPrimary/20 transition-all font-black text-sm min-h-[220px] custom-scrollbar leading-relaxed shadow-inner"
+                                                placeholder="Share your spiritual journey..."
                                             />
                                         </div>
 
                                         <button
                                             onClick={handleUpdateProfile}
                                             disabled={isUpdatingProfile}
-                                            className="w-full bg-mdOnSurface text-mdSurface py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transform active:scale-95 transition-all shadow-lifted hover:bg-mdPrimary hover:text-white disabled:opacity-50"
+                                            className="w-full bg-mdPrimary text-white py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] transform active:scale-95 transition-all shadow-premium hover:bg-mdSecondary"
                                         >
-                                            {isUpdatingProfile ? 'Synching Sanctuary...' : 'Update Records'}
+                                            {isUpdatingProfile ? 'SYNCHING...' : 'CONFIRM UPDATES'}
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="space-y-8 animate-fade-in">
+                                    <div className="space-y-10 animate-fade-in">
                                         <div className="grid sm:grid-cols-2 gap-8">
-                                            <div className="glass-card bg-mdSurfaceVariant/5 border-none p-6">
-                                                <p className="text-[9px] font-black uppercase tracking-widest text-mdOutline mb-2">Primary Contact</p>
-                                                <p className="font-black text-mdOnSurface tracking-tight">{profile.phoneNumber || 'Unlinked'}</p>
+                                            <div className="glass-card bg-mdSurfaceVariant/10 border-none p-8 rounded-[2rem] shadow-inner">
+                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-mdSecondary mb-3">Primary Contact</p>
+                                                <p className="font-black text-xl text-mdOnSurface tracking-tighter">{profile.phoneNumber || 'UNLINKED'}</p>
                                             </div>
-                                            <div className="glass-card bg-mdSurfaceVariant/5 border-none p-6">
-                                                <p className="text-[9px] font-black uppercase tracking-widest text-mdOutline mb-2">Registered Email</p>
-                                                <p className="font-black text-mdOnSurface tracking-tight truncate">{profile.email}</p>
+                                            <div className="glass-card bg-mdSurfaceVariant/10 border-none p-8 rounded-[2rem] shadow-inner">
+                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-mdPrimary mb-3">Official Email</p>
+                                                <p className="font-black text-xl text-mdOnSurface tracking-tighter truncate">{profile.email}</p>
                                             </div>
                                         </div>
 
-                                        <div className="glass-card bg-mdSurfaceVariant/5 border-none p-10">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-mdOutline mb-4">Life Story & Testimonial</p>
-                                            <p className="font-bold text-mdOnSurfaceVariant leading-loose italic">
-                                                {profile.bio || "Speak your journey. Update your profile to add a personal testimony that will inspire the sanctuary."}
+                                        <div className="glass-card bg-mdPrimary/5 border-none p-12 rounded-[3.5rem] shadow-inner relative overflow-hidden">
+                                            <FontAwesomeIcon icon={faQuoteLeft} className="absolute top-8 left-8 text-4xl text-mdPrimary/10" />
+                                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-mdPrimary mb-6 text-center">Spiritual Testimony</p>
+                                            <p className="font-bold text-xl text-mdOnSurfaceVariant leading-loose italic text-center px-6">
+                                                {profile.bio || "Speak your journey. Update your records to shared a personal testimony that will inspire the sanctuary."}
                                             </p>
                                         </div>
                                     </div>
@@ -389,80 +356,55 @@ export default function MemberProfile() {
 
                         {/* Sidebar Sections */}
                         <div className="space-y-8">
-                             {/* History Vault Section */}
-                            <div className="glass-card p-8 group">
-                                <div className="flex items-center gap-4 mb-8">
-                                    <div className="w-10 h-10 rounded-xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary">
-                                        <FontAwesomeIcon icon={faLock} className="text-sm" />
+                             {/* Profile Vault Section */}
+                            <div className="glass-card p-10 group rounded-[3rem] border-none shadow-premium bg-white">
+                                <div className="flex items-center gap-4 mb-10">
+                                    <div className="w-12 h-12 rounded-2xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary shadow-inner">
+                                        <FontAwesomeIcon icon={faCheck} className="text-xl" />
                                     </div>
-                                    <h3 className="text-xl font-black text-mdOnSurface tracking-tighter">Profile Vault</h3>
+                                    <h3 className="text-2xl font-black text-mdOnSurface tracking-tighter italic">Profile Vault</h3>
                                 </div>
                                 
                                 {history.length > 0 ? (
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-2 gap-6">
                                         {history.map((url, index) => (
                                             <div 
                                                 key={index} 
                                                 onClick={() => handleSelectFromHistory(url)}
-                                                className={`relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all hover:scale-110 shadow-sm ${profile.profilePictureUrl === url ? 'border-mdPrimary' : 'border-transparent opacity-60 hover:opacity-100 hover:border-mdPrimary/40'}`}
+                                                className={`relative aspect-square rounded-[2rem] overflow-hidden cursor-pointer border-4 transition-all hover:scale-110 shadow-lifted ${profile.profilePictureUrl === url ? 'border-mdPrimary' : 'border-transparent opacity-40 hover:opacity-100'}`}
                                             >
                                                 <img 
                                                     src={url} 
                                                     alt={`Vault ${index}`} 
                                                     className="w-full h-full object-cover"
                                                 />
-                                                {profile.profilePictureUrl === url && (
-                                                    <div className="absolute inset-0 bg-mdPrimary/20 flex items-center justify-center backdrop-blur-[1px]">
-                                                        <div className="w-6 h-6 rounded-full bg-mdPrimary text-white shadow-lifted flex items-center justify-center animate-bounce-in">
-                                                            <FontAwesomeIcon icon={faCheck} className="text-[8px]" />
-                                                        </div>
-                                                    </div>
-                                                )}
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="py-12 text-center opacity-30">
-                                        <FontAwesomeIcon icon={faCamera} className="text-3xl mb-4" />
-                                        <p className="text-[10px] font-black uppercase tracking-widest">Vault is empty</p>
+                                    <div className="py-20 text-center opacity-20">
+                                        <FontAwesomeIcon icon={faCamera} className="text-5xl mb-6" />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">Vault is empty</p>
                                     </div>
                                 )}
                                 
-                                <p className="mt-8 text-[9px] font-bold text-mdOutline text-center uppercase tracking-widest leading-relaxed">
-                                    Your personal historical sanctuary of profile identities
+                                <p className="mt-10 text-[9px] font-black text-mdOutline text-center uppercase tracking-[0.2em] leading-loose opacity-60">
+                                    Your historical sanctuary of divine identities
                                 </p>
                             </div>
-
-                            {/* Privacy Controls */}
-                            <div className={`glass-card p-8 transition-colors duration-500 ${formData.isProfilePublic ? 'bg-mdPrimary/5' : 'bg-mdError/5'}`}>
-                                <h3 className="text-xl font-black text-mdOnSurface mb-6 tracking-tighter text-center">Sanctuary Privacy</h3>
-                                
-                                <div className="flex flex-col items-center gap-6">
-                                    <div className={`w-20 h-20 rounded-3xl flex items-center justify-center text-3xl shadow-premium animate-float ${formData.isProfilePublic ? 'bg-white text-mdPrimary' : 'bg-white text-mdError'}`}>
-                                        <FontAwesomeIcon icon={formData.isProfilePublic ? faLockOpen : faLock} />
+                            
+                            <div className="glass-card p-10 bg-mdPrimary text-white border-none rounded-[3rem] shadow-premium group overflow-hidden relative">
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 text-white/60">Community Status</h4>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center py-3 border-b border-white/10">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-white/70">Visibility</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Active</span>
                                     </div>
-                                    
-                                    <div className="text-center space-y-2">
-                                        <p className="font-black text-mdOnSurface text-lg tracking-tight">
-                                            {formData.isProfilePublic ? 'Public Presence' : 'Private Mode'}
-                                        </p>
-                                        <p className="text-[10px] font-bold text-mdOnSurfaceVariant uppercase tracking-widest leading-relaxed px-4">
-                                            {formData.isProfilePublic 
-                                                ? 'Your identity is shared with the church community.' 
-                                                : 'Your records are kept strictly confidential.'}
-                                        </p>
+                                    <div className="flex justify-between items-center py-3">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-white/70">Registry</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Verified</span>
                                     </div>
-
-                                    <button
-                                        onClick={handlePrivacyToggle}
-                                        className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lifted transition-all active:scale-95 ${
-                                            formData.isProfilePublic 
-                                            ? 'bg-mdError text-white hover:bg-mdError/80' 
-                                            : 'bg-mdPrimary text-white hover:bg-mdPrimary/80'
-                                        }`}
-                                    >
-                                        Switch to {formData.isProfilePublic ? 'Private' : 'Public'}
-                                    </button>
                                 </div>
                             </div>
                         </div>

@@ -7,51 +7,37 @@
 
 @layer base {
   :root {
-    --color-md-primary: #006A6A;
+    /* Church of Pentecost Official Branding */
+    --color-md-primary: #1A2F5F;        /* Ultramarine Blue */
     --color-md-on-primary: #FFFFFF;
-    --color-md-primary-container: #D1F0EF;
-    --color-md-on-primary-container: #002020;
-    --color-md-secondary: #4A6363;
-    --color-md-on-secondary: #FFFFFF;
-    --color-md-secondary-container: #CCE8E7;
-    --color-md-on-secondary-container: #051F1F;
-    --color-md-surface: #F4FBFA;
-    --color-md-on-surface: #191C1C;
-    --color-md-surface-variant: #DAE5E3;
-    --color-md-on-surface-variant: #3F4948;
-    --color-md-outline: #6F7978;
-    --color-md-error: #BA1A1A;
+    --color-md-primary-container: #E8EDF8;
+    --color-md-on-primary-container: #1A2F5F;
+    
+    --color-md-secondary: #C9AF1E;      /* Branded Gold */
+    --color-md-on-secondary: #000000;
+    --color-md-secondary-container: #FFF7D1;
+    --color-md-on-secondary-container: #4D4100;
+    
+    --color-md-surface: #FDFDFD;
+    --color-md-on-surface: #001D35;
+    --color-md-surface-variant: #F1F4F9;
+    --color-md-on-surface-variant: #43474E;
+    
+    --color-md-outline: #C3C7CF;
+    --color-md-error: #C62D25;          /* Corporate Red */
     --color-md-on-error: #FFFFFF;
     --color-md-error-container: #FFDAD6;
     --color-md-on-error-container: #410002;
     
     /* Presentation Grade Additions */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.3);
-    --premium-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(26, 47, 95, 0.08);
+    --premium-shadow: 0 20px 50px -12px rgba(26, 47, 95, 0.12);
   }
 
+  /* Dark mode removed per user request - maintaining variables for safety if components expect them */
   .dark {
-    --color-md-primary: #4CD9D9; 
-    --color-md-on-primary: #003737;
-    --color-md-primary-container: #005050;
-    --color-md-on-primary-container: #6FF6F6;
-    --color-md-secondary: #B0CCCA;
-    --color-md-on-secondary: #1B3534;
-    --color-md-secondary-container: #324B4B;
-    --color-md-on-secondary-container: #CCE8E7;
-    --color-md-surface: #0E1414; 
-    --color-md-on-surface: #DFE4E3; 
-    --color-md-surface-variant: #3F4948;
-    --color-md-on-surface-variant: #BEC9C8;
-    --color-md-outline: #899392;
-    --color-md-error: #FFB4AB;
-    --color-md-on-error: #690005;
-    --color-md-error-container: #93000A;
-    --color-md-on-error-container: #FFDAD6;
-    
-    --glass-bg: rgba(14, 20, 20, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    @extend :root;
   }
 
 html, body {
@@ -64,15 +50,9 @@ body {
   @apply text-mdOnSurface font-sans antialiased bg-mdSurface;
   min-height: 100vh;
   background-image: 
-    radial-gradient(at 0% 0%, hsla(180, 100%, 90%, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(180, 100%, 80%, 0.1) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, hsla(220, 100%, 95%, 0.2) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(45, 100%, 95%, 0.15) 0px, transparent 50%);
 }
-
-  .dark body {
-    background-image: 
-      radial-gradient(at 0% 0%, hsla(180, 100%, 10%, 0.3) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(180, 100%, 15%, 0.2) 0px, transparent 50%);
-  }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-display tracking-tight;
@@ -82,7 +62,7 @@ body {
 @layer components {
   .btn-premium {
     @apply px-8 py-4 rounded-2xl font-black transition-all duration-500 transform hover:-translate-y-1.5 shadow-md2 hover:shadow-premium active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-sm relative overflow-hidden;
-    background: linear-gradient(135deg, var(--color-md-primary), #00A3A3);
+    background: linear-gradient(135deg, var(--color-md-primary), #2A4A8F);
     color: white;
   }
 
@@ -103,7 +83,7 @@ body {
   
   .glass-card::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none;
+    @apply absolute inset-0 bg-gradient-to-tr from-mdPrimary/5 to-transparent opacity-0 transition-opacity duration-500 pointer-events-none;
   }
 
   .glass-card:hover::before {
@@ -111,7 +91,7 @@ body {
   }
 
   .glass-card:hover {
-    @apply shadow-lifted border-white/40 -translate-y-1;
+    @apply shadow-lifted border-mdPrimary/10 -translate-y-1;
   }
 
   .text-gradient {

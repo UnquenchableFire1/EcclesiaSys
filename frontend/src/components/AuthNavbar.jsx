@@ -26,7 +26,7 @@ export default function AuthNavbar({
       <div className="flex items-center gap-12 flex-1">
         <div className="flex flex-col cursor-pointer" onClick={() => setActiveTab('home')}>
           <h2 className="text-2xl font-black text-mdPrimary tracking-tighter leading-none mb-0.5">EcclesiaSys</h2>
-          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-mdOnSurfaceVariant opacity-50">Sanctuary Terminal</p>
+          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-mdSecondary font-bold">The Sanctuary</p>
         </div>
 
         {/* Horizontal Navigation Items */}
@@ -83,7 +83,7 @@ export default function AuthNavbar({
             </div>
             <div className="hidden sm:block text-left">
               <p className="text-[11px] font-black text-mdOnSurface leading-none mb-0.5 max-w-[120px] truncate">{userName}</p>
-              <p className="text-[8px] font-black text-mdPrimary uppercase tracking-widest opacity-70">{userType}</p>
+              <p className="text-[8px] font-black text-mdPrimary uppercase tracking-widest">{userType}</p>
             </div>
             <FontAwesomeIcon icon={faChevronDown} className={`text-[10px] text-mdOnSurfaceVariant transition-transform duration-300 ${showProfileMenu ? 'rotate-180' : ''}`} />
           </button>
@@ -106,13 +106,13 @@ export default function AuthNavbar({
                 <div className="h-px bg-mdOutline/5 my-3 mx-2"></div>
                 
                 <button 
-                  onClick={onLogout}
+                  onClick={() => { onLogout(); setShowProfileMenu(false); }}
                   className="w-full flex items-center gap-4 p-3 rounded-2xl hover:bg-mdError/5 text-mdError transition-all group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-mdError/5 flex items-center justify-center group-hover:bg-mdError group-hover:text-white transition-all">
                     <FontAwesomeIcon icon={faSignOutAlt} />
                   </div>
-                  <span className="font-black text-[11px] uppercase tracking-widest">Exit Terminal</span>
+                  <span className="font-black text-[11px] uppercase tracking-widest">Logout</span>
                 </button>
               </div>
             </>
