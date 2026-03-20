@@ -294,6 +294,5 @@ export default function Sermons() {
                     </div>
                 )}
             </div>
-        </div>
     );
 }
