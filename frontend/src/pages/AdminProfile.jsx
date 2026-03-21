@@ -4,14 +4,19 @@ import { getAdminProfile, updateAdminProfile, uploadProfilePicture, getProfilePi
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
+import ConfirmModal from '../components/ConfirmModal';
+import { useToast } from '../context/ToastContext';
 
 export default function AdminProfile() {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const { showToast } = useToast();
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        onConfirm: () => {}
+    });
     const [history, setHistory] = useState([]);
     const [fetchingHistory, setFetchingHistory] = useState(false);
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
@@ -79,10 +84,10 @@ export default function AdminProfile() {
                     sessionStorage.setItem('userEmail', data.email);
                 }
             } else {
-                setError('Failed to load profile');
+                showToast('Failed to load profile', 'error');
             }
         } catch (err) {
-            setError('Error loading profile: ' + err.message);
+            showToast('Error loading profile: ' + err.message, 'error');
             console.error('Error', err);
         } finally {
             setLoading(false);
@@ -91,25 +96,17 @@ export default function AdminProfile() {
 
     const handleUpdateProfile = async () => {
         try {
-            setError('');
-            setSuccess('');
-            setIsUpdatingProfile(true);
-            const updateData = {
-                phoneNumber: formData.phoneNumber,
-                bio: formData.bio,
-                gender: formData.gender
-            };
             
             const response = await updateAdminProfile(adminId, updateData);
             if (response.data.success) {
-                setSuccess('Admin profile updated!');
+                showToast('Admin profile updated!', 'success');
                 setEditing(false);
                 fetchProfile();
             } else {
-                setError(response.data.message || 'Failed to update profile');
+                showToast(response.data.message || 'Failed to update profile', 'error');
             }
         } catch (err) {
-            setError('Error updating profile: ' + err.message);
+            showToast('Error updating profile: ' + err.message, 'error');
         } finally {
             setIsUpdatingProfile(false);
         }
@@ -132,8 +129,6 @@ export default function AdminProfile() {
         setImageToCrop(null);
         
         try {
-            setError('');
-            setSuccess('');
             setIsUploadingPortrait(true);
             
             const formDataObj = new FormData();
@@ -143,7 +138,7 @@ export default function AdminProfile() {
 
             const response = await uploadProfilePicture(formDataObj);
             if (response.data.success) {
-                setSuccess('Admin portrait updated!');
+                showToast('Admin portrait updated!', 'success');
                 await fetchProfile();
                 await fetchHistory();
                 
@@ -151,54 +146,53 @@ export default function AdminProfile() {
                 if (fileInput) fileInput.value = '';
                 window.dispatchEvent(new Event('profileUpdated'));
             } else {
-                setError(response.data.message || 'Failed to upload profile picture');
+                showToast(response.data.message || 'Failed to upload profile picture', 'error');
             }
         } catch (err) {
-            setError('Error uploading profile picture: ' + err.message);
+            showToast('Error uploading profile picture: ' + err.message, 'error');
         } finally {
             setIsUploadingPortrait(false);
         }
     };
 
-    const handleDeleteProfilePicture = async () => {
-        if (!window.confirm('Are you sure you want to remove your admin profile picture?')) return;
-
-        try {
-            setError('');
-            setSuccess('');
-            setIsDeletingPortrait(true);
-            const response = await deleteProfilePicture(adminId, 'admin');
-            if (response.data.success) {
-                setSuccess('Admin profile picture deleted successfully.');
-                await fetchProfile();
-                await fetchHistory();
-                window.dispatchEvent(new Event('profileUpdated'));
-            } else {
-                setError(response.data.message || 'Failed to delete profile picture');
+    const handleDeleteProfilePicture = () => {
+        setConfirmModal({
+            isOpen: true,
+            onConfirm: async () => {
+                try {
+                    setIsDeletingPortrait(true);
+                    const response = await deleteProfilePicture(adminId, 'admin');
+                    if (response.data.success) {
+                        showToast('Admin profile picture deleted successfully.', 'success');
+                        await fetchProfile();
+                        await fetchHistory();
+                        window.dispatchEvent(new Event('profileUpdated'));
+                    } else {
+                        showToast(response.data.message || 'Failed to delete profile picture', 'error');
+                    }
+                } catch (err) {
+                    showToast('Error deleting profile picture: ' + err.message, 'error');
+                } finally {
+                    setIsDeletingPortrait(false);
+                }
             }
-        } catch (err) {
-            setError('Error deleting profile picture: ' + err.message);
-        } finally {
-            setIsDeletingPortrait(false);
-        }
+        });
     };
 
     const handleSelectFromHistory = async (url) => {
         if (profile.profilePictureUrl === url) return;
 
         try {
-            setError('');
-            setSuccess('');
             const response = await selectProfilePicture(adminId, 'admin', url);
             if (response.data.success) {
-                setSuccess('Profile picture updated from vault!');
+                showToast('Profile picture updated from vault!', 'success');
                 await fetchProfile();
                 window.dispatchEvent(new Event('profileUpdated'));
             } else {
-                setError(response.data.message || 'Failed to update profile picture');
+                showToast(response.data.message || 'Failed to update profile picture', 'error');
             }
         } catch (err) {
-            setError('Error selecting profile picture: ' + err.message);
+            showToast('Error selecting profile picture: ' + err.message, 'error');
         }
     };
 
@@ -215,19 +209,7 @@ export default function AdminProfile() {
 
     return (
         <div className="animate-fade-in space-y-6">
-            {error && (
-                <div className="bg-mdError/10 text-mdError px-8 py-5 rounded-3xl mb-12 border border-mdError/20 flex items-center gap-4 shadow-sm">
-                    <FontAwesomeIcon icon={faInfoCircle} />
-                    <span className="font-bold">{error}</span>
-                </div>
-            )}
 
-            {success && (
-                <div className="bg-mdPrimary/10 text-mdPrimary px-8 py-5 rounded-3xl mb-12 border border-mdPrimary/20 flex items-center gap-4 shadow-sm animate-fade-in">
-                    <FontAwesomeIcon icon={faCheck} />
-                    <span className="font-bold">{success}</span>
-                </div>
-            )}
 
             {profile && (
                 <>
@@ -463,6 +445,14 @@ export default function AdminProfile() {
                     }}
                 />
             )}
+            <ConfirmModal 
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmModal.onConfirm}
+                title="Discard Portrait?"
+                message="Are you sure you want to permanently remove your administrative identity portrait?"
+                type="danger"
+            />
         </div>
     );
 }

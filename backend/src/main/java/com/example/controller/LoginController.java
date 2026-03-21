@@ -39,6 +39,8 @@ public class LoginController {
                 response.put("userType", "admin");
                 response.put("name", "Benjamin");
                 response.put("email", "benjaminbuckmanjunior@gmail.com");
+                response.put("branchId", null);
+                response.put("role", "SUPER_ADMIN");
             } else {
                 AdminDAO adminDao = new AdminDAO();
                 // Check against admin database
@@ -50,6 +52,8 @@ public class LoginController {
                     response.put("userType", "admin");
                     response.put("name", admin.getName());
                     response.put("email", admin.getEmail());
+                    response.put("branchId", admin.getBranchId());
+                    response.put("role", admin.getRole());
                 } else {
                     // Check against member database
                     MemberDAO memberDao = new MemberDAO();
@@ -61,6 +65,7 @@ public class LoginController {
                         response.put("userType", "member");
                         response.put("name", member.getName());
                         response.put("email", member.getEmail());
+                        response.put("branchId", member.getBranchId());
                     } else {
                         response.put("success", false);
                         response.put("message", "Invalid email or password");

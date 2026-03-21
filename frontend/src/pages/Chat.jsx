@@ -7,6 +7,7 @@ import {
 import { 
     sendChatMessage, getChatHistory, getConversations, markChatMessageAsRead, getAdminTeam 
 } from '../services/api';
+import { useToast } from '../context/ToastContext';
 
 export default function Chat() {
     const userId = parseInt(sessionStorage.getItem('userId'));
@@ -18,6 +19,7 @@ export default function Chat() {
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const scrollRef = useRef(null);
+    const { showToast } = useToast();
 
     // Initial load
     useEffect(() => {
@@ -25,9 +27,10 @@ export default function Chat() {
             if (userType === 'admin') {
                 await fetchConversations();
             } else {
-                // For members, dynamically discover the support admin
+                // For members, dynamically discover the support admin for their branch
                 try {
-                    const res = await getAdminTeam();
+                    const branchId = sessionStorage.getItem('branchId');
+                    const res = await getAdminTeam(branchId);
                     if (res.data.success) {
                         setActiveConversation({ 
                             id: res.data.adminId, 
@@ -116,7 +119,7 @@ export default function Chat() {
             }
         } catch (err) {
             console.error("Failed to send message:", err);
-            alert("Connection error. The Sanctuary could not transmit your message at this time.");
+            showToast("Connection error. The Sanctuary could not transmit your message at this time.", "error");
         } finally {
             setSending(false);
         }

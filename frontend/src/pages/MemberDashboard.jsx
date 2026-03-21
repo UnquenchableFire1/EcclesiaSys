@@ -62,7 +62,7 @@ export default function MemberDashboard() {
         try {
             const [profileRes, membersRes] = await Promise.all([
                 getMemberProfile(memberId),
-                getPublicMembers(memberProfile?.branchId)
+                getPublicMembers(sessionStorage.getItem('branchId'))
             ]);
             setMemberProfile(profileRes.data?.data || profileRes.data || {});
             setMembers(membersRes.data?.data || membersRes.data || []);

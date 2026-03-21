@@ -21,7 +21,9 @@ public class PrayerRequestDAO {
                 "request_text TEXT, " +
                 "is_anonymous BOOLEAN DEFAULT FALSE, " +
                 "status VARCHAR(20) DEFAULT 'PENDING', " +
-                "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                "branch_id INT, " +
+                "created_at DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (branch_id) REFERENCES branches(id)" +
                 ")";
         
         try (Connection conn = DBConnection.getConnection();
@@ -34,7 +36,7 @@ public class PrayerRequestDAO {
     }
 
     public boolean addPrayerRequest(PrayerRequest request) {
-        String query = "INSERT INTO prayer_requests (requester_name, email, request_text, is_anonymous, status, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO prayer_requests (requester_name, email, request_text, is_anonymous, status, branch_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, request.getRequesterName());
@@ -42,7 +44,8 @@ public class PrayerRequestDAO {
             stmt.setString(3, request.getRequestText());
             stmt.setBoolean(4, request.isAnonymous());
             stmt.setString(5, request.getStatus() != null ? request.getStatus() : "PENDING");
-            stmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            if (request.getBranchId() != null) stmt.setInt(6, request.getBranchId()); else stmt.setNull(6, Types.INTEGER);
+            stmt.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -50,12 +53,13 @@ public class PrayerRequestDAO {
         return false;
     }
 
-    public List<PrayerRequest> getAllPrayerRequests() {
+    public List<PrayerRequest> getAllPrayerRequests(Integer branchId) {
         List<PrayerRequest> requests = new ArrayList<>();
-        String query = "SELECT * FROM prayer_requests ORDER BY created_at DESC";
+        String query = branchId == null ? "SELECT * FROM prayer_requests ORDER BY created_at DESC" : "SELECT * FROM prayer_requests WHERE branch_id = ? ORDER BY created_at DESC";
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (branchId != null) stmt.setInt(1, branchId);
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 requests.add(mapResultSetToPrayerRequest(rs));
             }
@@ -114,6 +118,8 @@ public class PrayerRequestDAO {
         request.setRequestText(rs.getString("request_text"));
         request.setAnonymous(rs.getBoolean("is_anonymous"));
         request.setStatus(rs.getString("status"));
+        int bId = rs.getInt("branch_id");
+        if (!rs.wasNull()) request.setBranchId(bId);
         Timestamp ts = rs.getTimestamp("created_at");
         if (ts != null) {
             request.setCreatedAt(ts.toLocalDateTime());

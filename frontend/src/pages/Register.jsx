@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../services/api';
+import { register, getBranches } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faEye, faEyeSlash, faPlus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faEye, faEyeSlash, faPlus, faUserPlus, faChurch } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 export default function Register() {
@@ -12,14 +12,30 @@ export default function Register() {
         phoneNumber: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        branchId: ''
     });
+    const [branches, setBranches] = useState([]);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [alertDialog, setAlertDialog] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchBranchesList = async () => {
+            try {
+                const response = await getBranches();
+                if (response.data && response.data.success) {
+                    setBranches(response.data.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch branches", err);
+            }
+        };
+        fetchBranchesList();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -65,6 +81,7 @@ export default function Register() {
                     sessionStorage.setItem('userId', response.data.userId);
                     sessionStorage.setItem('userType', 'member');
                     sessionStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`);
+                    sessionStorage.setItem('branchId', formData.branchId); // Persist branch context
                     sessionStorage.setItem('sessionId', Date.now().toString());
                     sessionStorage.setItem('isNewMember', 'true');
                 }
@@ -201,6 +218,34 @@ export default function Register() {
                                 >
                                     <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
                                 </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">Select Branch</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-mdPrimary">
+                                    <FontAwesomeIcon icon={faChurch} />
+                                </span>
+                                <select 
+                                    name="branchId"
+                                    value={formData.branchId}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full pl-11 pr-5 py-4 border border-mdOutline/50 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 appearance-none font-medium"
+                                >
+                                    <option value="">Choose your branch</option>
+                                    {branches.map(branch => (
+                                        <option key={branch.id} value={branch.id}>
+                                            {branch.name} {branch.location ? `(${branch.location})` : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-mdOutline">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
                             </div>
                         </div>
 

@@ -8,7 +8,8 @@ export default function PrayerRequestPage() {
         requesterName: sessionStorage.getItem('userName') || '',
         email: sessionStorage.getItem('userEmail') || '',
         requestText: '',
-        isAnonymous: false
+        isAnonymous: false,
+        branchId: sessionStorage.getItem('branchId') || null
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState({ text: '', isError: false });

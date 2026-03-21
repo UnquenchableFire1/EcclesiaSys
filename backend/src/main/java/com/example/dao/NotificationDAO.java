@@ -103,6 +103,21 @@ public class NotificationDAO {
         return allSuccess;
     }
 
+    public boolean notifyAdminsByBranch(String title, String message, int branchId) {
+        AdminDAO adminDao = new AdminDAO();
+        List<com.example.model.Admin> admins = adminDao.getAllAdmins();
+        boolean allSuccess = true;
+        for (com.example.model.Admin admin : admins) {
+            // Include branch admins of this branch OR Super Admins (optional, but requested only branch admins)
+            if (admin.getBranchId() != null && admin.getBranchId() == branchId) {
+                if (!addNotification(admin.getId(), title, message, "general")) {
+                    allSuccess = false;
+                }
+            }
+        }
+        return allSuccess;
+    }
+
     private Notification mapResultSetToNotification(ResultSet rs) throws SQLException {
         Notification n = new Notification();
         n.setId(rs.getInt("id"));

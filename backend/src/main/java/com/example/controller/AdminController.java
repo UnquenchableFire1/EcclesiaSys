@@ -15,10 +15,15 @@ public class AdminController {
     private final AdminDAO adminDAO = new AdminDAO();
 
     @GetMapping
-    public Map<String, Object> getAllAdmins() {
+    public Map<String, Object> getAllAdmins(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<Admin> admins = adminDAO.getAllAdmins();
+            List<Admin> admins;
+            if (branchId != null) {
+                admins = adminDAO.getAdminsByBranch(branchId);
+            } else {
+                admins = adminDAO.getAllAdmins();
+            }
             // Do not send passwords to the frontend
             for (Admin admin : admins) {
                 admin.setPassword(null);
@@ -159,7 +164,13 @@ public class AdminController {
                 return response;
             }
 
-            if (adminDAO.promoteMemberToAdmin(memberId, requesterId)) {
+            Integer branchId = null;
+            if (request.containsKey("branchId")) {
+                Object bIdObj = request.get("branchId");
+                if (bIdObj instanceof Number) branchId = ((Number) bIdObj).intValue();
+            }
+
+            if (adminDAO.promoteMemberToAdmin(memberId, requesterId, branchId)) {
                 response.put("success", true);
                 response.put("message", "Member successfully promoted to Admin.");
             } else {

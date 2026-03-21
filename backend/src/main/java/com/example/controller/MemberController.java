@@ -98,4 +98,46 @@ public class MemberController {
         }
         return response;
     }
+
+    @PutMapping("/{id}/toggle-status")
+    public Map<String, Object> toggleMemberStatus(@PathVariable int id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            MemberDAO dao = new MemberDAO();
+            if (dao.toggleMemberStatus(id)) {
+                response.put("success", true);
+                response.put("message", "Member status toggled");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to toggle status");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @PutMapping("/{id}/assign-branch")
+    public Map<String, Object> assignBranch(@PathVariable int id, @RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Integer branchId = null;
+            if (request.containsKey("branchId") && request.get("branchId") != null) {
+                branchId = ((Number) request.get("branchId")).intValue();
+            }
+            MemberDAO dao = new MemberDAO();
+            if (dao.assignBranch(id, branchId)) {
+                response.put("success", true);
+                response.put("message", "Member branch assigned successfully");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to assign branch");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        return response;
+    }
 }

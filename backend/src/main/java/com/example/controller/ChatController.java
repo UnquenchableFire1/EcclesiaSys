@@ -47,10 +47,22 @@ public class ChatController {
     }
 
     @GetMapping("/admin-team")
-    public Map<String, Object> getAdminTeam() {
+    public Map<String, Object> getAdminTeam(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Admin mainAdmin = adminDAO.getAdminByEmail("benjaminbuckmanjunior@gmail.com");
+            Admin mainAdmin = null;
+            
+            if (branchId != null) {
+                List<Admin> branchAdmins = adminDAO.getAdminsByBranch(branchId);
+                if (!branchAdmins.isEmpty()) {
+                    mainAdmin = branchAdmins.get(0);
+                }
+            }
+            
+            if (mainAdmin == null) {
+                mainAdmin = adminDAO.getAdminByEmail("benjaminbuckmanjunior@gmail.com");
+            }
+            
             if (mainAdmin == null) {
                 // Fallback to the first admin in the system if primary is missing
                 List<Admin> admins = adminDAO.getAllAdmins();

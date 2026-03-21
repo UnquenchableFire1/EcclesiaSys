@@ -105,6 +105,34 @@ public class AdminDAO {
         return null;
     }
 
+    public List<Admin> getAdminsByBranch(int branchId) {
+        List<Admin> admins = new ArrayList<>();
+        String query = "SELECT * FROM admins WHERE branch_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, branchId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Admin admin = new Admin();
+                admin.setId(rs.getInt("id"));
+                admin.setName(rs.getString("name"));
+                admin.setEmail(rs.getString("email"));
+                admin.setPassword(rs.getString("password"));
+                admin.setCreatedBy(rs.getInt("created_by"));
+                admin.setProfilePictureUrl(rs.getString("profile_picture_url"));
+                admin.setGender(rs.getString("gender"));
+                admin.setBio(rs.getString("bio"));
+                admin.setPhoneNumber(rs.getString("phone_number"));
+                admin.setRole(rs.getString("role"));
+                admin.setBranchId(branchId);
+                admins.add(admin);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return admins;
+    }
+
     public List<Admin> getAllAdmins() {
         List<Admin> admins = new ArrayList<>();
         String query = "SELECT * FROM admins";
@@ -197,7 +225,7 @@ public class AdminDAO {
         return admin != null && "benjaminbuckmanjunior@gmail.com".equals(admin.getEmail());
     }
 
-    public boolean promoteMemberToAdmin(int memberId, int promotedById) {
+    public boolean promoteMemberToAdmin(int memberId, int promotedById, Integer explicitBranchId) {
         String findMember = "SELECT * FROM members WHERE id = ?";
         String insertAdmin = "INSERT INTO admins (name, email, password, role, branch_id, created_by) VALUES (?, ?, ?, 'BRANCH_ADMIN', ?, ?)";
         
@@ -210,14 +238,23 @@ public class AdminDAO {
                     String name = rs.getString("first_name") + " " + rs.getString("last_name");
                     String email = rs.getString("email");
                     String password = rs.getString("password");
-                    int branchId = rs.getInt("branch_id");
-                    boolean hasBranch = !rs.wasNull();
+                    
+                    int branchIdToUse;
+                    boolean hasBranch;
+                    
+                    if (explicitBranchId != null) {
+                        branchIdToUse = explicitBranchId;
+                        hasBranch = true;
+                    } else {
+                        branchIdToUse = rs.getInt("branch_id");
+                        hasBranch = !rs.wasNull();
+                    }
 
                     try (PreparedStatement stmt2 = conn.prepareStatement(insertAdmin)) {
                         stmt2.setString(1, name);
                         stmt2.setString(2, email);
                         stmt2.setString(3, password);
-                        if (hasBranch) stmt2.setInt(4, branchId); else stmt2.setNull(4, Types.INTEGER);
+                        if (hasBranch) stmt2.setInt(4, branchIdToUse); else stmt2.setNull(4, Types.INTEGER);
                         stmt2.setInt(5, promotedById);
                         
                         int affected = stmt2.executeUpdate();

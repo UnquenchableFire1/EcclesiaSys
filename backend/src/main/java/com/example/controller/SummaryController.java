@@ -12,15 +12,18 @@ import java.util.Map;
 public class SummaryController {
 
     @GetMapping("/counts")
-    public Map<String, Object> getCounts() {
+    public Map<String, Object> getCounts(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try (Connection conn = DBConnection.getConnection()) {
             Map<String, Integer> counts = new HashMap<>();
             
-            counts.put("members", getCount(conn, "SELECT COUNT(*) FROM members WHERE status = 'active'"));
-            counts.put("events", getCount(conn, "SELECT COUNT(*) FROM events"));
-            counts.put("announcements", getCount(conn, "SELECT COUNT(*) FROM announcements"));
-            counts.put("sermons", getCount(conn, "SELECT COUNT(*) FROM sermons"));
+            String branchFilter = branchId != null ? " AND branch_id = " + branchId : "";
+            String branchFilterWhere = branchId != null ? " WHERE branch_id = " + branchId : "";
+            
+            counts.put("members", getCount(conn, "SELECT COUNT(*) FROM members WHERE status = 'active'" + branchFilter));
+            counts.put("events", getCount(conn, "SELECT COUNT(*) FROM events" + branchFilterWhere));
+            counts.put("announcements", getCount(conn, "SELECT COUNT(*) FROM announcements" + branchFilterWhere));
+            counts.put("sermons", getCount(conn, "SELECT COUNT(*) FROM sermons" + branchFilterWhere));
             
             response.put("success", true);
             response.put("data", counts);

@@ -28,6 +28,8 @@ export default function Login() {
         sessionStorage.setItem('userType', data.userType);
         sessionStorage.setItem('userName', data.name);
         sessionStorage.setItem('userEmail', data.email);
+        sessionStorage.setItem('branchId', data.branchId); // Save branch context
+        sessionStorage.setItem('role', data.role); // Save role for superadmin checks
         sessionStorage.setItem('sessionId', Date.now().toString()); // Add unique session ID
         
         let destination = from && from !== '/' ? from : null;

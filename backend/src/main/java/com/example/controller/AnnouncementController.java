@@ -16,6 +16,9 @@ public class AnnouncementController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.example.dao.MemberDAO memberDao;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.service.EmailTemplateService emailService;
+
     @GetMapping
     public Map<String, Object> getAllAnnouncements(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
@@ -75,10 +78,31 @@ public class AnnouncementController {
                 // Send notifications
                 try {
                     NotificationDAO notificationDao = new NotificationDAO();
-                    java.util.List<Integer> memberIds = memberDao.getAllActiveMemberIds();
+                    java.util.List<Integer> memberIds;
+                    if (announcement.getBranchId() != null) {
+                        memberIds = memberDao.getActiveMemberIdsByBranch(announcement.getBranchId());
+                    } else {
+                        memberIds = memberDao.getAllActiveMemberIds();
+                    }
                     
                     for (Integer memberId : memberIds) {
                         notificationDao.addNotification(memberId, announcement.getTitle(), "A new announcement has been posted in the sanctuary.", "announcement");
+                    }
+
+                    // Email notifications
+                    java.util.List<String> memberEmails;
+                    if (announcement.getBranchId() != null) {
+                        memberEmails = memberDao.getActiveMemberEmailsByBranch(announcement.getBranchId());
+                    } else {
+                        memberEmails = memberDao.getAllActiveMemberEmails();
+                    }
+                    for (String email : memberEmails) {
+                        emailService.sendAnnouncementNotificationEmail(
+                            email, 
+                            announcement.getTitle(), 
+                            announcement.getMessage(), 
+                            String.valueOf(announcement.getId())
+                        );
                     }
                 } catch (Exception ne) {
                     ne.printStackTrace();

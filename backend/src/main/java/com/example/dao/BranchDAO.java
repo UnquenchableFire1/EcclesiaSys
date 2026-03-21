@@ -51,6 +51,52 @@ public class BranchDAO {
         }
     }
 
+    public boolean deleteBranch(int id) {
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Nullify branch_id for members
+            try (PreparedStatement stmt = conn.prepareStatement("UPDATE members SET branch_id = NULL WHERE branch_id = ?")) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+            }
+
+            // 2. Nullify branch_id for admins (only if not super-admin, though super-admins usually have branch_id NULL anyway)
+            try (PreparedStatement stmt = conn.prepareStatement("UPDATE admins SET branch_id = NULL WHERE branch_id = ?")) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+            }
+
+            // 3. Delete related contents
+            String[] tables = {"sermons", "announcements", "events", "prayer_requests"};
+            for (String table : tables) {
+                try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM " + table + " WHERE branch_id = ?")) {
+                    stmt.setInt(1, id);
+                    stmt.executeUpdate();
+                } catch (SQLException e) {
+                    // Table might not exist yet or no branch_id column in rare cases (safety check)
+                    System.err.println("Note: Could not delete from " + table + ": " + e.getMessage());
+                }
+            }
+
+            // 4. Finally delete the branch
+            try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM branches WHERE id = ?")) {
+                stmt.setInt(1, id);
+                int affected = stmt.executeUpdate();
+                conn.commit();
+                return affected > 0;
+            }
+        } catch (SQLException e) {
+            if (conn != null) { try { conn.rollback(); } catch (SQLException ex) {} }
+            e.printStackTrace();
+        } finally {
+            if (conn != null) { try { conn.close(); } catch (SQLException e) {} }
+        }
+        return false;
+    }
+
     private Branch mapResultSetToBranch(ResultSet rs) throws SQLException {
         Branch branch = new Branch();
         branch.setId(rs.getInt("id"));

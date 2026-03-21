@@ -17,7 +17,7 @@ import {
     getEvents, getSermons, getAdmins, getNotifications,
     getPrayerRequests, updatePrayerRequestStatus, deletePrayerRequest,
     deleteMember, createAnnouncement, createEvent, createSermon,
-    createAdmin, promoteMemberToAdmin
+    createAdmin, promoteMemberToAdmin, assignBranch
 } from '../services/api';
 
 import Announcements from './Announcements';
@@ -28,6 +28,7 @@ import ChangePassword from '../components/ChangePassword';
 import Chat from './Chat';
 import { downloadMembersAsExcel } from '../services/excelExport';
 import ConfirmModal from '../components/ConfirmModal';
+import { useToast } from '../context/ToastContext';
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -37,6 +38,7 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTabInternal] = useState(() => sessionStorage.getItem('adminActiveTab') || 'home');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const { showToast } = useToast();
     
     // Auth & Identity
     const [adminId] = useState(parseInt(sessionStorage.getItem('userId')));
@@ -60,9 +62,9 @@ export default function AdminDashboard() {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-    const [confirmDialog, setConfirmDialog] = useState(null);
-    const [alertDialog, setAlertDialog] = useState(null);
     const [adminData, setAdminData] = useState(null);
+    const [inspectionBranchId, setInspectionBranchId] = useState(null);
+    const [inspectionBranchName, setInspectionBranchName] = useState('');
 
     // Form States
     const [showAnnForm, setShowAnnForm] = useState(false);
@@ -75,9 +77,16 @@ export default function AdminDashboard() {
     const [adminForm, setAdminForm] = useState({ name: '', email: '', password: '', branchId: '' });
     const [formLoading, setFormLoading] = useState(false);
     
-    // Member Promotion Selection
+    // Member Management States
     const [promotingMember, setPromotingMember] = useState(null);
     const [promotionBranchId, setPromotionBranchId] = useState('');
+    const [targetBranchId, setTargetBranchId] = useState('');
+
+    // Derived State
+    const effectiveRole = adminData?.role;
+    const isActuallySuperAdmin = effectiveRole === 'SUPER_ADMIN' || adminEmail === 'benjaminbuckmanjunior@gmail.com';
+    const isReadOnly = inspectionBranchId !== null;
+    const currentBranchIdForData = inspectionBranchId || (isActuallySuperAdmin ? selectedBranchId : adminData?.branchId);
 
     // -- Handlers --
     const setActiveTab = (tab) => {
@@ -119,13 +128,13 @@ export default function AdminDashboard() {
         setLoading(true);
         try {
             const [mem, ann, eve, ser, pra, cou, adm, bra] = await Promise.all([
-                getMembers(selectedBranchId), 
-                getAnnouncements(selectedBranchId), 
-                getEvents(selectedBranchId), 
-                getSermons(selectedBranchId), 
-                getPrayerRequests(), 
-                getCounts(), 
-                getAdmins(),
+                getMembers(currentBranchIdForData), 
+                getAnnouncements(currentBranchIdForData), 
+                getEvents(currentBranchIdForData), 
+                getSermons(currentBranchIdForData), 
+                getPrayerRequests(currentBranchIdForData),
+                getCounts(currentBranchIdForData), 
+                getAdmins(currentBranchIdForData),
                 getBranches()
             ]);
             setMembers(Array.isArray(mem.data.data) ? mem.data.data : (Array.isArray(mem.data) ? mem.data : []));
@@ -141,7 +150,7 @@ export default function AdminDashboard() {
         } finally {
             setLoading(false);
         }
-    }, [selectedBranchId]);
+    }, [currentBranchIdForData]);
 
     const fetchNotifications = async () => {
         try {
@@ -160,11 +169,6 @@ export default function AdminDashboard() {
             if (res.data) {
                 const profile = res.data.data || res.data;
                 setAdminData(profile);
-                // If not super admin, lock to their branch
-                const isSuper = profile.role === 'SUPER_ADMIN' || profile.email === 'benjaminbuckmanjunior@gmail.com';
-                if (!isSuper && profile.branchId) {
-                    setSelectedBranchId(profile.branchId);
-                }
             }
         } catch (err) {
             console.error("Profile Fetch Error:", err);
@@ -188,12 +192,16 @@ export default function AdminDashboard() {
         e.preventDefault();
         setFormLoading(true);
         try {
-            await createAnnouncement({ ...annForm, createdBy: adminId });
-            setAlertDialog({ title: 'Broadcast Live', message: 'Your announcement is now visible to all members.' });
+            await createAnnouncement({ 
+                ...annForm, 
+                createdBy: adminId,
+                branchId: currentBranchIdForData 
+            });
+            showToast('Your announcement is now visible to all members.', 'success');
             setAnnForm({ title: '', message: '' });
             setShowAnnForm(false);
             fetchAllData();
-        } catch (err) { setAlertDialog({ title: 'Error', message: 'Broadcast failed.', isError: true }); }
+        } catch (err) { showToast('Broadcast failed.', 'error'); }
         finally { setFormLoading(false); }
     };
 
@@ -204,13 +212,14 @@ export default function AdminDashboard() {
             await createEvent({ 
                 ...eventForm, 
                 eventDate: eventForm.startDate,
-                createdBy: adminId 
+                createdBy: adminId,
+                branchId: currentBranchIdForData
             });
-            setAlertDialog({ title: 'Event Scheduled', message: 'The event has been added to the calendar.' });
+            showToast('The event has been added to the calendar.', 'success');
             setEventForm({ title: '', description: '', startDate: '', endDate: '', location: '' });
             setShowEventForm(false);
             fetchAllData();
-        } catch (err) { setAlertDialog({ title: 'Error', message: 'Scheduling failed.', isError: true }); }
+        } catch (err) { showToast('Scheduling failed.', 'error'); }
         finally { setFormLoading(false); }
     };
 
@@ -222,13 +231,14 @@ export default function AdminDashboard() {
                 ...sermonForm,
                 speaker: sermonForm.preacherName,
                 sermonDate: new Date().toISOString(),
-                createdBy: adminId
+                createdBy: adminId,
+                branchId: currentBranchIdForData
             });
-            setAlertDialog({ title: 'Word Published', message: 'Sermon is now available in the library.' });
+            showToast('Sermon is now available in the library.', 'success');
             setSermonForm({ title: '', preacherName: '', description: '' });
             setShowSermonForm(false);
             fetchAllData();
-        } catch (err) { setAlertDialog({ title: 'Error', message: 'Upload failed.', isError: true }); }
+        } catch (err) { showToast('Upload failed.', 'error'); }
         finally { setFormLoading(false); }
     };
 
@@ -237,29 +247,29 @@ export default function AdminDashboard() {
         
         // Enforcement: Must have a branch if not super admin
         if (!adminForm.branchId && branches.length > 0) {
-            setAlertDialog({ title: 'Branch Required', message: 'Please select a branch for the new administrator.', isError: true });
+            showToast('Please select a branch for the new administrator.', 'warning');
             return;
         }
 
         if (branches.length === 0) {
-            setAlertDialog({ title: 'No Branches', message: 'Please create at least one branch before authorizing new staff.', isError: true });
+            showToast('Please create at least one branch before authorizing new staff.', 'warning');
             return;
         }
 
         setFormLoading(true);
         try {
             await createAdmin({ ...adminForm, createdBy: adminId });
-            setAlertDialog({ title: 'Admin Created', message: 'New administrator has been granted access.' });
-            setAdminForm({ name: '', email: '', password: '' });
+            showToast('New administrator has been granted access.', 'success');
+            setAdminForm({ name: '', email: '', password: '', branchId: '' });
             setShowAdminForm(false);
             fetchAllData();
-        } catch (err) { setAlertDialog({ title: 'Error', message: 'Creation failed.', isError: true }); }
+        } catch (err) { showToast('Creation failed.', 'error'); }
         finally { setFormLoading(false); }
     };
 
     const handlePromoteToAdmin = async (memberId) => {
         if (!promotionBranchId) {
-            setAlertDialog({ title: 'Branch Required', message: 'Please select a branch for this administrator.', isError: true });
+            showToast('Please select a branch for this administrator.', 'warning');
             return;
         }
 
@@ -269,12 +279,32 @@ export default function AdminDashboard() {
                 createdBy: adminId,
                 branchId: parseInt(promotionBranchId)
             });
-            setAlertDialog({ title: 'Success', message: 'Member has been promoted to administrator.' });
+            showToast('Member has been promoted to administrator.', 'success');
             setPromotingMember(null);
             setPromotionBranchId('');
             fetchAllData();
         } catch (err) {
-            setAlertDialog({ title: 'Promotion Failed', message: err.response?.data?.message || 'Server error', isError: true });
+            showToast(err.response?.data?.message || 'Promotion failed.', 'error');
+        } finally {
+            setFormLoading(false);
+        }
+    };
+
+    const handleAssignBranch = async (memberId) => {
+        if (!targetBranchId) {
+            showToast('Please select a branch.', 'warning');
+            return;
+        }
+
+        setFormLoading(true);
+        try {
+            await assignBranch(memberId, parseInt(targetBranchId));
+            showToast('Member branch has been updated.', 'success');
+            setAssigningBranchMember(null);
+            setTargetBranchId('');
+            fetchAllData();
+        } catch (err) {
+            showToast('Branch assignment failed.', 'error');
         } finally {
             setFormLoading(false);
         }
@@ -286,14 +316,43 @@ export default function AdminDashboard() {
         setFormLoading(true);
         try {
             await createBranch({ name: branchName });
-            setAlertDialog({ title: 'Branch Created', message: `Branch "${branchName}" has been established.` });
+            showToast(`Branch "${branchName}" has been established.`, 'success');
             e.target.reset();
             fetchAllData();
         } catch (err) {
-            setAlertDialog({ title: 'Creation Failed', message: 'Could not establish branch.', isError: true });
+            showToast('Could not establish branch.', 'error');
         } finally {
             setFormLoading(false);
         }
+    };
+
+    const groupedMembers = useMemo(() => {
+        const filtered = members.filter(m => (m.name || `${m.firstName || ''} ${m.lastName || ''}`).toLowerCase().includes(memberSearchQuery.toLowerCase()));
+        
+        if (!isActuallySuperAdmin || selectedBranchId || inspectionBranchId) {
+            return { "Congregation": filtered };
+        }
+        
+        const groups = {};
+        filtered.forEach(m => {
+            const branchName = branches.find(b => b.id === m.branchId)?.name || 'Central / No Branch';
+            if (!groups[branchName]) groups[branchName] = [];
+            groups[branchName].push(m);
+        });
+        return groups;
+    }, [members, memberSearchQuery, isActuallySuperAdmin, selectedBranchId, inspectionBranchId, branches]);
+
+    const enterInspection = (branchId, branchName) => {
+        setInspectionBranchId(branchId);
+        setInspectionBranchName(branchName);
+        setActiveTab('home');
+        showToast(`Viewing ${branchName} in inspection mode.`, 'info');
+    };
+
+    const exitInspection = () => {
+        setInspectionBranchId(null);
+        setInspectionBranchName('');
+        showToast('Exited inspection mode.', 'info');
     };
 
     // -- Sub-Components --
@@ -325,21 +384,29 @@ export default function AdminDashboard() {
 
     return (
         <div className="animate-fade-in pb-24 max-w-[1600px] mx-auto px-4 md:px-0">
-            {/* Dialogs */}
-            {confirmDialog && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-                    <div className="glass-card p-10 max-w-sm w-full animate-slide-up text-center">
-                        <h3 className="text-2xl font-black text-mdOnSurface mb-4">{confirmDialog.title}</h3>
-                        <p className="text-mdOnSurfaceVariant mb-8 font-medium">{confirmDialog.message}</p>
-                        <div className="flex gap-4">
-                            <button onClick={() => setConfirmDialog(null)} className="flex-1 py-4 rounded-2xl font-black border border-mdOutline/20 text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/10">Cancel</button>
-                            <button onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }} className="flex-1 py-4 rounded-2xl font-black bg-mdError text-white shadow-lifted">Confirm</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+
             
             <header className="mb-12 mt-4 px-4 md:px-0 animate-slide-up">
+                {isReadOnly && (
+                    <div className="mb-8 p-4 bg-mdPrimary/10 border border-mdPrimary rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4 animate-pulse-slow">
+                        <div className="flex items-center gap-4 text-mdPrimary">
+                            <div className="w-12 h-12 bg-mdPrimary text-white rounded-full flex items-center justify-center text-xl shadow-md1">
+                                <FontAwesomeIcon icon={faSearch} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black uppercase tracking-tighter">Inspection Mode Active</h3>
+                                <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Viewing {inspectionBranchName} Dashboard (Read-Only)</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={exitInspection}
+                            className="px-6 py-2 bg-mdPrimary text-white rounded-full font-black text-xs hover:bg-mdSecondary transition-all flex items-center gap-2"
+                        >
+                            <FontAwesomeIcon icon={faSignOutAlt} />
+                            EXIT INSPECTION
+                        </button>
+                    </div>
+                )}
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
                     <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2">
@@ -348,6 +415,8 @@ export default function AdminDashboard() {
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
                         Peace be with you, <span className="text-mdPrimary font-black">{adminName}</span>.
+                        {adminData?.branchId && <span className="text-xs bg-mdSecondary/10 text-mdSecondary px-2 py-0.5 rounded-lg">Admin: {branches.find(b => b.id === adminData.branchId)?.name}</span>}
+                        {isActuallySuperAdmin && !isReadOnly && <span className="text-xs bg-mdPrimary/10 text-mdPrimary px-2 py-0.5 rounded-lg">SUPER ADMIN</span>}
                     </p>
                 </div>
             </header>
@@ -384,13 +453,21 @@ export default function AdminDashboard() {
                                     <span className="w-1.5 h-6 bg-mdPrimary rounded-full"></span>
                                     Sanctuary Actions
                                 </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <QuickAction label="Post News" icon={faPlus} tab="announcements" desc="broadcast to all" />
-                                    <QuickAction label="Add Event" icon={faCalendarAlt} tab="events" desc="Update calendar" />
-                                    <QuickAction label="Upload Word" icon={faVideo} tab="sermons" desc="Media library" />
-                                    {isSuperAdmin && <QuickAction label="New Admin" icon={faUserPlus} tab="admins" desc="Grant access" />}
-                                    {isSuperAdmin && <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Manage network" />}
-                                </div>
+                                {(!isActuallySuperAdmin || isReadOnly) ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <QuickAction label="Post News" icon={faPlus} tab="announcements" desc="broadcast to branch" />
+                                        <QuickAction label="Add Event" icon={faCalendarAlt} tab="events" desc="Update calendar" />
+                                        <QuickAction label="Upload Word" icon={faVideo} tab="sermons" desc="Media library" />
+                                        <QuickAction label="Member List" icon={faUsers} tab="members" desc="View directory" />
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <QuickAction label="Manage Admins" icon={faUserShield} tab="admins" desc="Oversee Staff" />
+                                        <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network oversight" />
+                                        <QuickAction label="Congregation" icon={faUsers} tab="members" desc="Universal Registry" />
+                                        <QuickAction label="Prayer Wall" icon={faPrayingHands} tab="prayer-requests" desc="Intercessions" />
+                                    </div>
+                                )}
                             </div>
                             
                             <div className="glass-card p-10 bg-gradient-to-br from-mdPrimary to-mdSecondary text-white relative overflow-hidden">
@@ -439,11 +516,11 @@ export default function AdminDashboard() {
                                         onChange={(e) => setMemberSearchQuery(e.target.value)}
                                     />
                                 </div>
-                                {(isSuperAdmin || (adminData?.role === 'SUPER_ADMIN')) && (
+                                {(isActuallySuperAdmin && !isReadOnly) && (
                                     <select 
                                         value={selectedBranchId || ''} 
                                         onChange={(e) => setSelectedBranchId(e.target.value ? parseInt(e.target.value) : null)}
-                                        className="p-3 bg-mdSurfaceVariant/10 border-none rounded-xl font-bold text-sm text-mdOnSurface"
+                                        className="p-3 bg-mdSurfaceVariant/10 border-none rounded-xl font-bold text-sm text-mdOnSurface focus:ring-2 focus:ring-mdPrimary transition-all"
                                     >
                                         <option value="">All Branches</option>
                                         {branches.map(b => (
@@ -451,76 +528,120 @@ export default function AdminDashboard() {
                                         ))}
                                     </select>
                                 )}
-                                {(!isSuperAdmin && adminData?.role !== 'SUPER_ADMIN' && branches.length > 0) && (
+                                {(!isActuallySuperAdmin && !isReadOnly && branches.length > 0) && (
                                     <div className="p-3 bg-mdSecondary/10 text-mdSecondary border-none rounded-xl font-bold text-sm flex items-center gap-2">
                                         <FontAwesomeIcon icon={faBuilding} className="text-xs" />
-                                        {branches.find(b => b.id === selectedBranchId)?.name || 'Designated Branch'}
+                                        {branches.find(b => b.id === adminData?.branchId)?.name || 'Designated Branch'}
                                     </div>
                                 )}
-                                <button onClick={() => downloadMembersAsExcel(members)} className="p-3 bg-green-600 text-white rounded-xl shadow-sm hover:scale-105 transition-all">
-                                    <FontAwesomeIcon icon={faFileExcel} />
+                                {isReadOnly && (
+                                    <div className="p-3 bg-mdPrimary/10 text-mdPrimary border-none rounded-xl font-bold text-sm flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faSearch} className="text-xs" />
+                                        Inspecting: {inspectionBranchName}
+                                    </div>
+                                )}
+                                <button 
+                                    onClick={() => {
+                                        if (downloadMembersAsExcel(members, branches)) {
+                                            showToast('Registry exported to Excel!', 'success');
+                                        } else {
+                                            showToast('Export failed.', 'error');
+                                        }
+                                    }} 
+                                    className="p-3 bg-green-600 text-white rounded-xl shadow-sm hover:scale-105 transition-all text-xs"
+                                >
+                                    <FontAwesomeIcon icon={faFileExcel} className="mr-2" />
+                                    EXPORT
                                 </button>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {[...members.filter(m => (m.name || `${m.firstName || ''} ${m.lastName || ''}`).toLowerCase().includes(memberSearchQuery.toLowerCase()))]
-                                .sort((a, b) => a.id === adminId ? -1 : b.id === adminId ? 1 : 0)
-                                .map(member => (
-                                <div key={member.id} className={`glass-card group p-8 flex flex-col items-center text-center relative ${member.id === adminId ? 'bg-mdPrimary/5 border-mdPrimary border-2' : ''}`}>
-                                    <div className="w-20 h-20 rounded-full bg-mdPrimary/10 flex items-center justify-center text-3xl font-black text-mdPrimary mb-4">
-                                        {member.name?.[0] || member.firstName?.[0]}
-                                    </div>
-                                    <h4 className="text-xl font-black text-mdOnSurface truncate w-full flex items-center justify-center gap-2">
-                                        {member.name || `${member.firstName} ${member.lastName}`}
-                                        {member.id === adminId && <span className="text-[10px] text-mdPrimary bg-mdPrimary/10 px-2 py-0.5 rounded-lg">(YOU)</span>}
-                                    </h4>
-                                    <div className="flex items-center gap-2 mb-6">
-                                        <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-widest">Member</p>
-                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${member.status === 'Active' ? 'bg-green-500/10 text-green-600' : 'bg-mdError/10 text-mdError'}`}>
-                                            {member.status || 'Active'}
-                                        </span>
-                                    </div>
-                                    <div className="w-full space-y-2 mt-auto">
-                                        <div className="flex items-center gap-2 p-3 bg-mdSurfaceVariant/10 rounded-xl text-xs font-bold text-mdOnSurfaceVariant overflow-hidden">
-                                            <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary" />
-                                            <span className="truncate">{member.email}</span>
-                                        </div>
-                                        <button 
-                                            onClick={() => openConfirm(
-                                                "Restrict Access?", 
-                                                `Are you sure you want to ${member.status === 'Active' ? 'Deactivate' : 'Reactivate'} ${member.firstName}?`,
-                                                () => toggleMemberStatus(member.id).then(fetchAllData)
-                                            )}
-                                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${member.id === adminId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : member.status === 'Active' ? 'bg-mdError/10 text-mdError hover:bg-mdError hover:text-white' : 'bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white'}`}
-                                            disabled={member.id === adminId}
-                                        >
-                                            {member.status === 'Active' ? 'Restrict' : 'Authorize'}
-                                        </button>
-                                        {isSuperAdmin && (
-                                            <button 
-                                                onClick={() => {
-                                                    if (branches.length === 0) {
-                                                        setAlertDialog({ title: 'No Branches', message: 'Please create at least one branch before promoting staff.', isError: true });
-                                                        return;
-                                                    }
-                                                    setPromotingMember(member);
-                                                }}
-                                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-white transition-all w-full"
-                                            >
-                                                Promote
-                                            </button>
-                                        )}
-                                        <button 
-                                            onClick={() => openConfirm(
-                                                "Expunge Record?", 
-                                                `This will permanently remove ${member.firstName} from the sanctuary registry. Proceed?`,
-                                                () => deleteMember(member.id).then(fetchAllData)
-                                            )}
-                                            className="p-3 bg-mdSurfaceVariant/30 text-mdOnSurfaceVariant rounded-xl hover:bg-mdError hover:text-white transition-all shadow-sm"
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
+                        <div className="space-y-12">
+                            {Object.entries(groupedMembers).map(([branchName, branchMembers]) => (
+                                <div key={branchName} className="space-y-6">
+                                    {isActuallySuperAdmin && !selectedBranchId && !isReadOnly && (
+                                        <h3 className="text-xl font-black text-mdPrimary flex items-center gap-3 bg-mdPrimary/5 p-4 rounded-2xl w-max border border-mdPrimary/10">
+                                            <FontAwesomeIcon icon={faBuilding} className="text-sm" />
+                                            {branchName}
+                                            <span className="text-[10px] bg-mdPrimary text-white px-2 py-0.5 rounded-full">{branchMembers.length}</span>
+                                        </h3>
+                                    )}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                        {branchMembers
+                                            .sort((a, b) => a.id === adminId ? -1 : b.id === adminId ? 1 : 0)
+                                            .map(member => (
+                                            <div key={member.id} className={`glass-card group p-8 flex flex-col items-center text-center relative ${member.id === adminId ? 'bg-mdPrimary/5 border-mdPrimary border-2' : ''} ${isReadOnly ? 'opacity-90' : ''}`}>
+                                                <div className="w-20 h-20 rounded-full bg-mdPrimary/10 flex items-center justify-center text-3xl font-black text-mdPrimary mb-4">
+                                                    {member.name?.[0] || member.firstName?.[0]}
+                                                </div>
+                                                <h4 className="text-xl font-black text-mdOnSurface truncate w-full flex items-center justify-center gap-2">
+                                                    {member.name || `${member.firstName} ${member.lastName}`}
+                                                    {member.id === adminId && <span className="text-[10px] text-mdPrimary bg-mdPrimary/10 px-2 py-0.5 rounded-lg">(YOU)</span>}
+                                                </h4>
+                                                <div className="flex items-center gap-2 mb-6">
+                                                    <p className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-widest">Member</p>
+                                                    <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${member.status === 'Active' ? 'bg-green-500/10 text-green-600' : 'bg-mdError/10 text-mdError'}`}>
+                                                        {member.status || 'Active'}
+                                                    </span>
+                                                </div>
+                                                <div className="w-full space-y-2 mt-auto">
+                                                    <div className="flex items-center gap-2 p-3 bg-mdSurfaceVariant/10 rounded-xl text-xs font-bold text-mdOnSurfaceVariant overflow-hidden">
+                                                        <FontAwesomeIcon icon={faEnvelope} className="text-mdPrimary" />
+                                                        <span className="truncate">{member.email}</span>
+                                                    </div>
+                                                    {!isReadOnly && (
+                                                        <div className="flex gap-2">
+                                                            <button 
+                                                                onClick={() => openConfirm(
+                                                                    "Restrict Access?", 
+                                                                    `Are you sure you want to ${member.status === 'Active' ? 'Deactivate' : 'Reactivate'} ${member.firstName}?`,
+                                                                    () => toggleMemberStatus(member.id).then(fetchAllData)
+                                                                )}
+                                                                className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${member.id === adminId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : member.status === 'Active' ? 'bg-mdError/10 text-mdError hover:bg-mdError hover:text-white' : 'bg-green-500/10 text-green-600 hover:bg-green-500 hover:text-white'}`}
+                                                                disabled={member.id === adminId}
+                                                            >
+                                                                {member.status === 'Active' ? 'Restrict' : 'Authorize'}
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => openConfirm(
+                                                                    "Expunge Record?", 
+                                                                    `This will permanently remove ${member.firstName} from the sanctuary registry. Proceed?`,
+                                                                    () => deleteMember(member.id).then(fetchAllData)
+                                                                )}
+                                                                className="p-3 bg-mdSurfaceVariant/30 text-mdOnSurfaceVariant rounded-xl hover:bg-mdError hover:text-white transition-all shadow-sm"
+                                                            >
+                                                                <FontAwesomeIcon icon={faTrash} />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    {(isActuallySuperAdmin && !isReadOnly) && (
+                                                        <div className="flex gap-2 mt-2">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    if (branches.length === 0) {
+                                                                        showToast('Please create at least one branch first.', 'warning');
+                                                                        return;
+                                                                    }
+                                                                    setPromotingMember(member);
+                                                                }}
+                                                                className="flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-white transition-all"
+                                                            >
+                                                                Promote
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setAssigningBranchMember(member);
+                                                                    setTargetBranchId(member.branchId || '');
+                                                                }}
+                                                                className="flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all"
+                                                            >
+                                                                Set Branch
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             ))}
@@ -533,10 +654,12 @@ export default function AdminDashboard() {
                     <div className="space-y-10 animate-fade-in mt-4">
                         <div className="flex justify-between items-center">
                             <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Announcements</h1>
-                            <button onClick={() => setShowAnnForm(!showAnnForm)} className="btn-premium">
-                                <FontAwesomeIcon icon={showAnnForm ? faTimes : faPlus} />
-                                {showAnnForm ? 'Cancel' : 'Post New'}
-                            </button>
+                            {(!isActuallySuperAdmin && !isReadOnly) && (
+                                <button onClick={() => setShowAnnForm(!showAnnForm)} className="btn-premium">
+                                    <FontAwesomeIcon icon={showAnnForm ? faTimes : faPlus} />
+                                    {showAnnForm ? 'Cancel' : 'Post New'}
+                                </button>
+                            )}
                         </div>
 
                         {showAnnForm && (
@@ -557,10 +680,12 @@ export default function AdminDashboard() {
                     <div className="space-y-10 animate-fade-in mt-4">
                         <div className="flex justify-between items-center">
                             <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Events</h1>
-                            <button onClick={() => setShowEventForm(!showEventForm)} className="btn-premium">
-                                <FontAwesomeIcon icon={showEventForm ? faTimes : faPlus} />
-                                {showEventForm ? 'Cancel' : 'Schedule New'}
-                            </button>
+                            {(!isActuallySuperAdmin && !isReadOnly) && (
+                                <button onClick={() => setShowEventForm(!showEventForm)} className="btn-premium">
+                                    <FontAwesomeIcon icon={showEventForm ? faTimes : faPlus} />
+                                    {showEventForm ? 'Cancel' : 'Schedule New'}
+                                </button>
+                            )}
                         </div>
 
                         {showEventForm && (
@@ -583,10 +708,12 @@ export default function AdminDashboard() {
                     <div className="space-y-10 animate-fade-in mt-4">
                         <div className="flex justify-between items-center">
                             <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Sermon Library</h1>
-                            <button onClick={() => setShowSermonForm(!showSermonForm)} className="btn-premium">
-                                <FontAwesomeIcon icon={showSermonForm ? faTimes : faPlus} />
-                                {showSermonForm ? 'Cancel' : 'Upload Message'}
-                            </button>
+                            {(!isActuallySuperAdmin && !isReadOnly) && (
+                                <button onClick={() => setShowSermonForm(!showSermonForm)} className="btn-premium">
+                                    <FontAwesomeIcon icon={showSermonForm ? faTimes : faPlus} />
+                                    {showSermonForm ? 'Cancel' : 'Upload Message'}
+                                </button>
+                            )}
                         </div>
 
                         {showSermonForm && (
@@ -718,14 +845,27 @@ export default function AdminDashboard() {
                                                 </span>
                                             </td>
                                             <td className="p-6">
-                                                {adm.email !== 'benjaminbuckmanjunior@gmail.com' && adm.id !== adminId && (
-                                                    <button 
-                                                        onClick={() => openConfirm("Revoke Access?", `Remove ${adm.name} from the staff?`, () => deleteAdmin(adm.id).then(fetchAllData))}
-                                                        className="text-mdError hover:scale-110 transition-all"
-                                                    >
-                                                        <FontAwesomeIcon icon={faTrash} />
-                                                    </button>
-                                                )}
+                                                <div className="flex items-center gap-4">
+                                                    {adm.branchId && (
+                                                        <button 
+                                                            onClick={() => enterInspection(adm.branchId, branches.find(b => b.id === adm.branchId)?.name || 'Branch')}
+                                                            className="text-mdPrimary hover:scale-110 transition-all text-xs font-black bg-mdPrimary/10 px-3 py-1 rounded-lg flex items-center gap-2"
+                                                            title="Inspect Branch Dashboard"
+                                                        >
+                                                            <FontAwesomeIcon icon={faSearch} />
+                                                            INSPECT
+                                                        </button>
+                                                    )}
+                                                    {adm.email !== 'benjaminbuckmanjunior@gmail.com' && adm.id !== adminId && (
+                                                        <button 
+                                                            onClick={() => openConfirm("Revoke Access?", `Remove ${adm.name} from the staff?`, () => deleteAdmin(adm.id).then(fetchAllData))}
+                                                            className="text-mdError hover:scale-110 transition-all p-2 bg-mdError/5 rounded-lg"
+                                                            title="Delete Administrator"
+                                                        >
+                                                            <FontAwesomeIcon icon={faTrash} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -760,12 +900,26 @@ export default function AdminDashboard() {
                                     <p className="text-[10px] font-black text-mdOnSurfaceVariant uppercase tracking-widest mb-6">Established Territory</p>
                                     
                                     <div className="pt-6 border-t border-mdOutline/10 flex justify-between items-center">
-                                        <span className="text-sm font-bold text-mdPrimary">Active Branch</span>
                                         <button 
                                             onClick={() => { setSelectedBranchId(branch.id); setActiveTab('members'); }}
-                                            className="text-xs font-black uppercase tracking-widest text-mdOnSurfaceVariant hover:text-mdPrimary transition-colors"
+                                            className="text-xs font-black uppercase tracking-widest text-mdOnSurfaceVariant hover:text-mdPrimary transition-colors flex items-center gap-2"
                                         >
-                                            View Assets
+                                            <FontAwesomeIcon icon={faUsers} />
+                                            View Members
+                                        </button>
+                                        <button 
+                                            onClick={() => openConfirm(
+                                                "Delete Branch?", 
+                                                `Are you sure you want to delete "${branch.name}"? This will also remove all sermons, events, and announcements for this branch. Members will be unassigned.`,
+                                                () => axios.delete(`${API_URL}/branches/${branch.id}`).then(() => {
+                                                    showToast(`Branch "${branch.name}" deleted.`, 'success');
+                                                    fetchAllData();
+                                                }).catch(() => showToast('Failed to delete branch.', 'error'))
+                                            )}
+                                            className="text-mdError hover:scale-110 transition-all p-2 bg-mdError/5 rounded-lg"
+                                            title="Delete Branch"
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} />
                                         </button>
                                     </div>
                                 </div>
@@ -844,6 +998,48 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+            {/* Branch Assignment Modal */}
+            {assigningBranchMember && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+                    <div className="glass-card p-10 max-w-sm w-full animate-slide-up text-center border-l-8 border-l-emerald-500">
+                        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-2xl text-emerald-600 mx-auto mb-6">
+                            <FontAwesomeIcon icon={faBuilding} />
+                        </div>
+                        <h3 className="text-2xl font-black text-mdOnSurface mb-2">Member Affiliation</h3>
+                        <p className="text-mdOnSurfaceVariant mb-8 font-medium text-sm">Assign <b>{assigningBranchMember.firstName} {assigningBranchMember.lastName}</b> to a branch territory.</p>
+                        
+                        <div className="mb-8">
+                            <select 
+                                className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold"
+                                value={targetBranchId}
+                                onChange={e => setTargetBranchId(e.target.value)}
+                            >
+                                <option value="">No Branch / Central</option>
+                                {branches.map(b => (
+                                    <option key={b.id} value={b.id}>{b.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => { setAssigningBranchMember(null); setTargetBranchId(''); }} 
+                                className="flex-1 py-4 rounded-2xl font-black border border-mdOutline/20 text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/10"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={() => handleAssignBranch(assigningBranchMember.id)} 
+                                disabled={formLoading}
+                                className="flex-1 py-4 rounded-2xl font-black bg-emerald-500 text-white shadow-lifted disabled:opacity-50"
+                            >
+                                {formLoading ? 'Assigning...' : 'Update'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Deletion Confirmation Modal */}
             <ConfirmModal 
                 isOpen={confirmModal.isOpen}

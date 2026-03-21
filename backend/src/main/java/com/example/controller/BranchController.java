@@ -65,4 +65,23 @@ public class BranchController {
         }
         return response;
     }
+
+    @DeleteMapping("/{id}")
+    public Map<String, Object> deleteBranch(@PathVariable int id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            BranchDAO dao = new BranchDAO();
+            if (dao.deleteBranch(id)) {
+                response.put("success", true);
+                response.put("message", "Branch deleted successfully");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to delete branch");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        return response;
+    }
 }

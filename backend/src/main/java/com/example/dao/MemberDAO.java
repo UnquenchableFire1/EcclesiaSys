@@ -235,11 +235,70 @@ public class MemberDAO {
         return ids;
     }
 
+    public List<String> getActiveMemberEmailsByBranch(int branchId) {
+        List<String> emails = new ArrayList<>();
+        String query = "SELECT email FROM members WHERE status = 'active' AND branch_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, branchId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    emails.add(rs.getString("email"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return emails;
+    }
+
+    public List<Integer> getActiveMemberIdsByBranch(int branchId) {
+        List<Integer> ids = new ArrayList<>();
+        String query = "SELECT id FROM members WHERE status = 'active' AND branch_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, branchId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("id"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ids;
+    }
+
     public boolean updateMemberPassword(int id, String newPassword) {
         String query = "UPDATE members SET password = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, newPassword);
+            stmt.setInt(2, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean toggleMemberStatus(int id) {
+        String query = "UPDATE members SET status = CASE WHEN status = 'active' THEN 'disabled' ELSE 'active' END WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean assignBranch(int id, Integer branchId) {
+        String query = "UPDATE members SET branch_id = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (branchId != null) stmt.setInt(1, branchId); else stmt.setNull(1, Types.INTEGER);
             stmt.setInt(2, id);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {

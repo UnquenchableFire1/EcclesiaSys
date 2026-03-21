@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
 import { getEvents, deleteEvent } from '../services/api';
+import { useToast } from '../context/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -31,6 +31,8 @@ export default function Events({ embedded = false, branchId = null }) {
     useEffect(() => {
         fetchEvents();
     }, [branchId]);
+
+    const { showToast } = useToast();
 
     const fetchEvents = async () => {
         try {
@@ -91,7 +93,7 @@ export default function Events({ embedded = false, branchId = null }) {
     };
 
     const handleSetReminder = (event) => {
-        alert(`Reminder set for "${event.title}"! You will receive a notification 30 minutes before the start.`);
+        showToast(`Reminder set for "${event.title}"! You will receive a notification 30 minutes before the start.`, 'success');
     };
 
     const filteredEvents = useMemo(() => {

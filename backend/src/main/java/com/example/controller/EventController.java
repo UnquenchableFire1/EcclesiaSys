@@ -99,11 +99,19 @@ public class EventController {
             
             EventDAO dao = new EventDAO();
             if (dao.addEvent(event)) {
-                // Send email and in-app notifications to all active members
+                // Send email and in-app notifications to branch members
                 try {
                     NotificationDAO notificationDao = new NotificationDAO();
-                    java.util.List<Integer> memberIds = memberDao.getAllActiveMemberIds();
-                    java.util.List<String> memberEmails = memberDao.getAllActiveMemberEmails();
+                    java.util.List<Integer> memberIds;
+                    java.util.List<String> memberEmails;
+
+                    if (event.getBranchId() != null) {
+                        memberIds = memberDao.getActiveMemberIdsByBranch(event.getBranchId());
+                        memberEmails = memberDao.getActiveMemberEmailsByBranch(event.getBranchId());
+                    } else {
+                        memberIds = memberDao.getAllActiveMemberIds();
+                        memberEmails = memberDao.getAllActiveMemberEmails();
+                    }
                     
                     // In-app notifications
                     for (Integer memberId : memberIds) {

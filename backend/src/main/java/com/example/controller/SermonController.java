@@ -138,7 +138,12 @@ public class SermonController {
             if (dao.addSermon(sermon)) {
                 // Send email notifications
                 try {
-                    java.util.List<String> memberEmails = memberDao.getAllActiveMemberEmails();
+                    java.util.List<String> memberEmails;
+                    if (sermon.getBranchId() != null) {
+                        memberEmails = memberDao.getActiveMemberEmailsByBranch(sermon.getBranchId());
+                    } else {
+                        memberEmails = memberDao.getAllActiveMemberEmails();
+                    }
                     for (String email : memberEmails) {
                         emailService.sendSermonNotificationEmail(
                             email, 
@@ -152,10 +157,15 @@ public class SermonController {
                     System.err.println("Failed to send sermon email notifications: " + e.getMessage());
                 }
 
-                // Send in-app notifications to all active members
+                // Send in-app notifications to branch members
                 try {
                     com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
-                    java.util.List<Integer> memberIds = memberDao.getAllActiveMemberIds();
+                    java.util.List<Integer> memberIds;
+                    if (sermon.getBranchId() != null) {
+                        memberIds = memberDao.getActiveMemberIdsByBranch(sermon.getBranchId());
+                    } else {
+                        memberIds = memberDao.getAllActiveMemberIds();
+                    }
                     String notifTitle = "New Sermon: " + sermon.getTitle();
                     String notifMsg = "A new sermon by " + sermon.getSpeaker() + " has been posted. Check it out now!";
                     for (int memberId : memberIds) {

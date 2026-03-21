@@ -25,42 +25,46 @@ public class PrayerRequestController {
         Map<String, Object> response = new HashMap<>();
         try {
             PrayerRequestDAO dao = new PrayerRequestDAO();
-            boolean success = dao.addPrayerRequest(request);
-            if (success) {
-                response.put("success", true);
-                response.put("message", "Prayer request submitted successfully");
-                
+            if (dao.addPrayerRequest(request)) {
+                // Notify admins of the specific branch
                 try {
-                    com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
-                    String requester = request.isAnonymous() ? "An anonymous member" : request.getRequesterName();
-                    String adminMsg = requester + " has submitted a new prayer request: \"" + 
-                                     (request.getRequestText().length() > 50 ? request.getRequestText().substring(0, 47) + "..." : request.getRequestText()) + "\"";
-                    notifDao.notifyAllAdmins("New Prayer Request", adminMsg);
-                } catch (Exception notifEx) {
-                    System.err.println("Failed to send admin notification for prayer request: " + notifEx.getMessage());
+                    if (request.getBranchId() != null) {
+                        NotificationDAO notificationDao = new NotificationDAO();
+                        notificationDao.notifyAdminsByBranch(
+                            "New Prayer Request",
+                            "A new prayer request has been submitted by " +
+                            (request.isAnonymous() ? "Anonymous" : request.getRequesterName()),
+                            request.getBranchId()
+                        );
+                    }
+                } catch (Exception ne) {
+                    System.err.println("Failed to notify branch admins of prayer request: " + ne.getMessage());
                 }
+
+                response.put("success", true);
+                response.put("message", "Your prayer request has been submitted to the sanctuary.");
             } else {
                 response.put("success", false);
-                response.put("message", "Failed to submit prayer request");
+                response.put("message", "Failed to submit prayer request.");
             }
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error: " + e.getMessage());
+            response.put("message", "Server error: " + e.getMessage());
         }
         return response;
     }
 
     @GetMapping
-    public Map<String, Object> getAllPrayerRequests() {
+    public Map<String, Object> getAllPrayerRequests(@RequestParam(required = false) Integer branchId) {
         Map<String, Object> response = new HashMap<>();
         try {
             PrayerRequestDAO dao = new PrayerRequestDAO();
-            List<PrayerRequest> requests = dao.getAllPrayerRequests();
+            List<PrayerRequest> requests = dao.getAllPrayerRequests(branchId);
             response.put("success", true);
             response.put("data", requests);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error retrieving prayer requests: " + e.getMessage());
+            response.put("message", "Server error: " + e.getMessage());
         }
         return response;
     }

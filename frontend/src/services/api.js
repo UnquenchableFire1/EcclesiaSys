@@ -65,9 +65,13 @@ export const deleteMember = (id) => {
   return api.delete(`/members/${id}`);
 };
 
+export const assignBranch = (memberId, branchId) => {
+  return api.put(`/members/${memberId}/assign-branch`, { branchId });
+};
+
 // Admin APIs
-export const getAdmins = () => {
-  return api.get('/admins');
+export const getAdmins = (branchId) => {
+  return api.get('/admins', { params: { branchId } });
 };
 
 export const createAdmin = (adminData) => {
@@ -231,8 +235,8 @@ export const deleteProfilePicture = (userId, userType) => {
     });
 };
 
-export const getPrayerRequests = () => { // Restored original structure, changed to use 'api' instance
-  return api.get('/prayer-requests');
+export const getPrayerRequests = (branchId) => {
+  return api.get('/prayer-requests', { params: { branchId } });
 };
 
 export const updatePrayerRequestStatus = (id, status) => {
@@ -256,8 +260,8 @@ export const markAllNotificationsAsRead = (memberId) => {
   return api.put(`/notifications/member/${memberId}/read-all`);
 };
 
-export const getCounts = () => {
-    return api.get('/summary/counts');
+export const getCounts = (branchId) => {
+    return api.get('/summary/counts', { params: { branchId } });
 };
 
 export const toggleMemberStatus = (id) => {
@@ -285,8 +289,8 @@ export const markChatMessageAsRead = (messageId) => {
   return api.put('/chat/read', null, { params: { messageId } });
 };
 
-export const getAdminTeam = () => {
-    return api.get('/chat/admin-team');
+export const getAdminTeam = (branchId) => {
+    return api.get('/chat/admin-team', { params: { branchId } });
 };
 
 export const changePassword = (userType, userId, currentPassword, newPassword, otp) => {

@@ -81,10 +81,13 @@ function PublicOnlyRoute({ children }) {
   return children;
 }
 
+import { ToastProvider } from "./context/ToastContext";
+
 export default function App() {
   return (
-    <ErrorBoundary>
-      <SessionTimer />
+    <ToastProvider>
+      <ErrorBoundary>
+        <SessionTimer />
       <Routes>
         <Route path="/" element={<PublicOnlyRoute><Layout><Home /></Layout></PublicOnlyRoute>} />
         <Route path="/home" element={<PublicOnlyRoute><Layout><Home /></Layout></PublicOnlyRoute>} />
@@ -112,6 +115,7 @@ export default function App() {
           }
         />
       </Routes>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </ToastProvider>
   );
 }

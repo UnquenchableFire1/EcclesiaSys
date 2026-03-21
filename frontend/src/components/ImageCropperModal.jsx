@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from '../utils/cropUtils';
+import { useToast } from '../context/ToastContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faTimes, faSync } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,6 +10,7 @@ const ImageCropperModal = ({ image, onCropComplete, onCancel }) => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { showToast } = useToast();
 
   const onCropChange = (crop) => {
     setCrop(crop);
@@ -29,7 +31,7 @@ const ImageCropperModal = ({ image, onCropComplete, onCancel }) => {
       onCropComplete(croppedFile);
     } catch (e) {
       console.error(e);
-      alert('Failed to crop image');
+      showToast("Failed to crop image. Please try another selection.", "error");
     } finally {
       setIsProcessing(false);
     }
