@@ -72,55 +72,71 @@ public class EmailService {
                     "Best regards,\n" +
                     "EcclesiaSys Team";
                     
-            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - " + subject, emailBody);
+            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - " + subject, emailBody, false);
         } catch (Exception e) {
             logger.error("Failed to send notification email to: " + recipientEmail, e);
             return false;
         }
     }
+
+    public boolean sendHtmlEmail(String recipientEmail, String subject, String htmlContent) {
+        return sendEmailViaBrevo(recipientEmail, subject, htmlContent, true);
+    }
     
-    private boolean sendEmailViaBrevo(String to, String subject, String text) throws Exception {
+    private boolean sendEmailViaBrevo(String to, String subject, String content, boolean isHtml) {
         if ("null".equals(apiKey) || apiKey == null || apiKey.trim().isEmpty()) {
             logger.warn("Brevo API key is not configured. Email to {} was not sent.", to);
             return false; 
         }
 
-        logger.info("=== BREVO DEBUG === Sending to: {} | From: {} | ApiKey starts: {}",
-                to, senderEmail, 
-                (apiKey != null && apiKey.length() > 8) ? apiKey.substring(0, 8) + "..." : "MISSING");
+        logger.info("=== BREVO ATTEMPT === To: {} | Subject: {} | Sender: {}", to, subject, senderEmail);
+        logger.debug("API Key Prefix: {}", (apiKey.length() > 10) ? apiKey.substring(0, 10) : "short-key");
 
-        JSONObject payload = new JSONObject();
-        
-        JSONObject sender = new JSONObject();
-        sender.put("name", "EcclesiaSys");
-        sender.put("email", senderEmail);
-        payload.put("sender", sender);
-        
-        JSONArray toArray = new JSONArray();
-        JSONObject toObj = new JSONObject();
-        toObj.put("email", to);
-        toArray.put(toObj);
-        payload.put("to", toArray);
-        
-        payload.put("subject", subject);
-        payload.put("textContent", text);
+        try {
+            JSONObject payload = new JSONObject();
+            
+            JSONObject sender = new JSONObject();
+            sender.put("name", "EcclesiaSys");
+            sender.put("email", senderEmail);
+            payload.put("sender", sender);
+            
+            JSONArray toArray = new JSONArray();
+            JSONObject toObj = new JSONObject();
+            toObj.put("email", to);
+            toArray.put(toObj);
+            payload.put("to", toArray);
+            
+            payload.put("subject", subject);
+            if (isHtml) {
+                payload.put("htmlContent", content);
+            } else {
+                payload.put("textContent", content);
+            }
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
-                .header("api-key", apiKey)
-                .header("accept", "application/json")
-                .header("content-type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
-                .build();
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                    .header("api-key", apiKey)
+                    .header("accept", "application/json")
+                    .header("content-type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
+                    .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            logger.info("Email successfully sent via Brevo API to: " + to);
-            return true;
-        } else {
-            logger.error("Failed to send email via Brevo API. Status: {}, Body: {}", response.statusCode(), response.body());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                logger.info("Brevo Success: Status {}, MessageId: {}", response.statusCode(), response.body());
+                return true;
+            } else {
+                logger.error("Brevo Failure: Status {}, Response: {}", response.statusCode(), response.body());
+                // Provide hint for unverified sender
+                if (response.body().contains("unauthorized") || response.body().contains("sender")) {
+                    logger.warn("HINT: Ensure '{}' is a VERIFIED SENDER in your Brevo dashboard.", senderEmail);
+                }
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error("Internal Error sending email via Brevo: {}", e.getMessage(), e);
             return false;
         }
     }

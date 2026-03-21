@@ -19,11 +19,8 @@ public class EmailTemplateService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailTemplateService.class);
 
-    @Value("${brevo.api-key:null}")
-    private String apiKey;
-    
-    @Value("${brevo.sender-email:onboarding@resend.dev}")
-    private String senderEmail;
+    @Autowired
+    private EmailService emailService;
 
     /**
      * Welcome email for new member registration
@@ -50,8 +47,7 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px;'>In Christ,<br/><strong>" + churchName + " Team</strong></p>" +
                 "</div></div></body></html>";
 
-            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
-            logger.info("Welcome email sent successfully to: {}", recipientEmail);
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
         } catch (Exception e) {
             logger.error("Failed to send welcome email to: {}", recipientEmail, e);
         }
@@ -61,7 +57,7 @@ public class EmailTemplateService {
      * Event notification email
      */
     public void sendEventNotificationEmail(String recipientEmail, String eventName, 
-                                          String eventDate, String eventDescription, String eventLocation, String eventId) {
+                                           String eventDate, String eventDescription, String eventLocation, String eventId) {
         try {
             String eventLink = "https://ecclesiasys-bequ.onrender.com/events?id=" + eventId;
             String subject = "Upcoming Event: " + eventName;
@@ -84,7 +80,7 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
                 "</div></div></body></html>";
 
-            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
         } catch (Exception e) {
             logger.error("Failed to send event notification", e);
         }
@@ -111,7 +107,7 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
                 "</div></div></body></html>";
 
-            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
         } catch (Exception e) {
             logger.error("Failed to send announcement notification", e);
         }
@@ -142,7 +138,7 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
                 "</div></div></body></html>";
 
-            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
         } catch (Exception e) {
             logger.error("Failed to send sermon notification", e);
         }
@@ -176,8 +172,7 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated digest from our church management system. You can manage your subscription preferences in your account settings.</small></p>" +
                 "</div></div></body></html>";
 
-            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
-            logger.info("Weekly digest email sent successfully to: {}", recipientEmail);
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
         } catch (Exception e) {
             logger.error("Failed to send weekly digest email to: {}", recipientEmail, e);
         }
@@ -200,8 +195,7 @@ public class EmailTemplateService {
                 "<p style='font-size: 14px; margin-top: 30px; color: #666;'>May God's love and grace continue to guide you every day.</p>" +
                 "</div></div></body></html>";
 
-            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
-            logger.info("Birthday greeting email sent successfully to: {}", recipientEmail);
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
         } catch (Exception e) {
             logger.error("Failed to send birthday greeting email to: {}", recipientEmail, e);
         }
@@ -232,8 +226,7 @@ public class EmailTemplateService {
                 "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from our church management system.</small></p>" +
                 "</div></div></body></html>";
 
-            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
-            logger.info("Volunteer opportunity email sent successfully to: {}", recipientEmail);
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
         } catch (Exception e) {
             logger.error("Failed to send volunteer opportunity email to: {}", recipientEmail, e);
         }
@@ -265,52 +258,14 @@ public class EmailTemplateService {
                 "</p>" +
                 "</div></div></body></html>";
 
-            sendHtmlEmailViaBrevo(recipientEmail, subject, htmlContent);
-            logger.info("Password reset email sent successfully to: {}", recipientEmail);
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
         } catch (Exception e) {
             logger.error("Failed to send password reset email to: {}", recipientEmail, e);
         }
     }
 
-    private void sendHtmlEmailViaBrevo(String to, String subject, String htmlText) throws Exception {
-        if ("null".equals(apiKey) || apiKey == null || apiKey.trim().isEmpty()) {
-            logger.warn("Brevo API key is not configured. Email to {} was not sent.", to);
-            return;
-        }
-
-        JSONObject payload = new JSONObject();
-        
-        JSONObject sender = new JSONObject();
-        sender.put("name", "EcclesiaSys");
-        sender.put("email", senderEmail);
-        payload.put("sender", sender);
-        
-        JSONArray toArray = new JSONArray();
-        JSONObject toObj = new JSONObject();
-        toObj.put("email", to);
-        toArray.put(toObj);
-        payload.put("to", toArray);
-        
-        payload.put("subject", subject);
-        payload.put("htmlContent", htmlText);
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
-                .header("api-key", apiKey)
-                .header("accept", "application/json")
-                .header("content-type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new Exception("Brevo API failed with status " + response.statusCode() + " and body: " + response.body());
-        }
-    }
-
     private String getCurrentWeekLabel() {
+ntWeekLabel() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
         return "Week of " + now.format(formatter);
