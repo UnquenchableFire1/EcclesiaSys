@@ -14,13 +14,14 @@ public class AdminDAO {
 
     private void syncAdminEmail() {
         String targetEmail = "benjaminbuckmanjunior@gmail.com";
-        String query = "UPDATE admins SET email = ?, role = 'SUPER_ADMIN', branch_id = NULL WHERE email = 'benjamin@ecclesiasy.com' OR email = 'benjamin@bbj.com' OR id = 1";
+        // Include the variant ecclesisasys (three s) and ecclesiasy (two s)
+        String query = "UPDATE admins SET email = ?, role = 'SUPER_ADMIN', branch_id = NULL WHERE email = 'benjamin@ecclesiasy.com' OR email = 'benjamin@ecclesisasys.com' OR email = 'benjamin@bbj.com' OR id = 1";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, targetEmail);
             int updated = stmt.executeUpdate();
             if (updated > 0) {
-                System.out.println("✓ Synchronized admin email to: " + targetEmail);
+                System.out.println("[OK] Synchronized admin email to: " + targetEmail);
             }
         } catch (SQLException e) {
             System.err.println("! Admin email sync skipped: " + e.getMessage());
@@ -193,7 +194,7 @@ public class AdminDAO {
     }
     public boolean isSuperAdmin(int id) {
         Admin admin = getAdminById(id);
-        return admin != null && ("SUPER_ADMIN".equals(admin.getRole()) || "benjaminbuckmanjunior@gmail.com".equals(admin.getEmail()));
+        return admin != null && "benjaminbuckmanjunior@gmail.com".equals(admin.getEmail());
     }
 
     public boolean promoteMemberToAdmin(int memberId, int promotedById) {

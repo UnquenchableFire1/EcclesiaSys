@@ -225,6 +225,12 @@ export const selectProfilePicture = (userId, userType, url) => {
     });
 };
 
+export const deleteProfilePicture = (userId, userType) => {
+    return api.post('/upload/profile-picture/delete', null, {
+        params: { userId, userType }
+    });
+};
+
 export const getPrayerRequests = () => { // Restored original structure, changed to use 'api' instance
   return api.get('/prayer-requests');
 };

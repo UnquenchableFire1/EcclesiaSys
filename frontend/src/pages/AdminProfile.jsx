@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAdminProfile, updateAdminProfile, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture } from '../services/api';
+import { getAdminProfile, updateAdminProfile, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture, deleteProfilePicture } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
+import ImageCropperModal from '../components/ImageCropperModal';
 
 export default function AdminProfile() {
     const navigate = useNavigate();
@@ -11,11 +12,13 @@ export default function AdminProfile() {
     const [editing, setEditing] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [previewUrl, setPreviewUrl] = useState(null);
     const [history, setHistory] = useState([]);
     const [fetchingHistory, setFetchingHistory] = useState(false);
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
+    const [isDeletingPortrait, setIsDeletingPortrait] = useState(false);
+    const [imageToCrop, setImageToCrop] = useState(null);
+    const [isCropperOpen, setIsCropperOpen] = useState(false);
     const adminId = sessionStorage.getItem('userId');
 
     const getDefaultAvatar = (gender, name) => {
@@ -117,34 +120,34 @@ export default function AdminProfile() {
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onloadend = () => {
-            setPreviewUrl(reader.result);
+        reader.onload = () => {
+            setImageToCrop(reader.result);
+            setIsCropperOpen(true);
         };
         reader.readAsDataURL(file);
     };
 
-    const handleProfilePictureUpload = async () => {
-        const fileInput = document.getElementById('adminProfilePictureInput');
-        const file = fileInput.files?.[0];
-        if (!file) return;
-
+    const handleCropComplete = async (croppedFile) => {
+        setIsCropperOpen(false);
+        setImageToCrop(null);
+        
         try {
             setError('');
             setSuccess('');
             setIsUploadingPortrait(true);
             
             const formDataObj = new FormData();
-            formDataObj.append('file', file);
+            formDataObj.append('file', croppedFile);
             formDataObj.append('userId', adminId);
             formDataObj.append('userType', 'admin');
 
             const response = await uploadProfilePicture(formDataObj);
             if (response.data.success) {
                 setSuccess('Admin portrait updated!');
-                setPreviewUrl(null);
                 await fetchProfile();
                 await fetchHistory();
                 
+                const fileInput = document.getElementById('adminProfilePictureInput');
                 if (fileInput) fileInput.value = '';
                 window.dispatchEvent(new Event('profileUpdated'));
             } else {
@@ -154,6 +157,29 @@ export default function AdminProfile() {
             setError('Error uploading profile picture: ' + err.message);
         } finally {
             setIsUploadingPortrait(false);
+        }
+    };
+
+    const handleDeleteProfilePicture = async () => {
+        if (!window.confirm('Are you sure you want to remove your admin profile picture?')) return;
+
+        try {
+            setError('');
+            setSuccess('');
+            setIsDeletingPortrait(true);
+            const response = await deleteProfilePicture(adminId, 'admin');
+            if (response.data.success) {
+                setSuccess('Admin profile picture deleted successfully.');
+                await fetchProfile();
+                await fetchHistory();
+                window.dispatchEvent(new Event('profileUpdated'));
+            } else {
+                setError(response.data.message || 'Failed to delete profile picture');
+            }
+        } catch (err) {
+            setError('Error deleting profile picture: ' + err.message);
+        } finally {
+            setIsDeletingPortrait(false);
         }
     };
 
@@ -210,13 +236,7 @@ export default function AdminProfile() {
                         <div className="relative">
                             <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[3rem] p-1 bg-gradient-to-br from-mdPrimary/40 via-mdSecondary/40 to-mdPrimary/40 animate-gradient-slow group-hover:rotate-3 transition-transform duration-700 shadow-premium">
                                 <div className="w-full h-full rounded-[2.9rem] bg-white dark:bg-mdSurface overflow-hidden relative">
-                                    {previewUrl ? (
-                                        <img 
-                                            src={previewUrl} 
-                                            alt="Preview" 
-                                            className="w-full h-full object-cover animate-fade-in"
-                                        />
-                                    ) : profile.profilePictureUrl ? (
+                                    {profile.profilePictureUrl ? (
                                         <img 
                                             src={profile.profilePictureUrl} 
                                             alt="Profile" 
@@ -228,28 +248,17 @@ export default function AdminProfile() {
                                         </div>
                                     )}
                                     
-                                    {previewUrl && (
+                                    {isUploadingPortrait && (
                                         <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-                                            <button 
-                                                onClick={handleProfilePictureUpload}
-                                                disabled={isUploadingPortrait}
-                                                className="w-full bg-white text-mdPrimary font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest shadow-lifted hover:scale-105 transition-all disabled:opacity-50"
-                                            >
-                                                {isUploadingPortrait ? 'SAVING...' : 'UPLOAD'}
-                                            </button>
-                                            <button 
-                                                onClick={() => setPreviewUrl(null)}
-                                                className="mt-2 text-white/70 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
-                                            >
-                                                Cancel
-                                            </button>
+                                            <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-2"></div>
+                                            <span className="text-[8px] font-black text-white uppercase tracking-widest text-center">Saving...</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
                             
-                            {!previewUrl && (
-                                <label className="absolute -bottom-4 -right-4 w-14 h-14 bg-mdOnSurface text-mdSurface rounded-2xl flex items-center justify-center shadow-premium cursor-pointer hover:bg-mdPrimary hover:text-white hover:scale-110 transition-all duration-300">
+                            <div className="absolute -bottom-4 -right-4 flex flex-col gap-2">
+                                <label className="w-14 h-14 bg-mdOnSurface text-mdSurface rounded-2xl flex items-center justify-center shadow-premium cursor-pointer hover:bg-mdPrimary hover:text-white hover:scale-110 transition-all duration-300">
                                     <FontAwesomeIcon icon={faCamera} className="text-xl" />
                                     <input 
                                         type="file" 
@@ -259,7 +268,18 @@ export default function AdminProfile() {
                                         className="hidden"
                                     />
                                 </label>
-                            )}
+
+                                {profile.profilePictureUrl && (
+                                    <button 
+                                        onClick={handleDeleteProfilePicture}
+                                        disabled={isDeletingPortrait}
+                                        className="w-14 h-14 bg-white text-mdError rounded-2xl flex items-center justify-center shadow-premium hover:bg-mdError hover:text-white hover:scale-110 transition-all duration-300 disabled:opacity-50"
+                                        title="Delete Admin Profile Picture"
+                                    >
+                                        {isDeletingPortrait ? <FontAwesomeIcon icon={faSync} className="animate-spin" /> : <FontAwesomeIcon icon={faTrash} />}
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex-1 text-center md:text-left pt-4">
@@ -429,6 +449,19 @@ export default function AdminProfile() {
                         </div>
                     </div>
                 </>
+            )}
+
+            {isCropperOpen && (
+                <ImageCropperModal
+                    image={imageToCrop}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => {
+                        setIsCropperOpen(false);
+                        setImageToCrop(null);
+                        const fileInput = document.getElementById('adminProfilePictureInput');
+                        if (fileInput) fileInput.value = '';
+                    }}
+                />
             )}
         </div>
     );

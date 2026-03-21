@@ -19,7 +19,6 @@ import Announcements from './Announcements';
 import Events from './Events';
 import Sermons from './Sermons';
 import DailyVerse from '../components/DailyVerse';
-import PrayerRequestModal from '../components/PrayerRequestModal';
 import ChangePassword from '../components/ChangePassword';
 import Chat from './Chat';
 
@@ -35,7 +34,6 @@ export default function MemberDashboard() {
     const [memberName] = useState(sessionStorage.getItem('userName'));
     
     // UI State
-    const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [members, setMembers] = useState([]);
@@ -136,7 +134,7 @@ export default function MemberDashboard() {
                                     <button onClick={() => setActiveTab('sermons')} className="px-8 py-4 bg-white text-mdPrimary rounded-2xl font-black text-sm uppercase tracking-widest shadow-lifted hover:scale-105 transition-all">
                                         Listen to Word
                                     </button>
-                                    <button onClick={() => setIsPrayerModalOpen(true)} className="px-8 py-4 bg-white/10 border border-white/30 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
+                                    <button onClick={() => navigate('/prayer-request')} className="px-8 py-4 bg-white/10 border border-white/30 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
                                         Request Prayer
                                     </button>
                                 </div>
@@ -286,7 +284,7 @@ export default function MemberDashboard() {
                                     Our prayer team and pastoral staff are here to support you in faith. Your requests are handled with the utmost care and confidentiality.
                                 </p>
                                 <button 
-                                    onClick={() => setIsPrayerModalOpen(true)}
+                                    onClick={() => navigate('/prayer-request')}
                                     className="btn-premium w-full py-5 text-lg"
                                 >
                                     <FontAwesomeIcon icon={faPrayingHands} />
@@ -364,9 +362,6 @@ export default function MemberDashboard() {
                     </div>
                 )}
             </div>
-
-            {/* Modals */}
-            <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
 
         </div>
     );

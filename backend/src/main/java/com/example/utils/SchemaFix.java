@@ -43,7 +43,7 @@ public class SchemaFix {
 
             // Sync Admin Email to the desired one
             try {
-                int updated = stmt.executeUpdate("UPDATE admins SET email = 'benjaminbuckmanjunior@gmail.com' WHERE email = 'benjamin@ecclesiasy.com' OR id = 1");
+                int updated = stmt.executeUpdate("UPDATE admins SET email = 'benjaminbuckmanjunior@gmail.com' WHERE email = 'benjamin@ecclesiasy.com' OR email = 'benjamin@ecclesisasys.com' OR id = 1");
                 if (updated > 0) {
                     System.out.println("✓ Updated admin email to benjaminbuckmanjunior@gmail.com");
                 } else {

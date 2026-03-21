@@ -251,6 +251,44 @@ public class FileUploadController {
         return response;
     }
 
+    @PostMapping("/profile-picture/delete")
+    public Map<String, Object> deleteProfilePicture(
+            @RequestParam("userId") int userId,
+            @RequestParam(value = "userType", defaultValue = "member") String userType) {
+        
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean updateSuccess = false;
+            if ("admin".equalsIgnoreCase(userType)) {
+                com.example.dao.AdminDAO adminDao = new com.example.dao.AdminDAO();
+                com.example.model.Admin admin = adminDao.getAdminById(userId);
+                if (admin != null) {
+                    admin.setProfilePictureUrl(null);
+                    updateSuccess = adminDao.updateAdmin(admin);
+                }
+            } else {
+                MemberDAO memberDao = new MemberDAO();
+                Member member = memberDao.getMemberById(userId);
+                if (member != null) {
+                    member.setProfilePictureUrl(null);
+                    updateSuccess = memberDao.updateMember(member);
+                }
+            }
+
+            if (updateSuccess) {
+                response.put("success", true);
+                response.put("message", "Profile picture deleted successfully");
+            } else {
+                response.put("success", false);
+                response.put("message", "User not found or deletion failed");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        return response;
+    }
+
     @PostMapping("/event-document")
     public Map<String, Object> uploadEventDocument(
             @RequestParam("file") MultipartFile file,

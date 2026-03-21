@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -6,14 +6,13 @@ import {
   faClock, faMapMarkerAlt, faEnvelope, faUsers, faCheckCircle,
   faStar, faQuoteLeft, faHeart, faPlusCircle
 } from '@fortawesome/free-solid-svg-icons';
-import PrayerRequestModal from '../components/PrayerRequestModal';
 
 export default function Home() {
+  const navigate = useNavigate();
   const userName = sessionStorage.getItem('userName');
   const userType = sessionStorage.getItem('userType');
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [isPrayerModalOpen, setIsPrayerModalOpen] = useState(false);
 
   const handleNewsletterSignup = (e) => {
     e.preventDefault();
@@ -51,7 +50,7 @@ export default function Home() {
                   Member Login
                 </Link>
                 <button 
-                  onClick={() => setIsPrayerModalOpen(true)}
+                  onClick={() => navigate('/prayer-request')}
                   className="w-full sm:w-auto bg-mdSecondary hover:bg-mdPrimary text-white font-black px-8 md:px-12 py-4 md:py-5 text-lg md:text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1"
                 >
                   Request Prayer
@@ -63,7 +62,7 @@ export default function Home() {
                   Go to Dashboard
                 </Link>
                 <button 
-                  onClick={() => setIsPrayerModalOpen(true)}
+                  onClick={() => navigate('/prayer-request')}
                   className="w-full sm:w-auto bg-mdSecondary hover:bg-mdPrimary text-white font-black px-8 md:px-12 py-4 md:py-5 text-lg md:text-xl rounded-full shadow-md2 hover:shadow-md3 transition-all duration-300 transform hover:-translate-y-1"
                 >
                   Request Prayer
@@ -317,7 +316,6 @@ export default function Home() {
            </Link>
         </div>
       </section>
-      <PrayerRequestModal isOpen={isPrayerModalOpen} onClose={() => setIsPrayerModalOpen(false)} />
     </div>
   );
 }

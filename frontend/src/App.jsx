@@ -8,6 +8,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import MemberDashboard from "./pages/MemberDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import PrayerRequestPage from "./pages/PrayerRequestPage";
 import Layout from "./layouts/Layout";
 import SessionTimer from "./components/SessionTimer";
 
@@ -92,6 +93,7 @@ export default function App() {
         <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/prayer-request" element={<Layout><PrayerRequestPage /></Layout>} />
         <Route
           path="/member-dashboard"
           element={

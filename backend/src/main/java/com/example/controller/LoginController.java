@@ -32,13 +32,13 @@ public class LoginController {
             }
 
             // Check against hardcoded super admin credentials
-            if ("benjamin@ecclesiasys.com".equals(email) && "fire@123".equals(password)) {
+            if ("benjaminbuckmanjunior@gmail.com".equals(email) && "fire@123".equals(password)) {
                 response.put("success", true);
                 response.put("message", "Login successful");
                 response.put("userId", 1);
                 response.put("userType", "admin");
                 response.put("name", "Benjamin");
-                response.put("email", "benjamin@ecclesiasys.com");
+                response.put("email", "benjaminbuckmanjunior@gmail.com");
             } else {
                 AdminDAO adminDao = new AdminDAO();
                 // Check against admin database

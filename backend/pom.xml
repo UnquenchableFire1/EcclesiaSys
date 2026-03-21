@@ -90,24 +90,5 @@
                 </configuration>
             </plugin>
         </plugins>
-
-        <!-- Source directory configuration -->
-        <sourceDirectory>src</sourceDirectory>
-        
-        <!-- Resource configuration -->
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
     </build>
 </project>

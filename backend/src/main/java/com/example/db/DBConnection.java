@@ -26,7 +26,7 @@ public class DBConnection {
                 if (username == null) username = ConfigManager.getDbUsername();
                 if (password == null) password = ConfigManager.getDbPassword();
                 
-                System.out.println("✓ Production mode - Using TiDB Cloud");
+                System.out.println("[OK] Production mode - Using TiDB Cloud");
             } else {
                 // Local Development - use ConfigManager
                 url = ConfigManager.getDbUrl();
@@ -46,7 +46,7 @@ public class DBConnection {
             // Run automatic schema fix to ensure consistency
             runSchemaFix(conn);
             
-            System.out.println("✓ Database connected (" + env + ") with autocommit=true");
+            System.out.println("[OK] Database connected (" + env + ") with autocommit=true");
             System.out.println("  URL: " + url.substring(0, Math.min(50, url.length())) + "...");
             return conn;
         } catch(Exception e) {
