@@ -265,7 +265,6 @@ public class EmailTemplateService {
     }
 
     private String getCurrentWeekLabel() {
-ntWeekLabel() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
         return "Week of " + now.format(formatter);
