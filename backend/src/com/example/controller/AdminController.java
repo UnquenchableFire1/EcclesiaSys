@@ -121,7 +121,8 @@ public class AdminController {
             newAdmin.setPassword(password);
             newAdmin.setCreatedBy(requesterId);
             
-            if (request.containsKey("role")) newAdmin.setRole((String) request.get("role"));
+            // Role is ALWAYS BRANCH_ADMIN when created via API — SUPER_ADMIN cannot be assigned this way
+            newAdmin.setRole("BRANCH_ADMIN");
             if (request.containsKey("branchId")) {
                 Object bIdObj = request.get("branchId");
                 if (bIdObj instanceof Number) newAdmin.setBranchId(((Number) bIdObj).intValue());
