@@ -81,6 +81,8 @@ export default function AdminDashboard() {
     const [promotingMember, setPromotingMember] = useState(null);
     const [promotionBranchId, setPromotionBranchId] = useState('');
     const [targetBranchId, setTargetBranchId] = useState('');
+    const [assigningBranchMember, setAssigningBranchMember] = useState(null);
+    const [alertDialog, setAlertDialog] = useState(null);
 
     // Derived State
     const effectiveRole = adminData?.role;
