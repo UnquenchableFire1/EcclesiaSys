@@ -10,6 +10,7 @@ public class PrayerRequest {
     private String requestText;
     private boolean isAnonymous;
     private String status; // PENDING, PRAYED_FOR
+    private Integer branchId;
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
@@ -33,6 +34,9 @@ public class PrayerRequest {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public Integer getBranchId() { return branchId; }
+    public void setBranchId(Integer branchId) { this.branchId = branchId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
