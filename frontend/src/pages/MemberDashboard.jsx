@@ -79,9 +79,9 @@ export default function MemberDashboard() {
     }, [memberId]);
 
     // -- Sub-Components --
-    const DiscoveryCard = ({ title, desc, icon, tab, color }) => (
+    const DiscoveryCard = ({ title, desc, icon, tab, color, onClick }) => (
         <button 
-            onClick={() => setActiveTab(tab)}
+            onClick={onClick || (() => setActiveTab(tab))}
             className="glass-card p-8 group text-left hover:border-mdPrimary/30 transition-all overflow-hidden relative"
         >
             <div className={`w-12 h-12 rounded-xl bg-mdSurfaceVariant/30 ${color} flex items-center justify-center text-xl mb-6 group-hover:scale-110 group-hover:bg-mdPrimary group-hover:text-white transition-all duration-500`}>
@@ -175,6 +175,7 @@ export default function MemberDashboard() {
                                     desc="Submit and view prayer requests. Let us stand with you in faith." 
                                     icon={faPrayingHands}
                                     tab="prayer-requests"
+                                    onClick={() => navigate('/prayer-request')}
                                     color="text-emerald-500"
                                 />
                                 <DiscoveryCard 

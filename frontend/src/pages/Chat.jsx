@@ -131,7 +131,7 @@ export default function Chat() {
     }
 
     return (
-        <div className="glass-card overflow-hidden flex flex-col md:flex-row h-[70vh] border-none shadow-premium rounded-[3rem] bg-white">
+        <div className="glass-card overflow-hidden flex flex-col md:flex-row h-[600px] md:h-[70vh] border-none shadow-premium rounded-[3rem] bg-white">
             
             {/* Sidebar (Only for Admins) */}
             {userType === 'admin' && (
@@ -209,7 +209,7 @@ export default function Chat() {
                         </div>
 
                         {/* Messages Pool */}
-                        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-6">
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-6 overscroll-contain">
                             {messages.length > 0 ? messages.map((msg, index) => {
                                 const isOwn = msg.senderId === userId;
                                 return (
@@ -245,7 +245,7 @@ export default function Chat() {
                         </div>
 
                         {/* Input Area */}
-                        <div className="p-8 bg-white border-t border-mdOutline/10">
+                        <div className="p-8 bg-white border-t border-mdOutline/10 pb-safe z-10">
                             <form onSubmit={handleSendMessage} className="flex gap-4">
                                 <input 
                                     type="text" 

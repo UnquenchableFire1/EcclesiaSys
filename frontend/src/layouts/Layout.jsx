@@ -108,6 +108,11 @@ export default function Layout({ children }) {
     ];
 
     const handleTabChange = (tabId) => {
+        if (tabId === 'prayer-requests' && userType === 'member') {
+            navigate('/prayer-request');
+            return;
+        }
+        
         setLayoutActiveTab(tabId);
         const targetDashboard = userType === 'admin' ? '/admin' : '/member-dashboard';
         const eventName = 'setActiveTab';
