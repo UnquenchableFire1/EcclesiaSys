@@ -155,7 +155,6 @@ export default function AdminDashboard() {
             const res = await getAdminProfile(adminId);
             if (res.data) {
                 const profile = res.data.data || res.data;
-                setProfileLoaded(true);
                 setAdminData(profile);
                 // If not super admin, lock to their branch
                 const isSuper = profile.role === 'SUPER_ADMIN' || profile.email === 'benjaminbuckmanjunior@gmail.com';
@@ -165,7 +164,6 @@ export default function AdminDashboard() {
             }
         } catch (err) {
             console.error("Profile Fetch Error:", err);
-            setProfileLoaded(true); // Proceed even if profile fails, to avoid infinite loading
         }
     }, [adminId]);
 

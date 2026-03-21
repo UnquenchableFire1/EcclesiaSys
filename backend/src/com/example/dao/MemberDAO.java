@@ -127,15 +127,44 @@ public class MemberDAO {
         try {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
-            
-            // Delete related chat messages
-            try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM chat_messages WHERE (sender_id = ? AND sender_type = 'member') OR (receiver_id = ? AND receiver_type = 'member')")) {
+
+            // 1. Remove any password reset tokens for this member's email
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE pr FROM password_resets pr JOIN members m ON pr.email = m.email WHERE m.id = ?")) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                // Table may not exist or have a different name - ignore silently
+            }
+
+            // 2. Remove notifications sent to this member
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM notifications WHERE member_id = ?")) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                // Ignore if table doesn't exist
+            }
+
+            // 3. Remove all chat messages involving this member
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM chat_messages WHERE (sender_id = ? AND sender_type = 'member') OR (receiver_id = ? AND receiver_type = 'member')")) {
                 stmt.setInt(1, id);
                 stmt.setInt(2, id);
                 stmt.executeUpdate();
             }
-            
-            // Delete the member
+
+            // 4. Remove any admin record created from this member (promotion case)
+            // We identify by matching email
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE a FROM admins a JOIN members m ON a.email = m.email WHERE m.id = ? AND a.role != 'SUPER_ADMIN'")) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                // Ignore
+            }
+
+            // 5. Finally delete the member
             try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM members WHERE id = ?")) {
                 stmt.setInt(1, id);
                 int result = stmt.executeUpdate();

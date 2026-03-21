@@ -251,7 +251,7 @@ export const markAllNotificationsAsRead = (memberId) => {
 };
 
 export const getCounts = () => {
-    return api.get('/stats/counts');
+    return api.get('/summary/counts');
 };
 
 export const toggleMemberStatus = (id) => {
