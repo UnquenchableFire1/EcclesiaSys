@@ -40,7 +40,7 @@ public class EmailService {
                     "Best regards,\n" +
                     "EcclesiaSys Team";
                     
-            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - Password Reset Request", emailBody);
+            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - Password Reset Request", emailBody, false);
         } catch (Exception e) {
             logger.error("Failed to send password reset email to: " + recipientEmail + " | Error: " + e.getMessage());
             return false;
@@ -59,7 +59,7 @@ public class EmailService {
                     "Best regards,\n" +
                     "EcclesiaSys Team";
                     
-            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - Email Verification", emailBody);
+            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - Email Verification", emailBody, false);
         } catch (Exception e) {
             logger.error("Failed to send verification email to: " + recipientEmail, e);
             return false;
