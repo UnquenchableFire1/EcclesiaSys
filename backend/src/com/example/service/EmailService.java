@@ -85,6 +85,10 @@ public class EmailService {
             return false; 
         }
 
+        logger.info("=== BREVO DEBUG === Sending to: {} | From: {} | ApiKey starts: {}",
+                to, senderEmail, 
+                (apiKey != null && apiKey.length() > 8) ? apiKey.substring(0, 8) + "..." : "MISSING");
+
         JSONObject payload = new JSONObject();
         
         JSONObject sender = new JSONObject();

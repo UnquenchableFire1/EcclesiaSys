@@ -72,8 +72,12 @@ export default function AdminDashboard() {
     const [showSermonForm, setShowSermonForm] = useState(false);
     const [sermonForm, setSermonForm] = useState({ title: '', preacherName: '', description: '' });
     const [showAdminForm, setShowAdminForm] = useState(false);
-    const [adminForm, setAdminForm] = useState({ name: '', email: '', password: '' });
+    const [adminForm, setAdminForm] = useState({ name: '', email: '', password: '', branchId: '' });
     const [formLoading, setFormLoading] = useState(false);
+    
+    // Member Promotion Selection
+    const [promotingMember, setPromotingMember] = useState(null);
+    const [promotionBranchId, setPromotionBranchId] = useState('');
 
     // -- Handlers --
     const setActiveTab = (tab) => {
@@ -131,7 +135,7 @@ export default function AdminDashboard() {
             setPrayerRequests(Array.isArray(pra.data.data) ? pra.data.data : (Array.isArray(pra.data) ? pra.data : []));
             setCounts(cou.data || { members: 0, announcements: 0, events: 0, sermons: 0, prayerRequests: 0 });
             setAdmins(Array.isArray(adm.data.data) ? adm.data.data : (Array.isArray(adm.data) ? adm.data : []));
-            setBranches(Array.isArray(bra.data) ? bra.data : []);
+            setBranches(Array.isArray(bra.data.data) ? bra.data.data : (Array.isArray(bra.data) ? bra.data : []));
         } catch (err) {
             console.error("Data Load Error:", err);
         } finally {
@@ -230,6 +234,18 @@ export default function AdminDashboard() {
 
     const handleAdminSubmit = async (e) => {
         e.preventDefault();
+        
+        // Enforcement: Must have a branch if not super admin
+        if (!adminForm.branchId && branches.length > 0) {
+            setAlertDialog({ title: 'Branch Required', message: 'Please select a branch for the new administrator.', isError: true });
+            return;
+        }
+
+        if (branches.length === 0) {
+            setAlertDialog({ title: 'No Branches', message: 'Please create at least one branch before authorizing new staff.', isError: true });
+            return;
+        }
+
         setFormLoading(true);
         try {
             await createAdmin({ ...adminForm, createdBy: adminId });
@@ -242,10 +258,20 @@ export default function AdminDashboard() {
     };
 
     const handlePromoteToAdmin = async (memberId) => {
+        if (!promotionBranchId) {
+            setAlertDialog({ title: 'Branch Required', message: 'Please select a branch for this administrator.', isError: true });
+            return;
+        }
+
         setFormLoading(true);
         try {
-            await promoteMemberToAdmin(memberId, { createdBy: adminId });
+            await promoteMemberToAdmin(memberId, { 
+                createdBy: adminId,
+                branchId: parseInt(promotionBranchId)
+            });
             setAlertDialog({ title: 'Success', message: 'Member has been promoted to administrator.' });
+            setPromotingMember(null);
+            setPromotionBranchId('');
             fetchAllData();
         } catch (err) {
             setAlertDialog({ title: 'Promotion Failed', message: err.response?.data?.message || 'Server error', isError: true });
@@ -473,12 +499,13 @@ export default function AdminDashboard() {
                                         </button>
                                         {isSuperAdmin && (
                                             <button 
-                                                onClick={() => openConfirm(
-                                                    "Promote to Admin?",
-                                                    `Do you want to grant ${member.firstName} administrative access?`,
-                                                    () => handlePromoteToAdmin(member.id),
-                                                    "primary"
-                                                )}
+                                                onClick={() => {
+                                                    if (branches.length === 0) {
+                                                        setAlertDialog({ title: 'No Branches', message: 'Please create at least one branch before promoting staff.', isError: true });
+                                                        return;
+                                                    }
+                                                    setPromotingMember(member);
+                                                }}
                                                 className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-mdPrimary/10 text-mdPrimary hover:bg-mdPrimary hover:text-white transition-all w-full"
                                             >
                                                 Promote
@@ -637,22 +664,36 @@ export default function AdminDashboard() {
 
                         {showAdminForm && (
                             <div className="glass-card p-10 animate-slide-up border-l-8 border-l-mdOnSurface">
-                                <form onSubmit={handleAdminSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                    <input type="text" placeholder="Full Name" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.name} onChange={e => setAdminForm({...adminForm, name: e.target.value})} required />
-                                    <input type="email" placeholder="Official Email" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.email} onChange={e => setAdminForm({...adminForm, email: e.target.value})} required />
-                                    <input type="password" placeholder="Temp Password" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.password} onChange={e => setAdminForm({...adminForm, password: e.target.value})} required />
-                                    <select 
-                                        className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" 
-                                        value={adminForm.branchId || ''} 
-                                        onChange={e => setAdminForm({...adminForm, branchId: e.target.value ? parseInt(e.target.value) : null})}
-                                    >
-                                        <option value="">Full Site (Super-Admin)</option>
-                                        {branches.map(b => (
-                                            <option key={b.id} value={b.id}>{b.name}</option>
-                                        ))}
-                                    </select>
-                                    <button type="submit" disabled={formLoading} className="btn-premium md:col-span-4">{formLoading ? 'Authorizing...' : 'Create Staff Account'}</button>
-                                </form>
+                                {branches.length === 0 ? (
+                                    <div className="text-center py-6">
+                                        <div className="w-16 h-16 bg-mdError/10 text-mdError rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                                            <FontAwesomeIcon icon={faExclamationTriangle} />
+                                        </div>
+                                        <h3 className="text-xl font-black text-mdOnSurface mb-2">Branch Network Required</h3>
+                                        <p className="text-mdOnSurfaceVariant mb-6">You must establish at least one branch before authorizing staff.</p>
+                                        <button onClick={() => setActiveTab('branch-management')} className="btn-premium">
+                                            Go to Branches
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleAdminSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                        <input type="text" placeholder="Full Name" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.name} onChange={e => setAdminForm({...adminForm, name: e.target.value})} required />
+                                        <input type="email" placeholder="Official Email" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.email} onChange={e => setAdminForm({...adminForm, email: e.target.value})} required />
+                                        <input type="password" placeholder="Temp Password" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.password} onChange={e => setAdminForm({...adminForm, password: e.target.value})} required />
+                                        <select 
+                                            className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" 
+                                            value={adminForm.branchId || ''} 
+                                            onChange={e => setAdminForm({...adminForm, branchId: e.target.value ? parseInt(e.target.value) : ''})}
+                                            required
+                                        >
+                                            <option value="" disabled>Select Branch</option>
+                                            {branches.map(b => (
+                                                <option key={b.id} value={b.id}>{b.name}</option>
+                                            ))}
+                                        </select>
+                                        <button type="submit" disabled={formLoading} className="btn-premium md:col-span-4">{formLoading ? 'Authorizing...' : 'Create Staff Account'}</button>
+                                    </form>
+                                )}
                             </div>
                         )}
 
@@ -747,6 +788,48 @@ export default function AdminDashboard() {
                     </div>
                 )}
             </div>
+
+            {/* Promotion Selection Modal */}
+            {promotingMember && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+                    <div className="glass-card p-10 max-w-sm w-full animate-slide-up text-center border-l-8 border-l-mdPrimary">
+                        <div className="w-16 h-16 rounded-full bg-mdPrimary/10 flex items-center justify-center text-2xl text-mdPrimary mx-auto mb-6">
+                            <FontAwesomeIcon icon={faUserShield} />
+                        </div>
+                        <h3 className="text-2xl font-black text-mdOnSurface mb-2">Assign to Branch</h3>
+                        <p className="text-mdOnSurfaceVariant mb-8 font-medium text-sm">Select a branch for <b>{promotingMember.firstName} {promotingMember.lastName}</b> to manage.</p>
+                        
+                        <div className="space-y-4 mb-8">
+                            <select 
+                                className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold"
+                                value={promotionBranchId}
+                                onChange={e => setPromotionBranchId(e.target.value)}
+                            >
+                                <option value="" disabled>Select Target Branch</option>
+                                {branches.map(b => (
+                                    <option key={b.id} value={b.id}>{b.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => { setPromotingMember(null); setPromotionBranchId(''); }} 
+                                className="flex-1 py-4 rounded-2xl font-black border border-mdOutline/20 text-mdOnSurfaceVariant hover:bg-mdSurfaceVariant/10"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={() => handlePromoteToAdmin(promotingMember.id)} 
+                                disabled={!promotionBranchId || formLoading}
+                                className="flex-1 py-4 rounded-2xl font-black bg-mdPrimary text-white shadow-lifted disabled:opacity-50"
+                            >
+                                {formLoading ? 'Promoting...' : 'Confirm'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Alert Center */}
             {alertDialog && (

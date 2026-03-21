@@ -90,3 +90,24 @@ CREATE TABLE IF NOT EXISTS chat_messages(
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_read BOOLEAN DEFAULT false
 );
+
+CREATE TABLE IF NOT EXISTS notifications(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50) DEFAULT 'general',
+    is_read BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(member_id) REFERENCES members(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS password_resets(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL,
+    token VARCHAR(10) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_token (token)
+);
