@@ -303,6 +303,10 @@ export const getBranches = () => {
   return api.get('/branches');
 };
 
+export const deleteBranch = (id) => {
+  return api.delete(`/branches/${id}`);
+};
+
 export const createBranch = (branchData) => {
   return api.post('/branches', branchData);
 };

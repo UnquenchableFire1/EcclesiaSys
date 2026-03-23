@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faQuoteLeft, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
 import ConfirmModal from '../components/ConfirmModal';
+import Lightbox from '../components/Lightbox';
 import { useToast } from '../context/ToastContext';
 
 export default function MemberProfile() {
@@ -25,6 +26,7 @@ export default function MemberProfile() {
     const [isDeletingPortrait, setIsDeletingPortrait] = useState(false);
     const [imageToCrop, setImageToCrop] = useState(null);
     const [isCropperOpen, setIsCropperOpen] = useState(false);
+    const [lightboxImg, setLightboxImg] = useState(null);
     const memberId = sessionStorage.getItem('userId');
 
     const [formData, setFormData] = useState({
@@ -87,8 +89,8 @@ export default function MemberProfile() {
 
     const handleUpdateProfile = async () => {
         try {
-            
-            const response = await updateMemberProfile(memberId, updateData);
+            setIsUpdatingProfile(true);
+            const response = await updateMemberProfile(memberId, formData);
             if (response.data.success) {
                 showToast('Sanctuary records updated!', 'success');
                 setEditing(false);
@@ -213,7 +215,8 @@ export default function MemberProfile() {
                                         <img 
                                             src={profile.profilePictureUrl} 
                                             alt="Profile" 
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-500"
+                                            onClick={() => setLightboxImg(profile.profilePictureUrl)}
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5 italic">
@@ -423,7 +426,7 @@ export default function MemberProfile() {
                     onCancel={() => {
                         setIsCropperOpen(false);
                         setImageToCrop(null);
-                        const fileInput = document.getElementById('memberProfilePictureInput');
+                        const fileInput = document.getElementById('profilePictureInput');
                         if (fileInput) fileInput.value = '';
                     }}
                 />
@@ -436,6 +439,12 @@ export default function MemberProfile() {
                 message="Are you sure you want to permanently remove your current profile picture?"
                 type="danger"
             />
+            {lightboxImg && (
+                <Lightbox 
+                    src={lightboxImg} 
+                    onClose={() => setLightboxImg(null)} 
+                />
+            )}
         </div>
     );
 }

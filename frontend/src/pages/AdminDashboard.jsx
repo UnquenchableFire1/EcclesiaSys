@@ -13,12 +13,14 @@ import {
 
 import { 
     getAdminProfile, getCounts, toggleMemberStatus, deleteAdmin,
-    getBranches, createBranch, getMembers, getAnnouncements,
+    getBranches, createBranch, deleteBranch, getMembers, getAnnouncements,
     getEvents, getSermons, getAdmins, getNotifications,
     getPrayerRequests, updatePrayerRequestStatus, deletePrayerRequest,
     deleteMember, createAnnouncement, createEvent, createSermon,
     createAdmin, promoteMemberToAdmin, assignBranch
 } from '../services/api';
+
+import Lightbox from '../components/Lightbox';
 
 import Announcements from './Announcements';
 import Events from './Events';
@@ -83,6 +85,7 @@ export default function AdminDashboard() {
     const [targetBranchId, setTargetBranchId] = useState('');
     const [assigningBranchMember, setAssigningBranchMember] = useState(null);
     const [alertDialog, setAlertDialog] = useState(null);
+    const [lightboxImg, setLightboxImg] = useState(null);
 
     // Derived State
     const effectiveRole = adminData?.role;
@@ -913,7 +916,7 @@ export default function AdminDashboard() {
                                             onClick={() => openConfirm(
                                                 "Delete Branch?", 
                                                 `Are you sure you want to delete "${branch.name}"? This will also remove all sermons, events, and announcements for this branch. Members will be unassigned.`,
-                                                () => axios.delete(`${API_URL}/branches/${branch.id}`).then(() => {
+                                                () => deleteBranch(branch.id).then(() => {
                                                     showToast(`Branch "${branch.name}" deleted.`, 'success');
                                                     fetchAllData();
                                                 }).catch(() => showToast('Failed to delete branch.', 'error'))
@@ -1051,6 +1054,13 @@ export default function AdminDashboard() {
                 message={confirmModal.message}
                 type={confirmModal.type}
             />
+
+            {lightboxImg && (
+                <Lightbox 
+                    src={lightboxImg} 
+                    onClose={() => setLightboxImg(null)} 
+                />
+            )}
         </div>
     );
 }

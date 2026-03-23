@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
 import ConfirmModal from '../components/ConfirmModal';
+import Lightbox from '../components/Lightbox';
 import { useToast } from '../context/ToastContext';
 
 export default function AdminProfile() {
@@ -24,6 +25,7 @@ export default function AdminProfile() {
     const [isDeletingPortrait, setIsDeletingPortrait] = useState(false);
     const [imageToCrop, setImageToCrop] = useState(null);
     const [isCropperOpen, setIsCropperOpen] = useState(false);
+    const [lightboxImg, setLightboxImg] = useState(null);
     const adminId = sessionStorage.getItem('userId');
 
     const getDefaultAvatar = (gender, name) => {
@@ -222,7 +224,8 @@ export default function AdminProfile() {
                                         <img 
                                             src={profile.profilePictureUrl} 
                                             alt="Profile" 
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-500"
+                                            onClick={() => setLightboxImg(profile.profilePictureUrl)}
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5">
@@ -453,6 +456,12 @@ export default function AdminProfile() {
                 message="Are you sure you want to permanently remove your administrative identity portrait?"
                 type="danger"
             />
+            {lightboxImg && (
+                <Lightbox 
+                    src={lightboxImg} 
+                    onClose={() => setLightboxImg(null)} 
+                />
+            )}
         </div>
     );
 }

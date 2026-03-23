@@ -52,7 +52,7 @@ public class EventDAO {
 
     public List<Event> getAllEvents(Integer branchId) {
         List<Event> events = new ArrayList<>();
-        String query = branchId == null ? "SELECT * FROM events ORDER BY event_date ASC" : "SELECT * FROM events WHERE branch_id = ? ORDER BY event_date ASC";
+        String query = branchId == null ? "SELECT * FROM events ORDER BY event_date ASC" : "SELECT * FROM events WHERE (branch_id = ? OR branch_id IS NULL) ORDER BY event_date ASC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             if (branchId != null) stmt.setInt(1, branchId);
@@ -70,7 +70,7 @@ public class EventDAO {
         List<Event> events = new ArrayList<>();
         String query = branchId == null ? 
             "SELECT * FROM events WHERE event_date >= NOW() ORDER BY event_date ASC" :
-            "SELECT * FROM events WHERE event_date >= NOW() AND branch_id = ? ORDER BY event_date ASC";
+            "SELECT * FROM events WHERE event_date >= NOW() AND (branch_id = ? OR branch_id IS NULL) ORDER BY event_date ASC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             if (branchId != null) stmt.setInt(1, branchId);

@@ -23,6 +23,8 @@ public class RegisterController {
             String password = request.get("password");
             String confirmPassword = request.get("confirmPassword");
             String gender = request.getOrDefault("gender", "Not Specified");
+            String branchIdStr = request.get("branchId");
+            Integer branchId = (branchIdStr != null && !branchIdStr.isEmpty()) ? Integer.parseInt(branchIdStr) : null;
             
             if (firstName == null || firstName.trim().isEmpty() ||
                 lastName == null || lastName.trim().isEmpty() ||
@@ -41,6 +43,7 @@ public class RegisterController {
             }
 
             Member member = new Member(firstName, lastName, phoneNumber, email, password, gender);
+            member.setBranchId(branchId);
             MemberDAO memberDao = new MemberDAO();
             
             try {

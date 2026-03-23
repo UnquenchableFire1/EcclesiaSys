@@ -50,7 +50,7 @@ public class AnnouncementDAO {
 
     public List<Announcement> getAllAnnouncements(Integer branchId) {
         List<Announcement> announcements = new ArrayList<>();
-        String query = branchId == null ? "SELECT * FROM announcements ORDER BY created_date DESC" : "SELECT * FROM announcements WHERE branch_id = ? ORDER BY created_date DESC";
+        String query = branchId == null ? "SELECT * FROM announcements ORDER BY created_date DESC" : "SELECT * FROM announcements WHERE (branch_id = ? OR branch_id IS NULL) ORDER BY created_date DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             if (branchId != null) stmt.setInt(1, branchId);

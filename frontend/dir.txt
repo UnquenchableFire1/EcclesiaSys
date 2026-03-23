@@ -1,0 +1,30 @@
+ Volume in drive C is Benjamin
+ Volume Serial Number is 9EE1-8F81
+
+ Directory of C:\Users\Buckman\Desktop\BBJ digital\frontend
+
+23/03/2026  05:50 pm    <DIR>          .
+16/03/2026  12:58 am    <DIR>          ..
+04/03/2026  09:58 pm               473 .env.example
+04/03/2026  09:58 pm               193 .env.local
+07/03/2026  06:55 pm               647 .env.production
+04/03/2026  09:58 pm               247 .gitignore
+04/03/2026  09:58 pm                 9 .nvmrc.bak
+14/03/2026  08:17 pm                 0 build-log.txt
+04/03/2026  09:58 pm             1,518 build-output.txt
+23/03/2026  05:50 pm                 0 dir.txt
+05/03/2026  05:14 pm    <DIR>          dist
+18/03/2026  02:38 pm             2,352 index.html
+05/03/2026  02:44 pm    <DIR>          node_modules
+14/03/2026  08:15 pm            98,077 package-lock.json
+21/03/2026  02:51 am               797 package.json
+04/03/2026  10:03 pm                81 postcss.config.js
+19/03/2026  11:31 am    <DIR>          public
+18/03/2026  11:15 am             1,157 remove_bg.js
+21/03/2026  02:32 am    <DIR>          src
+20/03/2026  03:35 pm             3,670 tailwind.config.js
+14/03/2026  08:26 pm                 0 vite-build-log.txt
+04/03/2026  10:03 pm               134 vite.config.js
+23/03/2026  05:47 pm                 0 vite.log
+              17 File(s)        109,355 bytes
+               6 Dir(s)  13,022,359,552 bytes free

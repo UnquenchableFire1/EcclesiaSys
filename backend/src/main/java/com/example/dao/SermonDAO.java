@@ -80,7 +80,7 @@ public class SermonDAO {
 
     public List<Sermon> getAllSermons(Integer branchId) {
         List<Sermon> sermons = new ArrayList<>();
-        String query = branchId == null ? "SELECT * FROM sermons ORDER BY uploaded_date DESC" : "SELECT * FROM sermons WHERE branch_id = ? ORDER BY uploaded_date DESC";
+        String query = branchId == null ? "SELECT * FROM sermons ORDER BY uploaded_date DESC" : "SELECT * FROM sermons WHERE (branch_id = ? OR branch_id IS NULL) ORDER BY uploaded_date DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             if (branchId != null) stmt.setInt(1, branchId);
