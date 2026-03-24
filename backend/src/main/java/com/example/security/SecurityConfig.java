@@ -30,24 +30,29 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF since we are using JWT (stateless)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public Endpoints
+                // Public API Endpoints
                 .requestMatchers("/api/login", "/api/register").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/branches").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/member/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/members/public").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/member/reset-password", "/api/member/custom-reset-password").permitAll()
                 
-                // Allow Frontend Static Resources (Single JAR deployment)
-                .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/favicon.ico", "/*.js", "/*.css", "/*.png", "/*.jpg", "/*.svg").permitAll()
-                .requestMatchers(org.springframework.boot.autoconfigure.security.servlet.PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                
-                // Allow error path so we see real errors instead of 403s
+                // Allow error path
                 .requestMatchers("/error").permitAll()
                 
-                // Allow static resources if any
-                .requestMatchers("/api/upload/**").permitAll() // Temp allow uploads (or lock down later)
+                // Static Resource Matchers (Optimized)
+                .requestMatchers(org.springframework.boot.autoconfigure.security.servlet.PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 
-                // Require Auth for Everything Else
+                // PERMIT ALL NON-API ROUTES (This fixes the 403 on refresh)
+                // Any request that DOES NOT start with /api is permitted (so the browser can get index.html)
+                .requestMatchers(new org.springframework.security.web.util.matcher.NegatedRequestMatcher(
+                    new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")
+                )).permitAll()
+                
+                // REQUIRE AUTH FOR SECURE API CALLS
+                .requestMatchers("/api/**").authenticated()
+                
+                // Final fallback (should not be reached for non-api due to NegatedRequestMatcher above)
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
