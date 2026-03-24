@@ -39,6 +39,10 @@ public class SecurityConfig {
                 
                 // Allow Frontend Static Resources (Single JAR deployment)
                 .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/favicon.ico", "/*.js", "/*.css", "/*.png", "/*.jpg", "/*.svg").permitAll()
+                .requestMatchers(org.springframework.boot.autoconfigure.security.servlet.PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                
+                // Allow error path so we see real errors instead of 403s
+                .requestMatchers("/error").permitAll()
                 
                 // Allow static resources if any
                 .requestMatchers("/api/upload/**").permitAll() // Temp allow uploads (or lock down later)

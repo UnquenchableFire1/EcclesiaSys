@@ -18,6 +18,19 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
+    /**
+     * Explicit root mapping to forward to index.html.
+     * This helps ensure the frontend loads correctly on the base URL.
+     */
+    @Controller
+    public static class RootController {
+        @GetMapping("/")
+        public String root() {
+            return "forward:/index.html";
+        }
+    }
+
+
 // CORS is now strictly handled by SecurityConfig.java leveraging Spring Security
 
     /**
