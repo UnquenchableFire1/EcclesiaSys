@@ -30,6 +30,14 @@ frontend/vite-build-log.txt
 .vscode/
 *.DS_Store
 
-# Environment files with secrets
+# Environment files with secrets (NEVER commit these)
+.env
+.env.render.template
 frontend/.env.local
 frontend/.env.production
+
+# Build artifacts and temporary logs
+backend/current-compile.txt
+backend/mvn-debug.log
+compile-output.txt
+
