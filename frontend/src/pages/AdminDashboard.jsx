@@ -131,27 +131,65 @@ export default function AdminDashboard() {
 
     const fetchAllData = useCallback(async () => {
         setLoading(true);
+        // Sanitize branchId to prevent 'undefined' string in URL
+        const branchId = currentBranchIdForData === undefined ? null : currentBranchIdForData;
+        
         try {
-            const [mem, ann, eve, ser, pra, cou, adm, bra] = await Promise.all([
-                getMembers(currentBranchIdForData), 
-                getAnnouncements(currentBranchIdForData), 
-                getEvents(currentBranchIdForData), 
-                getSermons(currentBranchIdForData), 
-                getPrayerRequests(currentBranchIdForData),
-                getCounts(currentBranchIdForData), 
-                getAdmins(currentBranchIdForData),
+            const results = await Promise.allSettled([
+                getMembers(branchId), 
+                getAnnouncements(branchId), 
+                getEvents(branchId), 
+                getSermons(branchId), 
+                getPrayerRequests(branchId),
+                getCounts(branchId), 
+                getAdmins(branchId),
                 getBranches()
             ]);
-            setMembers(Array.isArray(mem.data.data) ? mem.data.data : (Array.isArray(mem.data) ? mem.data : []));
-            setAnnouncements(Array.isArray(ann.data.data) ? ann.data.data : (Array.isArray(ann.data) ? ann.data : []));
-            setEvents(Array.isArray(eve.data.data) ? eve.data.data : (Array.isArray(eve.data) ? eve.data : []));
-            setSermons(Array.isArray(ser.data.data) ? ser.data.data : (Array.isArray(ser.data) ? ser.data : []));
-            setPrayerRequests(Array.isArray(pra.data.data) ? pra.data.data : (Array.isArray(pra.data) ? pra.data : []));
-            setCounts(cou.data || { members: 0, announcements: 0, events: 0, sermons: 0, prayerRequests: 0 });
-            setAdmins(Array.isArray(adm.data.data) ? adm.data.data : (Array.isArray(adm.data) ? adm.data : []));
-            setBranches(Array.isArray(bra.data.data) ? bra.data.data : (Array.isArray(bra.data) ? bra.data : []));
+
+            const [mem, ann, eve, ser, pra, cou, adm, bra] = results;
+
+            if (mem.status === 'fulfilled') {
+                const data = mem.value.data;
+                setMembers(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
+            }
+            if (ann.status === 'fulfilled') {
+                const data = ann.value.data;
+                setAnnouncements(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
+            }
+            if (eve.status === 'fulfilled') {
+                const data = eve.value.data;
+                setEvents(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
+            }
+            if (ser.status === 'fulfilled') {
+                const data = ser.value.data;
+                setSermons(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
+            }
+            if (pra.status === 'fulfilled') {
+                const data = pra.value.data;
+                setPrayerRequests(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
+            }
+            if (cou.status === 'fulfilled') {
+                setCounts(cou.value.data.data || cou.value.data || { members: 0, announcements: 0, events: 0, sermons: 0, prayerRequests: 0 });
+            }
+            if (adm.status === 'fulfilled') {
+                const data = adm.value.data;
+                setAdmins(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
+            }
+            if (bra.status === 'fulfilled') {
+                const data = bra.value.data;
+                setBranches(Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []));
+            }
+
+            // Log any failures to console for easier debugging
+            results.forEach((res, i) => {
+                if (res.status === 'rejected') {
+                    const endpoints = ["Members", "Announcements", "Events", "Sermons", "PrayerRequests", "Counts", "Admins", "Branches"];
+                    console.error(`Failed to load ${endpoints[i]}:`, res.reason);
+                }
+            });
+
         } catch (err) {
-            console.error("Data Load Error:", err);
+            console.error("Dashboard Data Load Error:", err);
         } finally {
             setLoading(false);
         }

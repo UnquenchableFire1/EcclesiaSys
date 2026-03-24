@@ -44,10 +44,15 @@ public class Application {
         @org.springframework.web.bind.annotation.RequestMapping("/error")
         public Object handleError(jakarta.servlet.http.HttpServletRequest request) {
             String uri = (String) request.getAttribute(jakarta.servlet.RequestDispatcher.ERROR_REQUEST_URI);
+            Integer statusCode = (Integer) request.getAttribute(jakarta.servlet.RequestDispatcher.ERROR_STATUS_CODE);
+            
             if (uri != null && uri.startsWith("/api/")) {
-                return ResponseEntity.status(org.springframework.http.HttpStatus.NOT_FOUND)
+                org.springframework.http.HttpStatus status = org.springframework.http.HttpStatus.valueOf(statusCode != null ? statusCode : 500);
+                String message = status == org.springframework.http.HttpStatus.NOT_FOUND ? "API Endpoint Not Found" : "API Error: " + status.getReasonPhrase();
+                
+                return ResponseEntity.status(status)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .body("{\"success\":false,\"message\":\"API Endpoint Not Found\"}");
+                    .body("{\"success\":false,\"message\":\"" + message + "\",\"status\":" + status.value() + "}");
             }
             return "forward:/index.html";
         }

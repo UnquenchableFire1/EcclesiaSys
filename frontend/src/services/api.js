@@ -261,7 +261,9 @@ export const markAllNotificationsAsRead = (memberId) => {
 };
 
 export const getCounts = (branchId) => {
-    return api.get('/summary/counts', { params: { branchId } });
+    // Ensure undefined is treated as null for the API
+    const sanitizedId = branchId === undefined ? null : branchId;
+    return api.get('/summary/counts', { params: { branchId: sanitizedId } });
 };
 
 export const toggleMemberStatus = (id) => {

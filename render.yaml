@@ -15,7 +15,7 @@ services:
       
       # Database Configuration (Set these in Render Dashboard for security)
       - key: DB_URL
-        value: jdbc:mysql://gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/bbj?useSSL=true&serverTimezone=UTC
+        sync: false
       - key: DB_USERNAME
         sync: false
       - key: DB_PASSWORD
