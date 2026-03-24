@@ -6,21 +6,25 @@ services:
     plan: free
     dockerfilePath: Dockerfile
     envVars:
-      # Database Configuration - TiDB Cloud
       - key: ENVIRONMENT
         value: production
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: ALLOWED_ORIGINS
+        value: https://ecclesiasys-94po.onrender.com,https://ecclesiasys-bequ.onrender.com
+      
+      # Database Configuration (Set these in Render Dashboard for security)
       - key: DB_URL
         value: jdbc:mysql://gateway01.eu-central-1.prod.aws.tidbcloud.com:4000/bbj?useSSL=true&serverTimezone=UTC
       - key: DB_USERNAME
-        value: nrMPj1ECajN3NtY.root
+        sync: false
       - key: DB_PASSWORD
-        value: dFkBlyj7CjtmqK08
-      # Cloudinary Configuration
+        sync: false
+
+      # Cloudinary Configuration (Set these in Render Dashboard)
       - key: CLOUDINARY_CLOUD_NAME
-        value: dg3kvkfou
+        sync: false
       - key: CLOUDINARY_API_KEY
-        value: "223193716219885"
+        sync: false
       - key: CLOUDINARY_API_SECRET
-        value: s2QmlYnlZkqM56d3l0cQhyrCeLY
-      - key: CLOUDINARY_URL
-        value: cloudinary://223193716219885:s2QmlYnlZkqM56d3l0cQhyrCeLY@dg3kvkfou
+        sync: false

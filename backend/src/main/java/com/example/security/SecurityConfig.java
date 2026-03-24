@@ -37,6 +37,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/members/public").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/member/reset-password", "/api/member/custom-reset-password").permitAll()
                 
+                // Allow Frontend Static Resources (Single JAR deployment)
+                .requestMatchers("/", "/index.html", "/static/**", "/assets/**", "/favicon.ico", "/*.js", "/*.css", "/*.png", "/*.jpg", "/*.svg").permitAll()
+                
                 // Allow static resources if any
                 .requestMatchers("/api/upload/**").permitAll() // Temp allow uploads (or lock down later)
                 
@@ -53,7 +56,12 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // Use allowedOrigins or allowedOriginPatterns for production.
         // For development, we allow the specific frontend URL.
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+        configuration.setAllowedOriginPatterns(List.of(
+            "http://localhost:5173", 
+            "http://127.0.0.1:5173",
+            "https://ecclesiasys-94po.onrender.com",
+            "https://ecclesiasys-bequ.onrender.com"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
