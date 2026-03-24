@@ -2,7 +2,6 @@ package com.example.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +14,13 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // IMPORTANT: In production, this secret should be stored securely in environment variables.
-    // We are generating a secure key for HS256 algorithm.
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    // Use a persistent secret from environment variables or a fallback for development.
+    // In production, the JWT_SECRET environment variable MUST be set.
+    private static final String SECRET_STRING = System.getenv("JWT_SECRET") != null 
+        ? System.getenv("JWT_SECRET") 
+        : "ecclesiasys-default-secret-key-for-development-only-1234567890";
+    
+    private static final Key SECRET_KEY = Keys.hmacShaKeyFor(SECRET_STRING.getBytes());
     
     // 24 hours in milliseconds
     private static final long EXPIRATION_TIME = 86400000;

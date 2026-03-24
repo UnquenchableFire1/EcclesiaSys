@@ -17,10 +17,13 @@ export default function AdminLogin() {
     try {
       const response = await login(email, password);
       if (response.data?.success) {
-        const data = response.data;
+        sessionStorage.setItem('token', data.token); // Legacy support
+        sessionStorage.setItem('authToken', data.token); // JWT for Authorization header
         sessionStorage.setItem('userId', data.userId);
         sessionStorage.setItem('userType', data.userType);
         sessionStorage.setItem('userName', data.name);
+        sessionStorage.setItem('branchId', data.branchId); // Save branch context for admin
+        sessionStorage.setItem('role', data.role); // Save role for superadmin checks
         navigate('/admin');
       } else {
         setError(response.data?.message || 'Login failed');
