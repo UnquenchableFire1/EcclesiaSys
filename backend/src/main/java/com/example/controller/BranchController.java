@@ -71,16 +71,22 @@ public class BranchController {
         Map<String, Object> response = new HashMap<>();
         try {
             BranchDAO dao = new BranchDAO();
-            if (dao.deleteBranch(id)) {
+            int affected = dao.deleteBranch(id);
+            if (affected > 0) {
                 response.put("success", true);
                 response.put("message", "Branch deleted successfully");
             } else {
                 response.put("success", false);
-                response.put("message", "Failed to delete branch");
+                response.put("message", "Failed to delete branch: Branch ID not found.");
             }
+        } catch (java.sql.SQLException e) {
+            response.put("success", false);
+            response.put("message", "Database Error: " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());
+            e.printStackTrace();
         }
         return response;
     }

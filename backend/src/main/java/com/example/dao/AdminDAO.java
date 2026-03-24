@@ -195,13 +195,25 @@ public class AdminDAO {
     }
 
     public boolean verifyAdminLogin(String email, String password) {
-        String query = "SELECT * FROM admins WHERE email = ? AND password = ?";
+        String query = "SELECT id, password FROM admins WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, email);
-            stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
-            return rs.next();
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String storedHash = rs.getString("password");
+                try {
+                    return org.mindrot.jbcrypt.BCrypt.checkpw(password, storedHash);
+                } catch (IllegalArgumentException e) {
+                    // Legacy plain-text fallback & automatic upgrade
+                    if (password.equals(storedHash)) {
+                        String newHash = org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt());
+                        updateAdminPassword(id, newHash);
+                        return true;
+                    }
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

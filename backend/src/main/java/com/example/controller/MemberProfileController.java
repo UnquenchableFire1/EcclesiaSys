@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.web.bind.annotation.*;
 import com.example.dao.MemberDAO;
 import com.example.model.Member;
+import org.mindrot.jbcrypt.BCrypt;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -204,13 +205,15 @@ public class MemberProfileController {
                 return response;
             }
 
-            if (!member.getPassword().equals(currentPassword)) {
+            // Secure comparison using BCrypt
+            if (!BCrypt.checkpw(currentPassword, member.getPassword())) {
                 response.put("success", false);
                 response.put("message", "Incorrect current password.");
                 return response;
             }
 
-            if (memberDao.updateMemberPassword(id, newPassword)) {
+            String hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            if (memberDao.updateMemberPassword(id, hashedNewPassword)) {
                 response.put("success", true);
                 response.put("message", "Password changed successfully.");
             } else {

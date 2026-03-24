@@ -181,13 +181,25 @@ public class MemberDAO {
     }
 
     public boolean verifyMemberLogin(String email, String password) {
-        String query = "SELECT * FROM members WHERE email = ? AND password = ? AND status = 'active'";
+        String query = "SELECT id, password FROM members WHERE email = ? AND status = 'active'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, email);
-            stmt.setString(2, password);
             ResultSet rs = stmt.executeQuery();
-            return rs.next();
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String storedHash = rs.getString("password");
+                try {
+                    return org.mindrot.jbcrypt.BCrypt.checkpw(password, storedHash);
+                } catch (IllegalArgumentException e) {
+                    // Legacy plain-text fallback & automatic upgrade
+                    if (password.equals(storedHash)) {
+                        String newHash = org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt());
+                        updateMemberPassword(id, newHash);
+                        return true;
+                    }
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

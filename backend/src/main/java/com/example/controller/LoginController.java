@@ -1,20 +1,24 @@
 package com.example.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.dao.MemberDAO;
 import com.example.dao.AdminDAO;
 import com.example.dao.PasswordResetDAO;
 import com.example.model.Member;
 import com.example.model.Admin;
+import com.example.security.JwtUtil;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class LoginController {
 
     private final PasswordResetDAO passwordResetDAO = new PasswordResetDAO();
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, String> request) {
@@ -31,45 +35,42 @@ public class LoginController {
                 return response;
             }
 
-            // Check against hardcoded super admin credentials
-            if ("benjaminbuckmanjunior@gmail.com".equals(email) && "fire@123".equals(password)) {
+            AdminDAO adminDao = new AdminDAO();
+            // Check against admin database (includes super admin)
+            if (adminDao.verifyAdminLogin(email, password)) {
+                Admin admin = adminDao.getAdminByEmail(email);
+                
+                String role = admin.getRole() != null ? admin.getRole() : "BRANCH_ADMIN";
+                String token = jwtUtil.generateToken(admin.getEmail(), admin.getId(), "admin", admin.getBranchId(), role);
+                
                 response.put("success", true);
                 response.put("message", "Login successful");
-                response.put("userId", 1);
+                response.put("token", token);
+                response.put("userId", admin.getId());
                 response.put("userType", "admin");
-                response.put("name", "Benjamin");
-                response.put("email", "benjaminbuckmanjunior@gmail.com");
-                response.put("branchId", null);
-                response.put("role", "SUPER_ADMIN");
+                response.put("name", admin.getName());
+                response.put("email", admin.getEmail());
+                response.put("branchId", admin.getBranchId());
+                response.put("role", role);
             } else {
-                AdminDAO adminDao = new AdminDAO();
-                // Check against admin database
-                if (adminDao.verifyAdminLogin(email, password)) {
-                    Admin admin = adminDao.getAdminByEmail(email);
+                // Check against member database
+                MemberDAO memberDao = new MemberDAO();
+                if (memberDao.verifyMemberLogin(email, password)) {
+                    Member member = memberDao.getMemberByEmail(email);
+                    
+                    String token = jwtUtil.generateToken(member.getEmail(), member.getId(), "member", member.getBranchId(), "MEMBER");
+                    
                     response.put("success", true);
                     response.put("message", "Login successful");
-                    response.put("userId", admin.getId());
-                    response.put("userType", "admin");
-                    response.put("name", admin.getName());
-                    response.put("email", admin.getEmail());
-                    response.put("branchId", admin.getBranchId());
-                    response.put("role", admin.getRole());
+                    response.put("token", token);
+                    response.put("userId", member.getId());
+                    response.put("userType", "member");
+                    response.put("name", member.getName());
+                    response.put("email", member.getEmail());
+                    response.put("branchId", member.getBranchId());
                 } else {
-                    // Check against member database
-                    MemberDAO memberDao = new MemberDAO();
-                    if (memberDao.verifyMemberLogin(email, password)) {
-                        Member member = memberDao.getMemberByEmail(email);
-                        response.put("success", true);
-                        response.put("message", "Login successful");
-                        response.put("userId", member.getId());
-                        response.put("userType", "member");
-                        response.put("name", member.getName());
-                        response.put("email", member.getEmail());
-                        response.put("branchId", member.getBranchId());
-                    } else {
-                        response.put("success", false);
-                        response.put("message", "Invalid email or password");
-                    }
+                    response.put("success", false);
+                    response.put("message", "Invalid email or password");
                 }
             }
         } catch (Exception e) {

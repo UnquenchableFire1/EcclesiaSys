@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.mindrot.jbcrypt.BCrypt;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -135,15 +136,16 @@ public class PasswordResetController {
                 return response;
             }
             
-            // SECURITY: Prevent reusing old password
-            if (newPassword.equals(member.getPassword())) {
+            // SECURITY: Prevent reusing old password (checking against current stored hash)
+            if (BCrypt.checkpw(newPassword, member.getPassword())) {
                 response.put("success", false);
                 response.put("message", "You cannot use your current password as the new password. Please choose a different one.");
                 return response;
             }
             
-            // Update password using MemberDAO
-            member.setPassword(newPassword);
+            // Hash the new password before saving
+            String hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            member.setPassword(hashedNewPassword);
             boolean updateSuccess = memberDAO.updateMember(member);
             
             if (!updateSuccess) {

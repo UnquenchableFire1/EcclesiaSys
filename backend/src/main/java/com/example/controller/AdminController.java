@@ -3,6 +3,7 @@ package com.example.controller;
 import org.springframework.web.bind.annotation.*;
 import com.example.dao.AdminDAO;
 import com.example.model.Admin;
+import org.mindrot.jbcrypt.BCrypt;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +124,8 @@ public class AdminController {
             Admin newAdmin = new Admin();
             newAdmin.setName(name);
             newAdmin.setEmail(email);
-            newAdmin.setPassword(password);
+            // Hash the password
+            newAdmin.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             newAdmin.setCreatedBy(requesterId);
             
             // Role is ALWAYS BRANCH_ADMIN when created via API — SUPER_ADMIN cannot be assigned this way
@@ -230,13 +232,15 @@ public class AdminController {
                 return response;
             }
 
-            if (!admin.getPassword().equals(currentPassword)) {
+            // Secure comparison using BCrypt
+            if (!BCrypt.checkpw(currentPassword, admin.getPassword())) {
                 response.put("success", false);
                 response.put("message", "Incorrect current password.");
                 return response;
             }
 
-            if (adminDAO.updateAdminPassword(id, newPassword)) {
+            String hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            if (adminDAO.updateAdminPassword(id, hashedNewPassword)) {
                 response.put("success", true);
                 response.put("message", "Password changed successfully.");
             } else {

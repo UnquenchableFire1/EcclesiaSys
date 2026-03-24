@@ -916,10 +916,13 @@ export default function AdminDashboard() {
                                             onClick={() => openConfirm(
                                                 "Delete Branch?", 
                                                 `Are you sure you want to delete "${branch.name}"? This will also remove all sermons, events, and announcements for this branch. Members will be unassigned.`,
-                                                () => deleteBranch(branch.id).then(() => {
+                                                () => deleteBranch(branch.id).then((res) => {
+                                                    if (res.data && res.data.success === false) {
+                                                        throw new Error(res.data.message || 'Validation failed. Ensure no connected records blocked the deletion.');
+                                                    }
                                                     showToast(`Branch "${branch.name}" deleted.`, 'success');
                                                     fetchAllData();
-                                                }).catch(() => showToast('Failed to delete branch.', 'error'))
+                                                }).catch((err) => showToast(err.message || 'Failed to delete branch.', 'error'))
                                             )}
                                             className="text-mdError hover:scale-110 transition-all p-2 bg-mdError/5 rounded-lg"
                                             title="Delete Branch"

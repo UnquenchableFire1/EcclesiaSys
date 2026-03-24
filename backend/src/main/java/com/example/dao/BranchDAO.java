@@ -51,7 +51,7 @@ public class BranchDAO {
         }
     }
 
-    public boolean deleteBranch(int id) {
+    public int deleteBranch(int id) throws SQLException {
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
@@ -63,7 +63,7 @@ public class BranchDAO {
                 stmt.executeUpdate();
             }
 
-            // 2. Nullify branch_id for admins (only if not super-admin, though super-admins usually have branch_id NULL anyway)
+            // 2. Nullify branch_id for admins
             try (PreparedStatement stmt = conn.prepareStatement("UPDATE admins SET branch_id = NULL WHERE branch_id = ?")) {
                 stmt.setInt(1, id);
                 stmt.executeUpdate();
@@ -76,8 +76,8 @@ public class BranchDAO {
                     stmt.setInt(1, id);
                     stmt.executeUpdate();
                 } catch (SQLException e) {
-                    // Table might not exist yet or no branch_id column in rare cases (safety check)
                     System.err.println("Note: Could not delete from " + table + ": " + e.getMessage());
+                    // We continue for other tables as they might not exist or have the column
                 }
             }
 
@@ -86,15 +86,26 @@ public class BranchDAO {
                 stmt.setInt(1, id);
                 int affected = stmt.executeUpdate();
                 conn.commit();
-                return affected > 0;
+                return affected;
             }
         } catch (SQLException e) {
-            if (conn != null) { try { conn.rollback(); } catch (SQLException ex) {} }
-            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    e.addSuppressed(ex);
+                }
+            }
+            throw e;
         } finally {
-            if (conn != null) { try { conn.close(); } catch (SQLException e) {} }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    // Ignore close error
+                }
+            }
         }
-        return false;
     }
 
     private Branch mapResultSetToBranch(ResultSet rs) throws SQLException {

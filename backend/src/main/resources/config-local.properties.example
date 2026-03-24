@@ -1,0 +1,21 @@
+# Local Development Configuration — TEMPLATE
+# Copy this file to config-local.properties and fill in your local values.
+# config-local.properties is listed in .gitignore and should NEVER be committed.
+
+# MySQL local instance
+db.url=jdbc:mysql://localhost:PORT/bbj?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+db.username=root
+db.password=YOUR_LOCAL_DB_PASSWORD
+
+# Backblaze B2 Configuration — get these from your B2 account dashboard
+b2.keyId=YOUR_B2_KEY_ID
+b2.applicationKey=YOUR_B2_APP_KEY
+b2.bucketName=bbj-church-media
+
+# Brevo Email — get this from your Brevo dashboard
+brevo.api-key=YOUR_BREVO_API_KEY
+brevo.sender-email=YOUR_VERIFIED_SENDER_EMAIL
+
+# File Upload Configuration
+upload.dir=./uploads
+upload.maxSize=524288000

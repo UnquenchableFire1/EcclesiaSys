@@ -3,12 +3,12 @@ package com.example.controller;
 import org.springframework.web.bind.annotation.*;
 import com.example.dao.MemberDAO;
 import com.example.model.Member;
+import org.mindrot.jbcrypt.BCrypt;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class RegisterController {
 
     @PostMapping("/register")
@@ -42,7 +42,10 @@ public class RegisterController {
                 return response;
             }
 
-            Member member = new Member(firstName, lastName, phoneNumber, email, password, gender);
+            // Hash the password explicitly
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+            Member member = new Member(firstName, lastName, phoneNumber, email, hashedPassword, gender);
             member.setBranchId(branchId);
             MemberDAO memberDao = new MemberDAO();
             
