@@ -7,6 +7,35 @@ import com.example.model.Event;
 import com.example.db.DBConnection;
 
 public class EventDAO {
+    
+    public EventDAO() {
+        ensureEventsTableSchema();
+    }
+
+    private void ensureEventsTableSchema() {
+        String[] columnsToAdd = {
+            "ALTER TABLE events ADD COLUMN IF NOT EXISTS document_url VARCHAR(500)",
+            "ALTER TABLE events ADD COLUMN IF NOT EXISTS branch_id INT",
+            "ALTER TABLE events ADD COLUMN IF NOT EXISTS created_by INT",
+            "ALTER TABLE events ADD COLUMN IF NOT EXISTS created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+        };
+        
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            
+            for (String sql : columnsToAdd) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException e) {
+                    if (!e.getSQLState().equals("42S21")) {
+                        System.err.println("Event migration error: " + e.getMessage());
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to connect for event migration: " + e.getMessage());
+        }
+    }
 
     public boolean addEvent(Event event) {
         String query = "INSERT INTO events (title, description, event_date, location, document_url, created_by, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?)";

@@ -70,12 +70,20 @@ public class BranchDAO {
             }
 
             // 3. Delete related contents
+            // Trigger migrations in case columns are missing
+            new SermonDAO();
+            new AnnouncementDAO();
+            new EventDAO();
+            new PrayerRequestDAO();
+
             String[] tables = {"sermons", "announcements", "events", "prayer_requests"};
             for (String table : tables) {
                 try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM " + table + " WHERE branch_id = ?")) {
                     stmt.setInt(1, id);
                     int deleted = stmt.executeUpdate();
                     System.out.println("Deleted " + deleted + " records from " + table + " for branch " + id);
+                } catch (SQLException e) {
+                    throw new SQLException("Failed to delete records from '" + table + "': " + e.getMessage(), e.getSQLState(), e.getErrorCode());
                 }
             }
 
