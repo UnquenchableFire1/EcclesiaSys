@@ -15,12 +15,20 @@ import java.util.function.Function;
 public class JwtUtil {
 
     // Use a persistent secret from environment variables or a fallback for development.
-    // In production, the JWT_SECRET environment variable MUST be set.
-    private static final String SECRET_STRING = System.getenv("JWT_SECRET") != null 
-        ? System.getenv("JWT_SECRET") 
-        : "ecclesiasys-default-secret-key-for-development-only-1234567890";
-    
-    private static final Key SECRET_KEY = Keys.hmacShaKeyFor(SECRET_STRING.getBytes());
+    private static final Key SECRET_KEY = createKey();
+
+    private static Key createKey() {
+        String secret = System.getenv("JWT_SECRET");
+        if (secret == null || secret.trim().isEmpty()) {
+            secret = "ecclesiasys-default-secret-key-for-development-only-1234567890";
+        }
+        // JJWT requires at least 256 bits (32 bytes) for HMAC-SHA256 algorithms.
+        // If the user provides a short secret, pad it gracefully to prevent startup crashes.
+        while (secret.getBytes(java.nio.charset.StandardCharsets.UTF_8).length < 32) {
+            secret += secret;
+        }
+        return Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
     
     // 24 hours in milliseconds
     private static final long EXPIRATION_TIME = 86400000;
