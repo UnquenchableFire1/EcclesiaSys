@@ -15,6 +15,7 @@ $TOMCAT_PORT = "8081"
 $BACKEND_DIR = "$WORKSPACE\backend"
 $FRONTEND_DIR = "$WORKSPACE\frontend"
 $TOMCAT_WEBAPPS = "$TOMCAT_HOME\webapps"
+$BACKEND_STATIC = "$BACKEND_DIR\src\main\resources\static"
 
 # Auto-detect JAVA_HOME
 $JAVA_HOME = Get-ChildItem "C:\Program Files\Java" -Directory |
@@ -81,7 +82,12 @@ npm run build
 if ($LASTEXITCODE -ne 0) { exit 1 }
 Pop-Location
 
-Write-Host "Frontend build complete." -ForegroundColor Green
+Write-Host "`nSyncing Frontend assets to Backend..." -ForegroundColor Cyan
+if (-not (Test-Path $BACKEND_STATIC)) { New-Item -Path $BACKEND_STATIC -ItemType Directory }
+Remove-Item "$BACKEND_STATIC\*" -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item "$FRONTEND_DIR\dist\*" $BACKEND_STATIC -Recurse -Force
+
+Write-Host "Frontend assets synced to $BACKEND_STATIC" -ForegroundColor Green
 
 # ============================================================================
 # Configure Tomcat Environment

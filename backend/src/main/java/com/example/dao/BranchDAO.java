@@ -74,10 +74,8 @@ public class BranchDAO {
             for (String table : tables) {
                 try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM " + table + " WHERE branch_id = ?")) {
                     stmt.setInt(1, id);
-                    stmt.executeUpdate();
-                } catch (SQLException e) {
-                    System.err.println("Note: Could not delete from " + table + ": " + e.getMessage());
-                    // We continue for other tables as they might not exist or have the column
+                    int deleted = stmt.executeUpdate();
+                    System.out.println("Deleted " + deleted + " records from " + table + " for branch " + id);
                 }
             }
 
