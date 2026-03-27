@@ -17,13 +17,10 @@ public class SummaryController {
         try (Connection conn = DBConnection.getConnection()) {
             Map<String, Integer> counts = new HashMap<>();
             
-            String branchFilter = branchId != null ? " AND branch_id = " + branchId : "";
-            String branchFilterWhere = branchId != null ? " WHERE branch_id = " + branchId : "";
-            
-            counts.put("members", getCount(conn, "SELECT COUNT(*) FROM members WHERE status = 'active'" + branchFilter));
-            counts.put("events", getCount(conn, "SELECT COUNT(*) FROM events" + branchFilterWhere));
-            counts.put("announcements", getCount(conn, "SELECT COUNT(*) FROM announcements" + branchFilterWhere));
-            counts.put("sermons", getCount(conn, "SELECT COUNT(*) FROM sermons" + branchFilterWhere));
+            counts.put("members", getCount(conn, "SELECT COUNT(*) FROM members WHERE status = 'active'" + (branchId != null ? " AND branch_id = ?" : ""), branchId));
+            counts.put("events", getCount(conn, "SELECT COUNT(*) FROM events" + (branchId != null ? " WHERE branch_id = ?" : ""), branchId));
+            counts.put("announcements", getCount(conn, "SELECT COUNT(*) FROM announcements" + (branchId != null ? " WHERE branch_id = ?" : ""), branchId));
+            counts.put("sermons", getCount(conn, "SELECT COUNT(*) FROM sermons" + (branchId != null ? " WHERE branch_id = ?" : ""), branchId));
             
             response.put("success", true);
             response.put("data", counts);
@@ -34,11 +31,15 @@ public class SummaryController {
         return response;
     }
 
-    private int getCount(Connection conn, String query) throws SQLException {
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            if (rs.next()) {
-                return rs.getInt(1);
+    private int getCount(Connection conn, String query, Integer branchId) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (branchId != null) {
+                stmt.setInt(1, branchId);
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
         }
         return 0;
