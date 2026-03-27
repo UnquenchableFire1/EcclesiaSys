@@ -29,6 +29,16 @@ public class PrayerRequestDAO {
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSQL);
+            
+            // Migration for existing tables
+            try {
+                stmt.execute("ALTER TABLE prayer_requests ADD COLUMN IF NOT EXISTS branch_id INT");
+            } catch (SQLException e) {
+                if (!e.getSQLState().equals("42S21")) { // Duplicate column name
+                    System.err.println("PrayerRequest migration error: " + e.getMessage());
+                }
+            }
+            
             System.out.println("✓ Prayer requests table schema check completed");
         } catch (SQLException e) {
             System.err.println("Failed to create prayer_requests table: " + e.getMessage());
