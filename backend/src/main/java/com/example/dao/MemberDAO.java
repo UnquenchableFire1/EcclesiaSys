@@ -10,6 +10,34 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class MemberDAO {
     
+    public MemberDAO() {
+        ensureMembersTableSchema();
+    }
+
+    private void ensureMembersTableSchema() {
+        String[] columns = {
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS profile_picture_url VARCHAR(500)",
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS gender VARCHAR(20)",
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS bio TEXT"
+        };
+        
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            for (String sql : columns) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException e) {
+                    if (!e.getSQLState().equals("42S21")) { // Duplicate column
+                        System.err.println("Member migration error: " + e.getMessage());
+                    }
+                }
+            }
+            System.out.println("✓ Members table schema check completed");
+        } catch (SQLException e) {
+            System.err.println("Failed to check members table schema: " + e.getMessage());
+        }
+    }
+
     public boolean addMember(Member member) {
         String query = "INSERT INTO members (first_name, last_name, phone_number, email, password, status, is_profile_public, profile_picture_url, gender, bio, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();

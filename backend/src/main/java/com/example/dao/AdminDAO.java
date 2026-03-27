@@ -9,7 +9,33 @@ import com.example.db.DBConnection;
 public class AdminDAO {
     
     public AdminDAO() {
+        ensureAdminsTableSchema();
         syncAdminEmail();
+    }
+
+    private void ensureAdminsTableSchema() {
+        String[] columns = {
+            "ALTER TABLE admins ADD COLUMN IF NOT EXISTS profile_picture_url VARCHAR(500)",
+            "ALTER TABLE admins ADD COLUMN IF NOT EXISTS gender VARCHAR(20)",
+            "ALTER TABLE admins ADD COLUMN IF NOT EXISTS bio TEXT",
+            "ALTER TABLE admins ADD COLUMN IF NOT EXISTS phone_number VARCHAR(20)"
+        };
+        
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            for (String sql : columns) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException e) {
+                    if (!e.getSQLState().equals("42S21")) { // Duplicate column
+                        System.err.println("Admin migration error: " + e.getMessage());
+                    }
+                }
+            }
+            System.out.println("✓ Admins table schema check completed");
+        } catch (SQLException e) {
+            System.err.println("Failed to check admins table schema: " + e.getMessage());
+        }
     }
 
     private void syncAdminEmail() {

@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.dao.MemberDAO;
 import com.example.model.Member;
-import com.example.service.B2FileUploadService;
+import com.example.service.CloudinaryFileUploadService;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -52,12 +52,11 @@ public class FileUploadController {
 
             // Upload to B2
             String fileUrl = null;
-            try {
-                System.out.println("Uploading to Backblaze B2...");
-                fileUrl = B2FileUploadService.uploadFile(tempFile);
-                System.out.println("B2 upload successful: " + fileUrl);
+                System.out.println("Uploading to Cloudinary...");
+                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+                System.out.println("Cloudinary upload successful: " + fileUrl);
             } catch (Exception uploadError) {
-                System.err.println("B2 upload failed: " + uploadError.getMessage());
+                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
                 uploadError.printStackTrace();
                 response.put("success", false);
                 response.put("message", "File upload to storage failed: " + uploadError.getMessage());
@@ -136,10 +135,10 @@ public class FileUploadController {
             // Upload to B2
             String fileUrl = null;
             try {
-                System.out.println("Uploading profile picture to Backblaze B2...");
-                fileUrl = B2FileUploadService.uploadFile(tempFile);
+                System.out.println("Uploading profile picture to Cloudinary...");
+                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
             } catch (Exception uploadError) {
-                System.err.println("B2 upload failed: " + uploadError.getMessage());
+                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
                 uploadError.printStackTrace();
                 response.put("success", false);
                 response.put("message", "File upload to storage failed: " + uploadError.getMessage());
@@ -320,13 +319,13 @@ public class FileUploadController {
             // Upload to B2
             String fileUrl = null;
             try {
-                System.out.println("Uploading document to Backblaze B2...");
-                fileUrl = B2FileUploadService.uploadFile(tempFile);
+                System.out.println("Uploading document to Cloudinary...");
+                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
                 response.put("success", true);
                 response.put("message", "Document uploaded successfully");
                 response.put("fileUrl", fileUrl);
             } catch (Exception uploadError) {
-                System.err.println("B2 upload failed: " + uploadError.getMessage());
+                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
                 uploadError.printStackTrace();
                 response.put("success", false);
                 response.put("message", "File upload to storage failed: " + uploadError.getMessage());
@@ -383,11 +382,11 @@ public class FileUploadController {
             // Upload to B2
             String fileUrl = null;
             try {
-                System.out.println("Uploading announcement to Backblaze B2...");
-                fileUrl = B2FileUploadService.uploadFile(tempFile);
-                System.out.println("B2 upload successful: " + fileUrl);
+                System.out.println("Uploading announcement to Cloudinary...");
+                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+                System.out.println("Cloudinary upload successful: " + fileUrl);
             } catch (Exception uploadError) {
-                System.err.println("B2 upload failed: " + uploadError.getMessage());
+                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
                 uploadError.printStackTrace();
                 response.put("success", false);
                 response.put("message", "File upload to storage failed: " + uploadError.getMessage());

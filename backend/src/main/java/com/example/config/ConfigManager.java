@@ -100,4 +100,9 @@ public class ConfigManager {
         String size = getProperty("upload.maxSize", "524288000"); // 500MB default
         return Long.parseLong(size);
     }
+
+    // Cloudinary Properties
+    public static String getCloudinaryUrl() {
+        return System.getenv("CLOUDINARY_URL");
+    }
 }

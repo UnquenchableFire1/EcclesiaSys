@@ -98,8 +98,8 @@ export default function AdminProfile() {
 
     const handleUpdateProfile = async () => {
         try {
-            
-            const response = await updateAdminProfile(adminId, updateData);
+            setIsUpdatingProfile(true);
+            const response = await updateAdminProfile(adminId, formData);
             if (response.data.success) {
                 showToast('Admin profile updated!', 'success');
                 setEditing(false);
