@@ -52,6 +52,7 @@ public class FileUploadController {
 
             // Upload to B2
             String fileUrl = null;
+            try {
                 System.out.println("Uploading to Cloudinary...");
                 fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
                 System.out.println("Cloudinary upload successful: " + fileUrl);
