@@ -12,12 +12,12 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class NotificationController {
 
-    @GetMapping("/member/{memberId}")
-    public Map<String, Object> getNotifications(@PathVariable int memberId) {
+    @GetMapping("/{userType}/{userId}")
+    public Map<String, Object> getNotifications(@PathVariable String userType, @PathVariable int userId) {
         Map<String, Object> response = new HashMap<>();
         try {
             NotificationDAO dao = new NotificationDAO();
-            List<Notification> notifications = dao.getNotificationsForMember(memberId);
+            List<Notification> notifications = dao.getNotifications(userId, userType.toUpperCase());
             response.put("success", true);
             response.put("data", notifications);
         } catch (Exception e) {
@@ -28,12 +28,13 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}/read")
-    public Map<String, Object> markAsRead(@PathVariable int id, @RequestBody Map<String, Integer> request) {
+    public Map<String, Object> markAsRead(@PathVariable int id, @RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            int memberId = request.get("memberId");
+            int userId = (Integer) request.get("userId");
+            String userType = (String) request.get("userType");
             NotificationDAO dao = new NotificationDAO();
-            boolean success = dao.markAsRead(id, memberId);
+            boolean success = dao.markAsRead(id, userId, userType != null ? userType.toUpperCase() : "MEMBER");
             if (success) {
                 response.put("success", true);
                 response.put("message", "Notification marked as read");
@@ -48,12 +49,12 @@ public class NotificationController {
         return response;
     }
 
-    @PutMapping("/member/{memberId}/read-all")
-    public Map<String, Object> markAllAsRead(@PathVariable int memberId) {
+    @PutMapping("/{userType}/{userId}/read-all")
+    public Map<String, Object> markAllAsRead(@PathVariable String userType, @PathVariable int userId) {
         Map<String, Object> response = new HashMap<>();
         try {
             NotificationDAO dao = new NotificationDAO();
-            boolean success = dao.markAllAsRead(memberId);
+            boolean success = dao.markAllAsRead(userId, userType.toUpperCase());
             if (success) {
                 response.put("success", true);
                 response.put("message", "All notifications marked as read");

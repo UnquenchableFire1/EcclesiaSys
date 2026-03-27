@@ -169,7 +169,7 @@ public class SermonController {
                     String notifTitle = "New Sermon: " + sermon.getTitle();
                     String notifMsg = "A new sermon by " + sermon.getSpeaker() + " has been posted. Check it out now!";
                     for (int memberId : memberIds) {
-                        notifDao.addNotification(memberId, notifTitle, notifMsg, "sermon");
+                        notifDao.addNotification(memberId, notifTitle, notifMsg, "sermon", "MEMBER");
                     }
                     System.out.println("✓ In-app notifications sent to " + memberIds.size() + " members.");
                 } catch (Exception e) {

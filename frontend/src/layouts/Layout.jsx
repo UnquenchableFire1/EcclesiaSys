@@ -52,9 +52,10 @@ export default function Layout({ children }) {
 
     const fetchNotifications = useCallback(async () => {
         const uId = sessionStorage.getItem('userId');
+        const uType = sessionStorage.getItem('userType');
         if (!uId) return;
         try {
-            const response = await getNotifications(uId);
+            const response = await getNotifications(uId, uType === 'admin' ? 'ADMIN' : 'MEMBER');
             const data = response.data?.data || response.data || [];
             if (Array.isArray(data)) {
                 setNotifications(data);
@@ -129,7 +130,8 @@ export default function Layout({ children }) {
 
     const handleNotificationClick = async (notif) => {
         try {
-            await markNotificationAsRead(notif.id, userId);
+            const uType = sessionStorage.getItem('userType');
+            await markNotificationAsRead(notif.id, userId, uType === 'admin' ? 'ADMIN' : 'MEMBER');
             setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
             setUnreadCount(prev => Math.max(0, prev - 1));
             

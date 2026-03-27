@@ -28,7 +28,10 @@ public class ChatDAO {
 
     public List<ChatMessage> getConversation(int userId1, int userId2) {
         List<ChatMessage> messages = new ArrayList<>();
-        String query = "SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC";
+        String query = "SELECT * FROM chat_messages WHERE " +
+                       "(sender_id = ? AND receiver_id = ?) OR " +
+                       "(sender_id = ? AND receiver_id = ?) " +
+                       "ORDER BY timestamp ASC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId1);
@@ -47,14 +50,18 @@ public class ChatDAO {
 
     public List<ChatMessage> getAdminConversations(int adminId) {
         List<ChatMessage> list = new ArrayList<>();
-        // Get the latest message, user name, and unread count for each member conversation
-        String query = "SELECT m.*, u.firstName, u.lastName, " +
-                      "(SELECT COUNT(*) FROM chat_messages WHERE sender_id = m.sender_id AND receiver_id = ? AND is_read = false) as unread_count " +
-                      "FROM chat_messages m " +
-                      "JOIN members u ON (CASE WHEN m.sender_type = 'member' THEN m.sender_id ELSE m.receiver_id END) = u.id " +
-                      "WHERE m.id IN (SELECT MAX(id) FROM chat_messages WHERE receiver_id = ? OR sender_id = ? " +
-                      "GROUP BY CASE WHEN sender_type = 'member' THEN sender_id ELSE receiver_id END) " +
-                      "ORDER BY m.timestamp DESC";
+        // Get the latest message per unique member conversation, with member name and unread count
+        String query = 
+            "SELECT cm.*, u.firstName, u.lastName, " +
+            "(SELECT COUNT(*) FROM chat_messages WHERE sender_id = cm.sender_id AND sender_type = 'member' AND receiver_id = ? AND receiver_type = 'admin' AND is_read = false) as unread_count " +
+            "FROM chat_messages cm " +
+            "JOIN members u ON u.id = (CASE WHEN cm.sender_type = 'member' THEN cm.sender_id ELSE cm.receiver_id END) " +
+            "WHERE cm.id IN ( " +
+            "  SELECT MAX(id) FROM chat_messages " +
+            "  WHERE (receiver_id = ? AND receiver_type = 'admin') OR (sender_id = ? AND sender_type = 'admin') " +
+            "  GROUP BY CASE WHEN sender_type = 'member' THEN sender_id ELSE receiver_id END " +
+            ") " +
+            "ORDER BY cm.timestamp DESC";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -64,9 +71,6 @@ public class ChatDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 ChatMessage msg = mapResultSetToMessage(rs);
-                // We'll' use' transient' fields' or' a' wrapper' if' needed', but' for' now' we' can' hijack' unused' ones' 
-                // or' just' let' the' controller' handle' the' mapping'.
-                // Let's' add' senderName' to' ChatMessage' model'.
                 msg.setSenderName(rs.getString("firstName") + " " + rs.getString("lastName"));
                 msg.setUnreadCount(rs.getInt("unread_count"));
                 list.add(msg);

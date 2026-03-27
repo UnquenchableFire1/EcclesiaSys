@@ -20,6 +20,7 @@ public class NotificationDAO {
                 "title VARCHAR(255) NOT NULL, " +
                 "message TEXT NOT NULL, " +
                 "type VARCHAR(50) DEFAULT 'general', " +
+                "user_type VARCHAR(20) DEFAULT 'MEMBER', " +
                 "is_read BOOLEAN DEFAULT FALSE, " +
                 "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
                 ")";
@@ -27,21 +28,29 @@ public class NotificationDAO {
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSQL);
+            
+            // Migration for existing table
+            try {
+                stmt.execute("ALTER TABLE notifications ADD COLUMN IF NOT EXISTS user_type VARCHAR(20) DEFAULT 'MEMBER'");
+            } catch (SQLException e) {
+                // Ignore if column exists
+            }
             System.out.println("✓ Notifications table schema check completed");
         } catch (SQLException e) {
             System.err.println("Failed to create notifications table: " + e.getMessage());
         }
     }
 
-    public boolean addNotification(int memberId, String title, String message, String type) {
-        String query = "INSERT INTO notifications (member_id, title, message, type, is_read, created_at) VALUES (?, ?, ?, ?, FALSE, ?)";
+    public boolean addNotification(int userId, String title, String message, String type, String userType) {
+        String query = "INSERT INTO notifications (member_id, title, message, type, user_type, is_read, created_at) VALUES (?, ?, ?, ?, ?, FALSE, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, memberId);
+            stmt.setInt(1, userId);
             stmt.setString(2, title);
             stmt.setString(3, message);
             stmt.setString(4, type != null ? type : "general");
-            stmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setString(5, userType != null ? userType : "MEMBER");
+            stmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -49,12 +58,13 @@ public class NotificationDAO {
         return false;
     }
 
-    public List<Notification> getNotificationsForMember(int memberId) {
+    public List<Notification> getNotifications(int userId, String userType) {
         List<Notification> notifications = new ArrayList<>();
-        String query = "SELECT * FROM notifications WHERE member_id = ? ORDER BY created_at DESC";
+        String query = "SELECT * FROM notifications WHERE member_id = ? AND user_type = ? ORDER BY created_at DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, memberId);
+            stmt.setInt(1, userId);
+            stmt.setString(2, userType != null ? userType : "MEMBER");
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     notifications.add(mapResultSetToNotification(rs));
@@ -66,12 +76,13 @@ public class NotificationDAO {
         return notifications;
     }
 
-    public boolean markAsRead(int notificationId, int memberId) {
-        String query = "UPDATE notifications SET is_read = TRUE WHERE id = ? AND member_id = ?";
+    public boolean markAsRead(int notificationId, int userId, String userType) {
+        String query = "UPDATE notifications SET is_read = TRUE WHERE id = ? AND member_id = ? AND user_type = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, notificationId);
-            stmt.setInt(2, memberId);
+            stmt.setInt(2, userId);
+            stmt.setString(3, userType);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -79,11 +90,12 @@ public class NotificationDAO {
         return false;
     }
 
-    public boolean markAllAsRead(int memberId) {
-        String query = "UPDATE notifications SET is_read = TRUE WHERE member_id = ?";
+    public boolean markAllAsRead(int userId, String userType) {
+        String query = "UPDATE notifications SET is_read = TRUE WHERE member_id = ? AND user_type = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, memberId);
+            stmt.setInt(1, userId);
+            stmt.setString(2, userType);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,7 +108,7 @@ public class NotificationDAO {
         List<com.example.model.Admin> admins = adminDao.getAllAdmins();
         boolean allSuccess = true;
         for (com.example.model.Admin admin : admins) {
-            if (!addNotification(admin.getId(), title, message, "general")) {
+            if (!addNotification(admin.getId(), title, message, "general", "ADMIN")) {
                 allSuccess = false;
             }
         }
@@ -108,9 +120,9 @@ public class NotificationDAO {
         List<com.example.model.Admin> admins = adminDao.getAllAdmins();
         boolean allSuccess = true;
         for (com.example.model.Admin admin : admins) {
-            // Include branch admins of this branch OR Super Admins (optional, but requested only branch admins)
+            // Only notify admins assigned to this specific branch
             if (admin.getBranchId() != null && admin.getBranchId() == branchId) {
-                if (!addNotification(admin.getId(), title, message, "general")) {
+                if (!addNotification(admin.getId(), title, message, "prayer", "ADMIN")) {
                     allSuccess = false;
                 }
             }

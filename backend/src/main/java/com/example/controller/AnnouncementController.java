@@ -86,7 +86,7 @@ public class AnnouncementController {
                     }
                     
                     for (Integer memberId : memberIds) {
-                        notificationDao.addNotification(memberId, announcement.getTitle(), "A new announcement has been posted in the sanctuary.", "announcement");
+                        notificationDao.addNotification(memberId, announcement.getTitle(), "A new announcement has been posted in the sanctuary.", "announcement", "MEMBER");
                     }
 
                     // Email notifications

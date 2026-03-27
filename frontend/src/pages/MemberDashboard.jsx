@@ -12,7 +12,8 @@ import {
 import { 
     getMemberProfile, getAnnouncements, getEvents, getSermons,
     createPrayerRequest, getNotifications, markNotificationAsRead,
-    markAllNotificationsAsRead, getMembers, getPublicMembers
+    markAllNotificationsAsRead, getMembers, getPublicMembers,
+    getMyPrayerRequests
 } from '../services/api';
 
 import Announcements from './Announcements';
@@ -38,6 +39,7 @@ export default function MemberDashboard() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [members, setMembers] = useState([]);
     const [memberSearchQuery, setMemberSearchQuery] = useState('');
+    const [myPrayerRequests, setMyPrayerRequests] = useState([]);
 
     // -- Handlers --
     const setActiveTab = (tab) => {
@@ -66,6 +68,17 @@ export default function MemberDashboard() {
             ]);
             setMemberProfile(profileRes.data?.data || profileRes.data || {});
             setMembers(membersRes.data?.data || membersRes.data || []);
+
+            // Fetch personal prayer requests
+            const email = sessionStorage.getItem('userEmail');
+            if (email) {
+                try {
+                    const prRes = await getMyPrayerRequests(email);
+                    setMyPrayerRequests(prRes.data?.data || prRes.data || []);
+                } catch (prErr) {
+                    console.error("Prayer requests fetch error:", prErr);
+                }
+            }
         } catch (err) {
             console.error("Dashboard Data Error:", err);
         } finally {
@@ -322,6 +335,37 @@ export default function MemberDashboard() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* My Prayer Requests */}
+                        {myPrayerRequests.length > 0 && (
+                            <div className="mt-12">
+                                <h2 className="text-3xl font-black text-mdOnSurface tracking-tighter mb-6 flex items-center gap-3">
+                                    <span className="w-1.5 h-6 bg-mdPrimary rounded-full"></span>
+                                    My Requests
+                                </h2>
+                                <div className="grid gap-4">
+                                    {myPrayerRequests.map(pr => (
+                                        <div key={pr.id} className="glass-card p-6 border-l-4 border-l-mdPrimary">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex-1">
+                                                    <p className="text-mdOnSurfaceVariant font-medium italic">"{pr.requestText}"</p>
+                                                    <p className="text-[10px] font-black text-mdOutline uppercase tracking-widest mt-3">
+                                                        Submitted {new Date(pr.createdAt).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap ${
+                                                    pr.status === 'Answered' ? 'bg-green-500/10 text-green-600' : 
+                                                    pr.status === 'Prayed For' ? 'bg-mdPrimary/10 text-mdPrimary' : 
+                                                    'bg-amber-500/10 text-amber-600'
+                                                }`}>
+                                                    {pr.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 

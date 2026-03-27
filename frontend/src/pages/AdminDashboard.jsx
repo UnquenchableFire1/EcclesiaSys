@@ -197,7 +197,7 @@ export default function AdminDashboard() {
 
     const fetchNotifications = async () => {
         try {
-            const res = await getNotifications(adminId);
+            const res = await getNotifications(adminId, 'ADMIN');
             const data = res.data?.data || [];
             if (Array.isArray(data)) {
                 setNotifications(data);
@@ -785,23 +785,46 @@ export default function AdminDashboard() {
                     <div className="space-y-10 animate-fade-in mt-4">
                         <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Prayer Requests</h1>
                         <div className="grid gap-6">
-                            {prayerRequests.map(pr => (
+                            {prayerRequests.length === 0 ? (
+                                <div className="glass-card p-12 text-center">
+                                    <div className="w-16 h-16 bg-mdSurfaceVariant/20 text-mdOutline rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                                        <FontAwesomeIcon icon={faPrayingHands} />
+                                    </div>
+                                    <h3 className="text-xl font-black text-mdOnSurface">No Intercessions</h3>
+                                    <p className="text-mdOnSurfaceVariant font-medium">There are currently no prayer requests in this territory.</p>
+                                </div>
+                            ) : prayerRequests.map(pr => (
                                 <div key={pr.id} className="glass-card p-8 flex flex-col md:flex-row justify-between items-start gap-6 border-l-4 border-l-mdPrimary">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-4">
                                             <h4 className="text-2xl font-black text-mdOnSurface">{pr.isAnonymous ? 'Restricted Identity' : pr.requesterName}</h4>
-                                            <span className="px-3 py-1 rounded-full bg-mdPrimary/10 text-mdPrimary text-[10px] font-black uppercase tracking-widest">{pr.status}</span>
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${pr.status === 'Answered' ? 'bg-green-500/10 text-green-600' : pr.status === 'Prayed For' ? 'bg-mdPrimary/10 text-mdPrimary' : 'bg-amber-500/10 text-amber-600'}`}>
+                                                {pr.status}
+                                            </span>
                                         </div>
                                         <p className="text-mdOnSurfaceVariant font-medium text-lg italic leading-relaxed">"{pr.requestText}"</p>
                                         <div className="mt-6 flex items-center gap-4 text-[10px] font-black text-mdOutline uppercase tracking-widest">
                                             <span>Received {new Date(pr.createdAt).toLocaleDateString()}</span>
-                                            {!pr.isAnonymous && <span>• {pr.requesterEmail}</span>}
+                                            {!pr.isAnonymous && <span>• {pr.email}</span>}
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        {pr.status !== 'Answered' && (
-                                            <button onClick={() => updatePrayerRequestStatus(pr.id, 'Answered').then(fetchAllData)} className="p-4 bg-green-500/10 text-green-600 rounded-2xl hover:bg-green-500 hover:text-white transition-all">
+                                        {pr.status === 'PENDING' && (
+                                            <button 
+                                                onClick={() => updatePrayerRequestStatus(pr.id, 'Prayed For').then(fetchAllData)} 
+                                                className="p-4 bg-mdPrimary/10 text-mdPrimary rounded-2xl hover:bg-mdPrimary hover:text-white transition-all"
+                                                title="Mark as Prayed For"
+                                            >
                                                 <FontAwesomeIcon icon={faCheck} />
+                                            </button>
+                                        )}
+                                        {pr.status !== 'Answered' && (
+                                            <button 
+                                                onClick={() => updatePrayerRequestStatus(pr.id, 'Answered').then(fetchAllData)} 
+                                                className="p-4 bg-green-500/10 text-green-600 rounded-2xl hover:bg-green-500 hover:text-white transition-all"
+                                                title="Mark as Answered"
+                                            >
+                                                <FontAwesomeIcon icon={faCheckDouble} />
                                             </button>
                                         )}
                                         <button 
@@ -811,6 +834,7 @@ export default function AdminDashboard() {
                                                 () => deletePrayerRequest(pr.id).then(fetchAllData)
                                             )}
                                             className="p-4 bg-mdError/10 text-mdError rounded-2xl hover:bg-mdError hover:text-white transition-all"
+                                            title="Delete Request"
                                         >
                                             <FontAwesomeIcon icon={faTrash} />
                                         </button>

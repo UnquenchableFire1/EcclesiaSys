@@ -119,7 +119,8 @@ public class EventController {
                             memberId, 
                             event.getTitle(), 
                             "A new event has been scheduled for " + event.getEventDate().toString() + " at " + event.getLocation(),
-                            "event"
+                            "event",
+                            "MEMBER"
                         );
                     }
 

@@ -6,9 +6,10 @@ import { submitPrayerRequest } from '../services/api';
 export default function PrayerRequestModal({ isOpen, onClose }) {
     const [formData, setFormData] = useState({
         requesterName: sessionStorage.getItem('userName') || '',
-        email: sessionStorage.getItem('memberEmail') || '',
+        email: sessionStorage.getItem('userEmail') || '',
         requestText: '',
-        isAnonymous: false
+        isAnonymous: false,
+        branchId: sessionStorage.getItem('branchId') || null
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState({ text: '', isError: false });

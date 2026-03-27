@@ -239,6 +239,10 @@ export const getPrayerRequests = (branchId) => {
   return api.get('/prayer-requests', { params: { branchId } });
 };
 
+export const getMyPrayerRequests = (email) => {
+  return api.get('/prayer-requests/my', { params: { email } });
+};
+
 export const updatePrayerRequestStatus = (id, status) => {
   return api.put(`/prayer-requests/${id}/status`, { status });
 };
@@ -248,16 +252,16 @@ export const deletePrayerRequest = (id) => {
 };
 
 // Notification APIs
-export const getNotifications = (memberId) => {
-  return api.get(`/notifications/member/${memberId}`);
+export const getNotifications = (userId, userType) => {
+  return api.get(`/notifications/${userType}/${userId}`);
 };
 
-export const markNotificationAsRead = (id, memberId) => {
-  return api.put(`/notifications/${id}/read`, { memberId });
+export const markNotificationAsRead = (id, userId, userType) => {
+  return api.put(`/notifications/${id}/read`, { userId, userType });
 };
 
-export const markAllNotificationsAsRead = (memberId) => {
-  return api.put(`/notifications/member/${memberId}/read-all`);
+export const markAllNotificationsAsRead = (userId, userType) => {
+  return api.put(`/notifications/${userType}/${userId}/read-all`);
 };
 
 export const getCounts = (branchId) => {

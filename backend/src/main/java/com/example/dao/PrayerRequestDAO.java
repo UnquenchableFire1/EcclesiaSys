@@ -79,6 +79,22 @@ public class PrayerRequestDAO {
         return requests;
     }
 
+    public List<PrayerRequest> getPrayerRequestsByEmail(String email) {
+        List<PrayerRequest> requests = new ArrayList<>();
+        String query = "SELECT * FROM prayer_requests WHERE email = ? ORDER BY created_at DESC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                requests.add(mapResultSetToPrayerRequest(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return requests;
+    }
+
     public boolean updateStatus(int id, String status) {
         String query = "UPDATE prayer_requests SET status = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();

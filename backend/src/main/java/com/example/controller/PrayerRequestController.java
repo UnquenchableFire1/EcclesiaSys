@@ -69,6 +69,21 @@ public class PrayerRequestController {
         return response;
     }
 
+    @GetMapping("/my")
+    public Map<String, Object> getMyRequests(@RequestParam String email) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            PrayerRequestDAO dao = new PrayerRequestDAO();
+            List<PrayerRequest> requests = dao.getPrayerRequestsByEmail(email);
+            response.put("success", true);
+            response.put("data", requests);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Server error: " + e.getMessage());
+        }
+        return response;
+    }
+
     @PutMapping("/{id}/status")
     public Map<String, Object> updateRequestStatus(@PathVariable int id, @RequestBody Map<String, String> statusUpdate) {
         Map<String, Object> response = new HashMap<>();
@@ -102,7 +117,7 @@ public class PrayerRequestController {
                             
                             if (member != null) {
                                 NotificationDAO notifDao = new NotificationDAO();
-                                notifDao.addNotification(member.getId(), "Prayer Request Update", message, "prayer");
+                                notifDao.addNotification(member.getId(), "Prayer Request Update", message, "prayer", "MEMBER");
                             }
                             
                             if (emailService != null) {

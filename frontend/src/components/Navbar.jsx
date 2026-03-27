@@ -37,9 +37,10 @@ export default function Navbar({ isMobile }) {
 
   const fetchUserNotifications = async () => {
     const userId = sessionStorage.getItem('userId');
+    const uType = sessionStorage.getItem('userType');
     if (userId) {
       try {
-        const res = await getNotifications(userId);
+        const res = await getNotifications(userId, uType === 'admin' ? 'ADMIN' : 'MEMBER');
         if (res.data?.success) {
           const list = res.data.data || [];
           setNotifications(list);
@@ -64,8 +65,9 @@ export default function Navbar({ isMobile }) {
 
   const handleMarkAsRead = async (id) => {
     const userId = sessionStorage.getItem('userId');
+    const uType = sessionStorage.getItem('userType');
     try {
-        await markNotificationAsRead(id, userId);
+        await markNotificationAsRead(id, userId, uType === 'admin' ? 'ADMIN' : 'MEMBER');
         fetchUserNotifications();
     } catch (err) {
         console.error("Failed to mark as read:", err);
@@ -74,8 +76,9 @@ export default function Navbar({ isMobile }) {
 
   const handleMarkAllAsRead = async () => {
     const userId = sessionStorage.getItem('userId');
+    const uType = sessionStorage.getItem('userType');
     try {
-        await markAllNotificationsAsRead(userId);
+        await markAllNotificationsAsRead(userId, uType === 'admin' ? 'ADMIN' : 'MEMBER');
         fetchUserNotifications();
         setIsNotificationOpen(false);
     } catch (err) {
