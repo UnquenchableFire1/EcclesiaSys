@@ -88,10 +88,11 @@ export default function AdminDashboard() {
     const [lightboxImg, setLightboxImg] = useState(null);
 
     // Derived State
-    const effectiveRole = adminData?.role;
+    const storedBranchId = sessionStorage.getItem('branchId');
+    const effectiveRole = adminData?.role || sessionStorage.getItem('role');
     const isActuallySuperAdmin = effectiveRole === 'SUPER_ADMIN' || adminEmail === 'benjaminbuckmanjunior@gmail.com';
     const isReadOnly = inspectionBranchId !== null;
-    const currentBranchIdForData = inspectionBranchId || (isActuallySuperAdmin ? selectedBranchId : adminData?.branchId);
+    const currentBranchIdForData = inspectionBranchId || (isActuallySuperAdmin ? selectedBranchId : (adminData?.branchId || storedBranchId));
 
     // -- Handlers --
     const setActiveTab = (tab) => {
@@ -515,7 +516,9 @@ export default function AdminDashboard() {
                                         <QuickAction label="Manage Admins" icon={faUserShield} tab="admins" desc="Oversee Staff" />
                                         <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network oversight" />
                                         <QuickAction label="Congregation" icon={faUsers} tab="members" desc="Universal Registry" />
-                                        <QuickAction label="Sanctuary Help" icon={faWhatsapp} tab="support" desc="WhatsApp Support" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
+                                        {!isActuallySuperAdmin && (
+                                            <QuickAction label="Sanctuary Help" icon={faWhatsapp} tab="support" desc="WhatsApp Support" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
+                                        )}
                                     </div>
                                 )}
                             </div>

@@ -32,7 +32,8 @@ export default function MemberDirectory() {
     const fetchMembers = async () => {
         setLoading(true);
         try {
-            const response = isAdmin ? await getMembers() : await getPublicMembers();
+            const branchId = sessionStorage.getItem('branchId');
+            const response = isAdmin ? await getMembers(branchId) : await getPublicMembers(branchId);
             if (response.data.success) {
                 setMembers(response.data.data);
             } else {

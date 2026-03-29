@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faComments, faUsers, faEnvelope, faSearch, faHandsHelping,
-    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands
+    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 

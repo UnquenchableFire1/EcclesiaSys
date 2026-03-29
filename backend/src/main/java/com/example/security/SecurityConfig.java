@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/branches").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/member/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/members/public").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/member/reset-password", "/api/member/custom-reset-password").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/forgot-password", "/api/reset-password", "/api/member/custom-reset-password").permitAll()
                 
                 // Allow error path
                 .requestMatchers("/error").permitAll()

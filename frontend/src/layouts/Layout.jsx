@@ -278,24 +278,26 @@ export default function Layout({ children }) {
 
                     {shouldShowNav && (
                         <footer className="w-full py-12 px-8 border-t border-mdOutline/5 bg-white/30 backdrop-blur-xl">
-                            <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-                                <div className="flex flex-col items-center md:items-start text-center md:text-left">
-                                    <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">EcclesiaSys Sanctuary Support</h3>
-                                    <p className="text-sm font-medium text-mdOnSurfaceVariant max-w-sm opacity-70 leading-relaxed">
-                                        Need instant assistance or spiritual guidance? <br className="hidden md:block"/> Our support team is available 24/7 on WhatsApp.
-                                    </p>
+                            {!isSuperAdmin && (
+                                <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+                                    <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                                        <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">EcclesiaSys Sanctuary Support</h3>
+                                        <p className="text-sm font-medium text-mdOnSurfaceVariant max-w-sm opacity-70 leading-relaxed">
+                                            Need instant assistance or spiritual guidance? <br className="hidden md:block"/> Our support team is available 24/7 on WhatsApp.
+                                        </p>
+                                    </div>
+                                    <a 
+                                        href="https://wa.me/message/DMJE5W7QXC2MF1" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-4 px-10 py-5 bg-mdPrimary text-white rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all group"
+                                    >
+                                        <FontAwesomeIcon icon={faWhatsapp} className="text-2xl group-hover:scale-110 transition-transform" />
+                                        Connect on WhatsApp
+                                    </a>
                                 </div>
-                                <a 
-                                    href="https://wa.me/message/DMJE5W7QXC2MF1" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-4 px-10 py-5 bg-mdPrimary text-white rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all group"
-                                >
-                                    <FontAwesomeIcon icon={faWhatsapp} className="text-2xl group-hover:scale-110 transition-transform" />
-                                    Connect on WhatsApp
-                                </a>
-                            </div>
-                            <div className="mt-12 pt-8 border-t border-mdOutline/5 text-center text-[10px] font-black uppercase tracking-[0.3em] text-mdOnSurfaceVariant/40">
+                            )}
+                            <div className={`mt-12 pt-8 border-t border-mdOutline/5 text-center text-[10px] font-black uppercase tracking-[0.3em] text-mdOnSurfaceVariant/40 ${isSuperAdmin ? 'mt-0 border-t-0' : ''}`}>
                                 © 2026 EcclesiaSys Sanctuary. All Rights Reserved.
                             </div>
                         </footer>
@@ -304,7 +306,7 @@ export default function Layout({ children }) {
             </div>
 
             {/* Global Floating WhatsApp Support Button */}
-            {userId && (
+            {userId && !isSuperAdmin && (
                 <div className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-[2000] animate-fade-in group">
                     <div className="absolute inset-0 bg-mdSecondary rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
                     <a 
