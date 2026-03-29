@@ -56,13 +56,11 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden">
       {/* Left Side: Visual Sanctuary */}
-      <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
-        <img 
-          src="/assets/images/church/church_7.jpg" 
-          alt="Sanctuary Entrance" 
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
-        />
-        <div className="image-overlay-dark opacity-60"></div>
+      <div className="hidden md:flex md:w-1/2 relative overflow-hidden group bg-mdPrimary">
+        <div className="sanctuary-bg !static !h-full !w-full !bg-mdPrimary"></div>
+        <div className="sanctuary-grid !static !inset-0"></div>
+        <div className="auth-panel-bg absolute inset-0 opacity-20"></div>
+        <div className="absolute inset-0 bg-mdPrimary/40 backdrop-blur-[1px]"></div>
         <div className="relative z-10 flex flex-col justify-center items-center h-full p-20 text-white text-center">
             <div className="mb-12">
                 <SanctuaryLogo size={120} showText={false} isDark={true} className="animate-float" />
@@ -82,12 +80,7 @@ export default function Login() {
       </div>
 
       {/* Right Side: Authentication */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 relative overflow-hidden">
-        {/* Background image (full panel, all screen sizes) */}
-        <div className="absolute inset-0 z-0">
-            <img src="/assets/images/church/church_15.jpg" alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-white/88 backdrop-blur-md"></div>
-        </div>
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 auth-panel-bg relative">
 
         <div className="relative z-10 w-full max-w-md">
           <div className="mb-12 relative flex flex-col items-center">

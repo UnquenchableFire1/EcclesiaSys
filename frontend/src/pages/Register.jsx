@@ -106,13 +106,11 @@ export default function Register() {
     return (
         <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden">
             {/* Left Side: Visual Sanctuary */}
-            <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
-                <img 
-                    src="/assets/images/church/church_5.jpg" 
-                    alt="Sanctuary Fellowship" 
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
-                />
-                <div className="image-overlay-dark opacity-60"></div>
+            <div className="hidden md:flex md:w-1/2 relative overflow-hidden group bg-mdPrimary">
+                <div className="sanctuary-bg !static !h-full !w-full !bg-mdPrimary"></div>
+                <div className="sanctuary-grid !static !inset-0"></div>
+                <div className="auth-panel-bg absolute inset-0 opacity-20"></div>
+                <div className="absolute inset-0 bg-mdPrimary/40 backdrop-blur-[1px]"></div>
                 <div className="relative z-10 flex flex-col justify-center items-center h-full p-20 text-white text-center">
                     <div className="mb-12">
                         <SanctuaryLogo size={120} showText={false} isDark={true} className="animate-float" />
@@ -132,12 +130,7 @@ export default function Register() {
             </div>
 
             {/* Right Side: Registration Form */}
-            <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-y-auto custom-scrollbar">
-                {/* Background image (full panel, all screen sizes) */}
-                <div className="absolute inset-0 z-0 h-full">
-                    <img src="/assets/images/church/church_14.jpg" alt="" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-white/88 backdrop-blur-md"></div>
-                </div>
+            <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12 auth-panel-bg relative overflow-y-auto custom-scrollbar">
 
                 <div className="relative z-10 w-full max-w-xl py-12">
                     <div className="mb-10 relative flex flex-col items-center">

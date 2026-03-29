@@ -112,7 +112,6 @@ export default function Events({ embedded = false, branchId = null }) {
                     <Hero 
                         title="Sacred Gatherings"
                         subtitle="Join our vibrant community as we fellowship together, grow in grace, and manifest the sanctuary's vision in our world."
-                        backgroundImage="/assets/images/church/church_11.jpg"
                         small={true}
                     />
                 </div>
@@ -139,7 +138,7 @@ export default function Events({ embedded = false, branchId = null }) {
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {[1, 2, 3].map(n => (
-                        <div key={n} className="img-card h-[500px] animate-pulse rounded-[2.5rem] opacity-50"></div>
+                        <div key={n} className="glass-card h-[500px] animate-pulse rounded-[2.5rem] opacity-50 !bg-mdSurfaceVariant/20"></div>
                     ))}
                 </div>
             ) : filteredEvents.length === 0 ? (
@@ -153,12 +152,9 @@ export default function Events({ embedded = false, branchId = null }) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {filteredEvents.map((event, idx) => (
-                        <div key={event.id} className="img-card group min-h-[550px] rounded-[3rem] hover:shadow-premium transition-all duration-700 flex flex-col">
-                             <img 
-                                src={`/assets/images/church/church_${(idx % 10) + 6}.jpg`} 
-                                alt={event.title} 
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110"
-                             />
+                        <div key={event.id} className="glass-card group min-h-[550px] rounded-[3rem] hover:shadow-premium transition-all duration-700 flex flex-col overflow-hidden !bg-mdPrimary text-white">
+                             <div className="sanctuary-grid !opacity-20"></div>
+                             <div className="sanctuary-bg !static !h-full !w-full !opacity-30"></div>
                              <div className="image-overlay group-hover:bg-mdSecondary/40 transition-all duration-700"></div>
                              
                              {isAdmin && (
@@ -232,8 +228,9 @@ export default function Events({ embedded = false, branchId = null }) {
                         </button>
 
                         {/* Visual Header */}
-                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full">
-                            <img src="/assets/images/church/church_14.jpg" alt="Event Detail" className="absolute inset-0 w-full h-full object-cover" />
+                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full bg-mdPrimary">
+                            <div className="sanctuary-grid !opacity-20 font-black"></div>
+                            <div className="sanctuary-bg !static !h-full !w-full !opacity-30"></div>
                             <div className="image-overlay-dark opacity-70"></div>
                             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-12 text-white">
                                 <div className="w-24 h-24 rounded-[2rem] bg-mdPrimary flex items-center justify-center mb-8 shadow-premium animate-float ring-8 ring-white/5">

@@ -77,14 +77,9 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden animate-fade-in">
-      {/* Cinematic Background */}
-      <img 
-        src="/assets/images/church/church_10.jpg" 
-        alt="Sanctuary Peace" 
-        className="absolute inset-0 w-full h-full object-cover scale-105 blur-[2px]"
-      />
-      <div className="absolute inset-0 bg-mdSurface/40 backdrop-blur-sm"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-mdPrimary/20 via-transparent to-mdSecondary/20"></div>
+      {/* Classy CSS background — animated brand-colour orbs, no images */}
+      <div className="sanctuary-bg"></div>
+      <div className="sanctuary-grid"></div>
 
       <div className="relative z-10 w-full max-w-lg">
         <div className="glass-card p-10 md:p-14 rounded-[4rem] shadow-premium border-white/20 bg-white/40 backdrop-blur-2xl">

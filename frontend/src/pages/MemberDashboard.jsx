@@ -131,8 +131,9 @@ export default function MemberDashboard() {
                 {activeTab === 'home' && (
                     <div className="space-y-12">
                         {/* Hero Section */}
-                        <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
-                            <img src="/assets/images/church/church_8.jpg" alt="Sanctuary" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
+                        <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-premium group mb-12 bg-mdPrimary">
+                            <div className="sanctuary-grid !opacity-10"></div>
+                            <div className="sanctuary-bg !static !h-full !w-full !opacity-30"></div>
                             <div className="image-overlay-dark opacity-70"></div>
                             <div className="relative z-10 h-full p-10 md:p-16 flex flex-col justify-center max-w-2xl text-white">
                                 <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.4em] mb-8 inline-block border border-white/10 w-max">Member Sanctuary</span>

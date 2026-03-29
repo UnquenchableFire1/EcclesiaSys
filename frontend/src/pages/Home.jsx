@@ -45,52 +45,42 @@ export default function Home() {
         subtitle="A modern digital home for your spiritual journey. Join a vibrant community of faith where growth has no limits."
         ctaText="Start Your Journey"
         ctaLink="/register"
-        backgroundImage="/assets/images/church/church_1.jpg"
       />
 
       {/* Service Times & Location Section */}
       <section className="py-12 px-2 reveal">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Sunday Service */}
-            <div className="img-card group h-[450px]">
-              <img src="/assets/images/church/church_9.jpg" alt="Sunday Worship" />
-              <div className="image-overlay group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
-                <div className="text-3xl mb-6 bg-mdSecondary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium">
-                  <FontAwesomeIcon icon={faClock} />
-                </div>
-                <h3 className="text-3xl font-black mb-2">Sunday Worship</h3>
-                <p className="text-mdSecondary font-black text-xl mb-4">10:00 AM — 12:00 PM</p>
-                <p className="text-white/80 leading-relaxed font-medium line-clamp-2">Join us for a dynamic experience of multi-cultural worship and a life-transforming message.</p>
+            <div className="glass-card group h-[450px] !bg-mdPrimary p-10 flex flex-col justify-end text-white overflow-hidden">
+              <div className="sanctuary-grid !opacity-20"></div>
+              <div className="text-3xl mb-6 bg-mdSecondary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium relative z-10 animate-float">
+                <FontAwesomeIcon icon={faClock} />
               </div>
+              <h3 className="text-3xl font-black mb-2 relative z-10 italic">Sunday Worship</h3>
+              <p className="text-mdSecondary font-black text-xl mb-4 relative z-10">10:00 AM — 12:00 PM</p>
+              <p className="text-white/80 leading-relaxed font-medium line-clamp-2 relative z-10">Join us for a dynamic experience of multi-cultural worship and a life-transforming message.</p>
             </div>
 
             {/* Midweek Study */}
-            <div className="img-card group h-[450px]">
-              <img src="/assets/images/church/church_10.jpg" alt="Midweek Study" />
-              <div className="image-overlay group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
-                <div className="text-3xl mb-6 bg-mdPrimary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium">
-                  <FontAwesomeIcon icon={faQuoteLeft} />
-                </div>
-                <h3 className="text-3xl font-black mb-2">Midweek Study</h3>
-                <p className="text-mdSecondary font-black text-xl mb-4">Wednesdays @ 7:00 PM</p>
-                <p className="text-white/80 leading-relaxed font-medium line-clamp-2">Deep dive into the Word of God in a relaxed environment. Grow in understanding and faith.</p>
+            <div className="glass-card group h-[450px] !bg-mdSecondary p-10 flex flex-col justify-end text-mdPrimary overflow-hidden">
+              <div className="sanctuary-grid !opacity-20 !bg-mdPrimary/10"></div>
+              <div className="text-3xl mb-6 bg-mdPrimary text-white w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium relative z-10 animate-float" style={{animationDelay: '500ms'}}>
+                <FontAwesomeIcon icon={faQuoteLeft} />
               </div>
+              <h3 className="text-3xl font-black mb-2 relative z-10 italic">Midweek Study</h3>
+              <p className="text-mdPrimary font-black text-xl mb-4 relative z-10">Wednesdays @ 7:00 PM</p>
+              <p className="text-mdPrimary/80 leading-relaxed font-medium line-clamp-2 relative z-10">Deep dive into the Word of God in a relaxed environment. Grow in understanding and faith.</p>
             </div>
 
             {/* Location */}
-            <div className="img-card group h-[450px]">
-              <img src="/assets/images/church/church_11.jpg" alt="Visit Us" />
-              <div className="image-overlay-dark"></div>
-              <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
-                <div className="text-3xl mb-6 bg-white text-mdPrimary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium">
-                  <FontAwesomeIcon icon={faMapMarkerAlt} />
-                </div>
-                <h3 className="text-3xl font-black mb-2">Visit Us</h3>
-                <p className="text-mdSecondary font-black text-xl mb-4">UMaT SRID</p>
-                <p className="text-white/80 leading-relaxed font-medium line-clamp-2">Essikado, Sekondi Takoradi.</p>
+            <div className="glass-card group h-[450px] !bg-white p-10 flex flex-col justify-end text-mdOnSurface overflow-hidden border-mdPrimary/10">
+              <div className="sanctuary-grid !opacity-10 !bg-mdPrimary"></div>
+              <div className="text-3xl mb-6 bg-mdPrimary/10 text-mdPrimary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium relative z-10 animate-float" style={{animationDelay: '1000ms'}}>
+                <FontAwesomeIcon icon={faMapMarkerAlt} />
               </div>
+              <h3 className="text-3xl font-black mb-2 relative z-10 italic">Visit Us</h3>
+              <p className="text-mdPrimary font-black text-xl mb-4 relative z-10">UMaT SRID</p>
+              <p className="text-mdOnSurfaceVariant leading-relaxed font-medium line-clamp-2 relative z-10">Essikado, Sekondi Takoradi.</p>
             </div>
         </div>
       </section>
@@ -104,55 +94,49 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Link 
             to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/announcements'} 
-            className="img-card group min-h-[500px]"
+            className="glass-card group min-h-[500px] p-12 flex flex-col justify-end text-mdOnSurface overflow-hidden"
           >
-            <img src="/assets/images/church/church_4.jpg" alt="Announcements" />
-            <div className="image-overlay group-hover:bg-mdPrimary/60 transition-all duration-500"></div>
-            <div className="absolute inset-0 z-10 p-12 flex flex-col justify-end text-white">
-              <div className="text-4xl mb-8 bg-mdPrimary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium">
-                  <FontAwesomeIcon icon={faBullhorn} />
-              </div>
-              <h3 className="text-3xl font-black mb-4">Announcements</h3>
-              <p className="text-white/80 text-lg leading-relaxed font-medium mb-8 line-clamp-2">Stay updated with important church news, stories of faith, and community highlights.</p>
-              <div className="text-mdSecondary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
-                Read More <span className="text-xl">→</span>
-              </div>
+            <div className="absolute inset-0 bg-mdPrimary/5 group-hover:bg-mdPrimary/10 transition-all duration-500"></div>
+            <div className="sanctuary-grid !opacity-5 group-hover:!opacity-10"></div>
+            <div className="text-4xl mb-8 bg-mdPrimary/10 text-mdPrimary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium relative z-10">
+                <FontAwesomeIcon icon={faBullhorn} />
+            </div>
+            <h3 className="text-3xl font-black mb-4 relative z-10 italic">Announcements</h3>
+            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-8 line-clamp-2 relative z-10">Stay updated with important church news, stories of faith, and community highlights.</p>
+            <div className="text-mdPrimary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform relative z-10">
+              Read More <span className="text-xl">→</span>
             </div>
           </Link>
 
           <Link 
             to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/events'} 
-            className="img-card group min-h-[500px]"
+            className="glass-card group min-h-[500px] p-12 flex flex-col justify-end text-mdOnSurface overflow-hidden"
           >
-            <img src="/assets/images/church/church_5.jpg" alt="Events" />
-            <div className="image-overlay group-hover:bg-mdSecondary/60 transition-all duration-500"></div>
-            <div className="absolute inset-0 z-10 p-12 flex flex-col justify-end text-white">
-              <div className="text-4xl mb-8 bg-mdSecondary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium">
-                  <FontAwesomeIcon icon={faCalendarAlt} />
-              </div>
-              <h3 className="text-3xl font-black mb-4">Events</h3>
-              <p className="text-white/80 text-lg leading-relaxed font-medium mb-8 line-clamp-2">Discover upcoming gatherings, ministry programs, and special activities for all ages.</p>
-              <div className="text-mdSecondary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
-                View Calendar <span className="text-xl">→</span>
-              </div>
+            <div className="absolute inset-0 bg-mdSecondary/5 group-hover:bg-mdSecondary/10 transition-all duration-500"></div>
+            <div className="sanctuary-grid !opacity-5 group-hover:!opacity-10 !bg-mdSecondary"></div>
+            <div className="text-4xl mb-8 bg-mdSecondary/10 text-mdSecondary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium relative z-10">
+                <FontAwesomeIcon icon={faCalendarAlt} />
+            </div>
+            <h3 className="text-3xl font-black mb-4 relative z-10 italic">Events</h3>
+            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-8 line-clamp-2 relative z-10">Discover upcoming gatherings, ministry programs, and special activities for all ages.</p>
+            <div className="text-mdSecondary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform relative z-10">
+              View Calendar <span className="text-xl">→</span>
             </div>
           </Link>
 
           <Link 
             to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/sermons'} 
-            className="img-card group min-h-[500px]"
+            className="glass-card group min-h-[500px] p-12 flex flex-col justify-end text-mdOnSurface overflow-hidden"
           >
-            <img src="/assets/images/church/church_6.jpg" alt="Sermons" />
-            <div className="image-overlay group-hover:bg-mdPrimary/60 transition-all duration-500"></div>
-            <div className="absolute inset-0 z-10 p-12 flex flex-col justify-end text-white">
-              <div className="text-4xl mb-8 bg-mdPrimary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium">
-                  <FontAwesomeIcon icon={faMicrophone} />
-              </div>
-              <h3 className="text-3xl font-black mb-4">Sermons</h3>
-              <p className="text-white/80 text-lg leading-relaxed font-medium mb-8 line-clamp-2">Listen to inspiring sermons and life-transforming teachings from our pastoral team.</p>
-              <div className="text-mdSecondary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform">
-                Listen Online <span className="text-xl">→</span>
-              </div>
+            <div className="absolute inset-0 bg-mdPrimary/5 group-hover:bg-mdPrimary/10 transition-all duration-500"></div>
+            <div className="sanctuary-grid !opacity-5 group-hover:!opacity-10"></div>
+            <div className="text-4xl mb-8 bg-mdPrimary/10 text-mdPrimary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium relative z-10">
+                <FontAwesomeIcon icon={faMicrophone} />
+            </div>
+            <h3 className="text-3xl font-black mb-4 relative z-10 italic">Sermons</h3>
+            <p className="text-mdOnSurfaceVariant text-lg leading-relaxed font-medium mb-8 line-clamp-2 relative z-10">Listen to inspiring sermons and life-transforming teachings from our pastoral team.</p>
+            <div className="text-mdPrimary font-bold flex items-center gap-2 group-hover:translate-x-2 transition-transform relative z-10">
+              Listen Online <span className="text-xl">→</span>
             </div>
           </Link>
         </div>
@@ -161,14 +145,15 @@ export default function Home() {
       {/* Mission & Vision Section */}
       <section className="py-16 reveal">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="img-card h-[600px] rounded-[4rem]">
-            <img src="/assets/images/church/church_2.jpg" alt="Our Mission" className="hover:scale-105" />
-            <div className="image-overlay-dark opacity-40"></div>
-            <div className="absolute top-10 left-10 z-10">
-              <div className="bg-mdPrimary text-white px-8 py-3 rounded-full font-black uppercase tracking-widest text-sm shadow-premium">
-                Since 1999
-              </div>
+          <div className="glass-card h-[600px] rounded-[4rem] flex flex-col items-center justify-center p-20 text-center overflow-hidden !bg-mdPrimary text-white">
+            <div className="sanctuary-grid !opacity-10"></div>
+            <div className="relative z-10 animate-float">
+                <SanctuaryLogo size={120} showText={false} isDark={true} />
             </div>
+            <div className="bg-mdSecondary text-mdOnSecondary px-8 py-3 rounded-full font-black uppercase tracking-widest text-sm shadow-premium mt-12 relative z-10">
+                Since 1999
+            </div>
+            <h3 className="text-5xl font-black mt-10 relative z-10 italic">Faith Foundations</h3>
           </div>
 
           <div className="space-y-10">
@@ -184,14 +169,14 @@ export default function Home() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
-                { text: 'Impactful Worship', icon: faStar, img: 'church_13.jpg' },
-                { text: 'Community Outreach', icon: faHeart, img: 'church_14.jpg' },
-                { text: 'Spiritual Growth', icon: faPlusCircle, img: 'church_15.jpg' },
-                { text: 'Dynamic Fellowship', icon: faUsers, img: 'church_12.jpg' },
+                { text: 'Impactful Worship', icon: faStar, color: 'mdPrimary' },
+                { text: 'Community Outreach', icon: faHeart, color: 'mdSecondary' },
+                { text: 'Spiritual Growth', icon: faPlusCircle, color: 'mdPrimary' },
+                { text: 'Dynamic Fellowship', icon: faUsers, color: 'mdSecondary' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-4 p-4 rounded-3xl bg-mdSurfaceVariant/30 border border-mdOutline/5 hover:border-mdPrimary/20 transition-all group">
-                   <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-sm">
-                      <img src={`/assets/images/church/${item.img}`} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                <div key={i} className="flex items-center gap-4 p-4 rounded-3xl bg-white shadow-sm border border-mdOutline/5 hover:border-mdPrimary/20 transition-all group">
+                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-sm bg-${item.color}/10 text-${item.color} group-hover:scale-110 transition-transform`}>
+                      <FontAwesomeIcon icon={item.icon} />
                    </div>
                    <span className="font-black text-mdOnSurface">{item.text}</span>
                 </div>
@@ -209,8 +194,8 @@ export default function Home() {
               <div className="mt-10 flex gap-6">
                  <div className="flex -space-x-4">
                     {[1,2,3,4].map(i => (
-                      <div key={i} className={`w-14 h-14 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center font-bold overflow-hidden shadow-lifted ${i === 4 ? 'bg-mdPrimary text-white' : ''}`}>
-                         {i === 4 ? '+5K' : <img src={`/assets/images/church/church_${i+1}.jpg`} className="w-full h-full object-cover" />}
+                      <div key={i} className={`w-14 h-14 rounded-full border-4 border-white flex items-center justify-center font-black shadow-lifted ${i === 4 ? 'bg-mdPrimary text-white' : 'bg-mdPrimary/10 text-mdPrimary'}`}>
+                         {i === 4 ? '+5K' : i}
                       </div>
                     ))}
                  </div>
@@ -224,9 +209,11 @@ export default function Home() {
       </section>
 
       {/* Stats Section with Background Image */}
-      <section className="relative h-[400px] rounded-[4rem] overflow-hidden flex items-center justify-center shadow-premium group reveal">
-        <img src="/assets/images/church/church_7.jpg" alt="Stats Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
-        <div className="image-overlay-dark opacity-80 backdrop-blur-sm"></div>
+      <section className="relative h-[400px] rounded-[4rem] overflow-hidden flex items-center justify-center shadow-premium group reveal bg-mdPrimary">
+        <div className="sanctuary-grid !opacity-10"></div>
+        <div className="sanctuary-bg !static !h-full !w-full !bg-mdPrimary/20 opacity-50"></div>
+        <div className="auth-panel-bg absolute inset-0 opacity-20"></div>
+        <div className="absolute inset-0 bg-mdPrimary/40 backdrop-blur-[1px]"></div>
         <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center text-white">
           {[
             { label: 'Years Serving', value: '25+', icon: faStar },

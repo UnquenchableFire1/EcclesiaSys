@@ -536,8 +536,9 @@ export default function AdminDashboard() {
                                 )}
                             </div>
                             
-                            <div className="relative h-[400px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
-                                <img src="/assets/images/church/church_13.jpg" alt="Sanctuary Administration" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
+                            <div className="relative h-[400px] rounded-[3rem] overflow-hidden shadow-premium group mb-12 bg-mdPrimary">
+                                <div className="sanctuary-grid !opacity-20 font-black"></div>
+                                <div className="sanctuary-bg !static !h-full !w-full !opacity-30"></div>
                                 <div className="image-overlay-dark opacity-80 backdrop-blur-[2px]"></div>
                                 <div className="relative z-10 h-full p-12 flex flex-col justify-center text-white">
                                     <div className="flex items-center gap-4 mb-6">
@@ -549,9 +550,9 @@ export default function AdminDashboard() {
                                     <h3 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter">System Oversight</h3>
                                     <div className="flex items-center gap-6 pt-6 border-t border-white/10 mt-6 max-w-md">
                                         <div className="flex -space-x-3">
-                                            {[5,6,11].map(i => (
-                                                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-mdSurface">
-                                                    <img src={`/assets/images/church/church_${i}.jpg`} alt="" className="w-full h-full object-cover" />
+                                            {[1,2,3].map(i => (
+                                                <div key={i} className={`w-10 h-10 rounded-full border-2 border-white flex items-center justify-center font-black shadow-lifted ${i === 3 ? 'bg-mdSecondary text-mdOnSecondary' : 'bg-mdPrimary/20 text-white backdrop-blur-sm'}`}>
+                                                    {i === 1 ? 'A' : i === 2 ? 'O' : 'S'}
                                                 </div>
                                             ))}
                                         </div>
