@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faComments, faUsers, faEnvelope, faSearch, faHandsHelping
+    faComments, faUsers, faEnvelope, faSearch, faHandsHelping,
+    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 

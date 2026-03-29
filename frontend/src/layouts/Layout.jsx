@@ -17,7 +17,9 @@ import {
     faSignOutAlt,
     faBell,
     faTimes,
-    faPhone
+    faPhone,
+    faUserShield,
+    faUserCircle
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { getNotifications, markNotificationAsRead } from '../services/api';
