@@ -1,16 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getSermons, deleteSermon } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
+import Hero from '../components/Hero';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faMicrophone, 
     faClock, 
     faUser, 
     faSearch, 
-    faPlayCircle, 
     faTrashAlt,
     faTimes,
-    faBroadcastTower
+    faQuoteLeft
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Sermons({ embedded = false, branchId = null }) {
@@ -23,7 +23,6 @@ export default function Sermons({ embedded = false, branchId = null }) {
         onConfirm: () => {}
     });
     
-    // Use session storage for consistent auth checks
     const userType = sessionStorage.getItem('userType');
     const isAdmin = userType === 'admin';
 
@@ -44,7 +43,6 @@ export default function Sermons({ embedded = false, branchId = null }) {
     };
 
     const handleDelete = (id, e) => {
-
         e.stopPropagation();
         setConfirmModal({
             isOpen: true,
@@ -68,100 +66,102 @@ export default function Sermons({ embedded = false, branchId = null }) {
     }, [sermons, searchTerm]);
 
     return (
-        <div className={`animate-fade-in ${embedded ? '' : 'max-w-7xl mx-auto px-4 py-6'}`}>
+        <div className={`animate-fade-in pb-20 ${embedded ? '' : 'max-w-7xl mx-auto px-4'}`}>
             {!embedded && (
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-                    <div>
-                        <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2 italic">Divine Messages</h1>
-                        <p className="text-mdPrimary font-black text-lg uppercase tracking-widest bg-mdPrimary/5 px-4 py-1 rounded-full w-max border border-mdPrimary/20 shadow-sm">
-                            Word Archive
-                        </p>
-                    </div>
+                <div className="mb-12">
+                     <Hero 
+                        title="Divine Revelations"
+                        subtitle="Explore our archive of life-transforming messages and spiritual teachings from our pastors."
+                        backgroundImage="/assets/images/church/church_3.jpg"
+                        small={true}
+                    />
                 </div>
             )}
 
             {/* Search and Filters */}
-            <div className={`glass-card p-6 mb-10 flex flex-col md:flex-row gap-4 items-center ${embedded ? 'mt-4' : ''} rounded-[2rem]`}>
+            <div className={`glass-card p-8 mb-12 flex flex-col md:flex-row gap-6 items-center ${embedded ? 'mt-4' : ''} rounded-[2.5rem] shadow-premium bg-white/50 backdrop-blur-xl border-white/20`}>
                 <div className="relative flex-1 w-full">
-                    <FontAwesomeIcon icon={faSearch} className="absolute left-6 top-1/2 -translate-y-1/2 text-mdOutline opacity-50" />
+                    <FontAwesomeIcon icon={faSearch} className="absolute left-6 top-1/2 -translate-y-1/2 text-mdPrimary opacity-50 text-xl" />
                     <input
                         type="text"
-                        placeholder="Search sermons by title or preacher..."
-                        className="w-full pl-14 pr-6 py-4 bg-mdSurfaceVariant/30 border-none rounded-2xl focus:ring-2 focus:ring-mdPrimary transition-all font-medium text-sm"
+                        placeholder="Search for a specific message or speaker..."
+                        className="w-full pl-16 pr-8 py-5 bg-mdSurfaceVariant/30 border-none rounded-3xl focus:ring-4 focus:ring-mdPrimary/20 transition-all font-bold text-lg placeholder:text-mdOnSurfaceVariant/40"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="flex items-center gap-2 text-mdOnSurfaceVariant font-black text-[10px] uppercase tracking-widest px-4">
-                    <FontAwesomeIcon icon={faMicrophone} className="text-mdPrimary" />
-                    <span>{filteredSermons.length} Revelations</span>
+                <div className="flex items-center gap-4 bg-mdPrimary/10 px-8 py-4 rounded-3xl text-mdPrimary font-black text-xs uppercase tracking-widest border border-mdPrimary/5 shadow-sm whitespace-nowrap">
+                    <FontAwesomeIcon icon={faMicrophone} className="animate-pulse" />
+                    <span>{filteredSermons.length} Messages Found</span>
                 </div>
             </div>
 
             {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {[1, 2, 3].map(n => (
-                        <div key={n} className="glass-card h-80 animate-pulse rounded-[2rem]"></div>
+                        <div key={n} className="img-card h-[450px] animate-pulse rounded-[2.5rem] opacity-50"></div>
                     ))}
                 </div>
             ) : filteredSermons.length === 0 ? (
-                <div className="glass-card p-20 text-center rounded-[3rem]">
-                    <div className="w-24 h-24 bg-mdSurfaceVariant/30 rounded-full flex items-center justify-center mx-auto mb-8 opacity-40">
-                        <FontAwesomeIcon icon={faMicrophone} className="text-4xl" />
+                <div className="bg-mdSurfaceVariant/20 p-24 text-center rounded-[4rem] border-4 border-dashed border-mdOutline/10">
+                    <div className="w-32 h-32 bg-mdSurfaceVariant/30 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 opacity-30 shadow-inner">
+                        <FontAwesomeIcon icon={faMicrophone} className="text-5xl" />
                     </div>
-                    <p className="text-2xl font-black text-mdOnSurface mb-2">The Archive is Silent</p>
-                    <p className="text-mdOnSurfaceVariant font-medium">No sermons uploaded yet.</p>
+                    <h3 className="text-3xl font-black text-mdOnSurface mb-4">The Sanctuary is Silent</h3>
+                    <p className="text-xl text-mdOnSurfaceVariant font-medium max-w-md mx-auto leading-relaxed">No sermons have been recorded in this archive yet. Check back soon for new revelations.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredSermons.map((sermon) => (
-                        <div key={sermon.id} className="glass-card group overflow-hidden flex flex-col hover:border-mdPrimary/30 transition-all duration-500 rounded-[2.5rem] shadow-premium bg-white">
-                            <div className="relative h-48 bg-mdSurfaceVariant/20 overflow-hidden">
-                                <div className="absolute inset-0 bg-mdPrimary/40 opacity-60 group-hover:opacity-40 transition-opacity"></div>
-                                <div className="absolute inset-0 flex items-center justify-center text-mdSecondary/20 text-6xl group-hover:scale-110 transition-transform duration-700">
-                                    <FontAwesomeIcon icon={faMicrophone} />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {filteredSermons.map((sermon, idx) => (
+                        <div key={sermon.id} className="img-card group h-[450px] rounded-[2.5rem] hover:shadow-premium transition-all duration-700">
+                             <img 
+                                src={`/assets/images/church/church_${(idx % 10) + 4}.jpg`} 
+                                alt={sermon.title} 
+                                className="transition-transform duration-[2s] group-hover:scale-110"
+                             />
+                             <div className="image-overlay group-hover:bg-mdPrimary/40 transition-all duration-700"></div>
+                             
+                             {isAdmin && (
+                                <div className="absolute top-6 right-6 z-20">
+                                    <button 
+                                        onClick={(e) => handleDelete(sermon.id, e)}
+                                        className="w-12 h-12 rounded-2xl bg-black/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-mdError hover:shadow-premium transition-all shadow-md active:scale-90"
+                                    >
+                                        <FontAwesomeIcon icon={faTrashAlt} />
+                                    </button>
                                 </div>
-                                <div className="absolute top-4 right-4 z-10 flex gap-2">
-                                    {isAdmin && (
-                                        <button 
-                                            onClick={(e) => handleDelete(sermon.id, e)}
-                                            className="w-10 h-10 rounded-xl bg-mdError/10 text-mdError flex items-center justify-center hover:bg-mdError hover:text-white transition-all shadow-md1 hover:scale-110 active:scale-90"
-                                            title="Delete Sermon"
-                                        >
-                                            <FontAwesomeIcon icon={faTrashAlt} />
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="absolute bottom-4 left-6">
-                                    <span className="px-3 py-1 rounded-full bg-mdSecondary text-white text-[10px] font-black uppercase tracking-widest shadow-md1">
-                                        DIVINE WORD
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="p-8 flex-1">
-                                <h3 className="text-xl font-black text-mdOnSurface mb-3 group-hover:text-mdPrimary transition-colors line-clamp-2 leading-tight tracking-tight">
+                             )}
+
+                             <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
+                                <span className="px-4 py-1 rounded-full bg-mdSecondary text-white text-[10px] font-black uppercase tracking-[0.2em] w-fit mb-6 shadow-md shadow-black/20">
+                                    Word Archive
+                                </span>
+                                <h3 className="text-3xl font-black mb-4 leading-tight tracking-tighter line-clamp-2">
                                     {sermon.title}
                                 </h3>
-                                <div className="flex items-center gap-3 text-sm font-black text-mdOnSurfaceVariant mb-4 opacity-80 uppercase tracking-tighter">
-                                    <div className="w-8 h-8 rounded-xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary overflow-hidden">
-                                        <FontAwesomeIcon icon={faUser} className="text-[10px]" />
+                                
+                                <div className="flex items-center justify-between mt-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full border-2 border-white/30 overflow-hidden shadow-md">
+                                            <div className="w-full h-full bg-mdPrimary flex items-center justify-center">
+                                                <FontAwesomeIcon icon={faUser} className="text-white text-xs" />
+                                            </div>
+                                        </div>
+                                        <span className="font-bold text-white/90 truncate max-w-[150px]">{sermon.speaker || 'Pastor'}</span>
                                     </div>
-                                    <span className="truncate">{sermon.speaker || 'Preacher of Word'}</span>
+                                    <div className="text-[11px] font-black text-mdSecondary uppercase tracking-widest flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faClock} />
+                                        {sermon.sermonDate ? new Date(sermon.sermonDate).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Recent'}
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-[10px] font-black text-mdSecondary uppercase tracking-widest mt-1">
-                                    <FontAwesomeIcon icon={faClock} className="opacity-70" />
-                                    {sermon.sermonDate ? new Date(sermon.sermonDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'}
-                                </div>
-                            </div>
-                            <div className="px-8 py-6 border-t border-mdOutline/5 bg-mdSurfaceVariant/5">
+
                                 <button 
                                     onClick={() => setSelectedSermon(sermon)}
-                                    className="w-full py-4 bg-mdPrimary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-premium hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                                    className="mt-8 py-5 bg-white text-mdPrimary rounded-full font-black text-xs uppercase tracking-[0.3em] shadow-premium hover:bg-mdSecondary hover:text-white transition-all transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-500"
                                 >
-                                    <FontAwesomeIcon icon={faMicrophone} />
-                                    View Details
+                                    Experience Word
                                 </button>
-                            </div>
+                             </div>
                         </div>
                     ))}
                 </div>
@@ -170,78 +170,82 @@ export default function Sermons({ embedded = false, branchId = null }) {
             {/* Sermon Player Modal */}
             {selectedSermon && (
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" onClick={() => setSelectedSermon(null)}></div>
-                    <div className="glass-card relative z-10 w-full max-w-4xl bg-white overflow-hidden shadow-premium animate-slide-up border-none rounded-[3rem]">
-                        <div className="absolute top-6 right-6 z-20">
-                            <button onClick={() => setSelectedSermon(null)} className="w-12 h-12 rounded-2xl bg-mdSurfaceVariant/30 text-mdOnSurface hover:bg-mdError hover:text-white transition-all shadow-sm flex items-center justify-center">
-                                <FontAwesomeIcon icon={faTimes} /> 
-                            </button>
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-2xl" onClick={() => setSelectedSermon(null)}></div>
+                    <div className="relative z-10 w-full max-w-5xl bg-white overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] animate-slide-up border-none rounded-[4rem] flex flex-col md:flex-row min-h-[600px]">
+                        <button 
+                            onClick={() => setSelectedSermon(null)} 
+                            className="absolute top-8 right-8 z-30 w-14 h-14 rounded-[2rem] bg-white/10 hover:bg-mdError text-white backdrop-blur-md transition-all flex items-center justify-center text-xl shadow-premium"
+                        >
+                            <FontAwesomeIcon icon={faTimes} /> 
+                        </button>
+
+                        {/* Visual Section */}
+                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full">
+                            <img src="/assets/images/church/church_12.jpg" alt="Sermon Detail" className="absolute inset-0 w-full h-full object-cover" />
+                            <div className="image-overlay-dark opacity-70"></div>
+                            <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-12 text-white">
+                                <div className="w-24 h-24 rounded-[2rem] bg-mdSecondary flex items-center justify-center mb-8 shadow-premium animate-float">
+                                    <FontAwesomeIcon icon={faMicrophone} className="text-4xl" />
+                                </div>
+                                <span className="text-white/40 font-black uppercase tracking-[0.4em] text-[10px] mb-4">Divine Message</span>
+                                <h3 className="text-4xl font-black tracking-tighter leading-none italic">Archive<br/>Revelation</h3>
+                            </div>
                         </div>
 
-                        <div className="flex flex-col md:flex-row min-h-[400px]">
-                            {/* Visual Section */}
-                            <div className="w-full md:w-2/5 bg-mdPrimary flex items-center justify-center p-12">
-                                <div className="text-center">
-                                    <div className="w-32 h-32 rounded-[2.5rem] bg-white/10 flex items-center justify-center mx-auto mb-8 shadow-premium border border-white/10">
-                                        <FontAwesomeIcon icon={faMicrophone} className="text-5xl text-white" />
+                        {/* Info Section */}
+                        <div className="w-full md:w-7/12 p-16 flex flex-col justify-between bg-white relative">
+                            <div className="absolute top-0 right-0 p-10 text-mdPrimary/5 text-9xl">
+                                <FontAwesomeIcon icon={faQuoteLeft} />
+                            </div>
+                            
+                            <div>
+                                <span className="px-6 py-2 rounded-full bg-mdPrimary/5 text-mdPrimary text-[10px] font-black uppercase tracking-[0.2em] mb-10 inline-block border border-mdPrimary/10">
+                                    Revelation Details
+                                </span>
+                                <h2 className="text-4xl md:text-5xl font-black text-mdOnSurface mb-12 leading-[1.1] tracking-tighter">
+                                    {selectedSermon.title}
+                                </h2>
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-16">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-16 h-16 rounded-3xl bg-mdPrimary/5 flex items-center justify-center text-mdPrimary shadow-inner text-xl">
+                                            <FontAwesomeIcon icon={faUser} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-mdOutline opacity-60 mb-1">Spirit Speaker</p>
+                                            <p className="font-black text-xl text-mdOnSurface">{selectedSermon.speaker || 'Anointed Preacher'}</p>
+                                        </div>
                                     </div>
-                                    <p className="text-white/60 font-black uppercase tracking-[0.3em] text-[10px]">EcclesiaSys</p>
-                                    <h3 className="text-white text-2xl font-black tracking-tighter mt-4 leading-tight">Word Archive</h3>
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-16 h-16 rounded-3xl bg-mdSecondary/5 flex items-center justify-center text-mdSecondary shadow-inner text-xl">
+                                            <FontAwesomeIcon icon={faClock} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-mdOutline opacity-60 mb-1">Date Delivered</p>
+                                            <p className="font-black text-xl text-mdPrimary">{selectedSermon.sermonDate ? new Date(selectedSermon.sermonDate).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }) : 'Recently'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="pt-12 border-t border-mdOutline/5">
+                                    <p className="text-[11px] uppercase font-black tracking-[0.3em] text-mdOutline opacity-60 mb-6">Summary of Revelation</p>
+                                    <p className="text-xl text-mdOnSurfaceVariant font-medium leading-relaxed italic opacity-80">
+                                        {selectedSermon.description || 'No description provided for this revelation. The word is waiting to be explored.'}
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Info Section */}
-                            <div className="w-full md:w-3/5 p-12 flex flex-col justify-between bg-white">
-                                <div>
-                                    <span className="px-5 py-2 rounded-full bg-mdPrimary/5 text-mdPrimary text-[10px] font-black uppercase tracking-[0.2em] mb-8 inline-block border border-mdPrimary/10">
-                                        Revelation Info
-                                    </span>
-                                    <h2 className="text-3xl font-black text-mdOnSurface mb-8 leading-tight tracking-tighter">
-                                        {selectedSermon.title}
-                                    </h2>
-                                    <div className="space-y-6">
-                                        <div className="flex items-center gap-4 text-mdOnSurface">
-                                            <div className="w-12 h-12 rounded-2xl bg-mdPrimary/5 flex items-center justify-center text-mdPrimary shadow-inner">
-                                                <FontAwesomeIcon icon={faUser} />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] uppercase font-black tracking-widest text-mdOutline opacity-60">Preacher</p>
-                                                <p className="font-black text-lg">{selectedSermon.speaker || 'Preacher'}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4 text-mdOnSurface">
-                                            <div className="w-12 h-12 rounded-2xl bg-mdSecondary/5 flex items-center justify-center text-mdSecondary shadow-inner">
-                                                <FontAwesomeIcon icon={faClock} />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] uppercase font-black tracking-widest text-mdOutline opacity-60">Delivered On</p>
-                                                <p className="font-black text-lg text-mdPrimary">{selectedSermon.sermonDate ? new Date(selectedSermon.sermonDate).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 'Recently'}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="mt-10 pt-10 border-t border-mdOutline/5">
-                                        <p className="text-[10px] uppercase font-black tracking-widest text-mdOutline opacity-60 mb-3">Description</p>
-                                        <p className="text-sm text-mdOnSurfaceVariant font-medium leading-relaxed italic opacity-80">
-                                            {selectedSermon.description || 'No description provided for this revelation.'}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-12">
-                                    <button 
-                                        onClick={() => setSelectedSermon(null)}
-                                        className="w-full py-4 bg-mdOnSurface text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-premium hover:bg-mdPrimary hover:text-white transition-all"
-                                    >
-                                        Exit Player
-                                    </button>
-                                </div>
-                            </div>
+                            <button 
+                                onClick={() => setSelectedSermon(null)}
+                                className="mt-16 w-full py-6 bg-mdOnSurface text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.4em] shadow-premium hover:bg-mdPrimary hover:scale-[1.02] transition-all duration-300"
+                            >
+                                Close Archive
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
-            {/* Deletion Confirmation Modal */}
+
             <ConfirmModal 
                 isOpen={confirmModal.isOpen}
                 onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}

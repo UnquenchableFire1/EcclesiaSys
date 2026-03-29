@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAdminProfile, updateAdminProfile, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture, deleteProfilePicture } from '../services/api';
+import { getAdminProfile, updateAdminProfile } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
-import ImageCropperModal from '../components/ImageCropperModal';
-import ConfirmModal from '../components/ConfirmModal';
+import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 import Lightbox from '../components/Lightbox';
 import { useToast } from '../context/ToastContext';
 
@@ -14,17 +12,7 @@ export default function AdminProfile() {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
     const { showToast } = useToast();
-    const [confirmModal, setConfirmModal] = useState({
-        isOpen: false,
-        onConfirm: () => {}
-    });
-    const [history, setHistory] = useState([]);
-    const [fetchingHistory, setFetchingHistory] = useState(false);
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-    const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
-    const [isDeletingPortrait, setIsDeletingPortrait] = useState(false);
-    const [imageToCrop, setImageToCrop] = useState(null);
-    const [isCropperOpen, setIsCropperOpen] = useState(false);
     const [lightboxImg, setLightboxImg] = useState(null);
     const adminId = sessionStorage.getItem('userId');
 
@@ -48,22 +36,7 @@ export default function AdminProfile() {
         }
 
         fetchProfile();
-        fetchHistory();
     }, [navigate]);
-
-    const fetchHistory = async () => {
-        try {
-            setFetchingHistory(true);
-            const response = await getProfilePictureHistory(adminId, 'admin');
-            if (response.data.success) {
-                setHistory(response.data.history || []);
-            }
-        } catch (err) {
-            console.error('Error fetching history', err);
-        } finally {
-            setFetchingHistory(false);
-        }
-    };
 
     const fetchProfile = async () => {
         try {
@@ -114,90 +87,6 @@ export default function AdminProfile() {
         }
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            setImageToCrop(reader.result);
-            setIsCropperOpen(true);
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleCropComplete = async (croppedFile) => {
-        setIsCropperOpen(false);
-        setImageToCrop(null);
-        
-        try {
-            setIsUploadingPortrait(true);
-            
-            const formDataObj = new FormData();
-            formDataObj.append('file', croppedFile);
-            formDataObj.append('userId', adminId);
-            formDataObj.append('userType', 'admin');
-
-            const response = await uploadProfilePicture(formDataObj);
-            if (response.data.success) {
-                showToast('Admin portrait updated!', 'success');
-                await fetchProfile();
-                await fetchHistory();
-                
-                const fileInput = document.getElementById('adminProfilePictureInput');
-                if (fileInput) fileInput.value = '';
-                window.dispatchEvent(new Event('profileUpdated'));
-            } else {
-                showToast(response.data.message || 'Failed to upload profile picture', 'error');
-            }
-        } catch (err) {
-            showToast('Error uploading profile picture: ' + err.message, 'error');
-        } finally {
-            setIsUploadingPortrait(false);
-        }
-    };
-
-    const handleDeleteProfilePicture = () => {
-        setConfirmModal({
-            isOpen: true,
-            onConfirm: async () => {
-                try {
-                    setIsDeletingPortrait(true);
-                    const response = await deleteProfilePicture(adminId, 'admin');
-                    if (response.data.success) {
-                        showToast('Admin profile picture deleted successfully.', 'success');
-                        await fetchProfile();
-                        await fetchHistory();
-                        window.dispatchEvent(new Event('profileUpdated'));
-                    } else {
-                        showToast(response.data.message || 'Failed to delete profile picture', 'error');
-                    }
-                } catch (err) {
-                    showToast('Error deleting profile picture: ' + err.message, 'error');
-                } finally {
-                    setIsDeletingPortrait(false);
-                }
-            }
-        });
-    };
-
-    const handleSelectFromHistory = async (url) => {
-        if (profile.profilePictureUrl === url) return;
-
-        try {
-            const response = await selectProfilePicture(adminId, 'admin', url);
-            if (response.data.success) {
-                showToast('Profile picture updated from vault!', 'success');
-                await fetchProfile();
-                window.dispatchEvent(new Event('profileUpdated'));
-            } else {
-                showToast(response.data.message || 'Failed to update profile picture', 'error');
-            }
-        } catch (err) {
-            showToast('Error selecting profile picture: ' + err.message, 'error');
-        }
-    };
-
     if (loading) {
         return (
             <div className="flex justify-center p-12">
@@ -233,37 +122,7 @@ export default function AdminProfile() {
                                         </div>
                                     )}
                                     
-                                    {isUploadingPortrait && (
-                                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-                                            <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-2"></div>
-                                            <span className="text-[8px] font-black text-white uppercase tracking-widest text-center">Saving...</span>
-                                        </div>
-                                    )}
                                 </div>
-                            </div>
-                            
-                            <div className="absolute -bottom-4 -right-4 flex flex-col gap-2">
-                                <label className="w-14 h-14 bg-mdOnSurface text-mdSurface rounded-2xl flex items-center justify-center shadow-premium cursor-pointer hover:bg-mdPrimary hover:text-white hover:scale-110 transition-all duration-300">
-                                    <FontAwesomeIcon icon={faCamera} className="text-xl" />
-                                    <input 
-                                        type="file" 
-                                        accept="image/*" 
-                                        onChange={handleFileChange}
-                                        id="adminProfilePictureInput"
-                                        className="hidden"
-                                    />
-                                </label>
-
-                                {profile.profilePictureUrl && (
-                                    <button 
-                                        onClick={handleDeleteProfilePicture}
-                                        disabled={isDeletingPortrait}
-                                        className="w-14 h-14 bg-white text-mdError rounded-2xl flex items-center justify-center shadow-premium hover:bg-mdError hover:text-white hover:scale-110 transition-all duration-300 disabled:opacity-50"
-                                        title="Delete Admin Profile Picture"
-                                    >
-                                        {isDeletingPortrait ? <FontAwesomeIcon icon={faSync} className="animate-spin" /> : <FontAwesomeIcon icon={faTrash} />}
-                                    </button>
-                                )}
                             </div>
                         </div>
 
@@ -372,51 +231,7 @@ export default function AdminProfile() {
                             </div>
                         </div>
 
-                        {/* Sidebar: Admin Vault */}
-                        <div className="space-y-8">
-                            <div className="glass-card p-8 group overflow-hidden relative">
-                                <div className="absolute -top-12 -right-12 w-24 h-24 bg-mdPrimary/5 rounded-full blur-2xl group-hover:bg-mdPrimary/10 transition-all duration-700"></div>
-                                <div className="flex items-center gap-4 mb-8">
-                                    <div className="w-10 h-10 rounded-xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary">
-                                        <FontAwesomeIcon icon={faShieldAlt} className="text-sm" />
-                                    </div>
-                                    <h3 className="text-xl font-black text-mdOnSurface tracking-tighter">Admin Vault</h3>
-                                </div>
-                                
-                                {history.length > 0 ? (
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {history.map((url, index) => (
-                                            <div 
-                                                key={index} 
-                                                onClick={() => handleSelectFromHistory(url)}
-                                                className={`relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all hover:scale-110 shadow-sm ${profile.profilePictureUrl === url ? 'border-mdPrimary' : 'border-transparent opacity-60 hover:opacity-100 hover:border-mdPrimary/40'}`}
-                                            >
-                                                <img 
-                                                    src={url} 
-                                                    alt={`Admin Vault ${index}`} 
-                                                    className="w-full h-full object-cover"
-                                                />
-                                                {profile.profilePictureUrl === url && (
-                                                    <div className="absolute inset-0 bg-mdPrimary/20 flex items-center justify-center backdrop-blur-[1px]">
-                                                        <div className="w-6 h-6 rounded-full bg-mdPrimary text-white shadow-lifted flex items-center justify-center animate-bounce-in">
-                                                            <FontAwesomeIcon icon={faCheck} className="text-[8px]" />
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="py-12 text-center opacity-30">
-                                        <FontAwesomeIcon icon={faCamera} className="text-3xl mb-4" />
-                                        <p className="text-[10px] font-black uppercase tracking-widest">Vault is empty</p>
-                                    </div>
-                                )}
-                                
-                                <p className="mt-8 text-[9px] font-bold text-mdOutline text-center uppercase tracking-widest leading-relaxed">
-                                    Encrypted historical record of administrative portraits
-                                </p>
-                            </div>
+
 
                             <div className="glass-card p-8 bg-mdSurfaceVariant/10 border-none space-y-4">
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-mdPrimary text-center">System Information</h4>
@@ -432,30 +247,10 @@ export default function AdminProfile() {
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </>
             )}
 
-            {isCropperOpen && (
-                <ImageCropperModal
-                    image={imageToCrop}
-                    onCropComplete={handleCropComplete}
-                    onCancel={() => {
-                        setIsCropperOpen(false);
-                        setImageToCrop(null);
-                        const fileInput = document.getElementById('adminProfilePictureInput');
-                        if (fileInput) fileInput.value = '';
-                    }}
-                />
-            )}
-            <ConfirmModal 
-                isOpen={confirmModal.isOpen}
-                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-                onConfirm={confirmModal.onConfirm}
-                title="Discard Portrait?"
-                message="Are you sure you want to permanently remove your administrative identity portrait?"
-                type="danger"
-            />
+
             {lightboxImg && (
                 <Lightbox 
                     src={lightboxImg} 

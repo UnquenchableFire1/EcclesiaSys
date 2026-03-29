@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentMemberProfile, updateMemberProfile, uploadProfilePicture, getProfilePictureHistory, selectProfilePicture, deleteProfilePicture } from '../services/api';
+import { getCurrentMemberProfile, updateMemberProfile } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCamera, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faQuoteLeft, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
-import ImageCropperModal from '../components/ImageCropperModal';
-import ConfirmModal from '../components/ConfirmModal';
+import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
 import Lightbox from '../components/Lightbox';
 import { useToast } from '../context/ToastContext';
 
@@ -14,18 +12,7 @@ export default function MemberProfile() {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
     const { showToast } = useToast();
-    const [confirmModal, setConfirmModal] = useState({
-        isOpen: false,
-        onConfirm: () => {}
-    });
-    const [previewUrl, setPreviewUrl] = useState(null);
-    const [history, setHistory] = useState([]);
-    const [fetchingHistory, setFetchingHistory] = useState(false);
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-    const [isUploadingPortrait, setIsUploadingPortrait] = useState(false);
-    const [isDeletingPortrait, setIsDeletingPortrait] = useState(false);
-    const [imageToCrop, setImageToCrop] = useState(null);
-    const [isCropperOpen, setIsCropperOpen] = useState(false);
     const [lightboxImg, setLightboxImg] = useState(null);
     const memberId = sessionStorage.getItem('userId');
 
@@ -42,22 +29,7 @@ export default function MemberProfile() {
         }
 
         fetchProfile();
-        fetchHistory();
     }, [navigate]);
-
-    const fetchHistory = async () => {
-        try {
-            setFetchingHistory(true);
-            const response = await getProfilePictureHistory(memberId, 'member');
-            if (response.data.success) {
-                setHistory(response.data.history || []);
-            }
-        } catch (err) {
-            console.error('Error fetching history', err);
-        } finally {
-            setFetchingHistory(false);
-        }
-    };
 
     const fetchProfile = async () => {
         try {
@@ -105,90 +77,6 @@ export default function MemberProfile() {
         }
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            setImageToCrop(reader.result);
-            setIsCropperOpen(true);
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleCropComplete = async (croppedFile) => {
-        setIsCropperOpen(false);
-        setImageToCrop(null);
-        
-        try {
-            setIsUploadingPortrait(true);
-            
-            const formDataObj = new FormData();
-            formDataObj.append('file', croppedFile);
-            formDataObj.append('userId', memberId);
-            formDataObj.append('userType', 'member');
-
-            const response = await uploadProfilePicture(formDataObj);
-            if (response.data.success) {
-                showToast('Profile portrait updated!', 'success');
-                await fetchProfile();
-                await fetchHistory();
-                
-                const fileInput = document.getElementById('profilePictureInput');
-                if (fileInput) fileInput.value = '';
-                window.dispatchEvent(new Event('profileUpdated'));
-            } else {
-                showToast(response.data.message || 'Failed to upload profile picture', 'error');
-            }
-        } catch (err) {
-            showToast('Error uploading profile picture: ' + err.message, 'error');
-        } finally {
-            setIsUploadingPortrait(false);
-        }
-    };
-
-    const handleDeleteProfilePicture = () => {
-        setConfirmModal({
-            isOpen: true,
-            onConfirm: async () => {
-                try {
-                    setIsDeletingPortrait(true);
-                    const response = await deleteProfilePicture(memberId, 'member');
-                    if (response.data.success) {
-                        showToast('Profile picture deleted successfully.', 'success');
-                        await fetchProfile();
-                        await fetchHistory();
-                        window.dispatchEvent(new Event('profileUpdated'));
-                    } else {
-                        showToast(response.data.message || 'Failed to delete profile picture', 'error');
-                    }
-                } catch (err) {
-                    showToast('Error deleting profile picture: ' + err.message, 'error');
-                } finally {
-                    setIsDeletingPortrait(false);
-                }
-            }
-        });
-    };
-
-    const handleSelectFromHistory = async (url) => {
-        if (profile.profilePictureUrl === url) return;
-        
-        try {
-            const response = await selectProfilePicture(memberId, 'member', url);
-            if (response.data.success) {
-                showToast('Profile identity updated from vault!', 'success');
-                await fetchProfile();
-                window.dispatchEvent(new Event('profileUpdated'));
-            } else {
-                showToast(response.data.message || 'Failed to update profile picture', 'error');
-            }
-        } catch (err) {
-            showToast('Error selecting profile picture: ' + err.message, 'error');
-        }
-    };
-
     if (loading) {
         return (
             <div className="flex items-center justify-center p-12">
@@ -224,37 +112,7 @@ export default function MemberProfile() {
                                         </div>
                                     )}
 
-                                    {isUploadingPortrait && (
-                                        <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-                                            <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-2"></div>
-                                            <span className="text-[8px] font-black text-white uppercase tracking-widest text-center">Saving...</span>
-                                        </div>
-                                    )}
                                 </div>
-                            </div>
-                            
-                            <div className="absolute -bottom-4 -right-4 flex flex-col gap-2">
-                                <label className="w-15 h-15 bg-mdOnSurface text-white rounded-2xl flex items-center justify-center shadow-premium cursor-pointer hover:bg-mdPrimary hover:scale-110 transition-all duration-300 border-4 border-white">
-                                    <FontAwesomeIcon icon={faCamera} className="text-xl" />
-                                    <input 
-                                        type="file" 
-                                        accept="image/*" 
-                                        onChange={handleFileChange}
-                                        id="profilePictureInput"
-                                        className="hidden"
-                                    />
-                                </label>
-
-                                {profile.profilePictureUrl && (
-                                    <button 
-                                        onClick={handleDeleteProfilePicture}
-                                        disabled={isDeletingPortrait}
-                                        className="w-15 h-15 bg-white text-mdError rounded-2xl flex items-center justify-center shadow-premium hover:bg-mdError hover:text-white hover:scale-110 transition-all duration-300 border-4 border-white disabled:opacity-50"
-                                        title="Delete Profile Picture"
-                                    >
-                                        {isDeletingPortrait ? <FontAwesomeIcon icon={faSync} className="animate-spin" /> : <FontAwesomeIcon icon={faTrash} />}
-                                    </button>
-                                )}
                             </div>
                         </div>
 
@@ -363,42 +221,7 @@ export default function MemberProfile() {
 
                         {/* Sidebar Sections */}
                         <div className="space-y-8">
-                             {/* Profile Vault Section */}
-                            <div className="glass-card p-10 group rounded-[3rem] border-none shadow-premium bg-white">
-                                <div className="flex items-center gap-4 mb-10">
-                                    <div className="w-12 h-12 rounded-2xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary shadow-inner">
-                                        <FontAwesomeIcon icon={faCheck} className="text-xl" />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-mdOnSurface tracking-tighter italic">Profile Vault</h3>
-                                </div>
-                                
-                                {history.length > 0 ? (
-                                    <div className="grid grid-cols-2 gap-6">
-                                        {history.map((url, index) => (
-                                            <div 
-                                                key={index} 
-                                                onClick={() => handleSelectFromHistory(url)}
-                                                className={`relative aspect-square rounded-[2rem] overflow-hidden cursor-pointer border-4 transition-all hover:scale-110 shadow-lifted ${profile.profilePictureUrl === url ? 'border-mdPrimary' : 'border-transparent opacity-40 hover:opacity-100'}`}
-                                            >
-                                                <img 
-                                                    src={url} 
-                                                    alt={`Vault ${index}`} 
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="py-20 text-center opacity-20">
-                                        <FontAwesomeIcon icon={faCamera} className="text-5xl mb-6" />
-                                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">Vault is empty</p>
-                                    </div>
-                                )}
-                                
-                                <p className="mt-10 text-[9px] font-black text-mdOutline text-center uppercase tracking-[0.2em] leading-loose opacity-60">
-                                    Your historical sanctuary of divine identities
-                                </p>
-                            </div>
+
                             
                             <div className="glass-card p-10 bg-mdPrimary text-white border-none rounded-[3rem] shadow-premium group overflow-hidden relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -419,26 +242,7 @@ export default function MemberProfile() {
                 </>
             )}
 
-            {isCropperOpen && (
-                <ImageCropperModal
-                    image={imageToCrop}
-                    onCropComplete={handleCropComplete}
-                    onCancel={() => {
-                        setIsCropperOpen(false);
-                        setImageToCrop(null);
-                        const fileInput = document.getElementById('profilePictureInput');
-                        if (fileInput) fileInput.value = '';
-                    }}
-                />
-            )}
-            <ConfirmModal 
-                isOpen={confirmModal.isOpen}
-                onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-                onConfirm={confirmModal.onConfirm}
-                title="Remove Portrait?"
-                message="Are you sure you want to permanently remove your current profile picture?"
-                type="danger"
-            />
+
             {lightboxImg && (
                 <Lightbox 
                     src={lightboxImg} 

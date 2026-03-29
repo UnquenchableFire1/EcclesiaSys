@@ -159,14 +159,6 @@ export const deleteSermon = (id) => {
 };
 
 // File upload endpoints
-export const uploadProfilePicture = (formData) => {
-  return api.post('/upload/profile-picture', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-};
-
 export const uploadEventDocument = (formData) => {
   return api.post('/upload/event-document', formData, {
     headers: {
@@ -215,25 +207,6 @@ export const createPrayerRequest = (data) => {
   return api.post('/prayer-requests', data);
 };
 export const submitPrayerRequest = createPrayerRequest;
-
-// Profile Picture History
-export const getProfilePictureHistory = (userId, userType) => {
-    return api.get('/upload/profile-picture/history', { // Changed to use 'api' instance
-        params: { userId, userType }
-    });
-};
-
-export const selectProfilePicture = (userId, userType, url) => {
-    return api.post('/upload/profile-picture/select', null, { // Changed to use 'api' instance
-        params: { userId, userType, url }
-    });
-};
-
-export const deleteProfilePicture = (userId, userType) => {
-    return api.post('/upload/profile-picture/delete', null, {
-        params: { userId, userType }
-    });
-};
 
 export const getPrayerRequests = (branchId) => {
   return api.get('/prayer-requests', { params: { branchId } });
