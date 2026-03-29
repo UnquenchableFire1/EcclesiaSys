@@ -5,7 +5,6 @@ import { faSignInAlt, faEye, faEyeSlash, faArrowLeft } from '@fortawesome/free-s
 import { login } from '../services/api';
 import SanctuaryLogo from '../components/SanctuaryLogo';
 import axios from 'axios';
-import SanctuaryLogo from '../components/SanctuaryLogo';
 
 export default function Login() {
   const [email, setEmail] = useState('');
