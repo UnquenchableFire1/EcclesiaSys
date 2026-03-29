@@ -76,142 +76,160 @@ export default function ResetPassword() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-[80vh] flex items-center justify-center animate-fade-in py-12 px-4">
-        <div className="bg-mdSurface text-mdOnSurface p-10 rounded-[2.5rem] shadow-md2 w-full max-w-md border border-mdSurfaceVariant transition-all duration-300">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-5 shadow-sm">
-              <FontAwesomeIcon icon={faKey} className="text-2xl" />
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden animate-fade-in">
+      {/* Cinematic Background */}
+      <img 
+        src="/assets/images/church/church_10.jpg" 
+        alt="Sanctuary Peace" 
+        className="absolute inset-0 w-full h-full object-cover scale-105 blur-[2px]"
+      />
+      <div className="absolute inset-0 bg-mdSurface/40 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-mdPrimary/20 via-transparent to-mdSecondary/20"></div>
+
+      <div className="relative z-10 w-full max-w-lg">
+        <div className="glass-card p-10 md:p-14 rounded-[4rem] shadow-premium border-white/20 bg-white/40 backdrop-blur-2xl">
+          <div className="text-center mb-10 relative">
+            <Link to="/forgot-password" className="absolute -top-10 left-0 text-mdOutline hover:text-mdPrimary transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+              <FontAwesomeIcon icon={faArrowLeft} /> New Code
+            </Link>
+            
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-mdSecondary/10 text-mdSecondary mb-6 shadow-inner border border-mdSecondary/10">
+              <FontAwesomeIcon icon={faKey} className="text-3xl" />
             </div>
-            <h1 className="text-3xl font-extrabold text-mdOnSurface tracking-tight">
-              Set New Password
+            
+            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter italic mb-4">
+              Renew Identity
             </h1>
-            <p className="text-mdOnSurfaceVariant mt-3 font-medium">
-              Enter your new password below.
+            <p className="text-mdOnSurfaceVariant font-medium text-sm leading-relaxed opacity-80 italic">
+              "Witness the renewal of your digital key. Enter the sacred code sent to your scroll and set a new password."
             </p>
           </div>
 
           {message && (
-            <div className="bg-[#E8F5E9] text-[#2E7D32] border border-[#A5D6A7] px-5 py-4 rounded-2xl mb-6 font-semibold flex items-center gap-3 shadow-sm">
-              <FontAwesomeIcon icon={faCheckCircle} className="w-6 h-6 shrink-0" />
+            <div className="bg-[#E8F5E9] text-[#2E7D32] border border-[#A5D6A7] px-6 py-4 rounded-3xl mb-10 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-sm animate-bounce">
+              <FontAwesomeIcon icon={faCheckCircle} className="text-xl shrink-0" />
               {message}
             </div>
           )}
 
           {error && (
-            <div className="bg-mdErrorContainer text-mdError px-5 py-4 rounded-2xl mb-6 font-semibold flex items-start gap-3 shadow-sm animate-shake">
-              <FontAwesomeIcon icon={faExclamationTriangle} className="w-6 h-6 shrink-0 mt-0.5" />
-              <p className="flex-1">{error}</p>
+            <div className="bg-mdErrorContainer text-mdError px-6 py-4 rounded-3xl mb-10 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-premium animate-shake border border-mdError/10">
+              <FontAwesomeIcon icon={faExclamationTriangle} className="text-xl shrink-0" />
+              {error}
             </div>
           )}
 
           {!success ? (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              
+            <form onSubmit={handleSubmit} className="space-y-8">
               {location.state?.email && (
-                <div className="bg-mdPrimaryContainer/30 border border-mdPrimaryContainer text-mdOnSurface px-5 py-3 rounded-2xl mb-4 font-medium text-sm text-center">
-                  Resetting password for: <span className="font-bold text-mdPrimary">{location.state.email}</span>
+                <div className="bg-mdPrimary/5 border border-mdPrimary/10 text-mdOnSurface px-6 py-4 rounded-2xl mb-8 font-bold text-xs text-center italic opacity-60">
+                  Renewing for: <span className="text-mdPrimary not-italic font-black">{location.state.email}</span>
                 </div>
               )}
 
-              <div className="relative">
+              <div className="group text-center">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant mb-4 opacity-70">Enlightenment Code (6 Digits)</label>
                 <input
                   type="text"
                   value={resetCode}
                   onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="6-Digit Reset Code"
-                  className="w-full px-6 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 text-lg font-bold tracking-widest text-center"
+                  placeholder="000000"
+                  className="w-full px-8 py-6 border border-mdOutline/10 rounded-[2rem] bg-white/50 focus:outline-none focus:ring-8 focus:ring-mdPrimary/5 focus:border-mdPrimary transition-all text-4xl font-black tracking-[0.5em] text-center text-mdPrimary placeholder:opacity-10"
                   required
                   disabled={loading}
                   maxLength={6}
                 />
               </div>
 
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="New Password"
-                  className="w-full px-6 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 text-lg peer"
-                  required
-                  disabled={loading}
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-mdOnSurfaceVariant/60 hover:text-mdPrimary transition-colors p-2"
-                  title={showPassword ? 'Hide password' : 'Show password'}
-                  disabled={loading}
-                >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="w-5 h-5" />
-                </button>
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant mb-2 ml-1 group-focus-within:text-mdPrimary">New Secret Key</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full px-6 py-5 bg-white/50 border border-mdOutline/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-mdPrimary/5 focus:border-mdPrimary transition-all font-bold"
+                      required
+                      disabled={loading}
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-all"
+                      disabled={loading}
+                    >
+                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                    </button>
+                  </div>
+                </div>
 
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm New Password"
-                  className="w-full px-6 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200 text-lg peer"
-                  required
-                  disabled={loading}
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-mdOnSurfaceVariant/60 hover:text-mdPrimary transition-colors p-2"
-                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
-                  disabled={loading}
-                >
-                  <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} className="w-5 h-5" />
-                </button>
+                <div className="group">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant mb-2 ml-1 group-focus-within:text-mdPrimary">Confirm Secret Key</label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full px-6 py-5 bg-white/50 border border-mdOutline/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-mdPrimary/5 focus:border-mdPrimary transition-all font-bold"
+                      required
+                      disabled={loading}
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-all"
+                      disabled={loading}
+                    >
+                      <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5 mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                className="w-full bg-mdPrimary text-white font-black text-xs uppercase tracking-[0.3em] py-6 rounded-full shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all mt-6 active:scale-95 disabled:opacity-50"
               >
                 {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                        <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Resetting Password...
-                    </span>
-                ) : 'Reset Password'}
+                  <span className="flex items-center justify-center gap-3">
+                      <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Renewing Identity...
+                  </span>
+                ) : 'Confirm Renewal'}
               </button>
             </form>
-          ) : null}
-
-          {success && (
-            <div className="text-center mt-4">
+          ) : (
+            <div className="text-center mt-12 animate-fade-in">
               <Link
                 to="/login"
-                className="inline-flex items-center justify-center w-full bg-mdSecondary hover:bg-mdSecondary/90 text-mdOnSecondary font-bold py-4 px-6 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5"
+                className="w-full bg-mdSecondary text-white font-black text-xs uppercase tracking-[0.3em] py-6 rounded-full shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
               >
-                Return to Login
+                Return to Sanctuary
               </Link>
             </div>
           )}
           
           {!success && (
-            <div className="text-center mt-6">
+            <div className="text-center mt-12 pt-8 border-t border-mdOutline/5">
               <Link
                 to="/forgot-password"
-                className="text-mdPrimary font-bold hover:text-mdSecondary transition-colors"
+                className="text-[10px] font-black uppercase tracking-widest text-mdPrimary hover:text-mdSecondary underline underline-offset-4 decoration-2 transition-all"
               >
-                Request a new reset code
+                Request New Revelation Code
               </Link>
             </div>
           )}
         </div>
       </div>
-    </Layout>
-  );
+    </div>
+    );
 }

@@ -7,9 +7,9 @@ import {
     faTrash, faPhone, faEnvelope, faMapMarkerAlt, faVideo, 
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
-    faTimes, faChevronRight, faClock, faChartBar, faComments,
     faExclamationTriangle, faSignOutAlt, faBuilding
 } from '@fortawesome/free-solid-svg-icons';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 import { 
     getAdminProfile, getCounts, toggleMemberStatus, deleteAdmin,
@@ -515,7 +515,7 @@ export default function AdminDashboard() {
                                         <QuickAction label="Manage Admins" icon={faUserShield} tab="admins" desc="Oversee Staff" />
                                         <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network oversight" />
                                         <QuickAction label="Congregation" icon={faUsers} tab="members" desc="Universal Registry" />
-                                        <QuickAction label="Prayer Wall" icon={faPrayingHands} tab="prayer-requests" desc="Intercessions" />
+                                        <QuickAction label="Sanctuary Help" icon={faWhatsapp} tab="support" desc="WhatsApp Support" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
                                     </div>
                                 )}
                             </div>

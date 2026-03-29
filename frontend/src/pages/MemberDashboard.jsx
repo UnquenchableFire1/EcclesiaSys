@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faHome, faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands,
-    faUser, faChevronRight, faClock, faPlayCircle, faCalendarCheck,
-    faArrowRight, faTimes, faCheck, faQuoteLeft, faUserEdit, faBookOpen,
-    faComments, faUsers, faEnvelope, faSearch
+    faComments, faUsers, faEnvelope, faSearch, faHandsHelping
 } from '@fortawesome/free-solid-svg-icons';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 import { 
     getMemberProfile, getAnnouncements, getEvents, getSermons,
@@ -309,19 +307,24 @@ export default function MemberDashboard() {
                                         <li className="flex gap-3"><span className="text-mdPrimary font-black">•</span> Confidential Spiritual Support</li>
                                     </ul>
                                 </div>
-                                <div className="glass-card p-8 bg-mdSecondary/10 border-none">
+                                <div className="glass-card p-8 bg-mdSecondary/10 border-none group">
                                     <div className="flex items-center gap-4 mb-6 text-mdSecondary">
-                                        <FontAwesomeIcon icon={faComments} className="text-2xl" />
-                                        <h4 className="text-xl font-black">Need Support?</h4>
+                                        <div className="w-12 h-12 rounded-2xl bg-mdSecondary text-white flex items-center justify-center text-2xl shadow-premium group-hover:scale-110 transition-transform">
+                                            <FontAwesomeIcon icon={faWhatsapp} />
+                                        </div>
+                                        <h4 className="text-xl font-black">WhatsApp Support</h4>
                                     </div>
-                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-6 opacity-80">Our sanctuary support team is available via WhatsApp for direct assistance.</p>
+                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-6 opacity-80 leading-relaxed">
+                                        Connect with our sanctuary support team directly for fellowship, guidance, or assistance.
+                                    </p>
                                     <a 
                                       href="https://wa.me/message/DMJE5W7QXC2MF1"
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="font-black text-mdSecondary hover:underline uppercase tracking-widest text-xs flex items-center gap-2"
+                                      className="btn-premium py-4 w-full flex items-center justify-center gap-3"
                                     >
-                                        Contact Support <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
+                                        <FontAwesomeIcon icon={faWhatsapp} />
+                                        Message Sanctuary
                                     </a>
                                 </div>
                             </div>

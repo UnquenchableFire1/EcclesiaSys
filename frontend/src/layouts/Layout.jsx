@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar';
 import AuthNavbar from '../components/AuthNavbar';
 import BottomNav from '../components/BottomNav';
+import SanctuaryLogo from '../components/SanctuaryLogo';
 import { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,12 +15,11 @@ import {
     faUsers, 
     faUser,
     faSignOutAlt,
-    faComments,
-    faUserShield,
-    faUserCircle,
     faBell,
-    faTimes
+    faTimes,
+    faPhone
 } from '@fortawesome/free-solid-svg-icons';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { getNotifications, markNotificationAsRead } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -178,11 +178,8 @@ export default function Layout({ children }) {
             )}
 
             {shouldShowNav && isMobile && (
-                <header className="fixed top-0 left-0 right-0 z-[1000] bg-white/70 backdrop-blur-2xl border-b border-mdOutline/10 h-16 px-6 flex items-center justify-between shadow-sm animate-fade-in">
-                    <div className="flex flex-col">
-                        <h2 className="text-lg font-black text-mdPrimary tracking-tighter leading-none mb-0.5">EcclesiaSys</h2>
-                        <p className="text-[7px] font-black uppercase tracking-[0.2em] text-mdSecondary font-bold">The Sanctuary</p>
-                    </div>
+                <header className="fixed top-0 left-0 right-0 z-[1000] bg-white/70 backdrop-blur-2xl border-b border-mdOutline/10 h-16 px-4 flex items-center justify-between shadow-sm animate-fade-in">
+                    <SanctuaryLogo size={32} showText={true} />
                     <div className="flex items-center gap-4">
                         <button 
                             onClick={() => setIsMobileProfileOpen(true)}
@@ -269,17 +266,21 @@ export default function Layout({ children }) {
             <div className={`flex flex-1 flex-col ${shouldShowNav && !isMobile ? 'pt-20' : shouldShowNav && isMobile ? 'pt-16' : ''}`}>
                 <main className="flex-1 relative">
                     <div className="grain"></div>
-                    <div className={`p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)] ${isMobile && userId ? 'pb-32' : 'pb-12'}`}>
+                    {/* Global Sanctuary Background Accents */}
+                    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.03] select-none">
+                        <img src="/assets/images/church/church_10.jpg" alt="" className="w-full h-full object-cover scale-110 blur-3xl saturate-0" />
+                    </div>
+                    <div className="relative z-10 p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)] ${isMobile && userId ? 'pb-32' : 'pb-12'}">
                         {children}
                     </div>
 
                     {shouldShowNav && (
                         <footer className="w-full py-12 px-8 border-t border-mdOutline/5 bg-white/30 backdrop-blur-xl">
                             <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-                                <div className="flex flex-col items-center md:items-start">
-                                    <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">EcclesiaSys Support</h3>
-                                    <p className="text-sm font-medium text-mdOnSurfaceVariant max-w-sm text-center md:text-left opacity-70">
-                                        Need assistance or spiritual guidance? Our sanctuary support team is just a message away on WhatsApp.
+                                <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                                    <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">EcclesiaSys Sanctuary Support</h3>
+                                    <p className="text-sm font-medium text-mdOnSurfaceVariant max-w-sm opacity-70 leading-relaxed">
+                                        Need instant assistance or spiritual guidance? <br className="hidden md:block"/> Our support team is available 24/7 on WhatsApp.
                                     </p>
                                 </div>
                                 <a 
@@ -288,7 +289,7 @@ export default function Layout({ children }) {
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-4 px-10 py-5 bg-mdPrimary text-white rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all group"
                                 >
-                                    <FontAwesomeIcon icon={faComments} className="text-xl group-hover:scale-110 transition-transform" />
+                                    <FontAwesomeIcon icon={faWhatsapp} className="text-2xl group-hover:scale-110 transition-transform" />
                                     Connect on WhatsApp
                                 </a>
                             </div>
@@ -299,6 +300,28 @@ export default function Layout({ children }) {
                     )}
                 </main>
             </div>
+
+            {/* Global Floating WhatsApp Support Button */}
+            {userId && (
+                <div className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-[2000] animate-fade-in group">
+                    <div className="absolute inset-0 bg-mdSecondary rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
+                    <a 
+                        href="https://wa.me/message/DMJE5W7QXC2MF1"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative w-16 h-16 md:w-20 md:h-20 bg-mdSecondary text-white rounded-full flex items-center justify-center shadow-lifted hover:scale-110 hover:-translate-y-1 transition-all duration-300 active:scale-95 border-4 border-white"
+                        title="Instant WhatsApp Support"
+                    >
+                        <FontAwesomeIcon icon={faWhatsapp} className="text-3xl md:text-4xl" />
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-mdError border-2 border-white rounded-full"></span>
+                    </a>
+                    
+                    {/* Tooltip */}
+                    <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-mdOnSurface text-white text-[10px] font-black uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow- premium">
+                        Sanctuary Support
+                    </div>
+                </div>
+            )}
 
             {shouldShowNav && isMobile && (
                 <BottomNav 

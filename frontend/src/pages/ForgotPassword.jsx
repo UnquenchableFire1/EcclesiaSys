@@ -46,75 +46,95 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 animate-fade-in">
-      <div className="bg-mdSurface text-mdOnSurface p-10 rounded-3xl shadow-md2 w-full max-w-md border border-mdSurfaceVariant">
-        <div className="text-center mb-8 relative">
-          <Link to="/login" className="absolute left-0 top-1/2 -translate-y-1/2 text-mdOutline hover:text-mdPrimary transition-colors flex items-center gap-1 text-sm font-bold">
-            <FontAwesomeIcon icon={faArrowLeft} className="text-xs" /> Login
-          </Link>
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mdPrimaryContainer text-mdPrimary mb-4 shadow-sm mx-auto">
-            <FontAwesomeIcon icon={faKey} className="text-2xl" />
-          </div>
-          <h1 className="text-3xl font-extrabold text-mdPrimary tracking-tight">
-            Reset Password
-          </h1>
-          <p className="text-mdOnSurfaceVariant mt-2">
-            Enter your email address and we'll send you a 6-digit code to reset your password.
-          </p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden animate-fade-in">
+      {/* Cinematic Background */}
+      <img 
+        src="/assets/images/church/church_10.jpg" 
+        alt="Sanctuary Peace" 
+        className="absolute inset-0 w-full h-full object-cover scale-105 blur-[2px]"
+      />
+      <div className="absolute inset-0 bg-mdSurface/40 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-mdPrimary/20 via-transparent to-mdSecondary/20"></div>
 
-        {message && (
-          <div className="bg-mdPrimaryContainer/50 border border-mdPrimaryContainer text-mdPrimary px-4 py-3 rounded-2xl mb-6 text-sm font-medium text-center">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-mdErrorContainer text-mdError px-4 py-3 rounded-2xl mb-6 text-sm font-bold text-center animate-pulse">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-semibold text-mdOnSurfaceVariant mb-2 ml-1">
-              Registered Email Address
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-mdOutline">
-                <FontAwesomeIcon icon={faEnvelope} />
-              </span>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. john.doe@gmail.com"
-                className="w-full pl-11 pr-5 py-4 border border-mdOutline/30 rounded-2xl bg-mdSurface focus:outline-none focus:ring-2 focus:ring-mdPrimary focus:border-transparent transition-all duration-200"
-                required
-                disabled={loading}
-              />
-            </div>
-            <p className="text-xs text-mdOutline mt-2 ml-1">The reset code will be sent to this email.</p>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-mdPrimary hover:bg-mdSecondary text-mdOnPrimary font-bold py-4 rounded-full shadow-md1 hover:shadow-md2 transition-all duration-300 transform hover:-translate-y-0.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Sending Code...' : 'Send Reset Code'}
-          </button>
-        </form>
-
-        <div className="mt-8 pt-6 border-t border-mdSurfaceVariant text-center">
-          <p className="text-mdOnSurfaceVariant text-sm">
-            Remember your password?{' '}
-            <Link to="/login" className="text-mdPrimary font-extrabold hover:text-mdSecondary transition-colors duration-200">
-              Back to Login
+      <div className="relative z-10 w-full max-w-md">
+        <div className="glass-card p-10 md:p-12 rounded-[3.5rem] shadow-premium border-white/20 bg-white/40 backdrop-blur-2xl">
+          <div className="text-center mb-10 relative">
+            <Link to="/login" className="absolute -top-6 left-0 text-mdOutline hover:text-mdPrimary transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+              <FontAwesomeIcon icon={faArrowLeft} /> Back to Login
             </Link>
-          </p>
+            
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-mdPrimary/10 text-mdPrimary mb-6 shadow-inner border border-mdPrimary/10">
+              <FontAwesomeIcon icon={faKey} className="text-3xl" />
+            </div>
+            
+            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter italic mb-4">
+              Restore Access
+            </h1>
+            <p className="text-mdOnSurfaceVariant font-medium text-sm leading-relaxed opacity-80 italic">
+              "Seeking the path back to the sanctuary? Enter your digital scroll (email) to receive a renewal code."
+            </p>
+          </div>
+
+          {message && (
+            <div className="bg-mdPrimary/10 border border-mdPrimary/20 text-mdPrimary px-6 py-4 rounded-2xl mb-8 text-xs font-black uppercase tracking-widest text-center animate-bounce">
+              {message}
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-mdErrorContainer text-mdError px-6 py-4 rounded-2xl mb-8 text-xs font-black uppercase tracking-widest text-center animate-shake border border-mdError/10">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="group">
+              <label className="block text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant mb-2 ml-1 group-focus-within:text-mdPrimary transition-colors">
+                Registered Digital Scroll
+              </label>
+              <div className="relative">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-mdPrimary/50">
+                  <FontAwesomeIcon icon={faEnvelope} />
+                </span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@sanctuary.org"
+                  className="w-full pl-14 pr-6 py-5 bg-white/50 border border-mdOutline/10 rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-mdPrimary/5 focus:border-mdPrimary transition-all font-bold placeholder:opacity-30"
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-mdPrimary text-white font-black text-xs uppercase tracking-[0.3em] py-6 rounded-full shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all mt-4 active:scale-95 disabled:opacity-50"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-3">
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Dispatching Code...
+                </span>
+              ) : 'Send Renewal Code'}
+            </button>
+          </form>
+
+          <div className="mt-12 pt-8 border-t border-mdOutline/5 text-center">
+            <p className="text-xs font-bold text-mdOnSurfaceVariant italic transform hover:scale-105 transition-transform">
+              Remembered your Key?{' '}
+              <Link to="/login" className="text-mdPrimary font-black underline underline-offset-4 decoration-2">
+                Return to Login
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  );
+    );
 }

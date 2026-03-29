@@ -87,7 +87,8 @@
   
   .glass-card::before {
     content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-700 pointer-events-none bg-gradient-to-tr from-mdPrimary/5 via-mdSecondary/5 to-transparent;
+    @apply absolute inset-0 opacity-0 transition-opacity duration-700 pointer-events-none;
+    background-image: linear-gradient(to top right, rgba(26, 47, 95, 0.05) 0%, rgba(201, 175, 30, 0.05) 50%, transparent 100%);
   }
 
   .glass-card:hover::before {
@@ -202,4 +203,21 @@
 
 .pulse-gold {
   animation: pulse-gold 2s infinite;
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 40s linear infinite;
+}
+
+@keyframes divinity-pulse {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+.divinity-pulse {
+  animation: divinity-pulse 4s ease-in-out infinite;
 }

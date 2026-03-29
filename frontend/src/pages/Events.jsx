@@ -110,9 +110,9 @@ export default function Events({ embedded = false, branchId = null }) {
             {!embedded && (
                 <div className="mb-12">
                     <Hero 
-                        title="Gatherings of Faith"
-                        subtitle="Join us as we fellowship together, grow in faith, and make an impact in our community."
-                        backgroundImage="/assets/images/church/church_5.jpg"
+                        title="Sacred Gatherings"
+                        subtitle="Join our vibrant community as we fellowship together, grow in grace, and manifest the sanctuary's vision in our world."
+                        backgroundImage="/assets/images/church/church_11.jpg"
                         small={true}
                     />
                 </div>

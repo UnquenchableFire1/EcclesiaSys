@@ -70,9 +70,9 @@ export default function Sermons({ embedded = false, branchId = null }) {
             {!embedded && (
                 <div className="mb-12">
                      <Hero 
-                        title="Divine Revelations"
-                        subtitle="Explore our archive of life-transforming messages and spiritual teachings from our pastors."
-                        backgroundImage="/assets/images/church/church_3.jpg"
+                        title="Heavenly Revelations"
+                        subtitle="Explore our archive of life-transforming messages and divine teachings from the anointed leaders of our sanctuary."
+                        backgroundImage="/assets/images/church/church_9.jpg"
                         small={true}
                     />
                 </div>

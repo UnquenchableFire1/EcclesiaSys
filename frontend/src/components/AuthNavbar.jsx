@@ -6,6 +6,7 @@ import {
   faBell,
   faChevronDown
 } from '@fortawesome/free-solid-svg-icons';
+import SanctuaryLogo from './SanctuaryLogo';
 
 export default function AuthNavbar({ 
   tabs, 
@@ -24,9 +25,11 @@ export default function AuthNavbar({
     <nav className="fixed top-0 left-0 right-0 z-[1000] bg-white/70 backdrop-blur-2xl border-b border-mdOutline/10 h-20 px-8 flex items-center justify-between shadow-sm">
       {/* Brand & Desktop Tabs */}
       <div className="flex items-center gap-12 flex-1">
-        <div className="flex flex-col cursor-pointer" onClick={() => setActiveTab('home')}>
-          <h2 className="text-2xl font-black text-mdPrimary tracking-tighter leading-none mb-0.5">EcclesiaSys</h2>
-          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-mdSecondary font-bold">The Sanctuary</p>
+        <div 
+          className="cursor-pointer group hover:opacity-80 transition-all transition-transform active:scale-95" 
+          onClick={() => setActiveTab('home')}
+        >
+          <SanctuaryLogo size={38} showText={true} />
         </div>
 
         {/* Horizontal Navigation Items */}
