@@ -22,27 +22,40 @@ export default function Hero({ title, subtitle, ctaText, ctaLink = '/', small = 
 
   return (
     <section 
-      className={`text-white ${heightClass} relative overflow-hidden rounded-[3rem] ${backgroundImage ? '' : 'bg-mdPrimary'}`} 
+      className={`relative overflow-hidden rounded-[3rem] md:rounded-[4rem] shadow-premium group ${small ? 'h-[300px] md:h-[400px]' : 'h-[500px] md:h-[700px]'} ${backgroundImage ? '' : 'bg-mdPrimary'}`} 
       aria-labelledby="hero-heading"
-      style={backgroundImage ? {
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      } : {}}
     >
-      {backgroundImage && <div className="image-overlay-dark" aria-hidden="true" />}
+      {backgroundImage && (
+        <>
+          <img 
+            src={backgroundImage} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover animate-ken-burns" 
+          />
+          <div className="image-overlay-dark opacity-80 backdrop-blur-[1px]" aria-hidden="true" />
+        </>
+      )}
       {!backgroundImage && <div className="absolute inset-0 bg-black/10" aria-hidden="true" />}
       
-      <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-        <h1 id="hero-heading" className={`text-5xl sm:text-7xl font-black mb-6 tracking-tighter leading-tight animate-slide-up`}>
+      <div className="relative z-10 h-full flex flex-col justify-center px-10 md:px-20 max-w-6xl mx-auto text-white">
+        <h1 
+          id="hero-heading" 
+          className="text-5xl md:text-8xl font-black mb-8 leading-[0.85] tracking-tighter italic animate-slide-up"
+        >
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xl md:text-2xl text-white/90 mb-10 max-w-3xl mx-auto font-medium leading-relaxed animate-slide-up [animation-delay:200ms]">
+          <p 
+            className="text-xl md:text-2xl text-white/90 mb-10 max-w-3xl font-medium leading-relaxed italic animate-slide-up"
+            style={{ animationDelay: '200ms', animationFillMode: 'both' }}
+          >
             {subtitle}
           </p>
         )}
-        <div className="mt-4 animate-slide-up [animation-delay:400ms]">
+        <div 
+          className="mt-4 animate-slide-up"
+          style={{ animationDelay: '400ms', animationFillMode: 'both' }}
+        >
           <Cta />
         </div>
       </div>

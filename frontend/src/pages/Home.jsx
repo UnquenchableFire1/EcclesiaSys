@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Hero from '../components/Hero';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -14,6 +14,19 @@ export default function Home() {
   const userType = sessionStorage.getItem('userType');
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   const handleNewsletterSignup = (e) => {
     e.preventDefault();
@@ -36,7 +49,7 @@ export default function Home() {
       />
 
       {/* Service Times & Location Section */}
-      <section className="py-12 px-2">
+      <section className="py-12 px-2 reveal">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Sunday Service */}
             <div className="img-card group h-[450px]">
@@ -83,7 +96,7 @@ export default function Home() {
       </section>
 
       {/* Navigation Cards Section */}
-      <section className="py-8">
+      <section className="py-8 reveal">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-black text-mdOnSurface tracking-tight">Explore Our <span className="text-mdPrimary">Ministry</span></h2>
           <p className="text-xl text-mdOnSurfaceVariant font-medium mt-4">Discover ways to connect, grow, and serve.</p>
@@ -146,7 +159,7 @@ export default function Home() {
       </section>
 
       {/* Mission & Vision Section */}
-      <section className="py-16">
+      <section className="py-16 reveal">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="img-card h-[600px] rounded-[4rem]">
             <img src="/assets/images/church/church_2.jpg" alt="Our Mission" className="hover:scale-105" />
@@ -211,7 +224,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section with Background Image */}
-      <section className="relative h-[400px] rounded-[4rem] overflow-hidden flex items-center justify-center shadow-premium group">
+      <section className="relative h-[400px] rounded-[4rem] overflow-hidden flex items-center justify-center shadow-premium group reveal">
         <img src="/assets/images/church/church_7.jpg" alt="Stats Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
         <div className="image-overlay-dark opacity-80 backdrop-blur-sm"></div>
         <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center text-white">
@@ -233,7 +246,7 @@ export default function Home() {
       </section>
 
       {/* Newsletter Signup with Dynamic Design */}
-      <section className="bg-mdSurface rounded-[4rem] py-24 px-8 text-center border border-mdOutline/5 relative overflow-hidden shadow-premium">
+      <section className="bg-mdSurface rounded-[4rem] py-24 px-8 text-center border border-mdOutline/5 relative overflow-hidden shadow-premium reveal">
         <div className="absolute top-0 right-0 w-96 h-96 bg-mdSecondaryContainer/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
         
         <div className="max-w-3xl mx-auto relative z-10">

@@ -1,15 +1,15 @@
 {
-  "short_name": "EcclesiaSys",
-  "name": "EcclesiaSys Church Management",
+  "short_name": "Sanctuary",
+  "name": "EcclesiaSys Sanctuary",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "favicon.svg",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/svg+xml"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#0F766E",
-  "background_color": "#ffffff"
+  "theme_color": "#1A2F5F",
+  "background_color": "#FDFDFD"
 }

@@ -398,30 +398,37 @@ export default function AdminDashboard() {
         showToast('Exited inspection mode.', 'info');
     };
 
-    // -- Sub-Components --
     const MetricCard = ({ label, count, icon, color }) => (
-        <div className="glass-card p-8 group hover:-translate-y-2 transition-all">
-            <div className={`w-14 h-14 bg-mdSurfaceVariant/20 ${color} rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-500`}>
-                <FontAwesomeIcon icon={icon} />
+        <div className="glass-card p-10 group hover:scale-[1.02] transition-all duration-700 border-none rounded-[3rem]">
+            <div className="flex justify-between items-start mb-6">
+                <div className={`w-16 h-16 rounded-[1.5rem] bg-mdSurfaceVariant/30 flex items-center justify-center text-3xl ${color} shadow-sm group-hover:scale-110 transition-transform duration-700`}>
+                    <FontAwesomeIcon icon={icon} />
+                </div>
+                <span className="text-[10px] font-black opacity-30 uppercase tracking-[0.3em]">Universal</span>
             </div>
-            <p className="text-4xl font-black text-mdOnSurface mb-1">{count}</p>
-            <p className="text-sm font-bold text-mdOnSurfaceVariant uppercase tracking-widest">{label}</p>
+            <div className="text-4xl font-black text-mdOnSurface mb-1 flex items-baseline gap-2 leading-none">
+                {count}
+            </div>
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 text-mdPrimary">
+                {label} Archive
+            </div>
         </div>
     );
 
     const QuickAction = ({ label, icon, tab, desc }) => (
-        <button
+        <button 
             onClick={() => setActiveTab(tab)}
-            className="flex items-center gap-5 p-6 rounded-[2rem] bg-mdSurfaceVariant/10 hover:bg-mdPrimary hover:text-white transition-all duration-300 group text-left border border-transparent"
+            className="group p-8 rounded-[2.5rem] bg-mdSurfaceVariant/20 hover:bg-white hover:shadow-premium transition-all duration-700 text-left border border-transparent hover:border-mdPrimary/5"
         >
-            <div className="w-12 h-12 rounded-xl bg-mdPrimary group-hover:bg-white/20 flex items-center justify-center text-white">
-                <FontAwesomeIcon icon={icon} />
+            <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-mdPrimary text-white flex items-center justify-center text-xl shadow-premium group-hover:scale-110 transition-transform duration-700">
+                    <FontAwesomeIcon icon={icon} />
+                </div>
+                <div>
+                    <h4 className="font-black text-mdOnSurface text-lg leading-tight uppercase tracking-tight">{label}</h4>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-50 text-mdPrimary mt-1">{desc}</p>
+                </div>
             </div>
-            <div>
-                <p className="font-black">{label}</p>
-                <p className="text-[10px] text-mdOnSurfaceVariant group-hover:text-white/70 uppercase font-black tracking-widest">{desc}</p>
-            </div>
-            <FontAwesomeIcon icon={faChevronRight} className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-sm" />
         </button>
     );
 
@@ -538,6 +545,82 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            
+                            <div className="lg:col-span-1 glass-card p-10 rounded-[3rem] border-none flex flex-col justify-between h-[400px]">
+                                <div>
+                                    <div className="flex items-center justify-between mb-8">
+                                        <h3 className="text-xl font-black text-mdPrimary uppercase tracking-tighter italic">Sanctuary Pulse</h3>
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-mdSecondary rounded-full pulse-gold"></span>
+                                            <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">Live Integration</span>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-8 opacity-70">Interactive oversight of sanctuary growth across all branches.</p>
+                                    
+                                    {/* Simulated Growth Chart (SVG) */}
+                                    <div className="relative h-24 w-full mb-6">
+                                        <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
+                                            <defs>
+                                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stopColor="var(--color-md-secondary)" stopOpacity="0.4" />
+                                                    <stop offset="100%" stopColor="var(--color-md-secondary)" stopOpacity="0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path 
+                                                d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,10 T100,5" 
+                                                fill="none" 
+                                                stroke="var(--color-md-secondary)" 
+                                                strokeWidth="2" 
+                                                strokeLinecap="round"
+                                            />
+                                            <path 
+                                                d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,10 T100,5 V40 H0 Z" 
+                                                fill="url(#chartGradient)"
+                                            />
+                                            <circle cx="20" cy="32" r="1.5" fill="var(--color-md-primary)" />
+                                            <circle cx="60" cy="25" r="1.5" fill="var(--color-md-primary)" />
+                                            <circle cx="100" cy="5" r="2" fill="var(--color-md-secondary)" className="animate-pulse" />
+                                        </svg>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-mdOutline/5">
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Total Impact</p>
+                                            <p className="text-xl font-black text-mdOnSurface">4.8K</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Growth Rate</p>
+                                            <p className="text-xl font-black text-mdSecondary">+12%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Recent Activity Feed */}
+                        <div className="glass-card p-12 rounded-[3rem] border-none shadow-premium animate-slide-up">
+                            <div className="flex items-center justify-between mb-10">
+                                <h3 className="text-2xl font-black text-mdOnSurface tracking-tighter italic">Recent Ministry Activity</h3>
+                                <button className="text-[10px] font-black text-mdPrimary hover:underline uppercase tracking-widest opacity-70">View Universal Log</button>
+                            </div>
+                            <div className="space-y-6">
+                                {[
+                                    { icon: faUserPlus, color: 'bg-green-100 text-green-600', msg: 'New member integration confirmed in East Region', time: '2 mins ago' },
+                                    { icon: faVideo, color: 'bg-blue-100 text-blue-600', msg: 'Life-transforming word "The Anointing" uploaded', time: '45 mins ago' },
+                                    { icon: faPrayingHands, color: 'bg-purple-100 text-purple-600', msg: 'Branch Prayer Wall: Urgent request from Central Branch', time: '1 hour ago' },
+                                    { icon: faCalendarAlt, color: 'bg-amber-100 text-amber-600', msg: 'Sanctuary Event "Higher Calling" published', time: '3 hours ago' },
+                                ].map((item, i) => (
+                                    <div key={i} className="flex items-center justify-between p-5 rounded-3xl bg-mdSurfaceVariant/30 group hover:bg-white transition-all border border-transparent hover:border-mdOutline/10 hover:shadow-sm">
+                                        <div className="flex items-center gap-6">
+                                            <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center text-lg shadow-sm group-hover:scale-110 transition-transform`}>
+                                                <FontAwesomeIcon icon={item.icon} />
+                                            </div>
+                                            <p className="font-bold text-mdOnSurface text-sm">{item.msg}</p>
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-40 bg-mdSurface px-4 py-2 rounded-full whitespace-nowrap">{item.time}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
