@@ -22,10 +22,10 @@ export default function Hero({ title, subtitle, ctaText, ctaLink = '/', small = 
 
   return (
     <section 
-      className={`relative overflow-hidden rounded-[3rem] md:rounded-[4rem] shadow-premium group ${small ? 'h-[300px] md:h-[400px]' : 'h-[500px] md:h-[700px]'} bg-mdSurface`} 
+      className={`relative overflow-hidden rounded-[3rem] md:rounded-[4rem] shadow-premium group ${small ? 'h-[300px] md:h-[400px]' : 'h-[500px] md:h-[700px]'} ${backgroundImage ? '' : 'bg-mdPrimary'}`} 
       aria-labelledby="hero-heading"
     >
-      {backgroundImage ? (
+      {backgroundImage && (
         <>
           <img 
             src={backgroundImage} 
@@ -34,13 +34,8 @@ export default function Hero({ title, subtitle, ctaText, ctaLink = '/', small = 
           />
           <div className="image-overlay-dark opacity-80 backdrop-blur-[1px]" aria-hidden="true" />
         </>
-      ) : (
-        <>
-          <div className="sanctuary-bg !static !h-full !w-full"></div>
-          <div className="sanctuary-grid !static !inset-0"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-mdPrimary/5 to-mdPrimary/20" aria-hidden="true" />
-        </>
       )}
+      {!backgroundImage && <div className="absolute inset-0 bg-black/10" aria-hidden="true" />}
       
       <div className="relative z-10 h-full flex flex-col justify-center px-10 md:px-20 max-w-6xl mx-auto text-white">
         <h1 

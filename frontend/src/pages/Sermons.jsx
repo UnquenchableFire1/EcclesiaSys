@@ -72,6 +72,7 @@ export default function Sermons({ embedded = false, branchId = null }) {
                      <Hero 
                         title="Heavenly Revelations"
                         subtitle="Explore our archive of life-transforming messages and divine teachings from the anointed leaders of our sanctuary."
+                        backgroundImage="/assets/images/church/church_9.jpg"
                         small={true}
                     />
                 </div>
@@ -98,7 +99,7 @@ export default function Sermons({ embedded = false, branchId = null }) {
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {[1, 2, 3].map(n => (
-                        <div key={n} className="glass-card h-[450px] animate-pulse rounded-[2.5rem] opacity-50 !bg-mdSurfaceVariant/10"></div>
+                        <div key={n} className="img-card h-[450px] animate-pulse rounded-[2.5rem] opacity-50"></div>
                     ))}
                 </div>
             ) : filteredSermons.length === 0 ? (
@@ -112,9 +113,12 @@ export default function Sermons({ embedded = false, branchId = null }) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {filteredSermons.map((sermon, idx) => (
-                        <div key={sermon.id} className="glass-card group h-[450px] rounded-[2.5rem] hover:shadow-premium transition-all duration-700 overflow-hidden !bg-mdPrimary text-white">
-                             <div className="sanctuary-grid !opacity-20"></div>
-                             <div className="sanctuary-bg !static !h-full !w-full !opacity-20 overflow-hidden"></div>
+                        <div key={sermon.id} className="img-card group h-[450px] rounded-[2.5rem] hover:shadow-premium transition-all duration-700">
+                             <img 
+                                src={`/assets/images/church/church_${(idx % 10) + 4}.jpg`} 
+                                alt={sermon.title} 
+                                className="transition-transform duration-[2s] group-hover:scale-110"
+                             />
                              <div className="image-overlay group-hover:bg-mdPrimary/40 transition-all duration-700"></div>
                              
                              {isAdmin && (
@@ -176,9 +180,8 @@ export default function Sermons({ embedded = false, branchId = null }) {
                         </button>
 
                         {/* Visual Section */}
-                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full bg-mdPrimary">
-                            <div className="sanctuary-grid !opacity-10"></div>
-                            <div className="sanctuary-bg !static !h-full !w-full !opacity-20"></div>
+                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full">
+                            <img src="/assets/images/church/church_12.jpg" alt="Sermon Detail" className="absolute inset-0 w-full h-full object-cover" />
                             <div className="image-overlay-dark opacity-70"></div>
                             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-12 text-white">
                                 <div className="w-24 h-24 rounded-[2rem] bg-mdSecondary flex items-center justify-center mb-8 shadow-premium animate-float">

@@ -104,8 +104,14 @@ export default function MemberDirectory() {
                             <div key={member.id} className="glass-card group flex flex-col items-center text-center p-8 hover:scale-[1.02] transition-all duration-500">
                                 <div className="relative mb-6">
                                     <div className="w-28 h-28 rounded-full bg-gradient-to-br from-mdPrimary/20 to-mdSecondary/20 p-1 group-hover:rotate-6 transition-transform duration-700">
-                                        <div className="w-full h-full rounded-full bg-mdPrimary/5 overflow-hidden shadow-inner flex items-center justify-center text-4xl font-black text-mdPrimary select-none">
-                                            {initial}
+                                        <div className="w-full h-full rounded-full bg-white dark:bg-mdSurface overflow-hidden shadow-inner">
+                                            {member.profilePictureUrl ? (
+                                                <img src={member.profilePictureUrl} alt={firstName} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-4xl font-black text-mdPrimary bg-mdPrimary/10">
+                                                    {initial}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     {!member.isProfilePublic && isAdmin && (

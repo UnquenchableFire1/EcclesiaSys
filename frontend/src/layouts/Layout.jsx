@@ -269,9 +269,10 @@ export default function Layout({ children }) {
             <div className={`flex flex-1 flex-col ${shouldShowNav && !isMobile ? 'pt-20' : shouldShowNav && isMobile ? 'pt-16' : ''}`}>
                 <main className="flex-1 relative">
                     <div className="grain"></div>
-                    {/* Classy CSS background — animated brand-colour orbs, no images */}
-                    <div className="sanctuary-bg"></div>
-                    <div className="sanctuary-grid"></div>
+                    {/* Global Sanctuary Background Accents */}
+                    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.03] select-none">
+                        <img src="/assets/images/church/church_10.jpg" alt="" className="w-full h-full object-cover scale-110 blur-3xl saturate-0" />
+                    </div>
                     <div className={`relative z-10 p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)] ${isMobile && userId ? 'pb-32' : 'pb-12'}`}>
                         {children}
                     </div>

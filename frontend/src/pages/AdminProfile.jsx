@@ -16,7 +16,11 @@ export default function AdminProfile() {
     const [lightboxImg, setLightboxImg] = useState(null);
     const adminId = sessionStorage.getItem('userId');
 
-    // No-image architecture finalized. Avatars are now pure CSS.
+    const getDefaultAvatar = (gender, name) => {
+        if (gender === 'male' || gender === 'Male') return 'https://avatar.iran.liara.run/public/boy';
+        if (gender === 'female' || gender === 'Female') return 'https://avatar.iran.liara.run/public/girl';
+        return `https://ui-avatars.com/api/?name=${name}&background=random`;
+    };
     
     const [formData, setFormData] = useState({
         phoneNumber: '',
@@ -105,9 +109,18 @@ export default function AdminProfile() {
                         <div className="relative">
                             <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[3rem] p-1 bg-gradient-to-br from-mdPrimary/40 via-mdSecondary/40 to-mdPrimary/40 animate-gradient-slow group-hover:rotate-3 transition-transform duration-700 shadow-premium">
                                 <div className="w-full h-full rounded-[2.9rem] bg-white dark:bg-mdSurface overflow-hidden relative">
-                                <div className="w-full h-full rounded-[2.9rem] bg-mdPrimary/5 overflow-hidden relative flex items-center justify-center text-6xl font-black text-mdPrimary italic select-none">
-                                    {profile.name.charAt(0)}
-                                </div>
+                                    {profile.profilePictureUrl ? (
+                                        <img 
+                                            src={profile.profilePictureUrl} 
+                                            alt="Profile" 
+                                            className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-500"
+                                            onClick={() => setLightboxImg(profile.profilePictureUrl)}
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5">
+                                            {profile.name.charAt(0)}
+                                        </div>
+                                    )}
                                     
                                 </div>
                             </div>

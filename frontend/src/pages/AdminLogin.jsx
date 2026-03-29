@@ -37,11 +37,13 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden bg-mdSurface">
       {/* Left Side: Structural Sanctuary */}
-      <div className="hidden md:flex md:w-1/2 relative overflow-hidden group bg-mdPrimary">
-        <div className="sanctuary-bg !static !h-full !w-full !bg-mdPrimary"></div>
-        <div className="sanctuary-grid !static !inset-0"></div>
-        <div className="auth-panel-bg absolute inset-0 opacity-20"></div>
-        <div className="absolute inset-0 bg-mdPrimary/40 backdrop-blur-[1px]"></div>
+      <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
+        <img 
+          src="/assets/images/church/church_1.jpg" 
+          alt="Admin Foundation" 
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
+        />
+        <div className="image-overlay-dark opacity-70"></div>
         <div className="relative z-10 flex flex-col justify-center items-center h-full p-20 text-white text-center">
         <div className="mb-12">
             <SanctuaryLogo size={120} showText={false} isDark={true} className="animate-float" />
@@ -56,7 +58,12 @@ export default function AdminLogin() {
   </div>
 
   {/* Right Side: Admin Authentication */}
-  <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 auth-panel-bg relative">
+  <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 relative">
+    {/* Mobile Background Image */}
+    <div className="md:hidden absolute inset-0 z-0">
+        <img src="/assets/images/church/church_1.jpg" alt="" className="w-full h-full object-cover opacity-10" />
+        <div className="absolute inset-0 bg-mdSurface/80"></div>
+    </div>
 
     <div className="relative z-10 w-full max-w-md">
       <div className="mb-12 relative flex flex-col items-center">
