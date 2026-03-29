@@ -224,6 +224,10 @@ export const deletePrayerRequest = (id) => {
   return api.delete(`/prayer-requests/${id}`);
 };
 
+export const forwardPrayerRequest = (id, forwarded) => {
+  return api.put(`/prayer-requests/${id}/forward`, { forwarded });
+};
+
 // Notification APIs
 export const getNotifications = (userId, userType) => {
   return api.get(`/notifications/${userType}/${userId}`);

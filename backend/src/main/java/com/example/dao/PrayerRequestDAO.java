@@ -39,6 +39,14 @@ public class PrayerRequestDAO {
                 }
             }
             
+            try {
+                stmt.execute("ALTER TABLE prayer_requests ADD COLUMN IF NOT EXISTS forwarded_to_super_admin BOOLEAN DEFAULT FALSE");
+            } catch (SQLException e) {
+                if (!e.getSQLState().equals("42S21")) { // Duplicate column name
+                    System.err.println("PrayerRequest migration error forwarded_to_super_admin: " + e.getMessage());
+                }
+            }
+            
             System.out.println("✓ Prayer requests table schema check completed");
         } catch (SQLException e) {
             System.err.println("Failed to create prayer_requests table: " + e.getMessage());
@@ -46,7 +54,7 @@ public class PrayerRequestDAO {
     }
 
     public boolean addPrayerRequest(PrayerRequest request) {
-        String query = "INSERT INTO prayer_requests (requester_name, email, request_text, is_anonymous, status, branch_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO prayer_requests (requester_name, email, request_text, is_anonymous, status, branch_id, forwarded_to_super_admin, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, request.getRequesterName());
@@ -55,7 +63,8 @@ public class PrayerRequestDAO {
             stmt.setBoolean(4, request.isAnonymous());
             stmt.setString(5, request.getStatus() != null ? request.getStatus() : "PENDING");
             if (request.getBranchId() != null) stmt.setInt(6, request.getBranchId()); else stmt.setNull(6, Types.INTEGER);
-            stmt.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setBoolean(7, request.isForwardedToSuperAdmin());
+            stmt.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -65,7 +74,7 @@ public class PrayerRequestDAO {
 
     public List<PrayerRequest> getAllPrayerRequests(Integer branchId) {
         List<PrayerRequest> requests = new ArrayList<>();
-        String query = branchId == null ? "SELECT * FROM prayer_requests ORDER BY created_at DESC" : "SELECT * FROM prayer_requests WHERE branch_id = ? ORDER BY created_at DESC";
+        String query = branchId == null ? "SELECT * FROM prayer_requests WHERE forwarded_to_super_admin = TRUE ORDER BY created_at DESC" : "SELECT * FROM prayer_requests WHERE branch_id = ? ORDER BY created_at DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             if (branchId != null) stmt.setInt(1, branchId);
@@ -146,10 +155,31 @@ public class PrayerRequestDAO {
         request.setStatus(rs.getString("status"));
         int bId = rs.getInt("branch_id");
         if (!rs.wasNull()) request.setBranchId(bId);
+        
+        try {
+            request.setForwardedToSuperAdmin(rs.getBoolean("forwarded_to_super_admin"));
+        } catch (SQLException ignore) {
+            // column might not exist if migration failed, default to false
+            request.setForwardedToSuperAdmin(false);
+        }
+        
         Timestamp ts = rs.getTimestamp("created_at");
         if (ts != null) {
             request.setCreatedAt(ts.toLocalDateTime());
         }
         return request;
+    }
+
+    public boolean setForwardedToSuperAdmin(int id, boolean forwarded) {
+        String query = "UPDATE prayer_requests SET forwarded_to_super_admin = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setBoolean(1, forwarded);
+            stmt.setInt(2, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

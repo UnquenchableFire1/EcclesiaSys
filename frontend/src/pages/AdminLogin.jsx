@@ -35,7 +35,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden bg-mdSurface">
+    <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden">
       {/* Left Side: Structural Sanctuary */}
       <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
         <img 
@@ -58,11 +58,11 @@ export default function AdminLogin() {
   </div>
 
   {/* Right Side: Admin Authentication */}
-  <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 relative">
-    {/* Mobile Background Image */}
-    <div className="md:hidden absolute inset-0 z-0">
-        <img src="/assets/images/church/church_1.jpg" alt="" className="w-full h-full object-cover opacity-10" />
-        <div className="absolute inset-0 bg-mdSurface/80"></div>
+  <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 relative overflow-hidden">
+    {/* Background image (all screen sizes) */}
+    <div className="absolute inset-0 z-0">
+        <img src="/assets/images/church/church_11.jpg" alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-white/88 backdrop-blur-md"></div>
     </div>
 
     <div className="relative z-10 w-full max-w-md">

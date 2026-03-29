@@ -114,7 +114,6 @@ export default function Navbar({ isMobile }) {
                 <>
                   <Link to="/" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/')}`}>Home</Link>
                   <Link to="/login" className={`px-4 py-2 rounded-full transition-all duration-200 ${isActive('/login')}`}>Login</Link>
-                  <a href="https://wa.me/message/DMJE5W7QXC2MF1" target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-full text-mdOnSurface hover:bg-mdSurfaceVariant transition-all duration-200">Support</a>
                   <Link to="/register" className="ml-2 px-6 py-2 rounded-full bg-mdPrimary text-mdOnPrimary font-semibold hover:bg-mdSecondary hover:shadow-md1 transition-all duration-200">Register</Link>
                 </>
               )}

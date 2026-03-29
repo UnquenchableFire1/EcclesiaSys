@@ -11,6 +11,7 @@ public class PrayerRequest {
     private boolean isAnonymous;
     private String status; // PENDING, PRAYED_FOR
     private Integer branchId;
+    private boolean forwardedToSuperAdmin;
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
@@ -40,4 +41,7 @@ public class PrayerRequest {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public boolean isForwardedToSuperAdmin() { return forwardedToSuperAdmin; }
+    public void setForwardedToSuperAdmin(boolean forwardedToSuperAdmin) { this.forwardedToSuperAdmin = forwardedToSuperAdmin; }
 }

@@ -65,8 +65,11 @@ export default function AdminDashboard() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const [adminData, setAdminData] = useState(null);
-    const [inspectionBranchId, setInspectionBranchId] = useState(null);
-    const [inspectionBranchName, setInspectionBranchName] = useState('');
+    const [inspectionBranchId, setInspectionBranchId] = useState(() => {
+        const stored = sessionStorage.getItem('inspectionBranchId');
+        return stored ? parseInt(stored) : null;
+    });
+    const [inspectionBranchName, setInspectionBranchName] = useState(() => sessionStorage.getItem('inspectionBranchName') || '');
 
     // Form States
     const [showAnnForm, setShowAnnForm] = useState(false);
@@ -387,16 +390,22 @@ export default function AdminDashboard() {
     }, [members, memberSearchQuery, isActuallySuperAdmin, selectedBranchId, inspectionBranchId, branches]);
 
     const enterInspection = (branchId, branchName) => {
+        sessionStorage.setItem('inspectionBranchId', branchId);
+        sessionStorage.setItem('inspectionBranchName', branchName);
         setInspectionBranchId(branchId);
         setInspectionBranchName(branchName);
         setActiveTab('home');
         showToast(`Viewing ${branchName} in inspection mode.`, 'info');
+        window.location.reload(); // Force full Layout redraw to hide Commander tabs
     };
 
     const exitInspection = () => {
+        sessionStorage.removeItem('inspectionBranchId');
+        sessionStorage.removeItem('inspectionBranchName');
         setInspectionBranchId(null);
         setInspectionBranchName('');
         showToast('Exited inspection mode.', 'info');
+        window.location.reload(); // Restore full Layout access
     };
 
     const MetricCard = ({ label, count, icon, color }) => (
@@ -513,10 +522,14 @@ export default function AdminDashboard() {
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <QuickAction label="Manage Admins" icon={faUserShield} tab="admins" desc="Oversee Staff" />
-                                        <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network oversight" />
+                                        {(!isActuallySuperAdmin && !isReadOnly) && (
+                                            <QuickAction label="Manage Admins" icon={faUserShield} tab="admins" desc="Oversee Staff" />
+                                        )}
+                                        {(!isActuallySuperAdmin && !isReadOnly) && (
+                                            <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network oversight" />
+                                        )}
                                         <QuickAction label="Congregation" icon={faUsers} tab="members" desc="Universal Registry" />
-                                        {!isActuallySuperAdmin && (
+                                        {(!isActuallySuperAdmin && !isReadOnly) && (
                                             <QuickAction label="Sanctuary Help" icon={faWhatsapp} tab="support" desc="WhatsApp Support" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
                                         )}
                                     </div>
@@ -896,7 +909,22 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        {pr.status === 'PENDING' && (
+                                        {!isActuallySuperAdmin && !isReadOnly && (
+                                            <button 
+                                                onClick={() => {
+                                                    import('../services/api').then(({ forwardPrayerRequest }) => {
+                                                        forwardPrayerRequest(pr.id, !pr.forwardedToSuperAdmin)
+                                                            .then(() => fetchAllData())
+                                                            .catch(() => showToast('Failed to modify escalation', 'error'));
+                                                    });
+                                                }}
+                                                className={`p-4 rounded-2xl transition-all ${pr.forwardedToSuperAdmin ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white'}`}
+                                                title={pr.forwardedToSuperAdmin ? "Revoke Escalation" : "Forward to Super Admin"}
+                                            >
+                                                <FontAwesomeIcon icon={faUserShield} />
+                                            </button>
+                                        )}
+                                        {pr.status === 'PENDING' && !isReadOnly && (
                                             <button 
                                                 onClick={() => updatePrayerRequestStatus(pr.id, 'Prayed For').then(fetchAllData)} 
                                                 className="p-4 bg-mdPrimary/10 text-mdPrimary rounded-2xl hover:bg-mdPrimary hover:text-white transition-all"
@@ -905,7 +933,7 @@ export default function AdminDashboard() {
                                                 <FontAwesomeIcon icon={faCheck} />
                                             </button>
                                         )}
-                                        {pr.status !== 'Answered' && (
+                                        {pr.status !== 'Answered' && !isReadOnly && (
                                             <button 
                                                 onClick={() => updatePrayerRequestStatus(pr.id, 'Answered').then(fetchAllData)} 
                                                 className="p-4 bg-green-500/10 text-green-600 rounded-2xl hover:bg-green-500 hover:text-white transition-all"
@@ -914,17 +942,19 @@ export default function AdminDashboard() {
                                                 <FontAwesomeIcon icon={faCheckDouble} />
                                             </button>
                                         )}
-                                        <button 
-                                            onClick={() => openConfirm(
-                                                "Archive Prayer?", 
-                                                "This prayer request will be permanently removed from the dashboard. Proceed?",
-                                                () => deletePrayerRequest(pr.id).then(fetchAllData)
-                                            )}
-                                            className="p-4 bg-mdError/10 text-mdError rounded-2xl hover:bg-mdError hover:text-white transition-all"
-                                            title="Delete Request"
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
+                                        {!isReadOnly && (
+                                            <button 
+                                                onClick={() => openConfirm(
+                                                    "Archive Prayer?", 
+                                                    "This prayer request will be permanently removed from the dashboard. Proceed?",
+                                                    () => deletePrayerRequest(pr.id).then(fetchAllData)
+                                                )}
+                                                className="p-4 bg-mdError/10 text-mdError rounded-2xl hover:bg-mdError hover:text-white transition-all"
+                                                title="Delete Request"
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))}

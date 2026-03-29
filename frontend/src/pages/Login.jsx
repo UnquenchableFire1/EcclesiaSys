@@ -82,20 +82,20 @@ export default function Login() {
       </div>
 
       {/* Right Side: Authentication */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 bg-mdSurface relative">
-        {/* Mobile Background Image (Low opacity) */}
-        <div className="md:hidden absolute inset-0 z-0">
-            <img src="/assets/images/church/church_7.jpg" alt="" className="w-full h-full object-cover opacity-20" />
-            <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white"></div>
+      <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 relative overflow-hidden">
+        {/* Background image (full panel, all screen sizes) */}
+        <div className="absolute inset-0 z-0">
+            <img src="/assets/images/church/church_15.jpg" alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-white/88 backdrop-blur-md"></div>
         </div>
 
         <div className="relative z-10 w-full max-w-md">
           <div className="mb-12 relative flex flex-col items-center">
-            <a href="/" className="absolute -top-12 left-0 text-mdOutline hover:text-mdPrimary transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+            <a href="/" className="self-start md:absolute md:-top-12 md:left-0 mb-8 md:mb-0 text-mdOutline hover:text-mdPrimary transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest w-full justify-center md:justify-start">
               <FontAwesomeIcon icon={faArrowLeft} /> Return Home
             </a>
             
-            <div className="text-center mb-10">
+            <div className="text-center mb-10 w-full flex justify-center mt-4 md:mt-0">
                 <SanctuaryLogo size={64} showText={true} />
             </div>
 

@@ -88,6 +88,7 @@ export default function Layout({ children }) {
     const shouldShowNav = userId && !isAuthPage;
 
     const isSuperAdmin = (sessionStorage.getItem('userEmail') || '').toLowerCase() === 'benjaminbuckmanjunior@gmail.com';
+    const isInspecting = !!sessionStorage.getItem('inspectionBranchId');
 
     const adminTabs = [
         { id: 'home', label: 'Overview', icon: faHome, path: '/admin' },
@@ -96,7 +97,7 @@ export default function Layout({ children }) {
         { id: 'events', label: 'Events', icon: faCalendarAlt },
         { id: 'sermons', label: 'Sermons', icon: faMicrophone },
         { id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands },
-        ...(isSuperAdmin ? [{ id: 'admins', label: 'Commanders', icon: faUserShield }] : []),
+        ...(isSuperAdmin && !isInspecting ? [{ id: 'admins', label: 'Commanders', icon: faUserShield }] : []),
     ];
 
     const memberTabs = [
@@ -162,7 +163,7 @@ export default function Layout({ children }) {
     };
 
     return (
-        <div className="min-h-screen bg-mdSurface text-mdOnSurface flex flex-col overflow-x-hidden">
+        <div className="min-h-screen text-mdOnSurface flex flex-col overflow-x-hidden relative">
             {!userId && <Navbar isMobile={isMobile} />}
             
             {shouldShowNav && !isMobile && (
@@ -268,11 +269,37 @@ export default function Layout({ children }) {
             <div className={`flex flex-1 flex-col ${shouldShowNav && !isMobile ? 'pt-20' : shouldShowNav && isMobile ? 'pt-16' : ''}`}>
                 <main className="flex-1 relative">
                     <div className="grain"></div>
-                    {/* Global Sanctuary Background Accents */}
-                    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.03] select-none">
-                        <img src="/assets/images/church/church_10.jpg" alt="" className="w-full h-full object-cover scale-110 blur-3xl saturate-0" />
-                    </div>
-                    <div className="relative z-10 p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)] ${isMobile && userId ? 'pb-32' : 'pb-12'}">
+                    {/* Route-aware full-page background image */}
+                    {(() => {
+                        const bgMap = {
+                            '/': '/assets/images/church/church_1.jpg',
+                            '/home': '/assets/images/church/church_1.jpg',
+                            '/announcements': '/assets/images/church/church_4.jpg',
+                            '/events': '/assets/images/church/church_5.jpg',
+                            '/sermons': '/assets/images/church/church_6.jpg',
+                            '/prayer-request': '/assets/images/church/church_8.jpg',
+                            '/member-dashboard': '/assets/images/church/church_3.jpg',
+                            '/admin': '/assets/images/church/church_2.jpg',
+                            '/admin-profile': '/assets/images/church/church_12.jpg',
+                            '/member-profile': '/assets/images/church/church_13.jpg',
+                        };
+                        const fallback = '/assets/images/church/church_10.jpg';
+                        const bgImg = bgMap[location.pathname] || fallback;
+                        return (
+                            <div className="fixed inset-0 z-0 pointer-events-none">
+                                <img
+                                    key={bgImg}
+                                    src={bgImg}
+                                    alt=""
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                    style={{ transition: 'opacity 0.8s ease' }}
+                                />
+                                {/* Layered overlay: dark + frosted glass effect for readability */}
+                                <div className="absolute inset-0 bg-mdSurface/85 backdrop-blur-sm"></div>
+                            </div>
+                        );
+                    })()}
+                    <div className={`relative z-10 p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)] ${isMobile && userId ? 'pb-32' : 'pb-12'}`}>
                         {children}
                     </div>
 

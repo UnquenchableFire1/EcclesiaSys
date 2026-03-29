@@ -132,20 +132,20 @@ export default function Register() {
             </div>
 
             {/* Right Side: Registration Form */}
-            <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12 bg-mdSurface relative overflow-y-auto custom-scrollbar">
-                {/* Mobile Background Image (Low opacity) */}
-                <div className="md:hidden absolute inset-0 z-0 h-full">
-                    <img src="/assets/images/church/church_5.jpg" alt="" className="w-full h-full object-cover opacity-15" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white"></div>
+            <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-y-auto custom-scrollbar">
+                {/* Background image (full panel, all screen sizes) */}
+                <div className="absolute inset-0 z-0 h-full">
+                    <img src="/assets/images/church/church_14.jpg" alt="" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-white/88 backdrop-blur-md"></div>
                 </div>
 
                 <div className="relative z-10 w-full max-w-xl py-12">
                     <div className="mb-10 relative flex flex-col items-center">
-                        <a href="/" className="absolute -top-12 left-0 text-mdOutline hover:text-mdPrimary transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                        <a href="/" className="self-start md:absolute md:-top-12 md:left-0 mb-8 md:mb-0 text-mdOutline hover:text-mdPrimary transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest w-full justify-center md:justify-start">
                             <FontAwesomeIcon icon={faArrowLeft} /> Return Home
                         </a>
                         
-                        <div className="text-center mb-10">
+                        <div className="text-center mb-10 w-full flex justify-center mt-4 md:mt-0">
                             <SanctuaryLogo size={64} showText={true} />
                         </div>
 

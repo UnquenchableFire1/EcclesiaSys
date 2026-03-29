@@ -159,4 +159,25 @@ public class PrayerRequestController {
         }
         return response;
     }
+
+    @PutMapping("/{id}/forward")
+    public Map<String, Object> forwardRequest(@PathVariable int id, @RequestBody Map<String, Object> body) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean forwarded = body.containsKey("forwarded") && (boolean) body.get("forwarded");
+            PrayerRequestDAO dao = new PrayerRequestDAO();
+            boolean success = dao.setForwardedToSuperAdmin(id, forwarded);
+            if (success) {
+                response.put("success", true);
+                response.put("message", forwarded ? "Prayer request escalated to Super Admin" : "Escalation revoked successfully");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to update escalation status");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error updating escalation status: " + e.getMessage());
+        }
+        return response;
+    }
 }
