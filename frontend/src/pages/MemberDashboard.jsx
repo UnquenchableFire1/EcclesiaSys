@@ -21,7 +21,7 @@ import Events from './Events';
 import Sermons from './Sermons';
 import DailyVerse from '../components/DailyVerse';
 import ChangePassword from '../components/ChangePassword';
-import Chat from './Chat';
+// Chat removed in favor of WhatsApp support
 
 export default function MemberDashboard() {
     const navigate = useNavigate();
@@ -132,22 +132,23 @@ export default function MemberDashboard() {
                 {activeTab === 'home' && (
                     <div className="space-y-12">
                         {/* Hero Section */}
-                        <div className="glass-card p-10 md:p-16 bg-mdPrimary text-white relative overflow-hidden group border-none shadow-lifted rounded-[3rem]">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-1000"></div>
-                            <div className="relative z-10 max-w-2xl">
-                                <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.4em] mb-8 inline-block border border-white/10">Member Sanctuary</span>
+                        <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
+                            <img src="/assets/images/church/church_8.jpg" alt="Sanctuary" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
+                            <div className="image-overlay-dark opacity-70"></div>
+                            <div className="relative z-10 h-full p-10 md:p-16 flex flex-col justify-center max-w-2xl text-white">
+                                <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.4em] mb-8 inline-block border border-white/10 w-max">Member Sanctuary</span>
                                 <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.9]">
                                     Your faith,<br/>
-                                    <span className="opacity-60">Connected.</span>
+                                    <span className="opacity-60 text-mdSecondary">Connected.</span>
                                 </h2>
-                                <p className="text-lg md:text-xl font-medium text-white/80 mb-10 leading-relaxed">
-                                    "Your word is a lamp to my feet and a light to my path." – Discover what's happening in our community today.
+                                <p className="text-lg md:text-xl font-medium text-white/80 mb-10 leading-relaxed max-w-lg">
+                                    "Your word is a lamp to my feet and a light to my path." – Explore what's happening in our sanctuary today.
                                 </p>
                                 <div className="flex flex-wrap gap-4">
-                                    <button onClick={() => setActiveTab('sermons')} className="px-8 py-4 bg-white text-mdPrimary rounded-2xl font-black text-sm uppercase tracking-widest shadow-lifted hover:scale-105 transition-all">
+                                    <button onClick={() => setActiveTab('sermons')} className="px-8 py-4 bg-white text-mdPrimary rounded-2xl font-black text-sm uppercase tracking-widest shadow-lifted hover:bg-mdSecondary hover:text-white transition-all">
                                         Listen to Word
                                     </button>
-                                    <button onClick={() => navigate('/prayer-request')} className="px-8 py-4 bg-white/10 border border-white/30 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
+                                    <button onClick={() => navigate('/prayer-request')} className="px-8 py-4 bg-white/10 border border-white/30 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white/20 transition-all">
                                         Request Prayer
                                     </button>
                                 </div>
@@ -197,13 +198,6 @@ export default function MemberDashboard() {
                                     icon={faUsers} 
                                     tab="members" 
                                     color="text-mdPrimary" 
-                                />
-                                <DiscoveryCard 
-                                    title="Direct Chat" 
-                                    desc="Message our sanctuary administrators for support." 
-                                    icon={faComments} 
-                                    tab="chat" 
-                                    color="text-mdSecondary" 
                                 />
                             </div>
                         </div>
@@ -276,12 +270,7 @@ export default function MemberDashboard() {
                     </div>
                 )}
 
-                {/* 4.5 CHAT */}
-                {activeTab === 'chat' && (
-                    <div className="space-y-10 animate-fade-in">
-                        <Chat />
-                    </div>
-                )}
+                {/* 4.5 CHAT removed */}
 
                 {/* 5. PRAYER REQUESTS */}
                 {activeTab === 'prayer-requests' && (
@@ -325,13 +314,15 @@ export default function MemberDashboard() {
                                         <FontAwesomeIcon icon={faComments} className="text-2xl" />
                                         <h4 className="text-xl font-black">Need Support?</h4>
                                     </div>
-                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-6 opacity-80">Our sanctuary administrators are available for direct messaging and spiritual support.</p>
-                                    <button 
-                                      onClick={() => setActiveTab('chat')}
+                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-6 opacity-80">Our sanctuary support team is available via WhatsApp for direct assistance.</p>
+                                    <a 
+                                      href="https://wa.me/message/DMJE5W7QXC2MF1"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
                                       className="font-black text-mdSecondary hover:underline uppercase tracking-widest text-xs flex items-center gap-2"
                                     >
-                                        Open Direct Chat <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
-                                    </button>
+                                        Contact Support <FontAwesomeIcon icon={faArrowRight} className="text-[10px]" />
+                                    </a>
                                 </div>
                             </div>
                         </div>

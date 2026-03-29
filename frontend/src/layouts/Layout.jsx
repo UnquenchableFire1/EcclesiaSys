@@ -93,18 +93,16 @@ export default function Layout({ children }) {
         { id: 'announcements', label: 'News', icon: faBullhorn },
         { id: 'events', label: 'Events', icon: faCalendarAlt },
         { id: 'sermons', label: 'Sermons', icon: faMicrophone },
-        { id: 'chat', label: 'Sanctuary Chat', icon: faComments },
         { id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands },
         ...(isSuperAdmin ? [{ id: 'admins', label: 'Commanders', icon: faUserShield }] : []),
     ];
 
     const memberTabs = [
         { id: 'home', label: 'Overview', icon: faHome, path: '/member-dashboard' },
-        {id: 'announcements', label: 'Announcements', icon: faBullhorn },
+        { id: 'announcements', label: 'Announcements', icon: faBullhorn },
         { id: 'members', label: 'Members', icon: faUsers },
         { id: 'events', label: 'Events', icon: faCalendarAlt },
         { id: 'sermons', label: 'Sermons', icon: faMicrophone },
-        { id: 'chat', label: 'Support Chat', icon: faComments },
         { id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands },
     ];
 
@@ -274,6 +272,31 @@ export default function Layout({ children }) {
                     <div className={`p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)] ${isMobile && userId ? 'pb-32' : 'pb-12'}`}>
                         {children}
                     </div>
+
+                    {shouldShowNav && (
+                        <footer className="w-full py-12 px-8 border-t border-mdOutline/5 bg-white/30 backdrop-blur-xl">
+                            <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+                                <div className="flex flex-col items-center md:items-start">
+                                    <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">EcclesiaSys Support</h3>
+                                    <p className="text-sm font-medium text-mdOnSurfaceVariant max-w-sm text-center md:text-left opacity-70">
+                                        Need assistance or spiritual guidance? Our sanctuary support team is just a message away on WhatsApp.
+                                    </p>
+                                </div>
+                                <a 
+                                    href="https://wa.me/message/DMJE5W7QXC2MF1" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-4 px-10 py-5 bg-mdPrimary text-white rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all group"
+                                >
+                                    <FontAwesomeIcon icon={faComments} className="text-xl group-hover:scale-110 transition-transform" />
+                                    Connect on WhatsApp
+                                </a>
+                            </div>
+                            <div className="mt-12 pt-8 border-t border-mdOutline/5 text-center text-[10px] font-black uppercase tracking-[0.3em] text-mdOnSurfaceVariant/40">
+                                © 2026 EcclesiaSys Sanctuary. All Rights Reserved.
+                            </div>
+                        </footer>
+                    )}
                 </main>
             </div>
 

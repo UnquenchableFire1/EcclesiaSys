@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getAnnouncements, deleteAnnouncement } from '../services/api';
 import ConfirmModal from '../components/ConfirmModal';
+import Hero from '../components/Hero';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faBullhorn, 
@@ -64,15 +65,15 @@ export default function Announcements({ embedded = false, branchId = null }) {
     }, [announcements, searchTerm]);
 
     return (
-        <div className={`animate-fade-in ${embedded ? '' : 'max-w-7xl mx-auto px-4 py-6'}`}>
+        <div className={`animate-fade-in pb-20 ${embedded ? '' : 'max-w-7xl mx-auto px-4'}`}>
             {!embedded && (
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-                    <div>
-                        <h1 className="text-4xl md:text-5xl font-black text-mdOnSurface tracking-tighter mb-2 italic">Sanctuary News</h1>
-                        <p className="text-mdPrimary font-black text-lg uppercase tracking-widest bg-mdPrimary/5 px-4 py-1 rounded-full w-max border border-mdPrimary/20 shadow-sm">
-                            Latest Announcements
-                        </p>
-                    </div>
+                <div className="mb-12">
+                     <Hero 
+                        title="Sanctuary Insights"
+                        subtitle="Stay updated with the latest news, events, and announcements from our community."
+                        backgroundImage="/assets/images/church/church_4.jpg"
+                        small={true}
+                    />
                 </div>
             )}
 

@@ -11,6 +11,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import PrayerRequestPage from "./pages/PrayerRequestPage";
 import Layout from "./layouts/Layout";
 import Events from "./pages/Events";
+import Announcements from "./pages/Announcements";
+import Sermons from "./pages/Sermons";
 import SessionTimer from "./components/SessionTimer";
 
 class ErrorBoundary extends Component {
@@ -99,6 +101,8 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/prayer-request" element={<Layout><PrayerRequestPage /></Layout>} />
         <Route path="/events" element={<Layout><Events /></Layout>} />
+        <Route path="/announcements" element={<Layout><Announcements /></Layout>} />
+        <Route path="/sermons" element={<Layout><Sermons /></Layout>} />
         <Route
           path="/member-dashboard"
           element={

@@ -13,7 +13,7 @@ import {
 export default function BottomNav({ activeTab, setActiveTab, tabs, unreadCount = 0, onNotificationClick }) {
   // Mobile navigation includes all central pillars as per user request
   const userType = sessionStorage.getItem('userType');
-  const mobileTabIds = ['home', 'members', 'announcements', 'events', 'sermons', 'chat', 'profile'];
+  const mobileTabIds = ['home', 'members', 'announcements', 'events', 'sermons', 'profile'];
     
   const mobileTabs = tabs.filter(t => mobileTabIds.includes(t.id))
     .sort((a, b) => mobileTabIds.indexOf(a.id) - mobileTabIds.indexOf(b.id));

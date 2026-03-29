@@ -27,7 +27,7 @@ import Events from './Events';
 import Sermons from './Sermons';
 import AdminProfile from './AdminProfile';
 import ChangePassword from '../components/ChangePassword';
-import Chat from './Chat';
+// Chat removed in favor of WhatsApp support
 import { downloadMembersAsExcel } from '../services/excelExport';
 import ConfirmModal from '../components/ConfirmModal';
 import { useToast } from '../context/ToastContext';
@@ -513,22 +513,28 @@ export default function AdminDashboard() {
                                 )}
                             </div>
                             
-                            <div className="glass-card p-10 bg-gradient-to-br from-mdPrimary to-mdSecondary text-white relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                                <h3 className="text-2xl font-black mb-6">System Status</h3>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 bg-white/10 rounded-2xl">
-                                        <span className="font-bold text-[10px] uppercase tracking-widest opacity-70">Heartbeat</span>
-                                        <span className="flex items-center gap-2 font-black text-[10px] uppercase">
-                                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                                            Operational
-                                        </span>
+                            <div className="relative h-[400px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
+                                <img src="/assets/images/church/church_13.jpg" alt="Sanctuary Administration" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
+                                <div className="image-overlay-dark opacity-80 backdrop-blur-[2px]"></div>
+                                <div className="relative z-10 h-full p-12 flex flex-col justify-center text-white">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="w-12 h-12 rounded-2xl bg-mdPrimary/20 backdrop-blur-md flex items-center justify-center text-white border border-white/10">
+                                            <FontAwesomeIcon icon={faUserShield} className="text-xl" />
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70">Sanctuary Command Center</span>
                                     </div>
-                                    <div className="pt-8 border-t border-white/10">
-                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Authenticated As</p>
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-black">{adminName?.[0]}</div>
-                                            <p className="font-black text-lg">{adminName}</p>
+                                    <h3 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter">System Oversight</h3>
+                                    <div className="flex items-center gap-6 pt-6 border-t border-white/10 mt-6 max-w-md">
+                                        <div className="flex -space-x-3">
+                                            {[5,6,11].map(i => (
+                                                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-mdSurface">
+                                                    <img src={`/assets/images/church/church_${i}.jpg`} alt="" className="w-full h-full object-cover" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1">Authenticated As</p>
+                                            <p className="font-black text-lg text-mdSecondary">{adminName} <span className="text-[10px] ml-2 opacity-50">{isActuallySuperAdmin ? '(SUPER ADMIN)' : '(ADMIN)'}</span></p>
                                         </div>
                                     </div>
                                 </div>
@@ -773,12 +779,7 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
-                {/* 5.5 CHAT */}
-                {activeTab === 'chat' && (
-                    <div className="space-y-10 animate-fade-in mt-4">
-                        <Chat />
-                    </div>
-                )}
+                {/* 5.5 CHAT removed */}
 
                 {/* 6. PRAYER REQUESTS */}
                 {activeTab === 'prayer-requests' && (
