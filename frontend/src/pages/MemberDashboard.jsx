@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faComments, faUsers, faEnvelope, faSearch, faHandsHelping,
-    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight, faCamera
+    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight, faCamera, faTrash
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
@@ -14,7 +14,7 @@ import {
     getMemberProfile, getAnnouncements, getEvents, getSermons,
     createPrayerRequest, getNotifications, markNotificationAsRead,
     markAllNotificationsAsRead, getMembers, getPublicMembers,
-    getMyPrayerRequests, uploadProfilePicture
+    getMyPrayerRequests, uploadProfilePicture, deleteProfilePicture
 } from '../services/api';
 
 import Announcements from './Announcements';
@@ -108,6 +108,31 @@ export default function MemberDashboard() {
         } finally {
             setIsUploading(false);
             setSelectedImage(null);
+        }
+    };
+
+    const handleDeleteProfilePicture = async () => {
+        if (!window.confirm("Are you sure you want to remove your sanctuary portrait?")) return;
+
+        setIsUploading(true);
+        try {
+            const response = await deleteProfilePicture(memberId, 'member');
+            if (response.data.success) {
+                showToast(response.data.message, "success");
+                setMemberProfile(prev => ({
+                    ...prev,
+                    profilePictureUrl: null
+                }));
+                sessionStorage.removeItem('profilePictureUrl');
+                window.dispatchEvent(new Event('storage'));
+            } else {
+                showToast(response.data.message || "Failed to remove portrait.", "error");
+            }
+        } catch (err) {
+            console.error("Delete error:", err);
+            showToast("Server refused portrait removal.", "error");
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -438,18 +463,32 @@ export default function MemberDashboard() {
                                         </div>
                                     )}
                                     
-                                    {/* Camera Overlay */}
-                                    <label className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white">
-                                        <FontAwesomeIcon icon={faCamera} className="text-2xl mb-2" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Update</span>
-                                        <input 
-                                            type="file" 
-                                            className="hidden" 
-                                            accept="image/*" 
-                                            onChange={handleImageSelect}
-                                            disabled={isUploading}
-                                        />
-                                    </label>
+                                            {/* Camera Overlay */}
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-white">
+                                                <label className="flex flex-col items-center justify-center cursor-pointer p-4 hover:text-mdPrimary transition-colors">
+                                                    <FontAwesomeIcon icon={faCamera} className="text-xl mb-1" />
+                                                    <span className="text-[8px] font-black uppercase tracking-widest">Update</span>
+                                                    <input 
+                                                        type="file" 
+                                                        className="hidden" 
+                                                        accept="image/*" 
+                                                        onChange={handleImageSelect}
+                                                        disabled={isUploading}
+                                                    />
+                                                </label>
+                                                
+                                                {memberProfile?.profilePictureUrl && (
+                                                    <button 
+                                                        onClick={handleDeleteProfilePicture}
+                                                        disabled={isUploading}
+                                                        className="flex flex-col items-center justify-center p-4 hover:text-mdError transition-colors"
+                                                        title="Remove Portrait"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} className="text-xl mb-1" />
+                                                        <span className="text-[8px] font-black uppercase tracking-widest">Remove</span>
+                                                    </button>
+                                                )}
+                                            </div>
 
                                     {isUploading && (
                                         <div className="absolute inset-0 bg-mdPrimary/20 backdrop-blur-sm flex items-center justify-center">

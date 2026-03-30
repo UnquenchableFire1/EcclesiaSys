@@ -11,6 +11,7 @@ import {
     faTrashAlt, 
     faTimes 
 } from '@fortawesome/free-solid-svg-icons';
+import MediaPreview from '../components/MediaPreview';
 
 export default function Announcements({ embedded = false, branchId = null }) {
     const [announcements, setAnnouncements] = useState([]);
@@ -140,6 +141,11 @@ export default function Announcements({ embedded = false, branchId = null }) {
                                 <p className="text-mdOnSurfaceVariant font-medium leading-relaxed mb-6 line-clamp-3 text-sm italic opacity-80">
                                     {ann.message}
                                 </p>
+                                {ann.fileUrl && (
+                                    <div className="mb-6 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
+                                        <MediaPreview url={ann.fileUrl} title={ann.title} />
+                                    </div>
+                                )}
                             </div>
                             <div className="px-8 py-5 bg-mdSurfaceVariant/5 border-t border-mdOutline/5 flex items-center justify-between">
                                 <button 
@@ -184,9 +190,14 @@ export default function Announcements({ embedded = false, branchId = null }) {
                                 Posted {selectedAnnouncement.createdAt ? new Date(selectedAnnouncement.createdAt).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 'Recently'}
                             </div>
                             <div className="bg-mdSurfaceVariant/10 p-10 rounded-[2.5rem] border border-mdOutline/5 shadow-inner">
-                                <p className="text-xl leading-relaxed text-mdOnSurface font-medium whitespace-pre-wrap italic">
+                                <p className="text-xl leading-relaxed text-mdOnSurface font-medium whitespace-pre-wrap italic mb-8">
                                     "{selectedAnnouncement.message}"
                                 </p>
+                                {selectedAnnouncement.fileUrl && (
+                                    <div className="mt-8 border-t border-mdOutline/10 pt-8">
+                                        <MediaPreview url={selectedAnnouncement.fileUrl} title={selectedAnnouncement.title} />
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="px-10 py-7 bg-mdSurfaceVariant/5 border-t border-mdOutline/5 flex justify-end">

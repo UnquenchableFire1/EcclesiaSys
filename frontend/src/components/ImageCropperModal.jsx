@@ -110,7 +110,7 @@ const ImageCropperModal = ({ image, onCropComplete, onCancel }) => {
               ) : (
                 <>
                   <FontAwesomeIcon icon={faCheck} />
-                  Confirm Selection
+                  Upload Portrait
                 </>
               )}
             </button>

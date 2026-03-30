@@ -7,11 +7,12 @@ import {
     faMicrophone, 
     faClock, 
     faUser, 
-    faSearch, 
-    faTrashAlt,
     faTimes,
-    faQuoteLeft
+    faQuoteLeft,
+    faVideo,
+    faVolumeUp
 } from '@fortawesome/free-solid-svg-icons';
+import MediaPreview from '../components/MediaPreview';
 
 export default function Sermons({ embedded = false, branchId = null }) {
     const [sermons, setSermons] = useState([]);
@@ -229,9 +230,21 @@ export default function Sermons({ embedded = false, branchId = null }) {
                                 
                                 <div className="pt-12 border-t border-mdOutline/5">
                                     <p className="text-[11px] uppercase font-black tracking-[0.3em] text-mdOutline opacity-60 mb-6">Summary of Revelation</p>
-                                    <p className="text-xl text-mdOnSurfaceVariant font-medium leading-relaxed italic opacity-80">
+                                    <p className="text-xl text-mdOnSurfaceVariant font-medium leading-relaxed italic opacity-80 mb-8">
                                         {selectedSermon.description || 'No description provided for this revelation. The word is waiting to be explored.'}
                                     </p>
+                                    
+                                    {(selectedSermon.videoUrl || selectedSermon.audioUrl) && (
+                                        <div className="mt-8 border-t border-mdOutline/10 pt-8 space-y-4">
+                                            <p className="text-[10px] uppercase font-black tracking-[0.3em] text-mdOutline opacity-60 mb-2">Manifestation of the Word</p>
+                                            {selectedSermon.videoUrl && (
+                                                <MediaPreview url={selectedSermon.videoUrl} type="video" title={`${selectedSermon.title} (Video)`} />
+                                            )}
+                                            {selectedSermon.audioUrl && (
+                                                <MediaPreview url={selectedSermon.audioUrl} type="audio" title={`${selectedSermon.title} (Audio)`} />
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

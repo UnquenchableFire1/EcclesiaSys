@@ -167,8 +167,31 @@ export const uploadProfilePicture = (formData) => {
   });
 };
 
+export const deleteProfilePicture = (userId, userType) => {
+  const params = new URLSearchParams();
+  params.append('userId', userId);
+  params.append('userType', userType);
+  return api.post('/upload/profile-picture/delete', params);
+};
+
 export const uploadEventDocument = (formData) => {
   return api.post('/upload/event-document', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const uploadAnnouncementFile = (formData) => {
+  return api.post('/upload/announcement', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const uploadSermonFile = (formData) => {
+  return api.post('/upload/sermon', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

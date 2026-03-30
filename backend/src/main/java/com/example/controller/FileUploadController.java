@@ -118,6 +118,57 @@ public class FileUploadController {
         return response;
     }
 
+    @PostMapping("/profile-picture/delete")
+    public Map<String, Object> deleteProfilePicture(
+            @RequestParam("userId") int userId,
+            @RequestParam("userType") String userType) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            System.out.println("=== Profile Picture Delete Request ===");
+            System.out.println("User ID: " + userId + " (" + userType + ")");
+            
+            boolean updated = false;
+            if ("admin".equalsIgnoreCase(userType)) {
+                AdminDAO adminDao = new AdminDAO();
+                Admin admin = adminDao.getAdminById(userId);
+                if (admin != null) {
+                    admin.setProfilePictureUrl(null);
+                    updated = adminDao.updateAdmin(admin);
+                } else {
+                    response.put("message", "Admin not found");
+                }
+            } else {
+                MemberDAO memberDao = new MemberDAO();
+                Member member = memberDao.getMemberById(userId);
+                if (member != null) {
+                    member.setProfilePictureUrl(null);
+                    updated = memberDao.updateMember(member);
+                } else {
+                    response.put("message", "Member not found");
+                }
+            }
+
+            if (updated) {
+                response.put("success", true);
+                response.put("message", "Portrait removed from the sanctuary.");
+            } else {
+                response.put("success", false);
+                if (!response.containsKey("message")) {
+                    response.put("message", "Failed to clear portrait from registry.");
+                }
+            }
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
     @PostMapping("/sermon")
     public Map<String, Object> uploadSermon(
             @RequestParam("file") MultipartFile file,

@@ -9,12 +9,10 @@ import {
     faClock, 
     faMapMarkerAlt, 
     faSearch, 
-    faArrowRight, 
-    faTrashAlt,
-    faBell,
     faCalendarPlus,
-    faTimes
+    faTimes 
 } from '@fortawesome/free-solid-svg-icons';
+import MediaPreview from '../components/MediaPreview';
 
 export default function Events({ embedded = false, branchId = null }) {
     const [events, setEvents] = useState([]);
@@ -293,9 +291,15 @@ export default function Events({ embedded = false, branchId = null }) {
 
                                 <div className="pt-12 border-t border-mdOutline/5">
                                     <p className="text-[11px] uppercase font-black tracking-[0.3em] text-mdOutline opacity-60 mb-6">Gathering Purpose</p>
-                                    <p className="text-xl text-mdOnSurfaceVariant font-medium leading-relaxed italic opacity-80">
+                                    <p className="text-xl text-mdOnSurfaceVariant font-medium leading-relaxed italic opacity-80 mb-8">
                                         "{selectedEvent.description}"
                                     </p>
+                                    {selectedEvent.documentFileUrl && (
+                                        <div className="mt-8 pt-8 border-t border-mdOutline/10">
+                                            <p className="text-[10px] uppercase font-black tracking-[0.3em] text-mdOutline opacity-60 mb-4">Event Resources</p>
+                                            <MediaPreview url={selectedEvent.documentFileUrl} title={selectedEvent.title} />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

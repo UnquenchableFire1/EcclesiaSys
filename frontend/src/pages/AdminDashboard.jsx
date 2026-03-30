@@ -7,7 +7,8 @@ import {
     faTrash, faPhone, faEnvelope, faMapMarkerAlt, faVideo, 
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
-    faExclamationTriangle, faSignOutAlt, faBuilding, faCamera
+    faExclamationTriangle, faSignOutAlt, faBuilding, faCamera,
+    faPlay, faLink, faFileUpload, faTimes 
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
@@ -20,9 +21,11 @@ import {
     getPrayerRequests, updatePrayerRequestStatus, deletePrayerRequest,
     deleteMember, createAnnouncement, createEvent, createSermon,
     createAdmin, promoteMemberToAdmin, assignBranch,
-    uploadProfilePicture
+    uploadProfilePicture, deleteProfilePicture,
+    uploadAnnouncementFile, uploadSermonFile, uploadEventDocument
 } from '../services/api';
 
+import MediaPreview from '../components/MediaPreview';
 import Lightbox from '../components/Lightbox';
 
 import Announcements from './Announcements';
@@ -80,11 +83,17 @@ export default function AdminDashboard() {
 
     // Form States
     const [showAnnForm, setShowAnnForm] = useState(false);
-    const [annForm, setAnnForm] = useState({ title: '', message: '' });
+    const [annForm, setAnnForm] = useState({ title: '', message: '', fileUrl: '' });
+    const [annFile, setAnnFile] = useState(null);
     const [showEventForm, setShowEventForm] = useState(false);
-    const [eventForm, setEventForm] = useState({ title: '', description: '', startDate: '', endDate: '', location: '' });
+    const [eventForm, setEventForm] = useState({ title: '', description: '', startDate: '', endDate: '', location: '', documentFileUrl: '' });
+    const [eventFile, setEventFile] = useState(null);
     const [showSermonForm, setShowSermonForm] = useState(false);
-    const [sermonForm, setSermonForm] = useState({ title: '', preacherName: '', description: '' });
+    const [sermonForm, setSermonForm] = useState({ 
+        title: '', preacherName: '', description: '', 
+        videoUrl: '', audioUrl: '', sourceType: 'file' 
+    });
+    const [sermonFile, setSermonFile] = useState(null);
     const [showAdminForm, setShowAdminForm] = useState(false);
     const [adminForm, setAdminForm] = useState({ name: '', email: '', password: '', branchId: '' });
     const [formLoading, setFormLoading] = useState(false);
@@ -250,6 +259,31 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleDeleteProfilePicture = async () => {
+        if (!window.confirm("Are you sure you want to remove your sanctuary portrait?")) return;
+
+        setIsUploading(true);
+        try {
+            const response = await deleteProfilePicture(adminId, 'admin');
+            if (response.data.success) {
+                showToast(response.data.message, "success");
+                setAdminData(prev => ({
+                    ...prev,
+                    profilePictureUrl: null
+                }));
+                sessionStorage.removeItem('profilePictureUrl');
+                window.dispatchEvent(new Event('storage'));
+            } else {
+                showToast(response.data.message || "Failed to remove portrait.", "error");
+            }
+        } catch (err) {
+            console.error("Delete error:", err);
+            showToast("Server refused portrait removal.", "error");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const fetchNotifications = async () => {
         try {
             const res = await getNotifications(adminId, 'ADMIN');
@@ -290,54 +324,115 @@ export default function AdminDashboard() {
         e.preventDefault();
         setFormLoading(true);
         try {
-            await createAnnouncement({ 
+            let fileUrl = annForm.fileUrl;
+            if (annFile) {
+                const formData = new FormData();
+                formData.append('file', annFile);
+                const uploadRes = await uploadAnnouncementFile(formData);
+                if (uploadRes.data.success) {
+                    fileUrl = uploadRes.data.fileUrl;
+                }
+            }
+
+            const response = await createAnnouncement({ 
                 ...annForm, 
+                fileUrl,
                 createdBy: adminId,
                 branchId: currentBranchIdForData 
             });
-            showToast('Your announcement is now visible to all members.', 'success');
-            setAnnForm({ title: '', message: '' });
-            setShowAnnForm(false);
-            fetchAllData();
-        } catch (err) { showToast('Broadcast failed.', 'error'); }
-        finally { setFormLoading(false); }
+            if (response.data.success) {
+                showToast('Announcement broadcast successfully!', 'success');
+                setAnnForm({ title: '', message: '', fileUrl: '' });
+                setAnnFile(null);
+                setShowAnnForm(false);
+                fetchAllData();
+            }
+        } catch (err) {
+            showToast('Failed to broadcast announcement.', 'error');
+        } finally {
+            setFormLoading(false);
+        }
     };
 
     const handleEventSubmit = async (e) => {
         e.preventDefault();
         setFormLoading(true);
         try {
-            await createEvent({ 
+            let documentFileUrl = eventForm.documentFileUrl;
+            if (eventFile) {
+                const formData = new FormData();
+                formData.append('file', eventFile);
+                const uploadRes = await uploadEventDocument(formData);
+                if (uploadRes.data.success) {
+                    documentFileUrl = uploadRes.data.fileUrl;
+                }
+            }
+
+            const response = await createEvent({ 
                 ...eventForm, 
                 eventDate: eventForm.startDate,
+                documentFileUrl,
                 createdBy: adminId,
-                branchId: currentBranchIdForData
+                branchId: currentBranchIdForData 
             });
-            showToast('The event has been added to the calendar.', 'success');
-            setEventForm({ title: '', description: '', startDate: '', endDate: '', location: '' });
-            setShowEventForm(false);
-            fetchAllData();
-        } catch (err) { showToast('Scheduling failed.', 'error'); }
-        finally { setFormLoading(false); }
+            if (response.data.success) {
+                showToast('Sanctuary event scheduled!', 'success');
+                setEventForm({ title: '', description: '', startDate: '', endDate: '', location: '', documentFileUrl: '' });
+                setEventFile(null);
+                setShowEventForm(false);
+                fetchAllData();
+            }
+        } catch (err) {
+            showToast('Failed to schedule event.', 'error');
+        } finally {
+            setFormLoading(false);
+        }
     };
 
     const handleSermonSubmit = async (e) => {
         e.preventDefault();
         setFormLoading(true);
         try {
-            await createSermon({
-                ...sermonForm,
+            let finalVideoUrl = sermonForm.sourceType === 'url' ? sermonForm.videoUrl : '';
+            let finalAudioUrl = sermonForm.sourceType === 'url' ? sermonForm.audioUrl : '';
+
+            if (sermonForm.sourceType === 'file' && sermonFile) {
+                const formData = new FormData();
+                formData.append('file', sermonFile);
+                formData.append('title', sermonForm.title);
+                formData.append('adminId', adminId);
+                
+                const uploadRes = await uploadSermonFile(formData);
+                if (uploadRes.data.fileUrl) {
+                    const url = uploadRes.data.fileUrl;
+                    if (url.toLowerCase().endsWith('.mp4')) finalVideoUrl = url;
+                    else finalAudioUrl = url;
+                }
+            }
+
+            const response = await createSermon({
+                title: sermonForm.title,
                 speaker: sermonForm.preacherName,
-                sermonDate: new Date().toISOString(),
+                description: sermonForm.description,
+                videoUrl: finalVideoUrl,
+                audioUrl: finalAudioUrl,
                 createdBy: adminId,
-                branchId: currentBranchIdForData
+                branchId: currentBranchIdForData,
+                sermonDate: new Date().toISOString()
             });
-            showToast('Sermon is now available in the library.', 'success');
-            setSermonForm({ title: '', preacherName: '', description: '' });
-            setShowSermonForm(false);
-            fetchAllData();
-        } catch (err) { showToast('Upload failed.', 'error'); }
-        finally { setFormLoading(false); }
+
+            if (response.data.success) {
+                showToast('Word added to library!', 'success');
+                setSermonForm({ title: '', preacherName: '', description: '', videoUrl: '', audioUrl: '', sourceType: 'file' });
+                setSermonFile(null);
+                setShowSermonForm(false);
+                fetchAllData();
+            }
+        } catch (err) {
+            showToast('Failed to publish Word.', 'error');
+        } finally {
+            setFormLoading(false);
+        }
     };
 
     const handleAdminSubmit = async (e) => {
@@ -616,16 +711,31 @@ export default function AdminDashboard() {
                                             </div>
                                             
                                             {/* Camera Overlay for Quick Upload */}
-                                            <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-pointer rounded-2xl text-white">
-                                                <FontAwesomeIcon icon={faCamera} className="text-sm" />
-                                                <input 
-                                                    type="file" 
-                                                    className="hidden" 
-                                                    accept="image/*" 
-                                                    onChange={handleImageSelect}
-                                                    disabled={isUploading}
-                                                />
-                                            </label>
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-pointer rounded-2xl text-white">
+                                                <label className="flex flex-col items-center justify-center cursor-pointer p-2 hover:text-mdPrimary transition-colors">
+                                                    <FontAwesomeIcon icon={faCamera} className="text-sm mb-1" />
+                                                    <span className="text-[6px] font-black uppercase tracking-widest">Update</span>
+                                                    <input 
+                                                        type="file" 
+                                                        className="hidden" 
+                                                        accept="image/*" 
+                                                        onChange={handleImageSelect}
+                                                        disabled={isUploading}
+                                                    />
+                                                </label>
+                                                
+                                                {adminData?.profilePictureUrl && (
+                                                    <button 
+                                                        onClick={handleDeleteProfilePicture}
+                                                        disabled={isUploading}
+                                                        className="flex flex-col items-center justify-center p-2 hover:text-mdError transition-colors"
+                                                        title="Remove Portrait"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} className="text-sm mb-1" />
+                                                        <span className="text-[6px] font-black uppercase tracking-widest">Remove</span>
+                                                    </button>
+                                                )}
+                                            </div>
 
                                             {isUploading && (
                                                 <div className="absolute inset-0 bg-mdPrimary/20 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
@@ -896,7 +1006,18 @@ export default function AdminDashboard() {
                                 <form onSubmit={handleAnnouncementSubmit} className="space-y-6">
                                     <input type="text" placeholder="Headline" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl focus:ring-2 focus:ring-mdPrimary font-bold" value={annForm.title} onChange={e => setAnnForm({...annForm, title: e.target.value})} required />
                                     <textarea placeholder="The message..." className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl focus:ring-2 focus:ring-mdPrimary font-medium h-40" value={annForm.message} onChange={e => setAnnForm({...annForm, message: e.target.value})} required />
-                                    <button type="submit" disabled={formLoading} className="btn-premium w-full sm:w-max">{formLoading ? 'Publishing...' : 'Release Post'}</button>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-4">Attach Media (PNG, JPG, PDF)</label>
+                                        <input 
+                                            type="file" 
+                                            className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-mdPrimary/10 file:text-mdPrimary hover:file:bg-mdPrimary/20 transition-all" 
+                                            onChange={e => setAnnFile(e.target.files[0])} 
+                                            accept="image/*,.pdf"
+                                        />
+                                    </div>
+                                    <button type="submit" disabled={formLoading} className="btn-premium w-full sm:w-max">
+                                        {formLoading ? 'Publishing...' : 'Release Post'}
+                                    </button>
                                 </form>
                             </div>
                         )}
@@ -924,6 +1045,17 @@ export default function AdminDashboard() {
                                     <textarea placeholder="Description" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-medium h-32" value={eventForm.description} onChange={e => setEventForm({...eventForm, description: e.target.value})} required />
                                     <input type="datetime-local" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl" value={eventForm.startDate} onChange={e => setEventForm({...eventForm, startDate: e.target.value})} required />
                                     <input type="text" placeholder="Venue" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl" value={eventForm.location} onChange={e => setEventForm({...eventForm, location: e.target.value})} required />
+                                    
+                                    <div className="md:col-span-2 space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-4">Event Document (PDF/JPG/PNG)</label>
+                                        <input 
+                                            type="file" 
+                                            className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-mdPrimary/10 file:text-mdPrimary"
+                                            onChange={e => setEventFile(e.target.files[0])}
+                                            accept="image/*,.pdf"
+                                        />
+                                    </div>
+                                    
                                     <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Scheduling...' : 'Save Event'}</button>
                                 </form>
                             </div>
@@ -950,6 +1082,56 @@ export default function AdminDashboard() {
                                 <form onSubmit={handleSermonSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <input type="text" placeholder="Sermon Title" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-bold" value={sermonForm.title} onChange={e => setSermonForm({...sermonForm, title: e.target.value})} required />
                                     <input type="text" placeholder="Speaker" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-bold" value={sermonForm.preacherName} onChange={e => setSermonForm({...sermonForm, preacherName: e.target.value})} required />
+                                    
+                                    <div className="md:col-span-2 flex p-1 bg-mdSurfaceVariant/30 rounded-2xl border border-mdOutline/10">
+                                        <button 
+                                            type="button"
+                                            onClick={() => setSermonForm({...sermonForm, sourceType: 'file'})}
+                                            className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${sermonForm.sourceType === 'file' ? 'bg-mdPrimary text-white shadow-lg' : 'text-mdOnSurface hover:bg-mdSurfaceVariant/20'}`}
+                                        >
+                                            <FontAwesomeIcon icon={faFileUpload} className="mr-2" />
+                                            Local Upload
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setSermonForm({...sermonForm, sourceType: 'url'})}
+                                            className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${sermonForm.sourceType === 'url' ? 'bg-mdPrimary text-white shadow-lg' : 'text-mdOnSurface hover:bg-mdSurfaceVariant/20'}`}
+                                        >
+                                            <FontAwesomeIcon icon={faLink} className="mr-2" />
+                                            External URL
+                                        </button>
+                                    </div>
+
+                                    {sermonForm.sourceType === 'file' ? (
+                                        <div className="md:col-span-2 p-6 border-2 border-dashed border-mdOutline/20 rounded-2xl text-center hover:border-mdPrimary transition-colors group">
+                                            <FontAwesomeIcon icon={faVideo} className="text-3xl text-mdOutline/40 mb-3 group-hover:text-mdPrimary transition-colors" />
+                                            <p className="text-[10px] font-black uppercase text-mdOutline mb-4">MP3 Audio or MP4 Video (Max 500MB)</p>
+                                            <input 
+                                                type="file" 
+                                                className="w-full text-xs font-bold text-mdOnSurface"
+                                                accept="audio/mp3,video/mp4"
+                                                onChange={e => setSermonFile(e.target.files[0])}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <input 
+                                                type="text" 
+                                                placeholder="Video URL (YouTube, Direct Link, etc.)" 
+                                                className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold md:col-span-2" 
+                                                value={sermonForm.videoUrl} 
+                                                onChange={e => setSermonForm({...sermonForm, videoUrl: e.target.value})} 
+                                            />
+                                            <input 
+                                                type="text" 
+                                                placeholder="Audio Mirror URL (Optional)" 
+                                                className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold md:col-span-2" 
+                                                value={sermonForm.audioUrl} 
+                                                onChange={e => setSermonForm({...sermonForm, audioUrl: e.target.value})} 
+                                            />
+                                        </>
+                                    )}
+
                                     <textarea placeholder="Message highlight..." className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-medium h-32" value={sermonForm.description} onChange={e => setSermonForm({...sermonForm, description: e.target.value})} required />
                                     <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Publishing...' : 'Add to Library'}</button>
                                 </form>

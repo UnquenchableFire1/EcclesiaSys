@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAdminProfile, updateAdminProfile } from '../services/api';
+import { getAdminProfile, updateAdminProfile, uploadProfilePicture, deleteProfilePicture } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt, faCamera } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt, faCamera, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Lightbox from '../components/Lightbox';
 import ImageCropperModal from '../components/ImageCropperModal';
 import { useToast } from '../context/ToastContext';
-import { uploadProfilePicture } from '../services/api';
 
 export default function AdminProfile() {
     const navigate = useNavigate();
@@ -118,6 +117,31 @@ export default function AdminProfile() {
         }
     };
 
+    const handleDeleteProfilePicture = async () => {
+        if (!window.confirm("Are you sure you want to remove your admin portrait?")) return;
+
+        setIsUploading(true);
+        try {
+            const response = await deleteProfilePicture(adminId, 'admin');
+            if (response.data.success) {
+                showToast(response.data.message, "success");
+                setProfile(prev => ({
+                    ...prev,
+                    profilePictureUrl: null
+                }));
+                sessionStorage.removeItem('profilePictureUrl');
+                window.dispatchEvent(new Event('storage'));
+            } else {
+                showToast(response.data.message || "Failed to remove portrait.", "error");
+            }
+        } catch (err) {
+            console.error("Delete error:", err);
+            showToast("Server refused portrait removal.", "error");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleUpdateProfile = async () => {
         try {
             setIsUpdatingProfile(true);
@@ -167,17 +191,31 @@ export default function AdminProfile() {
                                                 onClick={() => setLightboxImg(profile.profilePictureUrl)}
                                             />
                                             {/* Camera Overlay */}
-                                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white">
-                                                <FontAwesomeIcon icon={faCamera} className="text-xl mb-1" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest">Change</span>
-                                                <input 
-                                                    type="file" 
-                                                    className="hidden" 
-                                                    accept="image/*" 
-                                                    onChange={handleImageSelect}
-                                                    disabled={isUploading}
-                                                />
-                                            </label>
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-white">
+                                                <label className="flex flex-col items-center justify-center cursor-pointer p-4 hover:text-mdPrimary transition-colors">
+                                                    <FontAwesomeIcon icon={faCamera} className="text-xl mb-1" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">Change</span>
+                                                    <input 
+                                                        type="file" 
+                                                        className="hidden" 
+                                                        accept="image/*" 
+                                                        onChange={handleImageSelect}
+                                                        disabled={isUploading}
+                                                    />
+                                                </label>
+                                                
+                                                {profile.profilePictureUrl && (
+                                                    <button 
+                                                        onClick={handleDeleteProfilePicture}
+                                                        disabled={isUploading}
+                                                        className="flex flex-col items-center justify-center p-4 hover:text-mdError transition-colors"
+                                                        title="Remove Portrait"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} className="text-xl mb-1" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Remove</span>
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     ) : (
                                         <label className="w-full h-full flex flex-col items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5 cursor-pointer hover:bg-mdPrimary/10 transition-colors">
