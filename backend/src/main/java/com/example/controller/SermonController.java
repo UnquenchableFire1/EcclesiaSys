@@ -114,6 +114,12 @@ public class SermonController {
                 }
             }
             
+            // Safety truncation for fileType (database limit is 100)
+            if (sermon.getFileType() != null && sermon.getFileType().length() > 50) {
+                sermon.setFileType(sermon.getFileType().substring(0, 50));
+            }
+            System.out.println("Final resolved fileType: " + sermon.getFileType());
+            
             if (audioUrl != null && !audioUrl.isEmpty()) {
                 sermon.setAudioUrl(audioUrl);
                 sermon.setFilePath(audioUrl);

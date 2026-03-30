@@ -19,17 +19,21 @@ public class EventDAO {
                 "description TEXT, " +
                 "event_date DATETIME NOT NULL, " +
                 "location VARCHAR(255), " +
-                "document_url VARCHAR(500), " +
+                "document_url VARCHAR(1000), " +
                 "created_by INT, " +
                 "branch_id INT, " +
                 "created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                 ")";
 
         String[] columnsToAdd = {
-            "ALTER TABLE events ADD COLUMN IF NOT EXISTS document_url VARCHAR(500)",
+            "ALTER TABLE events ADD COLUMN IF NOT EXISTS document_url VARCHAR(1000)",
             "ALTER TABLE events ADD COLUMN IF NOT EXISTS branch_id INT",
             "ALTER TABLE events ADD COLUMN IF NOT EXISTS created_by INT",
             "ALTER TABLE events ADD COLUMN IF NOT EXISTS created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+        };
+        
+        String[] columnsToModify = {
+            "ALTER TABLE events MODIFY COLUMN document_url VARCHAR(1000)"
         };
         
         try (Connection conn = DBConnection.getConnection();
@@ -44,10 +48,20 @@ public class EventDAO {
                     stmt.execute(sql);
                 } catch (SQLException e) {
                     if (!"42S21".equals(e.getSQLState())) {
-                        System.err.println("Event migration error: " + e.getMessage());
+                        System.err.println("Event migration error (add): " + e.getMessage());
                     }
                 }
             }
+
+            // 3. Force modify column sizes
+            for (String sql : columnsToModify) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException e) {
+                    System.err.println("Event migration error (modify): " + e.getMessage());
+                }
+            }
+            
             System.out.println("✓ Events table schema check completed");
         } catch (SQLException e) {
             System.err.println("Failed to connect for event migration: " + e.getMessage());

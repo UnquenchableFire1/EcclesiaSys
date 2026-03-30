@@ -20,10 +20,10 @@ public class SermonDAO {
                 "description TEXT, " +
                 "speaker VARCHAR(100), " +
                 "sermon_date DATETIME, " +
-                "file_path VARCHAR(500), " +
-                "audio_url VARCHAR(500), " +
-                "video_url VARCHAR(500), " +
-                "file_type VARCHAR(50), " +
+                "file_path VARCHAR(1000), " +
+                "audio_url VARCHAR(1000), " +
+                "video_url VARCHAR(1000), " +
+                "file_type VARCHAR(100), " +
                 "uploaded_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "uploaded_by INT, " +
                 "branch_id INT" +
@@ -32,13 +32,21 @@ public class SermonDAO {
         String[] columnsToAdd = {
                 "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS speaker VARCHAR(100)",
                 "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS sermon_date DATETIME",
-                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS audio_url VARCHAR(500)",
-                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS audio_url VARCHAR(1000)",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS video_url VARCHAR(1000)",
                 "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS uploaded_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
                 "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS uploaded_by INT",
                 "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS branch_id INT",
-                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS file_type VARCHAR(50)",
-                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS file_path VARCHAR(500)"
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS file_type VARCHAR(100)",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS file_path VARCHAR(1000)"
+        };
+        
+        // Forceful modifications to ensure column sizes are correct
+        String[] columnsToModify = {
+                "ALTER TABLE sermons MODIFY COLUMN file_type VARCHAR(100)",
+                "ALTER TABLE sermons MODIFY COLUMN file_path VARCHAR(1000)",
+                "ALTER TABLE sermons MODIFY COLUMN audio_url VARCHAR(1000)",
+                "ALTER TABLE sermons MODIFY COLUMN video_url VARCHAR(1000)"
         };
         
         try (Connection conn = DBConnection.getConnection();
@@ -54,10 +62,20 @@ public class SermonDAO {
                 } catch (SQLException e) {
                     // Ignore if column already exists
                     if (!"42S21".equals(e.getSQLState())) {
-                        System.err.println("Migration error: " + e.getMessage());
+                        System.err.println("Migration error (add): " + e.getMessage());
                     }
                 }
             }
+            
+            // 3. Force modify column sizes
+            for (String sql : columnsToModify) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException e) {
+                    System.err.println("Migration error (modify): " + e.getMessage());
+                }
+            }
+            
             System.out.println("✓ Sermon schema migration check completed");
         } catch (SQLException e) {
             System.err.println("Failed to connect for schema migration: " + e.getMessage());

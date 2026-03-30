@@ -18,15 +18,19 @@ public class AnnouncementDAO {
                 "title VARCHAR(255) NOT NULL, " +
                 "message TEXT NOT NULL, " +
                 "created_by INT, " +
-                "file_url VARCHAR(500), " +
+                "file_url VARCHAR(1000), " +
                 "branch_id INT, " +
                 "created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                 ")";
 
         String[] columnsToAdd = {
-            "ALTER TABLE announcements ADD COLUMN IF NOT EXISTS file_url VARCHAR(500)",
+            "ALTER TABLE announcements ADD COLUMN IF NOT EXISTS file_url VARCHAR(1000)",
             "ALTER TABLE announcements ADD COLUMN IF NOT EXISTS branch_id INT",
             "ALTER TABLE announcements ADD COLUMN IF NOT EXISTS created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+        };
+        
+        String[] columnsToModify = {
+            "ALTER TABLE announcements MODIFY COLUMN file_url VARCHAR(1000)"
         };
         
         try (Connection conn = DBConnection.getConnection();
@@ -41,10 +45,20 @@ public class AnnouncementDAO {
                     stmt.execute(sql);
                 } catch (SQLException e) {
                     if (!"42S21".equals(e.getSQLState())) {
-                        System.err.println("Announcement migration error: " + e.getMessage());
+                        System.err.println("Announcement migration error (add): " + e.getMessage());
                     }
                 }
             }
+
+            // 3. Force modify column sizes
+            for (String sql : columnsToModify) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException e) {
+                    System.err.println("Announcement migration error (modify): " + e.getMessage());
+                }
+            }
+            
             System.out.println("✓ Announcements table schema check completed");
         } catch (SQLException e) {
             System.err.println("Failed to connect for announcement migration: " + e.getMessage());

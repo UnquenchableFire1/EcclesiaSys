@@ -24,7 +24,7 @@ public class MemberDAO {
                 "password VARCHAR(255) NOT NULL, " +
                 "status VARCHAR(20) DEFAULT 'active', " +
                 "is_profile_public BOOLEAN DEFAULT TRUE, " +
-                "profile_picture_url VARCHAR(500), " +
+                "profile_picture_url VARCHAR(1000), " +
                 "gender VARCHAR(20), " +
                 "bio TEXT, " +
                 "branch_id INT, " +
@@ -33,12 +33,16 @@ public class MemberDAO {
                 ")";
 
         String[] columnsToAdd = {
-            "ALTER TABLE members ADD COLUMN IF NOT EXISTS profile_picture_url VARCHAR(500)",
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS profile_picture_url VARCHAR(1000)",
             "ALTER TABLE members ADD COLUMN IF NOT EXISTS gender VARCHAR(20)",
             "ALTER TABLE members ADD COLUMN IF NOT EXISTS bio TEXT",
             "ALTER TABLE members ADD COLUMN IF NOT EXISTS branch_id INT",
             "ALTER TABLE members ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active'",
             "ALTER TABLE members ADD COLUMN IF NOT EXISTS is_profile_public BOOLEAN DEFAULT TRUE"
+        };
+        
+        String[] columnsToModify = {
+            "ALTER TABLE members MODIFY COLUMN profile_picture_url VARCHAR(1000)"
         };
         
         try (Connection conn = DBConnection.getConnection();
@@ -53,10 +57,20 @@ public class MemberDAO {
                     stmt.execute(sql);
                 } catch (SQLException e) {
                     if (!"42S21".equals(e.getSQLState())) {
-                        System.err.println("Member migration error: " + e.getMessage());
+                        System.err.println("Member migration error (add): " + e.getMessage());
                     }
                 }
             }
+
+            // 3. Force modify column sizes
+            for (String sql : columnsToModify) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException e) {
+                    System.err.println("Member migration error (modify): " + e.getMessage());
+                }
+            }
+            
             System.out.println("✓ Members table schema check completed");
         } catch (SQLException e) {
             System.err.println("Failed to connect for member migration: " + e.getMessage());
