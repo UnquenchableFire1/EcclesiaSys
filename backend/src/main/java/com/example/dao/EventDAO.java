@@ -13,6 +13,18 @@ public class EventDAO {
     }
 
     private void ensureEventsTableSchema() {
+        String createTableSql = "CREATE TABLE IF NOT EXISTS events (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "title VARCHAR(255) NOT NULL, " +
+                "description TEXT, " +
+                "event_date DATETIME NOT NULL, " +
+                "location VARCHAR(255), " +
+                "document_url VARCHAR(500), " +
+                "created_by INT, " +
+                "branch_id INT, " +
+                "created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+
         String[] columnsToAdd = {
             "ALTER TABLE events ADD COLUMN IF NOT EXISTS document_url VARCHAR(500)",
             "ALTER TABLE events ADD COLUMN IF NOT EXISTS branch_id INT",
@@ -23,15 +35,20 @@ public class EventDAO {
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             
+            // 1. Ensure table exists
+            stmt.execute(createTableSql);
+
+            // 2. Ensure all columns exist (for migration)
             for (String sql : columnsToAdd) {
                 try {
                     stmt.execute(sql);
                 } catch (SQLException e) {
-                    if (!e.getSQLState().equals("42S21")) {
+                    if (!"42S21".equals(e.getSQLState())) {
                         System.err.println("Event migration error: " + e.getMessage());
                     }
                 }
             }
+            System.out.println("✓ Events table schema check completed");
         } catch (SQLException e) {
             System.err.println("Failed to connect for event migration: " + e.getMessage());
         }

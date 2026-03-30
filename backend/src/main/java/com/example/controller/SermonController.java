@@ -96,6 +96,24 @@ public class SermonController {
             String audioUrl = (String) request.get("audioUrl");
             String videoUrl = (String) request.get("videoUrl");
             
+            // Auto-detect fileType if missing
+            if (sermon.getFileType() == null || sermon.getFileType().isEmpty()) {
+                if (audioUrl != null && !audioUrl.isEmpty()) {
+                    sermon.setFileType("mp3");
+                } else if (videoUrl != null && !videoUrl.isEmpty()) {
+                    sermon.setFileType("mp4");
+                } else {
+                    String fPath = (String) request.get("filePath");
+                    if (fPath != null) {
+                        if (fPath.toLowerCase().endsWith(".mp3")) sermon.setFileType("mp3");
+                        else if (fPath.toLowerCase().endsWith(".mp4")) sermon.setFileType("mp4");
+                        else sermon.setFileType("unknown");
+                    } else {
+                        sermon.setFileType("unknown");
+                    }
+                }
+            }
+            
             if (audioUrl != null && !audioUrl.isEmpty()) {
                 sermon.setAudioUrl(audioUrl);
                 sermon.setFilePath(audioUrl);

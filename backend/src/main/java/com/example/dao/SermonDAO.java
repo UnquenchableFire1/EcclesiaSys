@@ -14,25 +14,46 @@ public class SermonDAO {
     }
 
     private void ensureSermonsTableSchema() {
+        String createTableSql = "CREATE TABLE IF NOT EXISTS sermons (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "title VARCHAR(255) NOT NULL, " +
+                "description TEXT, " +
+                "speaker VARCHAR(100), " +
+                "sermon_date DATETIME, " +
+                "file_path VARCHAR(500), " +
+                "audio_url VARCHAR(500), " +
+                "video_url VARCHAR(500), " +
+                "file_type VARCHAR(50), " +
+                "uploaded_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "uploaded_by INT, " +
+                "branch_id INT" +
+                ")";
+        
         String[] columnsToAdd = {
-            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS speaker VARCHAR(100)",
-            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS sermon_date DATETIME",
-            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS audio_url VARCHAR(500)",
-            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)",
-            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS uploaded_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS uploaded_by INT",
-            "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS branch_id INT"
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS speaker VARCHAR(100)",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS sermon_date DATETIME",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS audio_url VARCHAR(500)",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS video_url VARCHAR(500)",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS uploaded_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS uploaded_by INT",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS branch_id INT",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS file_type VARCHAR(50)",
+                "ALTER TABLE sermons ADD COLUMN IF NOT EXISTS file_path VARCHAR(500)"
         };
         
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             
+            // 1. Ensure table exists
+            stmt.execute(createTableSql);
+            
+            // 2. Ensure all columns exist (for migration)
             for (String sql : columnsToAdd) {
                 try {
                     stmt.execute(sql);
                 } catch (SQLException e) {
-                    // Ignore if column already exists (for DBs that don't support IF NOT EXISTS on ALTER)
-                    if (!e.getSQLState().equals("42S21")) { // Duplicate column name
+                    // Ignore if column already exists
+                    if (!"42S21".equals(e.getSQLState())) {
                         System.err.println("Migration error: " + e.getMessage());
                     }
                 }

@@ -15,26 +15,51 @@ public class MemberDAO {
     }
 
     private void ensureMembersTableSchema() {
-        String[] columns = {
+        String createTableSql = "CREATE TABLE IF NOT EXISTS members (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "first_name VARCHAR(100) NOT NULL, " +
+                "last_name VARCHAR(100) NOT NULL, " +
+                "email VARCHAR(150) NOT NULL UNIQUE, " +
+                "phone_number VARCHAR(20), " +
+                "password VARCHAR(255) NOT NULL, " +
+                "status VARCHAR(20) DEFAULT 'active', " +
+                "is_profile_public BOOLEAN DEFAULT TRUE, " +
+                "profile_picture_url VARCHAR(500), " +
+                "gender VARCHAR(20), " +
+                "bio TEXT, " +
+                "branch_id INT, " +
+                "joined_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP" +
+                ")";
+
+        String[] columnsToAdd = {
             "ALTER TABLE members ADD COLUMN IF NOT EXISTS profile_picture_url VARCHAR(500)",
             "ALTER TABLE members ADD COLUMN IF NOT EXISTS gender VARCHAR(20)",
-            "ALTER TABLE members ADD COLUMN IF NOT EXISTS bio TEXT"
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS bio TEXT",
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS branch_id INT",
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active'",
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS is_profile_public BOOLEAN DEFAULT TRUE"
         };
         
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
-            for (String sql : columns) {
+            
+            // 1. Ensure table exists
+            stmt.execute(createTableSql);
+
+            // 2. Ensure all columns exist (for migration)
+            for (String sql : columnsToAdd) {
                 try {
                     stmt.execute(sql);
                 } catch (SQLException e) {
-                    if (!e.getSQLState().equals("42S21")) { // Duplicate column
+                    if (!"42S21".equals(e.getSQLState())) {
                         System.err.println("Member migration error: " + e.getMessage());
                     }
                 }
             }
             System.out.println("✓ Members table schema check completed");
         } catch (SQLException e) {
-            System.err.println("Failed to check members table schema: " + e.getMessage());
+            System.err.println("Failed to connect for member migration: " + e.getMessage());
         }
     }
 

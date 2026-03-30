@@ -13,6 +13,16 @@ public class AnnouncementDAO {
     }
 
     private void ensureAnnouncementsTableSchema() {
+        String createTableSql = "CREATE TABLE IF NOT EXISTS announcements (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "title VARCHAR(255) NOT NULL, " +
+                "message TEXT NOT NULL, " +
+                "created_by INT, " +
+                "file_url VARCHAR(500), " +
+                "branch_id INT, " +
+                "created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+
         String[] columnsToAdd = {
             "ALTER TABLE announcements ADD COLUMN IF NOT EXISTS file_url VARCHAR(500)",
             "ALTER TABLE announcements ADD COLUMN IF NOT EXISTS branch_id INT",
@@ -22,15 +32,20 @@ public class AnnouncementDAO {
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             
+            // 1. Ensure table exists
+            stmt.execute(createTableSql);
+
+            // 2. Ensure all columns exist (for migration)
             for (String sql : columnsToAdd) {
                 try {
                     stmt.execute(sql);
                 } catch (SQLException e) {
-                    if (!e.getSQLState().equals("42S21")) {
+                    if (!"42S21".equals(e.getSQLState())) {
                         System.err.println("Announcement migration error: " + e.getMessage());
                     }
                 }
             }
+            System.out.println("✓ Announcements table schema check completed");
         } catch (SQLException e) {
             System.err.println("Failed to connect for announcement migration: " + e.getMessage());
         }
