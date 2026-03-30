@@ -77,10 +77,20 @@ public class EventController {
     public Map<String, Object> createEvent(@RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            LocalDateTime eventDate = LocalDateTime.parse(
-                    (String) request.get("eventDate"),
-                    formatter
-            );
+            String dateStr = ((String) request.get("eventDate")).trim();
+            LocalDateTime eventDate;
+            try {
+                if (dateStr.contains("Z") || dateStr.contains("+") || (dateStr.lastIndexOf("-") > 10)) {
+                    eventDate = java.time.OffsetDateTime.parse(dateStr).toLocalDateTime();
+                } else {
+                    if (!dateStr.contains("T")) dateStr += "T00:00:00";
+                    if (dateStr.length() > 19) dateStr = dateStr.substring(0, 19);
+                    eventDate = java.time.LocalDateTime.parse(dateStr, formatter);
+                }
+            } catch (Exception e) {
+                System.err.println("Warning: Event date parse error, defaulting to now. " + e.getMessage());
+                eventDate = java.time.LocalDateTime.now();
+            }
             
             Event event = new Event(
                     (String) request.get("title"),

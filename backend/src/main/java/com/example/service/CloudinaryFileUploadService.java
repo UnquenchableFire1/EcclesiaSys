@@ -100,22 +100,28 @@ public class CloudinaryFileUploadService {
         }
 
         int resp = conn.getResponseCode();
-        InputStream is = (resp >= 200 && resp < 300) ? conn.getInputStream() : conn.getErrorStream();
-        String body = new String(is.readAllBytes());
-        if (resp >= 200 && resp < 300) {
-            ObjectMapper mapper = new ObjectMapper();
-            @SuppressWarnings("unchecked")
-            Map<String, Object> json = mapper.readValue(body, Map.class);
-            Object secure = json.get("secure_url");
-            if (secure == null) {
-                secure = json.get("url");
+        try (InputStream is = (resp >= 200 && resp < 300) ? conn.getInputStream() : conn.getErrorStream()) {
+            if (is == null) {
+                throw new Exception("Cloudinary upload failed: HTTP " + resp + " - No error stream available");
             }
-            if (secure != null) {
-                return secure.toString();
+            String body = new String(is.readAllBytes(), "UTF-8");
+            
+            if (resp >= 200 && resp < 300) {
+                ObjectMapper mapper = new ObjectMapper();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> json = mapper.readValue(body, Map.class);
+                Object secure = json.get("secure_url");
+                if (secure == null) {
+                    secure = json.get("url");
+                }
+                if (secure != null) {
+                    return secure.toString();
+                }
+                throw new Exception("Cloudinary upload succeeded but no URL returned: " + body);
+            } else {
+                System.err.println("Cloudinary Error Body: " + body);
+                throw new Exception("Cloudinary upload failed: HTTP " + resp + " - " + body);
             }
-            throw new Exception("Cloudinary upload succeeded but no URL returned");
-        } else {
-            throw new Exception("Cloudinary upload failed: HTTP " + resp + " - " + body);
         }
     }
 }

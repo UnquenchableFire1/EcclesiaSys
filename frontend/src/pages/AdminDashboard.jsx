@@ -348,9 +348,11 @@ export default function AdminDashboard() {
                 setAnnFile(null);
                 setShowAnnForm(false);
                 fetchAllData();
+            } else {
+                showToast(response.data.message || 'Failed to broadcast announcement.', 'error');
             }
         } catch (err) {
-            showToast('Failed to broadcast announcement.', 'error');
+            showToast(err.response?.data?.message || 'Failed to broadcast announcement.', 'error');
         } finally {
             setFormLoading(false);
         }
@@ -385,9 +387,11 @@ export default function AdminDashboard() {
                 setEventFile(null);
                 setShowEventForm(false);
                 fetchAllData();
+            } else {
+                showToast(response.data.message || 'Failed to schedule event.', 'error');
             }
         } catch (err) {
-            showToast('Failed to schedule event.', 'error');
+            showToast(err.response?.data?.message || 'Failed to schedule event.', 'error');
         } finally {
             setFormLoading(false);
         }
@@ -433,9 +437,11 @@ export default function AdminDashboard() {
                 setSermonFile(null);
                 setShowSermonForm(false);
                 fetchAllData();
+            } else {
+                showToast(response.data.message || 'Failed to publish Word.', 'error');
             }
         } catch (err) {
-            showToast('Failed to publish Word.', 'error');
+            showToast(err.response?.data?.message || 'Failed to publish Word.', 'error');
         } finally {
             setFormLoading(false);
         }

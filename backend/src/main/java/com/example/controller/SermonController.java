@@ -124,11 +124,20 @@ public class SermonController {
             Object dateObj = request.get("sermonDate");
             if (dateObj != null) {
                 if (dateObj instanceof String) {
-                    String dateStr = ((String) dateObj).trim();
-                    if (!dateStr.contains("T")) {
-                        dateStr += "T00:00:00";
+                    try {
+                        String dateStr = ((String) dateObj).trim();
+                        if (dateStr.contains("Z") || dateStr.contains("+") || (dateStr.lastIndexOf("-") > 10)) {
+                            sermon.setSermonDate(java.time.OffsetDateTime.parse(dateStr).toLocalDateTime());
+                        } else {
+                            if (!dateStr.contains("T")) {
+                                dateStr += "T00:00:00";
+                            }
+                            sermon.setSermonDate(java.time.LocalDateTime.parse(dateStr));
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Warning: Sermon date parse error, defaulting to now. " + e.getMessage());
+                        sermon.setSermonDate(java.time.LocalDateTime.now());
                     }
-                    sermon.setSermonDate(java.time.LocalDateTime.parse(dateStr));
                 } else if (dateObj instanceof java.time.LocalDateTime) {
                     sermon.setSermonDate((java.time.LocalDateTime) dateObj);
                 }
