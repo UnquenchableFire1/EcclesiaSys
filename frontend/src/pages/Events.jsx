@@ -9,6 +9,9 @@ import {
     faClock, 
     faMapMarkerAlt, 
     faSearch, 
+    faArrowRight, 
+    faTrashAlt,
+    faBell,
     faCalendarPlus,
     faTimes 
 } from '@fortawesome/free-solid-svg-icons';
@@ -181,7 +184,12 @@ export default function Events({ embedded = false, branchId = null }) {
                                         </span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-mdSecondary mb-1">Upcoming</span>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-mdSecondary">Upcoming</span>
+                                            {!event.branchId && (
+                                                <span className="text-[8px] font-black uppercase tracking-widest bg-purple-500 text-white px-2 py-0.5 rounded-full">Global</span>
+                                            )}
+                                        </div>
                                         <div className="flex items-center gap-2 text-sm font-black text-white/90">
                                             <FontAwesomeIcon icon={faClock} className="text-mdSecondary" />
                                             {event.eventDate ? new Date(event.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'All Day'}
@@ -237,7 +245,9 @@ export default function Events({ embedded = false, branchId = null }) {
                                 <div className="w-24 h-24 rounded-[2rem] bg-mdPrimary flex items-center justify-center mb-8 shadow-premium animate-float ring-8 ring-white/5">
                                     <FontAwesomeIcon icon={faCalendarAlt} className="text-4xl" />
                                 </div>
-                                <span className="text-white/40 font-black uppercase tracking-[0.4em] text-[10px] mb-4">Church Gathering</span>
+                                <span className="text-white/40 font-black uppercase tracking-[0.4em] text-[10px] mb-4">
+                                    Church Gathering {!selectedEvent.branchId && " • Sanctuary Wide"}
+                                </span>
                                 <h3 className="text-4xl font-black tracking-tighter leading-none italic">Fellowship<br/>Calendar</h3>
                             </div>
                         </div>

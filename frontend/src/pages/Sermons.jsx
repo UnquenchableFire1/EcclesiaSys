@@ -7,6 +7,8 @@ import {
     faMicrophone, 
     faClock, 
     faUser, 
+    faSearch, 
+    faTrashAlt,
     faTimes,
     faQuoteLeft,
     faVideo,
@@ -134,9 +136,16 @@ export default function Sermons({ embedded = false, branchId = null }) {
                              )}
 
                              <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
-                                <span className="px-4 py-1 rounded-full bg-mdSecondary text-white text-[10px] font-black uppercase tracking-[0.2em] w-fit mb-6 shadow-md shadow-black/20">
-                                    Word Archive
-                                </span>
+                                <div className="flex gap-2 mb-6">
+                                    <span className="px-4 py-1 rounded-full bg-mdSecondary text-white text-[10px] font-black uppercase tracking-[0.2em] w-fit shadow-md shadow-black/20">
+                                        Word Archive
+                                    </span>
+                                    {!sermon.branchId && (
+                                        <span className="px-4 py-1 rounded-full bg-purple-500 text-white text-[10px] font-black uppercase tracking-[0.2em] w-fit shadow-md shadow-black/20">
+                                            Global
+                                        </span>
+                                    )}
+                                </div>
                                 <h3 className="text-3xl font-black mb-4 leading-tight tracking-tighter line-clamp-2">
                                     {sermon.title}
                                 </h3>
@@ -188,7 +197,9 @@ export default function Sermons({ embedded = false, branchId = null }) {
                                 <div className="w-24 h-24 rounded-[2rem] bg-mdSecondary flex items-center justify-center mb-8 shadow-premium animate-float">
                                     <FontAwesomeIcon icon={faMicrophone} className="text-4xl" />
                                 </div>
-                                <span className="text-white/40 font-black uppercase tracking-[0.4em] text-[10px] mb-4">Divine Message</span>
+                                <span className="text-white/40 font-black uppercase tracking-[0.4em] text-[10px] mb-4">
+                                    Divine Message {!selectedSermon.branchId && " • Sanctuary Wide"}
+                                </span>
                                 <h3 className="text-4xl font-black tracking-tighter leading-none italic">Archive<br/>Revelation</h3>
                             </div>
                         </div>

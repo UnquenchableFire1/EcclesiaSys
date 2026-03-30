@@ -83,15 +83,15 @@ export default function AdminDashboard() {
 
     // Form States
     const [showAnnForm, setShowAnnForm] = useState(false);
-    const [annForm, setAnnForm] = useState({ title: '', message: '', fileUrl: '' });
+    const [annForm, setAnnForm] = useState({ title: '', message: '', fileUrl: '', isGlobal: false });
     const [annFile, setAnnFile] = useState(null);
     const [showEventForm, setShowEventForm] = useState(false);
-    const [eventForm, setEventForm] = useState({ title: '', description: '', startDate: '', endDate: '', location: '', documentFileUrl: '' });
+    const [eventForm, setEventForm] = useState({ title: '', description: '', startDate: '', endDate: '', location: '', documentFileUrl: '', isGlobal: false });
     const [eventFile, setEventFile] = useState(null);
     const [showSermonForm, setShowSermonForm] = useState(false);
     const [sermonForm, setSermonForm] = useState({ 
         title: '', preacherName: '', description: '', 
-        videoUrl: '', audioUrl: '', sourceType: 'file' 
+        videoUrl: '', audioUrl: '', sourceType: 'file', isGlobal: false 
     });
     const [sermonFile, setSermonFile] = useState(null);
     const [showAdminForm, setShowAdminForm] = useState(false);
@@ -334,6 +334,8 @@ export default function AdminDashboard() {
                 }
             }
 
+            const currentBranchIdForData = annForm.isGlobal ? null : (inspectionBranchId || adminData?.branchId || selectedBranchId);
+
             const response = await createAnnouncement({ 
                 ...annForm, 
                 fileUrl,
@@ -342,7 +344,7 @@ export default function AdminDashboard() {
             });
             if (response.data.success) {
                 showToast('Announcement broadcast successfully!', 'success');
-                setAnnForm({ title: '', message: '', fileUrl: '' });
+                setAnnForm({ title: '', message: '', fileUrl: '', isGlobal: false });
                 setAnnFile(null);
                 setShowAnnForm(false);
                 fetchAllData();
@@ -368,6 +370,8 @@ export default function AdminDashboard() {
                 }
             }
 
+            const currentBranchIdForData = eventForm.isGlobal ? null : (inspectionBranchId || adminData?.branchId || selectedBranchId);
+
             const response = await createEvent({ 
                 ...eventForm, 
                 eventDate: eventForm.startDate,
@@ -377,7 +381,7 @@ export default function AdminDashboard() {
             });
             if (response.data.success) {
                 showToast('Sanctuary event scheduled!', 'success');
-                setEventForm({ title: '', description: '', startDate: '', endDate: '', location: '', documentFileUrl: '' });
+                setEventForm({ title: '', description: '', startDate: '', endDate: '', location: '', documentFileUrl: '', isGlobal: false });
                 setEventFile(null);
                 setShowEventForm(false);
                 fetchAllData();
@@ -410,20 +414,22 @@ export default function AdminDashboard() {
                 }
             }
 
+            const currentBranchIdForData = sermonForm.isGlobal ? null : (inspectionBranchId || adminData?.branchId || selectedBranchId);
+
             const response = await createSermon({
                 title: sermonForm.title,
                 speaker: sermonForm.preacherName,
                 description: sermonForm.description,
                 videoUrl: finalVideoUrl,
                 audioUrl: finalAudioUrl,
-                createdBy: adminId,
+                uploadedBy: adminId,
                 branchId: currentBranchIdForData,
                 sermonDate: new Date().toISOString()
             });
 
             if (response.data.success) {
                 showToast('Word added to library!', 'success');
-                setSermonForm({ title: '', preacherName: '', description: '', videoUrl: '', audioUrl: '', sourceType: 'file' });
+                setSermonForm({ title: '', preacherName: '', description: '', videoUrl: '', audioUrl: '', sourceType: 'file', isGlobal: false });
                 setSermonFile(null);
                 setShowSermonForm(false);
                 fetchAllData();
@@ -1015,6 +1021,21 @@ export default function AdminDashboard() {
                                             accept="image/*,.pdf"
                                         />
                                     </div>
+                                    {isSuperAdmin && (
+                                        <div className="flex items-center gap-3 p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
+                                            <input 
+                                                type="checkbox" 
+                                                id="annGlobal" 
+                                                className="w-5 h-5 rounded border-mdOutline accent-mdPrimary"
+                                                checked={annForm.isGlobal}
+                                                onChange={e => setAnnForm({...annForm, isGlobal: e.target.checked})}
+                                            />
+                                            <label htmlFor="annGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">
+                                                Make Global Visibility (All Sanctuary Branches)
+                                            </label>
+                                        </div>
+                                    )}
+
                                     <button type="submit" disabled={formLoading} className="btn-premium w-full sm:w-max">
                                         {formLoading ? 'Publishing...' : 'Release Post'}
                                     </button>
@@ -1056,6 +1077,21 @@ export default function AdminDashboard() {
                                         />
                                     </div>
                                     
+                                    {isSuperAdmin && (
+                                        <div className="md:col-span-2 flex items-center gap-3 p-4 bg-mdSecondary/5 rounded-2xl border border-mdSecondary/10">
+                                            <input 
+                                                type="checkbox" 
+                                                id="eventGlobal" 
+                                                className="w-5 h-5 rounded border-mdOutline accent-mdSecondary"
+                                                checked={eventForm.isGlobal}
+                                                onChange={e => setEventForm({...eventForm, isGlobal: e.target.checked})}
+                                            />
+                                            <label htmlFor="eventGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">
+                                                Make Global Visibility (All Sanctuary Branches)
+                                            </label>
+                                        </div>
+                                    )}
+
                                     <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Scheduling...' : 'Save Event'}</button>
                                 </form>
                             </div>
@@ -1133,6 +1169,21 @@ export default function AdminDashboard() {
                                     )}
 
                                     <textarea placeholder="Message highlight..." className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-medium h-32" value={sermonForm.description} onChange={e => setSermonForm({...sermonForm, description: e.target.value})} required />
+                                    {isSuperAdmin && (
+                                        <div className="md:col-span-2 flex items-center gap-3 p-4 bg-purple-500/5 rounded-2xl border border-purple-500/10">
+                                            <input 
+                                                type="checkbox" 
+                                                id="sermonGlobal" 
+                                                className="w-5 h-5 rounded border-mdOutline accent-purple-500"
+                                                checked={sermonForm.isGlobal}
+                                                onChange={e => setSermonForm({...sermonForm, isGlobal: e.target.checked})}
+                                            />
+                                            <label htmlFor="sermonGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">
+                                                Make Global Visibility (All Sanctuary Branches)
+                                            </label>
+                                        </div>
+                                    )}
+
                                     <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Publishing...' : 'Add to Library'}</button>
                                 </form>
                             </div>

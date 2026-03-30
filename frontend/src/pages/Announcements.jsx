@@ -116,9 +116,16 @@ export default function Announcements({ embedded = false, branchId = null }) {
                         <div key={ann.id} className="glass-card group overflow-hidden flex flex-col hover:border-mdPrimary/30 transition-all duration-500 rounded-[2.5rem] shadow-premium">
                             <div className="p-8 flex-1">
                                 <div className="flex items-center justify-between mb-6">
-                                    <span className="px-5 py-2 rounded-full bg-mdPrimary/5 text-mdPrimary text-[10px] font-black uppercase tracking-[0.2em] border border-mdPrimary/10">
-                                        ANNOUNCEMENT
-                                    </span>
+                                    <div className="flex gap-2">
+                                        <span className="px-5 py-2 rounded-full bg-mdPrimary/5 text-mdPrimary text-[10px] font-black uppercase tracking-[0.2em] border border-mdPrimary/10">
+                                            ANNOUNCEMENT
+                                        </span>
+                                        {!ann.branchId && (
+                                            <span className="px-5 py-2 rounded-full bg-purple-500/10 text-purple-600 text-[10px] font-black uppercase tracking-[0.2em] border border-purple-500/20">
+                                                SANCTUARY GLOBAL
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-2 text-[10px] font-black text-mdSecondary uppercase tracking-widest mt-1">
                                             <FontAwesomeIcon icon={faClock} className="opacity-70" />

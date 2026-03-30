@@ -38,8 +38,8 @@ const ImageCropperModal = ({ image, onCropComplete, onCancel }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-mdSurface w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-premium flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="bg-white dark:bg-mdSurface w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-premium flex flex-col my-auto">
         {/* Header */}
         <div className="px-10 py-8 border-b border-mdOutline/10 flex justify-between items-center">
           <div>
@@ -57,7 +57,7 @@ const ImageCropperModal = ({ image, onCropComplete, onCancel }) => {
         </div>
 
         {/* Cropper Container */}
-        <div className="relative flex-1 min-h-[400px] bg-mdSurfaceVariant/5">
+        <div className="relative w-full aspect-square md:aspect-auto md:h-[400px] bg-mdSurfaceVariant/5">
           <Cropper
             image={image}
             crop={crop}
@@ -100,7 +100,7 @@ const ImageCropperModal = ({ image, onCropComplete, onCancel }) => {
             <button
               onClick={handleConfirm}
               disabled={isProcessing}
-              className="flex-3 py-5 px-10 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-white bg-mdPrimary hover:shadow-premium-hover hover:scale-[1.02] transform transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="flex-[2] py-5 px-10 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-white bg-mdPrimary hover:shadow-premium-hover hover:scale-[1.02] transform transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isProcessing ? (
                 <>
