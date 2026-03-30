@@ -23,6 +23,7 @@ import Sermons from './Sermons';
 import DailyVerse from '../components/DailyVerse';
 import ChangePassword from '../components/ChangePassword';
 // Chat removed in favor of WhatsApp support
+import Lightbox from '../components/Lightbox';
 
 export default function MemberDashboard() {
     const navigate = useNavigate();
@@ -37,6 +38,7 @@ export default function MemberDashboard() {
     const [selectedImage, setSelectedImage] = useState(null);
     const [showCropper, setShowCropper] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [lightboxImg, setLightboxImg] = useState(null);
     const [memberProfile, setMemberProfile] = useState(null);
     const [memberId] = useState(parseInt(sessionStorage.getItem('userId')));
     const [memberName] = useState(sessionStorage.getItem('userName'));
@@ -427,7 +429,8 @@ export default function MemberDashboard() {
                                         <img 
                                             src={memberProfile.profilePictureUrl} 
                                             alt="Profile" 
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover cursor-zoom-in hover:scale-110 transition-transform duration-500"
+                                            onClick={() => setLightboxImg(memberProfile.profilePictureUrl)}
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-mdPrimary/5 flex items-center justify-center text-6xl font-black text-mdPrimary">
@@ -493,6 +496,12 @@ export default function MemberDashboard() {
                         setShowCropper(false);
                         setSelectedImage(null);
                     }}
+                />
+            )}
+            {lightboxImg && (
+                <Lightbox 
+                    src={lightboxImg} 
+                    onClose={() => setLightboxImg(null)} 
                 />
             )}
         </div>

@@ -33,7 +33,6 @@ import ChangePassword from '../components/ChangePassword';
 // Chat removed in favor of WhatsApp support
 import { downloadMembersAsExcel } from '../services/excelExport';
 import ConfirmModal from '../components/ConfirmModal';
-import { useToast } from '../context/ToastContext';
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
