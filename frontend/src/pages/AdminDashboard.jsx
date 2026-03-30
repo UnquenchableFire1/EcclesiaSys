@@ -42,13 +42,11 @@ export default function AdminDashboard() {
     // -- State --
     const [activeTab, setActiveTabInternal] = useState(() => sessionStorage.getItem('adminActiveTab') || 'home');
     const [loading, setLoading] = useState(true);
-    const { showToast } = useToast();
     
     // Profile Picture State
     const [selectedImage, setSelectedImage] = useState(null);
     const [showCropper, setShowCropper] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    const [lightboxImg, setLightboxImg] = useState(null);
     const [error, setError] = useState('');
     const { showToast } = useToast();
     
@@ -1321,12 +1319,6 @@ export default function AdminDashboard() {
                 type={confirmModal.type}
             />
 
-            {lightboxImg && (
-                <Lightbox 
-                    src={lightboxImg} 
-                    onClose={() => setLightboxImg(null)} 
-                />
-            )}
             {lightboxImg && (
                 <Lightbox 
                     src={lightboxImg} 
