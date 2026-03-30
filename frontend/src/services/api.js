@@ -159,6 +159,14 @@ export const deleteSermon = (id) => {
 };
 
 // File upload endpoints
+export const uploadProfilePicture = (formData) => {
+  return api.post('/upload/profile-picture', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
 export const uploadEventDocument = (formData) => {
   return api.post('/upload/event-document', formData, {
     headers: {

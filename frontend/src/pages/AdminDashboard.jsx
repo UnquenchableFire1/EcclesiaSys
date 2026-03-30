@@ -7,9 +7,11 @@ import {
     faTrash, faPhone, faEnvelope, faMapMarkerAlt, faVideo, 
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
-    faExclamationTriangle, faSignOutAlt, faBuilding
+    faExclamationTriangle, faSignOutAlt, faBuilding, faCamera
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import ImageCropperModal from '../components/ImageCropperModal';
+import { useToast } from '../context/ToastContext';
 
 import { 
     getAdminProfile, getCounts, toggleMemberStatus, deleteAdmin,
@@ -17,7 +19,8 @@ import {
     getEvents, getSermons, getAdmins, getNotifications,
     getPrayerRequests, updatePrayerRequestStatus, deletePrayerRequest,
     deleteMember, createAnnouncement, createEvent, createSermon,
-    createAdmin, promoteMemberToAdmin, assignBranch
+    createAdmin, promoteMemberToAdmin, assignBranch,
+    uploadProfilePicture
 } from '../services/api';
 
 import Lightbox from '../components/Lightbox';
@@ -39,6 +42,13 @@ export default function AdminDashboard() {
     // -- State --
     const [activeTab, setActiveTabInternal] = useState(() => sessionStorage.getItem('adminActiveTab') || 'home');
     const [loading, setLoading] = useState(true);
+    const { showToast } = useToast();
+    
+    // Profile Picture State
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [showCropper, setShowCropper] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [lightboxImg, setLightboxImg] = useState(null);
     const [error, setError] = useState('');
     const { showToast } = useToast();
     
@@ -198,6 +208,50 @@ export default function AdminDashboard() {
             setLoading(false);
         }
     }, [currentBranchIdForData]);
+
+    const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setSelectedImage(reader.result);
+                setShowCropper(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = async (croppedFile) => {
+        setShowCropper(false);
+        setIsUploading(true);
+        
+        const formData = new FormData();
+        formData.append('file', croppedFile);
+        formData.append('userId', adminId);
+        formData.append('userType', 'admin');
+
+        try {
+            const response = await uploadProfilePicture(formData);
+            if (response.data.success) {
+                showToast("Identity portrait updated in the sanctuary.", "success");
+                setAdminData(prev => ({
+                    ...prev,
+                    profilePictureUrl: response.data.profilePictureUrl
+                }));
+                sessionStorage.setItem('profilePictureUrl', response.data.profilePictureUrl);
+                // Trigger global update (Navbar, etc)
+                window.dispatchEvent(new Event('storage'));
+            } else {
+                showToast(response.data.message || "Failed to sync portrait.", "error");
+            }
+        } catch (err) {
+            console.error("Upload error:", err);
+            showToast("Server refused portrait sync.", "error");
+        } finally {
+            setIsUploading(false);
+            setSelectedImage(null);
+        }
+    };
 
     const fetchNotifications = async () => {
         try {
@@ -548,16 +602,46 @@ export default function AdminDashboard() {
                                     </div>
                                     <h3 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter">System Oversight</h3>
                                     <div className="flex items-center gap-6 pt-6 border-t border-white/10 mt-6 max-w-md">
-                                        <div className="flex -space-x-3">
-                                            {[5,6,11].map(i => (
-                                                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-mdSurface">
-                                                    <img src={`/assets/images/church/church_${i}.jpg`} alt="" className="w-full h-full object-cover" />
+                                        <div className="relative group/avatar">
+                                            <div className="w-16 h-16 rounded-2xl border-2 border-white/20 overflow-hidden bg-mdSurface shadow-premium">
+                                                {adminData?.profilePictureUrl ? (
+                                                    <img 
+                                                        src={adminData.profilePictureUrl} 
+                                                        alt="Profile" 
+                                                        className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform"
+                                                        onClick={() => setLightboxImg(adminData.profilePictureUrl)}
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-xl font-black text-mdPrimary bg-mdPrimary/5">
+                                                        {adminName?.charAt(0)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            {/* Camera Overlay for Quick Upload */}
+                                            <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-pointer rounded-2xl text-white">
+                                                <FontAwesomeIcon icon={faCamera} className="text-sm" />
+                                                <input 
+                                                    type="file" 
+                                                    className="hidden" 
+                                                    accept="image/*" 
+                                                    onChange={handleImageSelect}
+                                                    disabled={isUploading}
+                                                />
+                                            </label>
+
+                                            {isUploading && (
+                                                <div className="absolute inset-0 bg-mdPrimary/20 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
+                                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                                 </div>
-                                            ))}
+                                            )}
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1">Authenticated As</p>
-                                            <p className="font-black text-lg text-mdSecondary">{adminName} <span className="text-[10px] ml-2 opacity-50">{isActuallySuperAdmin ? '(SUPER ADMIN)' : '(ADMIN)'}</span></p>
+                                            <p className="font-black text-lg text-mdSecondary leading-none">{adminName}</p>
+                                            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">
+                                                {isActuallySuperAdmin ? 'Super Administrator' : 'Branch Administrator'}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -1241,6 +1325,23 @@ export default function AdminDashboard() {
                 <Lightbox 
                     src={lightboxImg} 
                     onClose={() => setLightboxImg(null)} 
+                />
+            )}
+            {lightboxImg && (
+                <Lightbox 
+                    src={lightboxImg} 
+                    onClose={() => setLightboxImg(null)} 
+                />
+            )}
+
+            {showCropper && (
+                <ImageCropperModal 
+                    image={selectedImage}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => {
+                        setShowCropper(false);
+                        setSelectedImage(null);
+                    }}
                 />
             )}
         </div>

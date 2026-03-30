@@ -1,5 +1,6 @@
-package com.example.controller;
-
+import com.example.dao.AdminDAO;
+import com.example.model.Admin;
+import com.example.dao.UserProfilePictureDAO;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.dao.MemberDAO;
@@ -15,6 +16,107 @@ import java.util.Map;
 @RequestMapping("/api/upload")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class FileUploadController {
+
+    @PostMapping("/profile-picture")
+    public Map<String, Object> uploadProfilePicture(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("userId") int userId,
+            @RequestParam("userType") String userType) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            System.out.println("=== Profile Picture Upload Request ===");
+            System.out.println("User ID: " + userId + " (" + userType + ")");
+            System.out.println("File: " + file.getOriginalFilename());
+            
+            // Validate file type (Images only)
+            String fileName = file.getOriginalFilename();
+            if (fileName == null || !fileName.toLowerCase().matches(".*\\.(jpg|jpeg|png|webp|gif)$")) {
+                response.put("success", false);
+                response.put("message", "Only image files (JPG, PNG, WEBP) are allowed");
+                return response;
+            }
+
+            // Validate file size (10MB max for profile pictures)
+            long maxSize = 10485760; // 10MB
+            if (file.getSize() > maxSize) {
+                response.put("success", false);
+                response.put("message", "Image size exceeds 10MB limit");
+                return response;
+            }
+
+            // Create temporary file
+            File tempFile = File.createTempFile("profile_", fileName);
+            Files.write(tempFile.toPath(), file.getBytes());
+
+            // Upload to Cloudinary
+            String profileUrl = null;
+            try {
+                profileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+                System.out.println("Cloudinary profile upload successful: " + profileUrl);
+            } catch (Exception uploadError) {
+                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
+                response.put("success", false);
+                response.put("message", "Image upload failed: " + uploadError.getMessage());
+                return response;
+            } finally {
+                tempFile.delete();
+            }
+
+            // Update Database
+            boolean updated = false;
+            if ("admin".equalsIgnoreCase(userType)) {
+                AdminDAO adminDao = new AdminDAO();
+                Admin admin = adminDao.getAdminById(userId);
+                if (admin != null) {
+                    admin.setProfilePictureUrl(profileUrl);
+                    updated = adminDao.updateAdmin(admin);
+                } else {
+                    response.put("message", "Admin not found");
+                }
+            } else {
+                MemberDAO memberDao = new MemberDAO();
+                Member member = memberDao.getMemberById(userId);
+                if (member != null) {
+                    member.setProfilePictureUrl(profileUrl);
+                    updated = memberDao.updateMember(member);
+                } else {
+                    response.put("message", "Member not found");
+                }
+            }
+
+            if (updated) {
+                // Record in history if possible
+                try {
+                    UserProfilePictureDAO historyDao = new UserProfilePictureDAO();
+                    historyDao.addProfilePicture(userId, userType, profileUrl);
+                } catch (Exception historyErr) {
+                    System.err.println("Failed to record profile picture history: " + historyErr.getMessage());
+                }
+
+                response.put("success", true);
+                response.put("message", "Profile picture updated successfully");
+                response.put("profilePictureUrl", profileUrl);
+            } else {
+                response.put("success", false);
+                if (!response.containsKey("message")) {
+                    response.put("message", "Failed to update database record");
+                }
+            }
+
+        } catch (IOException e) {
+            response.put("success", false);
+            response.put("message", "IO Error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return response;
+    }
 
     @PostMapping("/sermon")
     public Map<String, Object> uploadSermon(

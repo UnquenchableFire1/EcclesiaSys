@@ -37,7 +37,7 @@ self.addEventListener('push', event => {
   const title = data.title || 'EcclesiaSys Notification';
   const options = {
     body: data.message || 'New content is available!',
-    icon: '/logo192.png',
+    icon: '/logo.png',
     badge: '/favicon.svg',
     data: {
       url: data.url || '/'

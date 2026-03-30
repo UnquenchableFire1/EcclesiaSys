@@ -4,15 +4,17 @@ import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faComments, faUsers, faEnvelope, faSearch, faHandsHelping,
-    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight
+    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight, faCamera
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import ImageCropperModal from '../components/ImageCropperModal';
+import { useToast } from '../context/ToastContext';
 
 import { 
     getMemberProfile, getAnnouncements, getEvents, getSermons,
     createPrayerRequest, getNotifications, markNotificationAsRead,
     markAllNotificationsAsRead, getMembers, getPublicMembers,
-    getMyPrayerRequests
+    getMyPrayerRequests, uploadProfilePicture
 } from '../services/api';
 
 import Announcements from './Announcements';
@@ -29,6 +31,12 @@ export default function MemberDashboard() {
     // -- State --
     const [activeTab, setActiveTabInternal] = useState(() => sessionStorage.getItem('memberActiveTab') || 'home');
     const [loading, setLoading] = useState(true);
+    const { showToast } = useToast();
+    
+    // Profile Picture State
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [showCropper, setShowCropper] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [memberProfile, setMemberProfile] = useState(null);
     const [memberId] = useState(parseInt(sessionStorage.getItem('userId')));
     const [memberName] = useState(sessionStorage.getItem('userName'));
@@ -56,6 +64,50 @@ export default function MemberDashboard() {
         window.addEventListener('setActiveTab', handleTabChange);
         return () => window.removeEventListener('setActiveTab', handleTabChange);
     }, []);
+
+    const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setSelectedImage(reader.result);
+                setShowCropper(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = async (croppedFile) => {
+        setShowCropper(false);
+        setIsUploading(true);
+        
+        const formData = new FormData();
+        formData.append('file', croppedFile);
+        formData.append('userId', memberId);
+        formData.append('userType', 'member');
+
+        try {
+            const response = await uploadProfilePicture(formData);
+            if (response.data.success) {
+                showToast("Identity portrait updated in the sanctuary.", "success");
+                setMemberProfile(prev => ({
+                    ...prev,
+                    profilePictureUrl: response.data.profilePictureUrl
+                }));
+                sessionStorage.setItem('profilePictureUrl', response.data.profilePictureUrl);
+                // Trigger a global update for components like Navbar
+                window.dispatchEvent(new Event('storage'));
+            } else {
+                showToast(response.data.message || "Failed to sync portrait.", "error");
+            }
+        } catch (err) {
+            console.error("Upload error:", err);
+            showToast("Server refused portrait sync.", "error");
+        } finally {
+            setIsUploading(false);
+            setSelectedImage(null);
+        }
+    };
 
     const fetchMemberData = async () => {
         if (!memberId) { navigate('/login'); return; }
@@ -370,8 +422,37 @@ export default function MemberDashboard() {
                         <div className="glass-card p-12 text-center relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-32 bg-mdPrimary/10"></div>
                             <div className="relative z-10">
-                                <div className="w-32 h-32 rounded-full bg-white shadow-xl mx-auto -mt-16 flex items-center justify-center text-5xl font-black text-mdPrimary border-8 border-mdSurface">
-                                    {memberProfile?.name?.[0] || 'M'}
+                                <div className="group/avatar relative w-40 h-40 rounded-full mx-auto -mt-20 border-8 border-mdSurface shadow-xl overflow-hidden">
+                                    {memberProfile?.profilePictureUrl ? (
+                                        <img 
+                                            src={memberProfile.profilePictureUrl} 
+                                            alt="Profile" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-mdPrimary/5 flex items-center justify-center text-6xl font-black text-mdPrimary">
+                                            {memberProfile?.name?.[0] || 'M'}
+                                        </div>
+                                    )}
+                                    
+                                    {/* Camera Overlay */}
+                                    <label className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white">
+                                        <FontAwesomeIcon icon={faCamera} className="text-2xl mb-2" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Update</span>
+                                        <input 
+                                            type="file" 
+                                            className="hidden" 
+                                            accept="image/*" 
+                                            onChange={handleImageSelect}
+                                            disabled={isUploading}
+                                        />
+                                    </label>
+
+                                    {isUploading && (
+                                        <div className="absolute inset-0 bg-mdPrimary/20 backdrop-blur-sm flex items-center justify-center">
+                                            <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                        </div>
+                                    )}
                                 </div>
                                 <h2 className="text-4xl font-black text-mdOnSurface mt-8">{memberProfile?.name || 'Member'}</h2>
                                 <p className="text-mdPrimary font-black text-sm uppercase tracking-widest mt-2">{memberProfile?.role || 'Valued Member'}</p>
@@ -403,6 +484,17 @@ export default function MemberDashboard() {
                 )}
             </div>
 
+            {/* MODALS */}
+            {showCropper && (
+                <ImageCropperModal 
+                    image={selectedImage}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => {
+                        setShowCropper(false);
+                        setSelectedImage(null);
+                    }}
+                />
+            )}
         </div>
     );
 }

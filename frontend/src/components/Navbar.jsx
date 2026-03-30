@@ -226,26 +226,7 @@ export default function Navbar({ isMobile }) {
               </>
             )}
             
-            {/* Mobile Notifications */}
-            <div className="mx-4 flex gap-2">
-                <button 
-                    onClick={() => {
-                        setIsNotificationOpen(!isNotificationOpen);
-                        setIsDropdownOpen(false);
-                        if (isNotificationOpen) setIsMobileMenuOpen(false);
-                    }} 
-                    className="w-full flex items-center justify-center gap-3 p-3 rounded-2xl bg-mdSurfaceVariant/50 text-mdOnSurface font-bold transition-colors relative"
-                    aria-label="Notifications"
-                >
-                    <FontAwesomeIcon icon={faBell} className="text-lg" />
-                    <span>Notifications</span>
-                    {unreadCount > 0 && (
-                        <span className="absolute top-2 right-4 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white bg-red-600 rounded-full">
-                            {unreadCount}
-                        </span>
-                    )}
-                </button>
-            </div>
+            {/* Mobile Notifications removed per user request */}
           </div>
         )}
       </div>

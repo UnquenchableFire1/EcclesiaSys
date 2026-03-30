@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdminProfile, updateAdminProfile } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faShieldAlt, faCamera } from '@fortawesome/free-solid-svg-icons';
 import Lightbox from '../components/Lightbox';
+import ImageCropperModal from '../components/ImageCropperModal';
 import { useToast } from '../context/ToastContext';
+import { uploadProfilePicture } from '../services/api';
 
 export default function AdminProfile() {
     const navigate = useNavigate();
@@ -15,6 +17,9 @@ export default function AdminProfile() {
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [lightboxImg, setLightboxImg] = useState(null);
     const adminId = sessionStorage.getItem('userId');
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [showCropper, setShowCropper] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     const getDefaultAvatar = (gender, name) => {
         if (gender === 'male' || gender === 'Male') return 'https://avatar.iran.liara.run/public/boy';
@@ -69,6 +74,50 @@ export default function AdminProfile() {
         }
     };
 
+    const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setSelectedImage(reader.result);
+                setShowCropper(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = async (croppedFile) => {
+        setShowCropper(false);
+        setIsUploading(true);
+        
+        const formData = new FormData();
+        formData.append('file', croppedFile);
+        formData.append('userId', adminId);
+        formData.append('userType', 'admin');
+
+        try {
+            const response = await uploadProfilePicture(formData);
+            if (response.data.success) {
+                showToast("Admin portrait synced with the sanctuary.", "success");
+                setProfile(prev => ({
+                    ...prev,
+                    profilePictureUrl: response.data.profilePictureUrl
+                }));
+                sessionStorage.setItem('profilePictureUrl', response.data.profilePictureUrl);
+                // Trigger a global update for components like Navbar
+                window.dispatchEvent(new Event('storage'));
+            } else {
+                showToast(response.data.message || "Failed to sync portrait.", "error");
+            }
+        } catch (err) {
+            console.error("Upload error:", err);
+            showToast("Server refused portrait sync.", "error");
+        } finally {
+            setIsUploading(false);
+            setSelectedImage(null);
+        }
+    };
+
     const handleUpdateProfile = async () => {
         try {
             setIsUpdatingProfile(true);
@@ -110,15 +159,43 @@ export default function AdminProfile() {
                             <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-[3rem] p-1 bg-gradient-to-br from-mdPrimary/40 via-mdSecondary/40 to-mdPrimary/40 animate-gradient-slow group-hover:rotate-3 transition-transform duration-700 shadow-premium">
                                 <div className="w-full h-full rounded-[2.9rem] bg-white dark:bg-mdSurface overflow-hidden relative">
                                     {profile.profilePictureUrl ? (
-                                        <img 
-                                            src={profile.profilePictureUrl} 
-                                            alt="Profile" 
-                                            className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-500"
-                                            onClick={() => setLightboxImg(profile.profilePictureUrl)}
-                                        />
+                                        <div className="relative w-full h-full group/image">
+                                            <img 
+                                                src={profile.profilePictureUrl} 
+                                                alt="Profile" 
+                                                className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-500"
+                                                onClick={() => setLightboxImg(profile.profilePictureUrl)}
+                                            />
+                                            {/* Camera Overlay */}
+                                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover/image:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white">
+                                                <FontAwesomeIcon icon={faCamera} className="text-xl mb-1" />
+                                                <span className="text-[10px] font-black uppercase tracking-widest">Change</span>
+                                                <input 
+                                                    type="file" 
+                                                    className="hidden" 
+                                                    accept="image/*" 
+                                                    onChange={handleImageSelect}
+                                                    disabled={isUploading}
+                                                />
+                                            </label>
+                                        </div>
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5">
+                                        <label className="w-full h-full flex flex-col items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5 cursor-pointer hover:bg-mdPrimary/10 transition-colors">
                                             {profile.name.charAt(0)}
+                                            <FontAwesomeIcon icon={faCamera} className="text-sm mt-2 opacity-30" />
+                                            <input 
+                                                type="file" 
+                                                className="hidden" 
+                                                accept="image/*" 
+                                                onChange={handleImageSelect}
+                                                disabled={isUploading}
+                                            />
+                                        </label>
+                                    )}
+
+                                    {isUploading && (
+                                        <div className="absolute inset-0 bg-mdPrimary/20 backdrop-blur-sm flex items-center justify-center z-10">
+                                            <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                                         </div>
                                     )}
                                     
@@ -255,6 +332,17 @@ export default function AdminProfile() {
                 <Lightbox 
                     src={lightboxImg} 
                     onClose={() => setLightboxImg(null)} 
+                />
+            )}
+
+            {showCropper && (
+                <ImageCropperModal 
+                    image={selectedImage}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => {
+                        setShowCropper(false);
+                        setSelectedImage(null);
+                    }}
                 />
             )}
         </div>
