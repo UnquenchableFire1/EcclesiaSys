@@ -162,54 +162,54 @@ public class SermonController {
             }
             
             SermonDAO dao = new SermonDAO();
-            if (dao.addSermon(sermon)) {
-                // Send email notifications
-                try {
-                    java.util.List<String> memberEmails;
-                    if (sermon.getBranchId() != null) {
-                        memberEmails = memberDao.getActiveMemberEmailsByBranch(sermon.getBranchId());
-                    } else {
-                        memberEmails = memberDao.getAllActiveMemberEmails();
-                    }
-                    for (String email : memberEmails) {
-                        emailService.sendSermonNotificationEmail(
-                            email, 
-                            sermon.getTitle(), 
-                            sermon.getSpeaker(), 
-                            sermon.getDescription(),
-                            String.valueOf(sermon.getId())
-                        );
-                    }
-                } catch (Exception e) {
-                    System.err.println("Failed to send sermon email notifications: " + e.getMessage());
+            dao.addSermon(sermon); // Now throws SQLException if it fails
+            
+            // Send email notifications
+            try {
+                java.util.List<String> memberEmails;
+                if (sermon.getBranchId() != null) {
+                    memberEmails = memberDao.getActiveMemberEmailsByBranch(sermon.getBranchId());
+                } else {
+                    memberEmails = memberDao.getAllActiveMemberEmails();
                 }
-
-                // Send in-app notifications to branch members
-                try {
-                    com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
-                    java.util.List<Integer> memberIds;
-                    if (sermon.getBranchId() != null) {
-                        memberIds = memberDao.getActiveMemberIdsByBranch(sermon.getBranchId());
-                    } else {
-                        memberIds = memberDao.getAllActiveMemberIds();
-                    }
-                    String notifTitle = "New Sermon: " + sermon.getTitle();
-                    String notifMsg = "A new sermon by " + sermon.getSpeaker() + " has been posted. Check it out now!";
-                    for (int memberId : memberIds) {
-                        notifDao.addNotification(memberId, notifTitle, notifMsg, "sermon", "MEMBER");
-                    }
-                    System.out.println("✓ In-app notifications sent to " + memberIds.size() + " members.");
-                } catch (Exception e) {
-                    System.err.println("Failed to send in-app sermon notifications: " + e.getMessage());
+                for (String email : memberEmails) {
+                    emailService.sendSermonNotificationEmail(
+                        email, 
+                        sermon.getTitle(), 
+                        sermon.getSpeaker(), 
+                        sermon.getDescription(),
+                        String.valueOf(sermon.getId())
+                    );
                 }
-
-                response.put("success", true);
-                response.put("message", "Sermon created successfully");
-                response.put("data", sermon);
-            } else {
-                response.put("success", false);
-                response.put("message", "Failed to save sermon to database");
+            } catch (Exception e) {
+                System.err.println("Failed to send sermon email notifications: " + e.getMessage());
             }
+
+            // Send in-app notifications
+            try {
+                com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
+                java.util.List<Integer> memberIds;
+                if (sermon.getBranchId() != null) {
+                    memberIds = memberDao.getActiveMemberIdsByBranch(sermon.getBranchId());
+                } else {
+                    memberIds = memberDao.getAllActiveMemberIds();
+                }
+                String notifTitle = "New Sermon: " + sermon.getTitle();
+                String notifMsg = "A new sermon by " + sermon.getSpeaker() + " has been posted. Check it out now!";
+                for (int memberId : memberIds) {
+                    notifDao.addNotification(memberId, notifTitle, notifMsg, "sermon", "MEMBER");
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to send in-app sermon notifications: " + e.getMessage());
+            }
+
+            response.put("success", true);
+            response.put("message", "Sermon created successfully");
+            response.put("data", sermon);
+        } catch (java.sql.SQLException e) {
+            response.put("success", false);
+            response.put("message", "Database Error: " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());

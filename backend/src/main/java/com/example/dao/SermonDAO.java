@@ -64,10 +64,13 @@ public class SermonDAO {
         }
     }
 
-    public boolean addSermon(Sermon sermon) {
+    public void addSermon(Sermon sermon) throws SQLException {
         String query = "INSERT INTO sermons (title, description, speaker, sermon_date, file_path, audio_url, video_url, file_type, uploaded_by, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            
+            if (conn == null) throw new SQLException("Could not establish database connection.");
+            
             stmt.setString(1, sermon.getTitle());
             stmt.setString(2, sermon.getDescription());
             stmt.setString(3, sermon.getSpeaker());
@@ -78,11 +81,20 @@ public class SermonDAO {
             stmt.setString(8, sermon.getFileType());
             stmt.setInt(9, sermon.getUploadedBy());
             if (sermon.getBranchId() != null) stmt.setInt(10, sermon.getBranchId()); else stmt.setNull(10, Types.INTEGER);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+            
+            System.out.println("Executing query: " + query);
+            stmt.executeUpdate();
+            
+            // Get the generated ID
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    sermon.setId(generatedKeys.getInt(1));
+                }
+            } catch (SQLException e) {
+                // Ignore if not supported, but log it
+                System.err.println("Could not retrieve generated key: " + e.getMessage());
+            }
         }
-        return false;
     }
 
     public Sermon getSermonById(int id) {
