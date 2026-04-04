@@ -117,7 +117,7 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
 
             // 2. Save record
             const res = await createGalleryItem({
-                title: uploadForm.title || 'Sanctuary Moment',
+                title: uploadForm.title || 'Assembly Moment',
                 caption: uploadForm.caption,
                 mediaUrl,
                 mediaType: resolvedType || uploadForm.mediaType,
@@ -241,7 +241,7 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter flex items-center gap-4">
-                        Sanctuary Gallery
+                        Assembly Gallery
                         <span className="text-xs bg-mdPrimary/10 text-mdPrimary px-3 py-1 rounded-full font-black">{galleryItems.length} items</span>
                     </h1>
                     <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Photos · Videos · Sermons · Albums</p>

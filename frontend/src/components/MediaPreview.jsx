@@ -37,7 +37,7 @@ const MediaPreview = ({ url, type, title }) => {
                     </div>
                     <div>
                         <p className="text-[10px] font-black uppercase tracking-widest text-mdOutline">Attachment</p>
-                        <p className="text-sm font-bold text-mdOnSurface truncate max-w-[200px]">{title || "Sanctuary Media"}</p>
+                        <p className="text-sm font-bold text-mdOnSurface truncate max-w-[200px]">{title || "Assembly Media"}</p>
                     </div>
                 </div>
 
@@ -112,7 +112,7 @@ const MediaPreview = ({ url, type, title }) => {
                                 onClick={() => setShowPdfModal(false)}
                                 className="px-6 py-2 bg-mdError/10 text-mdError font-black rounded-full hover:bg-mdError hover:text-white transition-all"
                             >
-                                Close Sanctuary Viewer
+                                Close Assembly Viewer
                             </button>
                         </div>
                         <div className="flex-1 bg-mdSurfaceVariant/20">

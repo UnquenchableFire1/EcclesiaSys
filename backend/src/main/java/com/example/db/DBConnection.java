@@ -73,7 +73,7 @@ public class DBConnection {
                 "ALTER TABLE admins ADD COLUMN bio TEXT",
                 "ALTER TABLE admins ADD COLUMN phone_number VARCHAR(20)",
                 // Seed initial branch if none exists
-                "INSERT IGNORE INTO branches (id, name, location) VALUES (1, 'Main Sanctuary', 'Central')"
+                "INSERT IGNORE INTO branches (id, name, location) VALUES (1, 'Main Assembly', 'Central')"
             };
             
             for (String query : queries) {

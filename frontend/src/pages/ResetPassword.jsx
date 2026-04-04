@@ -80,7 +80,7 @@ export default function ResetPassword() {
       {/* Cinematic Background */}
       <img 
         src="/assets/images/church/church_10.jpg" 
-        alt="Sanctuary Peace" 
+        alt="Assembly Peace" 
         className="absolute inset-0 w-full h-full object-cover scale-105 blur-[2px]"
       />
       <div className="absolute inset-0 bg-mdSurface/40 backdrop-blur-sm"></div>
@@ -213,7 +213,7 @@ export default function ResetPassword() {
                 to="/login"
                 className="w-full bg-mdSecondary text-white font-black text-xs uppercase tracking-[0.3em] py-6 rounded-full shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
               >
-                Return to Sanctuary
+                Return to Assembly
               </Link>
             </div>
           )}

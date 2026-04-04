@@ -97,7 +97,7 @@ export default function AdminProfile() {
         try {
             const response = await uploadProfilePicture(formData);
             if (response.data.success) {
-                showToast("Admin portrait synced with the sanctuary.", "success");
+                showToast("Admin portrait synced with the assembly.", "success");
                 setProfile(prev => ({
                     ...prev,
                     profilePictureUrl: response.data.profilePictureUrl
@@ -165,7 +165,7 @@ export default function AdminProfile() {
             <div className="flex justify-center p-12">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin"></div>
-                    <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Securing admin sanctuary...</p>
+                    <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse">Securing admin assembly...</p>
                 </div>
             </div>
         );
@@ -258,7 +258,7 @@ export default function AdminProfile() {
                                 </div>
                                 <div className="glass-card px-6 py-3 border-none flex items-center gap-3">
                                     <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary/60" />
-                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">COP Ayikai Doblo Sanctuary Access</span>
+                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">COP Ayikai Doblo Assembly Access</span>
                                 </div>
                             </div>
                         </div>
@@ -319,7 +319,7 @@ export default function AdminProfile() {
                                             disabled={isUpdatingProfile}
                                             className="w-full bg-mdOnSurface text-mdSurface py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transform active:scale-95 transition-all shadow-lifted hover:bg-mdPrimary hover:text-white disabled:opacity-50"
                                         >
-                                            {isUpdatingProfile ? 'Synching Sanctuary...' : 'Update Admin Records'}
+                                            {isUpdatingProfile ? 'Synching Assembly...' : 'Update Admin Records'}
                                         </button>
                                     </div>
                                 ) : (
@@ -338,7 +338,7 @@ export default function AdminProfile() {
                                         <div className="glass-card bg-mdSurfaceVariant/5 border-none p-10 text-center">
                                             <p className="text-[10px] font-black uppercase tracking-widest text-mdOutline mb-4">Official Bio</p>
                                             <p className="font-bold text-mdOnSurfaceVariant leading-loose italic">
-                                                {profile.bio || "No administrative bio provided for this sanctuary."}
+                                                {profile.bio || "No administrative bio provided for this assembly."}
                                             </p>
                                         </div>
                                     </div>

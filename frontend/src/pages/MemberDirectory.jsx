@@ -162,7 +162,7 @@ export default function MemberDirectory() {
                         {searchTerm ? 'No matches found' : 'Fellowship gathering...'}
                     </p>
                     <p className="text-mdOnSurfaceVariant font-medium opacity-60">
-                        {searchTerm ? 'Try adjusting your search criteria.' : 'Invite more members to join the sanctuary.'}
+                        {searchTerm ? 'Try adjusting your search criteria.' : 'Invite more members to join the assembly.'}
                     </p>
                 </div>
             )}

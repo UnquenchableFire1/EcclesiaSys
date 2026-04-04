@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt, faEye, faEyeSlash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { login } from '../services/api';
-import SanctuaryLogo from '../components/SanctuaryLogo';
+import AssemblyLogo from '../components/AssemblyLogo';
 import axios from 'axios';
 
 export default function Login() {
@@ -59,17 +59,17 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden">
-      {/* Left Side: Visual Sanctuary */}
+      {/* Left Side: Visual Assembly */}
       <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
         <img 
           src="/assets/images/church/church_7.jpg" 
-          alt="Sanctuary Entrance" 
+          alt="Assembly Entrance" 
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
         />
         <div className="image-overlay-dark opacity-60"></div>
         <div className="relative z-10 flex flex-col justify-center items-center h-full p-20 text-white text-center">
             <div className="mb-12">
-                <SanctuaryLogo size={120} showText={false} isDark={true} className="animate-float" />
+                <AssemblyLogo size={120} showText={false} isDark={true} className="animate-float" />
             </div>
             <h2 className="text-6xl font-black tracking-tighter mb-6 leading-tight">
               A Home for Every Soul.
@@ -100,13 +100,13 @@ export default function Login() {
             </a>
             
             <div className="text-center mb-10 w-full flex justify-center mt-4 md:mt-0">
-                <SanctuaryLogo size={64} showText={true} />
+                <AssemblyLogo size={64} showText={true} />
             </div>
 
             <h2 className="text-3xl font-black text-mdOnSurface tracking-tight">
               Welcome Back
             </h2>
-            <p className="text-mdOnSurfaceVariant mt-2 font-medium opacity-60">Enter the sanctuary of your digital dashboard</p>
+            <p className="text-mdOnSurfaceVariant mt-2 font-medium opacity-60">Enter the assembly of your digital dashboard</p>
           </div>
   
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -163,7 +163,7 @@ export default function Login() {
                   </svg>
                   Authorizing...
                 </span>
-              ) : 'Enter Sanctuary'}
+              ) : 'Enter Assembly'}
             </button>
           </form>
   

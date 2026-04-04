@@ -172,7 +172,7 @@ export default function MemberProfile() {
             setIsUpdatingProfile(true);
             const response = await updateMemberProfile(memberId, formData);
             if (response.data.success) {
-                showToast('Sanctuary records updated!', 'success');
+                showToast('Assembly records updated!', 'success');
                 setEditing(false);
                 fetchProfile();
             } else {
@@ -190,7 +190,7 @@ export default function MemberProfile() {
             <div className="flex items-center justify-center p-12">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-mdPrimary/30 border-t-mdPrimary rounded-full animate-spin"></div>
-                    <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse italic">Entering the profile sanctuary...</p>
+                    <p className="text-mdOnSurfaceVariant text-lg font-bold animate-pulse italic">Entering the profile assembly...</p>
                 </div>
             </div>
         );
@@ -673,7 +673,7 @@ export default function MemberProfile() {
                                                 </div>
                                                 <div>
                                                     <p className="text-[8px] font-black uppercase tracking-widest text-mdOnSurfaceVariant opacity-50">Base</p>
-                                                    <p className="font-black text-sm tracking-tight">{profile.city || 'GLOBAL SANCTUARY'}</p>
+                                                    <p className="font-black text-sm tracking-tight">{profile.city || 'GLOBAL ASSEMBLY'}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -683,7 +683,7 @@ export default function MemberProfile() {
                                             <FontAwesomeIcon icon={faQuoteLeft} className="absolute top-8 left-8 text-4xl text-mdPrimary/10" />
                                             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-mdPrimary mb-6 text-center">Spiritual Testimony</p>
                                             <p className="font-bold text-xl text-mdOnSurfaceVariant leading-[2] italic text-center px-6 relative z-10">
-                                                {profile.bio || "Speak your journey. Update your records to shared a personal testimony that will inspire the sanctuary."}
+                                                {profile.bio || "Speak your journey. Update your records to shared a personal testimony that will inspire the assembly."}
                                             </p>
                                         </div>
                                     </div>

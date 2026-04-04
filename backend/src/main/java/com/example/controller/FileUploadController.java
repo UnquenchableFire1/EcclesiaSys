@@ -154,7 +154,7 @@ public class FileUploadController {
 
             if (updated) {
                 response.put("success", true);
-                response.put("message", "Portrait removed from the sanctuary.");
+                response.put("message", "Portrait removed from the assembly.");
             } else {
                 response.put("success", false);
                 if (!response.containsKey("message")) {

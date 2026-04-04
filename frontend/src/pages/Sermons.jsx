@@ -74,7 +74,7 @@ export default function Sermons({ embedded = false, branchId = null }) {
                 <div className="mb-12">
                      <Hero 
                         title="Heavenly Revelations"
-                        subtitle="Explore our archive of life-transforming messages and divine teachings from the anointed leaders of our sanctuary."
+                        subtitle="Explore our archive of life-transforming messages and divine teachings from the anointed leaders of our assembly."
                         backgroundImage="/assets/images/church/church_9.jpg"
                         small={true}
                     />
@@ -110,7 +110,7 @@ export default function Sermons({ embedded = false, branchId = null }) {
                     <div className="w-32 h-32 bg-mdSurfaceVariant/30 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 opacity-30 shadow-inner">
                         <FontAwesomeIcon icon={faMicrophone} className="text-5xl" />
                     </div>
-                    <h3 className="text-3xl font-black text-mdOnSurface mb-4">The Sanctuary is Silent</h3>
+                    <h3 className="text-3xl font-black text-mdOnSurface mb-4">The Assembly is Silent</h3>
                     <p className="text-xl text-mdOnSurfaceVariant font-medium max-w-md mx-auto leading-relaxed">No sermons have been recorded in this archive yet. Check back soon for new revelations.</p>
                 </div>
             ) : (
@@ -198,7 +198,7 @@ export default function Sermons({ embedded = false, branchId = null }) {
                                     <FontAwesomeIcon icon={faMicrophone} className="text-4xl" />
                                 </div>
                                 <span className="text-white/40 font-black uppercase tracking-[0.4em] text-[10px] mb-4">
-                                    Divine Message {!selectedSermon.branchId && " • Sanctuary Wide"}
+                                    Divine Message {!selectedSermon.branchId && " • Assembly Wide"}
                                 </span>
                                 <h3 className="text-4xl font-black tracking-tighter leading-none italic">Archive<br/>Revelation</h3>
                             </div>
@@ -275,7 +275,7 @@ export default function Sermons({ embedded = false, branchId = null }) {
                 onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
                 onConfirm={confirmModal.onConfirm}
                 title="Remove Revelation?"
-                message="This will permanently remove the sermon from the sanctuary archive. Proceed?"
+                message="This will permanently remove the sermon from the assembly archive. Proceed?"
                 type="danger"
             />
         </div>

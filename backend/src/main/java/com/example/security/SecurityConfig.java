@@ -31,7 +31,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // Public API Endpoints
-                .requestMatchers("/api/login", "/api/register").permitAll()
+                .requestMatchers("/api/login", "/api/register", "/api/verification/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/branches").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/member/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/members/public").permitAll()

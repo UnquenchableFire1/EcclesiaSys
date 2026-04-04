@@ -42,7 +42,7 @@ public class PrayerRequestController {
                 }
 
                 response.put("success", true);
-                response.put("message", "Your prayer request has been submitted to the sanctuary.");
+                response.put("message", "Your prayer request has been submitted to the assembly.");
             } else {
                 response.put("success", false);
                 response.put("message", "Failed to submit prayer request.");

@@ -94,7 +94,7 @@ export default function MemberDashboard() {
         try {
             const response = await uploadProfilePicture(formData);
             if (response.data.success) {
-                showToast("Identity portrait updated in the sanctuary.", "success");
+                showToast("Identity portrait updated in the assembly.", "success");
                 setMemberProfile(prev => ({
                     ...prev,
                     profilePictureUrl: response.data.profilePictureUrl
@@ -115,7 +115,7 @@ export default function MemberDashboard() {
     };
 
     const handleDeleteProfilePicture = async () => {
-        if (!window.confirm("Are you sure you want to remove your sanctuary portrait?")) return;
+        if (!window.confirm("Are you sure you want to remove your assembly portrait?")) return;
 
         setIsUploading(true);
         try {
@@ -197,7 +197,7 @@ export default function MemberDashboard() {
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
                     <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-br from-mdOnSurface to-mdOnSurfaceVariant/60">
-                        COP Ayikai Doblo Sanctuary
+                        COP Ayikai Doblo Assembly
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
@@ -214,16 +214,16 @@ export default function MemberDashboard() {
                     <div className="space-y-12">
                         {/* Hero Section */}
                         <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
-                            <img src="/assets/images/church/church_8.jpg" alt="Sanctuary" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
+                            <img src="/assets/images/church/church_8.jpg" alt="Assembly" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
                             <div className="image-overlay-dark opacity-70"></div>
                             <div className="relative z-10 h-full p-10 md:p-16 flex flex-col justify-center max-w-2xl text-white">
-                                <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.4em] mb-8 inline-block border border-white/10 w-max">Member Sanctuary</span>
+                                <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.4em] mb-8 inline-block border border-white/10 w-max">Member Assembly</span>
                                 <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.9]">
                                     Your faith,<br/>
                                     <span className="opacity-60 text-mdSecondary">Connected.</span>
                                 </h2>
                                 <p className="text-lg md:text-xl font-medium text-white/80 mb-10 leading-relaxed max-w-lg">
-                                    "Your word is a lamp to my feet and a light to my path." – Explore what's happening in our sanctuary today.
+                                    "Your word is a lamp to my feet and a light to my path." – Explore what's happening in our assembly today.
                                 </p>
                                 <div className="flex flex-wrap gap-4">
                                     <button onClick={() => setActiveTab('sermons')} className="px-8 py-4 bg-white text-mdPrimary rounded-2xl font-black text-sm uppercase tracking-widest shadow-lifted hover:bg-mdSecondary hover:text-white transition-all">
@@ -246,7 +246,7 @@ export default function MemberDashboard() {
                             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <DiscoveryCard 
                                     title="Upcoming Events" 
-                                    desc="Announcements and upcoming events from our sanctuary community." 
+                                    desc="Announcements and upcoming events from our assembly community." 
                                     icon={faBullhorn}
                                     tab="updates"
                                     color="text-amber-500"
@@ -276,7 +276,7 @@ export default function MemberDashboard() {
                                 />
                                 <DiscoveryCard 
                                     title="Member Directory" 
-                                    desc="Connect with your brothers and sisters in the sanctuary." 
+                                    desc="Connect with your brothers and sisters in the assembly." 
                                     icon={faUsers} 
                                     tab="members" 
                                     color="text-mdPrimary" 
@@ -352,7 +352,7 @@ export default function MemberDashboard() {
                     <div className="space-y-10 animate-fade-in">
                         <div className="max-w-4xl mx-auto text-center mb-12">
                             <h1 className="text-5xl font-black text-mdOnSurface tracking-tighter mb-4">Member Directory</h1>
-                            <p className="text-lg text-mdOnSurfaceVariant font-medium">Meet the family of faith at COP Ayikai Doblo Sanctuary.</p>
+                            <p className="text-lg text-mdOnSurfaceVariant font-medium">Meet the family of faith at COP Ayikai Doblo Assembly.</p>
                             
                             <div className="mt-8 relative max-w-xl mx-auto">
                                 <FontAwesomeIcon icon={faSearch} className="absolute left-6 top-1/2 -translate-y-1/2 text-mdPrimary opacity-50" />
@@ -439,7 +439,7 @@ export default function MemberDashboard() {
                                         <h4 className="text-xl font-black">WhatsApp Support</h4>
                                     </div>
                                     <p className="text-sm font-medium text-mdOnSurfaceVariant mb-6 opacity-80 leading-relaxed">
-                                        Connect with our sanctuary support team directly for fellowship, guidance, or assistance.
+                                        Connect with our assembly support team directly for fellowship, guidance, or assistance.
                                     </p>
                                     <a 
                                       href="https://wa.me/message/DMJE5W7QXC2MF1"
@@ -448,7 +448,7 @@ export default function MemberDashboard() {
                                       className="btn-premium py-4 w-full flex items-center justify-center gap-3"
                                     >
                                         <FontAwesomeIcon icon={faWhatsapp} />
-                                        Message Sanctuary
+                                        Message Assembly
                                     </a>
                                 </div>
                             </div>

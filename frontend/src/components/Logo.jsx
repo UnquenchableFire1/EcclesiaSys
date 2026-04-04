@@ -1,13 +1,13 @@
 import React from 'react';
-import SanctuaryLogo from './SanctuaryLogo';
+import AssemblyLogo from './AssemblyLogo';
 
 /**
- * Legacy Logo wrapper - redirects to the new premium SanctuaryLogo identity.
+ * Logo wrapper - redirects to the new premium AssemblyLogo identity.
  */
 const Logo = ({ className = "", showText = true, variant = "primary", size = 42 }) => {
   return (
     <div className={className}>
-      <SanctuaryLogo 
+      <AssemblyLogo 
         size={size} 
         showText={showText} 
         isDark={variant === "white"} 

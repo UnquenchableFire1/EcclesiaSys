@@ -251,7 +251,7 @@ export default function AdminDashboard() {
         try {
             const response = await uploadProfilePicture(formData);
             if (response.data.success) {
-                showToast("Identity portrait updated in the sanctuary.", "success");
+                showToast("Identity portrait updated in the assembly.", "success");
                 setAdminData(prev => ({
                     ...prev,
                     profilePictureUrl: response.data.profilePictureUrl
@@ -272,7 +272,7 @@ export default function AdminDashboard() {
     };
 
     const handleDeleteProfilePicture = async () => {
-        if (!window.confirm("Are you sure you want to remove your sanctuary portrait?")) return;
+        if (!window.confirm("Are you sure you want to remove your assembly portrait?")) return;
 
         setIsUploading(true);
         try {
@@ -394,7 +394,7 @@ export default function AdminDashboard() {
                 branchId: currentBranchIdForData 
             });
             if (response.data.success) {
-                showToast('Sanctuary event scheduled!', 'success');
+                showToast('Assembly event scheduled!', 'success');
                 setEventForm({ title: '', description: '', startDate: '', endDate: '', location: '', documentFileUrl: '', isGlobal: false });
                 setEventFile(null);
                 setShowEventForm(false);
@@ -655,7 +655,7 @@ export default function AdminDashboard() {
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
                     <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2">
-                        COP Ayikai Doblo Sanctuary
+                        COP Ayikai Doblo Assembly
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
@@ -696,7 +696,7 @@ export default function AdminDashboard() {
                             <div className="lg:col-span-2 glass-card p-10">
                                 <h3 className="text-2xl font-black text-mdOnSurface mb-8 flex items-center gap-3">
                                     <span className="w-1.5 h-6 bg-mdPrimary rounded-full"></span>
-                                    Sanctuary Actions
+                                    Assembly Actions
                                 </h3>
                                 {(!isActuallySuperAdmin || isReadOnly) ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -715,21 +715,21 @@ export default function AdminDashboard() {
                                         )}
                                         <QuickAction label="Congregation" icon={faUsers} tab="members" desc="Universal Registry" />
                                         {(!isActuallySuperAdmin && !isReadOnly) && (
-                                            <QuickAction label="Sanctuary Help" icon={faWhatsapp} tab="support" desc="WhatsApp Support" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
+                                            <QuickAction label="Assembly Help" icon={faWhatsapp} tab="support" desc="WhatsApp Support" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
                                         )}
                                     </div>
                                 )}
                             </div>
                             
                             <div className="relative h-[400px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
-                                <img src="/assets/images/church/church_13.jpg" alt="Sanctuary Administration" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
+                                <img src="/assets/images/church/church_13.jpg" alt="Assembly Administration" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
                                 <div className="image-overlay-dark opacity-80 backdrop-blur-[2px]"></div>
                                 <div className="relative z-10 h-full p-12 flex flex-col justify-center text-white">
                                     <div className="flex items-center gap-4 mb-6">
                                         <div className="w-12 h-12 rounded-2xl bg-mdPrimary/20 backdrop-blur-md flex items-center justify-center text-white border border-white/10">
                                             <FontAwesomeIcon icon={faUserShield} className="text-xl" />
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70">Sanctuary Command Center</span>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70">Assembly Command Center</span>
                                     </div>
                                     <h3 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter">System Oversight</h3>
                                     <div className="flex items-center gap-6 pt-6 border-t border-white/10 mt-6 max-w-md">
@@ -796,13 +796,13 @@ export default function AdminDashboard() {
                             <div className="lg:col-span-1 glass-card p-10 rounded-[3rem] border-none flex flex-col justify-between h-[400px]">
                                 <div>
                                     <div className="flex items-center justify-between mb-8">
-                                        <h3 className="text-xl font-black text-mdPrimary uppercase tracking-tighter italic">Sanctuary Pulse</h3>
+                                        <h3 className="text-xl font-black text-mdPrimary uppercase tracking-tighter italic">Assembly Pulse</h3>
                                         <div className="flex items-center gap-2">
                                             <span className="w-2 h-2 bg-mdSecondary rounded-full pulse-gold"></span>
                                             <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">Live Integration</span>
                                         </div>
                                     </div>
-                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-8 opacity-70">Interactive oversight of sanctuary growth across all branches.</p>
+                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-8 opacity-70">Interactive oversight of assembly growth across all branches.</p>
                                     
                                     {/* Simulated Growth Chart (SVG) */}
                                     <div className="relative h-24 w-full mb-6">
@@ -855,7 +855,7 @@ export default function AdminDashboard() {
                                     { icon: faUserPlus, color: 'bg-green-100 text-green-600', msg: 'New member integration confirmed in East Region', time: '2 mins ago' },
                                     { icon: faVideo, color: 'bg-blue-100 text-blue-600', msg: 'Life-transforming word "The Anointing" uploaded', time: '45 mins ago' },
                                     { icon: faPrayingHands, color: 'bg-purple-100 text-purple-600', msg: 'Branch Prayer Wall: Urgent request from Central Branch', time: '1 hour ago' },
-                                    { icon: faCalendarAlt, color: 'bg-amber-100 text-amber-600', msg: 'Sanctuary Event "Higher Calling" published', time: '3 hours ago' },
+                                    { icon: faCalendarAlt, color: 'bg-amber-100 text-amber-600', msg: 'Assembly Event "Higher Calling" published', time: '3 hours ago' },
                                 ].map((item, i) => (
                                     <div key={i} className="flex items-center justify-between p-5 rounded-3xl bg-mdSurfaceVariant/30 group hover:bg-white transition-all border border-transparent hover:border-mdOutline/10 hover:shadow-sm">
                                         <div className="flex items-center gap-6">
@@ -983,7 +983,7 @@ export default function AdminDashboard() {
                                                             <button 
                                                                 onClick={() => openConfirm(
                                                                     "Expunge Record?", 
-                                                                    `This will permanently remove ${member.firstName} from the sanctuary registry. Proceed?`,
+                                                                    `This will permanently remove ${member.firstName} from the assembly registry. Proceed?`,
                                                                     () => deleteMember(member.id).then(fetchAllData)
                                                                 )}
                                                                 className="p-3 bg-mdSurfaceVariant/30 text-mdOnSurfaceVariant rounded-xl hover:bg-mdError hover:text-white transition-all shadow-sm"
@@ -1086,7 +1086,7 @@ export default function AdminDashboard() {
                                             {isSuperAdmin && (
                                                 <div className="flex items-center gap-3 p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
                                                     <input type="checkbox" id="annGlobal" className="w-5 h-5 rounded border-mdOutline accent-mdPrimary" checked={annForm.isGlobal} onChange={e => setAnnForm({...annForm, isGlobal: e.target.checked})} />
-                                                    <label htmlFor="annGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">Make Global Visibility (All Sanctuary Branches)</label>
+                                                    <label htmlFor="annGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">Make Global Visibility (All Assembly Branches)</label>
                                                 </div>
                                             )}
                                             <button type="submit" disabled={formLoading} className="btn-premium w-full sm:w-max">{formLoading ? 'Publishing...' : 'Release Post'}</button>
@@ -1114,7 +1114,7 @@ export default function AdminDashboard() {
                                             {isSuperAdmin && (
                                                 <div className="md:col-span-2 flex items-center gap-3 p-4 bg-mdSecondary/5 rounded-2xl border border-mdSecondary/10">
                                                     <input type="checkbox" id="eventGlobal" className="w-5 h-5 rounded border-mdOutline accent-mdSecondary" checked={eventForm.isGlobal} onChange={e => setEventForm({...eventForm, isGlobal: e.target.checked})} />
-                                                    <label htmlFor="eventGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">Make Global Visibility (All Sanctuary Branches)</label>
+                                                    <label htmlFor="eventGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">Make Global Visibility (All Assembly Branches)</label>
                                                 </div>
                                             )}
                                             <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Scheduling...' : 'Save Event'}</button>

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun, faBell, faCheck, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/api';
-import SanctuaryLogo from './SanctuaryLogo';
+import AssemblyLogo from './AssemblyLogo';
 
 export default function Navbar({ isMobile }) {
   const location = useLocation();
@@ -104,7 +104,7 @@ export default function Navbar({ isMobile }) {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
         <div className="flex justify-between items-center">
           <Link to="/" className="hover:opacity-80 transition-all active:scale-95">
-             <SanctuaryLogo size={42} showText={true} />
+             <AssemblyLogo size={42} showText={true} />
           </Link>
 
           {/* Desktop Navigation */}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { verifyRegistrationOtp, sendOtp } from '../services/api';
-import SanctuaryLogo from '../components/SanctuaryLogo';
+import AssemblyLogo from '../components/AssemblyLogo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelopeOpenText, faArrowRight, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -75,7 +75,7 @@ export default function VerifyEmail() {
 
             <div className="glass-card relative z-10 w-full max-w-md p-10 md:p-14 border border-white/20 shadow-premium rounded-[3rem] text-center">
                 <div className="mb-8 flex justify-center">
-                    <SanctuaryLogo size={80} showText={false} />
+                    <AssemblyLogo size={80} showText={false} />
                 </div>
 
                 <div className="w-20 h-20 mx-auto bg-mdPrimary/10 text-mdPrimary rounded-full flex items-center justify-center text-3xl mb-6 shadow-inner">

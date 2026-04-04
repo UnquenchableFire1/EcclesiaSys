@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
-import SanctuaryLogo from '../components/SanctuaryLogo';
+import AssemblyLogo from '../components/AssemblyLogo';
 import Layout from '../layouts/Layout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShieldAlt, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -36,7 +36,7 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden bg-mdSurface">
-      {/* Left Side: Structural Sanctuary */}
+      {/* Left Side: Structural Assembly */}
       <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
         <img 
           src="/assets/images/church/church_1.jpg" 
@@ -46,10 +46,10 @@ export default function AdminLogin() {
         <div className="image-overlay-dark opacity-70"></div>
         <div className="relative z-10 flex flex-col justify-center items-center h-full p-20 text-white text-center">
         <div className="mb-12">
-            <SanctuaryLogo size={120} showText={false} isDark={true} className="animate-float" />
+            <AssemblyLogo size={120} showText={false} isDark={true} className="animate-float" />
         </div>
         <h2 className="text-6xl font-black tracking-tighter mb-6 leading-tight italic">
-          Sanctuary<br/>Oversight.
+          Assembly<br/>Oversight.
         </h2>
         <p className="text-xl font-medium max-w-sm opacity-80 leading-relaxed italic">
           "Stewarding the sacred flame of our community with wisdom and integrity."
@@ -72,13 +72,13 @@ export default function AdminLogin() {
         </a>
         
         <div className="text-center mb-10">
-            <SanctuaryLogo size={64} showText={true} />
+            <AssemblyLogo size={64} showText={true} />
         </div>
 
             <h2 className="text-3xl font-black text-mdOnSurface tracking-tight text-center">
               Gateway Access
             </h2>
-            <p className="text-mdOnSurfaceVariant mt-2 font-medium opacity-60 text-center italic">Verify your credentials to oversee the sanctuary</p>
+            <p className="text-mdOnSurfaceVariant mt-2 font-medium opacity-60 text-center italic">Verify your credentials to oversee the assembly</p>
           </div>
   
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -86,7 +86,7 @@ export default function AdminLogin() {
                 <label className="block text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant mb-2 ml-1 group-focus-within:text-mdSecondary transition-colors">Admin Scroll (Email)</label>
                 <input
                     type="email"
-                    placeholder="admin@ecclesiasys.org"
+                    placeholder="admin@assembly.org"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-6 py-5 border border-mdOutline/10 rounded-2xl bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-4 focus:ring-mdSecondary/5 focus:border-mdSecondary transition-all font-bold"

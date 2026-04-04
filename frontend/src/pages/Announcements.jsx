@@ -70,7 +70,7 @@ export default function Announcements({ embedded = false, branchId = null }) {
             {!embedded && (
                 <div className="mb-12">
                      <Hero 
-                        title="Sanctuary Insights"
+                        title="Assembly Insights"
                         subtitle="Stay updated with the latest news, events, and announcements from our community."
                         backgroundImage="/assets/images/church/church_4.jpg"
                         small={true}
@@ -107,7 +107,7 @@ export default function Announcements({ embedded = false, branchId = null }) {
                     <div className="w-24 h-24 bg-mdSurfaceVariant/30 rounded-full flex items-center justify-center mx-auto mb-8 opacity-40">
                         <FontAwesomeIcon icon={faBullhorn} className="text-4xl" />
                     </div>
-                    <p className="text-2xl font-black text-mdOnSurface mb-2">Silence in the Sanctuary</p>
+                    <p className="text-2xl font-black text-mdOnSurface mb-2">Silence in the Assembly</p>
                     <p className="text-mdOnSurfaceVariant font-medium">No active announcements at this time.</p>
                 </div>
             ) : (
@@ -122,7 +122,7 @@ export default function Announcements({ embedded = false, branchId = null }) {
                                         </span>
                                         {!ann.branchId && (
                                             <span className="px-5 py-2 rounded-full bg-purple-500/10 text-purple-600 text-[10px] font-black uppercase tracking-[0.2em] border border-purple-500/20">
-                                                SANCTUARY GLOBAL
+                                                ASSEMBLY GLOBAL
                                             </span>
                                         )}
                                     </div>
@@ -224,7 +224,7 @@ export default function Announcements({ embedded = false, branchId = null }) {
                 onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
                 onConfirm={confirmModal.onConfirm}
                 title="Revoke Insight?"
-                message="This will permanently remove the announcement from the sanctuary newsfeed. Proceed?"
+                message="This will permanently remove the announcement from the assembly newsfeed. Proceed?"
                 type="danger"
             />
         </div>

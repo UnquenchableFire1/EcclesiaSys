@@ -112,7 +112,7 @@ export default function Events({ embedded = false, branchId = null }) {
                 <div className="mb-12">
                     <Hero 
                         title="Sacred Gatherings"
-                        subtitle="Join our vibrant community as we fellowship together, grow in grace, and manifest the sanctuary's vision in our world."
+                        subtitle="Join our vibrant community as we fellowship together, grow in grace, and manifest the assembly's vision in our world."
                         backgroundImage="/assets/images/church/church_11.jpg"
                         small={true}
                     />
@@ -210,7 +210,7 @@ export default function Events({ embedded = false, branchId = null }) {
                                         <div className="w-10 h-10 rounded-xl bg-white/10 shadow-inner flex items-center justify-center text-mdSecondary">
                                             <FontAwesomeIcon icon={faMapMarkerAlt} />
                                         </div>
-                                        <span className="truncate max-w-[150px]">{event.location || 'Sanctuary'}</span>
+                                        <span className="truncate max-w-[150px]">{event.location || 'Assembly'}</span>
                                     </div>
                                     <button 
                                         onClick={() => setSelectedEvent(event)}
@@ -246,7 +246,7 @@ export default function Events({ embedded = false, branchId = null }) {
                                     <FontAwesomeIcon icon={faCalendarAlt} className="text-4xl" />
                                 </div>
                                 <span className="text-white/40 font-black uppercase tracking-[0.4em] text-[10px] mb-4">
-                                    Church Gathering {!selectedEvent.branchId && " • Sanctuary Wide"}
+                                    Church Gathering {!selectedEvent.branchId && " • Assembly Wide"}
                                 </span>
                                 <h3 className="text-4xl font-black tracking-tighter leading-none italic">Fellowship<br/>Calendar</h3>
                             </div>
@@ -259,7 +259,7 @@ export default function Events({ embedded = false, branchId = null }) {
 
                             <div className="relative z-10">
                                 <span className="px-6 py-2 rounded-full bg-mdSecondary/10 text-mdSecondary text-[10px] font-black uppercase tracking-[0.3em] mb-10 inline-block border border-mdSecondary/10">
-                                    Sanctuary Event
+                                    Assembly Event
                                 </span>
                                 <h2 className="text-4xl md:text-5xl font-black text-mdOnSurface mb-12 leading-[1.1] tracking-tighter">
                                     {selectedEvent.title}
@@ -293,7 +293,7 @@ export default function Events({ embedded = false, branchId = null }) {
                                             <FontAwesomeIcon icon={faMapMarkerAlt} />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-mdOutline opacity-60 mb-1">Sanctuary Location</p>
+                                            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-mdOutline opacity-60 mb-1">Assembly Location</p>
                                             <p className="font-black text-lg text-mdOnSurface">{selectedEvent.location || 'Church Main Hall'}</p>
                                         </div>
                                     </div>
@@ -339,7 +339,7 @@ export default function Events({ embedded = false, branchId = null }) {
                 onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
                 onConfirm={confirmModal.onConfirm}
                 title="Cancel Gathering?"
-                message="This will permanently remove the event from the sanctuary calendar. Proceed?"
+                message="This will permanently remove the event from the assembly calendar. Proceed?"
                 type="danger"
             />
         </div>

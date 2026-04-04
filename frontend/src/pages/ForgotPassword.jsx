@@ -50,7 +50,7 @@ export default function ForgotPassword() {
       {/* Cinematic Background */}
       <img 
         src="/assets/images/church/church_10.jpg" 
-        alt="Sanctuary Peace" 
+        alt="Assembly Peace" 
         className="absolute inset-0 w-full h-full object-cover scale-105 blur-[2px]"
       />
       <div className="absolute inset-0 bg-mdSurface/40 backdrop-blur-sm"></div>
@@ -71,7 +71,7 @@ export default function ForgotPassword() {
               Restore Access
             </h1>
             <p className="text-mdOnSurfaceVariant font-medium text-sm leading-relaxed opacity-80 italic">
-              "Seeking the path back to the sanctuary? Enter your digital scroll (email) to receive a renewal code."
+              "Seeking the path back to the assembly? Enter your digital scroll (email) to receive a renewal code."
             </p>
           </div>
 
@@ -100,7 +100,7 @@ export default function ForgotPassword() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@sanctuary.org"
+                  placeholder="name@assembly.org"
                   className="w-full pl-14 pr-6 py-5 bg-white/50 border border-mdOutline/10 rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-mdPrimary/5 focus:border-mdPrimary transition-all font-bold placeholder:opacity-30"
                   required
                   disabled={loading}

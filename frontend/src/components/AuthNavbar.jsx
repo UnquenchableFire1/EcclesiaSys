@@ -6,7 +6,7 @@ import {
   faBell,
   faChevronDown
 } from '@fortawesome/free-solid-svg-icons';
-import SanctuaryLogo from './SanctuaryLogo';
+import AssemblyLogo from './AssemblyLogo';
 
 export default function AuthNavbar({ 
   tabs, 
@@ -29,7 +29,7 @@ export default function AuthNavbar({
           className="cursor-pointer group hover:opacity-80 transition-all transition-transform active:scale-95" 
           onClick={() => setActiveTab('home')}
         >
-          <SanctuaryLogo size={38} showText={true} />
+          <AssemblyLogo size={38} showText={true} />
         </div>
 
         {/* Horizontal Navigation Items */}
@@ -102,7 +102,7 @@ export default function AuthNavbar({
                     <div className="w-10 h-10 rounded-xl bg-mdPrimary/5 flex items-center justify-center group-hover:bg-mdPrimary group-hover:text-white transition-all">
                       <FontAwesomeIcon icon={faUserCircle} />
                     </div>
-                    <span className="font-black text-[11px] uppercase tracking-widest">My Sanctuary</span>
+                    <span className="font-black text-[11px] uppercase tracking-widest">My Assembly</span>
                   </button>
 
                   <button 

@@ -4,7 +4,7 @@ import { register, getBranches, sendOtp } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faEye, faEyeSlash, faPlus, faUserPlus, faChurch } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-import SanctuaryLogo from '../components/SanctuaryLogo';
+import AssemblyLogo from '../components/AssemblyLogo';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -85,7 +85,7 @@ export default function Register() {
                 sessionStorage.setItem('memberEmail', formData.email);
                 
                 setAlertDialog({
-                    title: 'Welcome to Sanctuary',
+                    title: 'Welcome to Assembly',
                     message: `Your account has been created. We've sent a verification code to ${formData.email}. Please verify your email to continue.`,
                     onConfirm: () => navigate('/verify-email', { state: { email: formData.email } })
                 });
@@ -103,23 +103,23 @@ export default function Register() {
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden">
-            {/* Left Side: Visual Sanctuary */}
+            {/* Left Side: Visual Assembly */}
             <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
                 <img 
                     src="/assets/images/church/church_5.jpg" 
-                    alt="Sanctuary Fellowship" 
+                    alt="Assembly Fellowship" 
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
                 />
                 <div className="image-overlay-dark opacity-60"></div>
                 <div className="relative z-10 flex flex-col justify-center items-center h-full p-20 text-white text-center">
                     <div className="mb-12">
-                        <SanctuaryLogo size={120} showText={false} isDark={true} className="animate-float" />
+                        <AssemblyLogo size={120} showText={false} isDark={true} className="animate-float" />
                     </div>
                     <h2 className="text-6xl font-black tracking-tighter mb-6 leading-tight">
                         Join our Sacred Fellowship.
                     </h2>
                     <p className="text-xl font-medium max-w-md opacity-80 leading-relaxed italic">
-                        "Welcome to the sanctuary of believers, where every soul finds a home and a purpose."
+                        "Welcome to the assembly of believers, where every soul finds a home and a purpose."
                     </p>
                     <div className="mt-12 flex gap-4">
                         <span className="w-4 h-1 bg-white/30 rounded-full"></span>
@@ -144,13 +144,13 @@ export default function Register() {
                         </a>
                         
                         <div className="text-center mb-10 w-full flex justify-center mt-4 md:mt-0">
-                            <SanctuaryLogo size={64} showText={true} />
+                            <AssemblyLogo size={64} showText={true} />
                         </div>
 
                         <h2 className="text-3xl font-black text-mdOnSurface tracking-tight">
                             Create Member Identity
                         </h2>
-                        <p className="text-mdOnSurfaceVariant mt-2 font-medium opacity-60 italic">Begin your journey in our digital sanctuary</p>
+                        <p className="text-mdOnSurfaceVariant mt-2 font-medium opacity-60 italic">Begin your journey in our digital assembly</p>
                     </div>
 
                     <div className="bg-white/40 backdrop-blur-xl rounded-[3rem] p-8 md:p-12 border border-white shadow-premium">
@@ -261,7 +261,7 @@ export default function Register() {
                             </div>
                             
                             <div className="group">
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant mb-2 ml-1 group-focus-within:text-mdPrimary transition-colors">Sanctuary Location (Branch)</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant mb-2 ml-1 group-focus-within:text-mdPrimary transition-colors">Assembly Location (Branch)</label>
                                 <div className="relative">
                                     <span className="absolute left-6 top-1/2 -translate-y-1/2 text-mdPrimary">
                                         <FontAwesomeIcon icon={faChurch} />
@@ -307,7 +307,7 @@ export default function Register() {
 
                         <div className="mt-12 pt-8 border-t border-mdOutline/5 text-center">
                             <p className="text-xs font-bold text-mdOnSurfaceVariant">
-                                Already part of the fellowship? <a href="/login" className="text-mdPrimary font-black hover:text-mdSecondary underline underline-offset-4 decoration-2 transition-all">Enter Sanctuary</a>
+                                Already part of the fellowship? <a href="/login" className="text-mdPrimary font-black hover:text-mdSecondary underline underline-offset-4 decoration-2 transition-all">Enter Assembly</a>
                             </p>
                         </div>
                     </div>
@@ -330,7 +330,7 @@ export default function Register() {
                             }}
                             className="w-full bg-mdPrimary text-white font-black text-[10px] uppercase tracking-[0.3em] py-5 rounded-2xl shadow-premium hover:shadow-lifted hover:-translate-y-1 transition-all"
                         >
-                            Enter Sanctuary
+                            Enter Assembly
                         </button>
                     </div>
                 </div>

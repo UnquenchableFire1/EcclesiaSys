@@ -1,7 +1,7 @@
 import Navbar from '../components/Navbar';
 import AuthNavbar from '../components/AuthNavbar';
 import BottomNav from '../components/BottomNav';
-import SanctuaryLogo from '../components/SanctuaryLogo';
+import AssemblyLogo from '../components/AssemblyLogo';
 import { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -182,7 +182,7 @@ export default function Layout({ children }) {
 
             {shouldShowNav && isMobile && (
                 <header className="fixed top-0 left-0 right-0 z-[1000] bg-white/70 backdrop-blur-2xl border-b border-mdOutline/10 h-16 px-4 flex items-center justify-between shadow-sm animate-fade-in">
-                    <SanctuaryLogo size={32} showText={true} />
+                    <AssemblyLogo size={32} showText={true} />
                     <div className="flex items-center gap-4">
                         <button 
                             onClick={() => setIsMobileProfileOpen(true)}
@@ -232,7 +232,7 @@ export default function Layout({ children }) {
                                 <div className="w-10 h-10 rounded-xl bg-mdPrimary/5 flex items-center justify-center text-mdPrimary group-hover:bg-mdPrimary group-hover:text-white transition-all">
                                     <FontAwesomeIcon icon={faUserCircle} />
                                 </div>
-                                <span className="text-xs uppercase tracking-widest">My Sanctuary</span>
+                                <span className="text-xs uppercase tracking-widest">My Assembly</span>
                             </button>
 
                             <button 
@@ -269,7 +269,7 @@ export default function Layout({ children }) {
             <div className={`flex flex-1 flex-col ${shouldShowNav && !isMobile ? 'pt-20' : shouldShowNav && isMobile ? 'pt-16' : ''}`}>
                 <main className="flex-1 relative">
                     <div className="grain"></div>
-                    {/* Global Sanctuary Background Accents */}
+                    {/* Global Assembly Background Accents */}
                     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.03] select-none">
                         <img src="/assets/images/church/church_10.jpg" alt="" className="w-full h-full object-cover scale-110 blur-3xl saturate-0" />
                     </div>
@@ -282,7 +282,7 @@ export default function Layout({ children }) {
                             {!isSuperAdmin && (
                                 <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
                                     <div className="flex flex-col items-center md:items-start text-center md:text-left">
-                                        <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">COP Ayikai Doblo Sanctuary Support</h3>
+                                        <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">COP Ayikai Doblo Assembly Support</h3>
                                         <p className="text-sm font-medium text-mdOnSurfaceVariant max-w-sm opacity-70 leading-relaxed">
                                             Need instant assistance or spiritual guidance? <br className="hidden md:block"/> Our support team is available 24/7 on WhatsApp.
                                         </p>
@@ -299,7 +299,7 @@ export default function Layout({ children }) {
                                 </div>
                             )}
                             <div className={`mt-12 pt-8 border-t border-mdOutline/5 text-center text-[10px] font-black uppercase tracking-[0.3em] text-mdOnSurfaceVariant/40 ${isSuperAdmin ? 'mt-0 border-t-0' : ''}`}>
-                                © 2026 COP Ayikai Doblo Sanctuary. All Rights Reserved.
+                                © 2026 COP Ayikai Doblo Assembly. All Rights Reserved.
                             </div>
                         </footer>
                     )}
@@ -323,7 +323,7 @@ export default function Layout({ children }) {
                     
                     {/* Tooltip */}
                     <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-mdOnSurface text-white text-[10px] font-black uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow- premium">
-                        Sanctuary Support
+                        Assembly Support
                     </div>
                 </div>
             )}
@@ -344,7 +344,7 @@ export default function Layout({ children }) {
                 isOpen={showLogoutConfirm}
                 onClose={() => setShowLogoutConfirm(false)}
                 onConfirm={handleLogout}
-                title="Exiting Sanctuary?"
+                title="Exiting Assembly?"
                 message="Are you sure you want to logout from your account?"
                 confirmText="Confirm Logout"
                 cancelText="Stay Here"
@@ -362,7 +362,7 @@ export default function Layout({ children }) {
                                 <div className="w-12 h-12 rounded-2xl bg-mdPrimary/10 flex items-center justify-center text-mdPrimary">
                                     <FontAwesomeIcon icon={faBell} className="text-xl" />
                                 </div>
-                                <h3 className="text-2xl font-black text-mdOnSurface tracking-tighter">Sanctuary Alerts</h3>
+                                <h3 className="text-2xl font-black text-mdOnSurface tracking-tighter">Assembly Alerts</h3>
                             </div>
                             <button onClick={() => setShowNotifications(false)} className="text-mdOnSurfaceVariant hover:text-mdError transition-colors"><FontAwesomeIcon icon={faTimes} /></button>
                         </div>
