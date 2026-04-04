@@ -296,7 +296,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-8">
              {!userName && (
                <Link to="/register" className="w-full sm:w-auto bg-mdPrimary text-white font-black px-14 py-6 text-2xl rounded-full shadow-premium hover:-translate-y-2 transition-all">
-                 Join EcclesiaSys
+                 Join COP Ayikai Doblo
                </Link>
              )}
              <Link to="/events" className="w-full sm:w-auto bg-white border-4 border-mdOutline/10 hover:border-mdSecondary text-mdOnSurface font-black px-14 py-6 text-2xl rounded-full shadow-md transition-all">

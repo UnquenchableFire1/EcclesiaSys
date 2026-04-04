@@ -282,7 +282,7 @@ export default function Layout({ children }) {
                             {!isSuperAdmin && (
                                 <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
                                     <div className="flex flex-col items-center md:items-start text-center md:text-left">
-                                        <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">EcclesiaSys Sanctuary Support</h3>
+                                        <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">COP Ayikai Doblo Sanctuary Support</h3>
                                         <p className="text-sm font-medium text-mdOnSurfaceVariant max-w-sm opacity-70 leading-relaxed">
                                             Need instant assistance or spiritual guidance? <br className="hidden md:block"/> Our support team is available 24/7 on WhatsApp.
                                         </p>
@@ -299,7 +299,7 @@ export default function Layout({ children }) {
                                 </div>
                             )}
                             <div className={`mt-12 pt-8 border-t border-mdOutline/5 text-center text-[10px] font-black uppercase tracking-[0.3em] text-mdOnSurfaceVariant/40 ${isSuperAdmin ? 'mt-0 border-t-0' : ''}`}>
-                                © 2026 EcclesiaSys Sanctuary. All Rights Reserved.
+                                © 2026 COP Ayikai Doblo Sanctuary. All Rights Reserved.
                             </div>
                         </footer>
                     )}

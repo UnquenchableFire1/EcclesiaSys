@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register, getBranches } from '../services/api';
+import { register, getBranches, sendOtp } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faEye, faEyeSlash, faPlus, faUserPlus, faChurch } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
@@ -72,24 +72,22 @@ export default function Register() {
 
         try {
             setIsSubmitting(true);
-            // send the form data
             const response = await register(formData);
             if (response.data?.success) {
-                // save credentials
-                sessionStorage.setItem('memberEmail', formData.email);
-                // auto-login as member
-                if (response.data.userId) {
-                    sessionStorage.setItem('userId', response.data.userId);
-                    sessionStorage.setItem('userType', 'member');
-                    sessionStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`);
-                    sessionStorage.setItem('branchId', formData.branchId); // Persist branch context
-                    sessionStorage.setItem('sessionId', Date.now().toString());
-                    sessionStorage.setItem('isNewMember', 'true');
+                // Auto-trigger OTP send
+                try {
+                    await sendOtp(formData.email);
+                } catch (otpErr) {
+                    console.error("Failed to auto-send OTP", otpErr);
                 }
+                
+                // Save email to session for fallback
+                sessionStorage.setItem('memberEmail', formData.email);
+                
                 setAlertDialog({
-                    title: 'Welcome!',
-                    message: `Registration successful! You can now log in using your email: ${formData.email}`,
-                    onConfirm: () => navigate('/member-dashboard')
+                    title: 'Welcome to Sanctuary',
+                    message: `Your account has been created. We've sent a verification code to ${formData.email}. Please verify your email to continue.`,
+                    onConfirm: () => navigate('/verify-email', { state: { email: formData.email } })
                 });
             } else {
                 setError(response.data?.message || 'Registration failed');

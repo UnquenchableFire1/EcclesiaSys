@@ -1,3 +1,5 @@
+package com.example.controller;
+
 import com.example.dao.AdminDAO;
 import com.example.model.Admin;
 import com.example.dao.UserProfilePictureDAO;
@@ -366,6 +368,78 @@ public class FileUploadController {
             e.printStackTrace();
         } catch (Exception e) {
             System.err.println("Unexpected error during announcement upload: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    @PostMapping("/gallery")
+    public Map<String, Object> uploadGalleryMedia(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "mediaType", defaultValue = "PHOTO") String mediaType) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            System.out.println("=== Gallery Media Upload Request ===");
+            System.out.println("File: " + file.getOriginalFilename() + " | Type: " + mediaType);
+
+            String fileName = file.getOriginalFilename();
+            if (fileName == null || fileName.isBlank()) {
+                response.put("success", false);
+                response.put("message", "No file provided");
+                return response;
+            }
+
+            String lowerName = fileName.toLowerCase();
+            boolean isImage = lowerName.matches(".*\\.(jpg|jpeg|png|webp|gif)$");
+            boolean isVideo = lowerName.matches(".*\\.(mp4|mov|avi|mkv)$");
+            boolean isAudio = lowerName.matches(".*\\.(mp3|aac|wav|ogg|m4a)$");
+
+            if (!isImage && !isVideo && !isAudio) {
+                response.put("success", false);
+                response.put("message", "Allowed types: Images (JPG/PNG/WEBP), Video (MP4/MOV), Audio (MP3/AAC/WAV)");
+                return response;
+            }
+
+            // Size limits
+            long maxSize = isImage ? 20971520L : 524288000L; // 20MB for photos, 500MB for video/audio
+            if (file.getSize() > maxSize) {
+                response.put("success", false);
+                response.put("message", "File size exceeds " + (isImage ? "20MB" : "500MB") + " limit");
+                return response;
+            }
+
+            File tempFile = File.createTempFile("gallery_", fileName);
+            Files.write(tempFile.toPath(), file.getBytes());
+
+            String mediaUrl;
+            try {
+                mediaUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+                System.out.println("Gallery media uploaded: " + mediaUrl);
+            } catch (Exception uploadError) {
+                System.err.println("Gallery upload failed: " + uploadError.getMessage());
+                response.put("success", false);
+                response.put("message", "Upload failed: " + uploadError.getMessage());
+                return response;
+            } finally {
+                tempFile.delete();
+            }
+
+            String resolvedType = isImage ? "PHOTO" : (isVideo ? "VIDEO" : "AUDIO");
+            response.put("success", true);
+            response.put("message", "Media uploaded successfully");
+            response.put("mediaUrl", mediaUrl);
+            response.put("mediaType", resolvedType);
+
+        } catch (IOException e) {
+            response.put("success", false);
+            response.put("message", "IO Error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Error: " + e.getMessage());
             e.printStackTrace();

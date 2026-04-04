@@ -8,7 +8,7 @@ import {
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
     faExclamationTriangle, faSignOutAlt, faBuilding, faCamera,
-    faPlay, faLink, faFileUpload, faTimes 
+    faPlay, faLink, faFileUpload, faTimes, faImages 
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
@@ -32,6 +32,7 @@ import Announcements from './Announcements';
 import Events from './Events';
 import Sermons from './Sermons';
 import AdminProfile from './AdminProfile';
+import Gallery from './Gallery';
 import ChangePassword from '../components/ChangePassword';
 // Chat removed in favor of WhatsApp support
 import { downloadMembersAsExcel } from '../services/excelExport';
@@ -82,6 +83,7 @@ export default function AdminDashboard() {
     const [inspectionBranchName, setInspectionBranchName] = useState(() => sessionStorage.getItem('inspectionBranchName') || '');
 
     // Form States
+    const [updatesSubTab, setUpdatesSubTab] = useState('announcements');
     const [showAnnForm, setShowAnnForm] = useState(false);
     const [annForm, setAnnForm] = useState({ title: '', message: '', fileUrl: '', isGlobal: false });
     const [annFile, setAnnFile] = useState(null);
@@ -95,7 +97,9 @@ export default function AdminDashboard() {
     });
     const [sermonFile, setSermonFile] = useState(null);
     const [showAdminForm, setShowAdminForm] = useState(false);
-    const [adminForm, setAdminForm] = useState({ name: '', email: '', password: '', branchId: '' });
+    const [adminForm, setAdminForm] = useState({ name: '', email: '', password: '', branchId: '', role: 'BRANCH_ADMIN' });
+    const [showMediaTeamForm, setShowMediaTeamForm] = useState(false);
+    const [mediaTeamForm, setMediaTeamForm] = useState({ name: '', email: '', password: '' });
     const [formLoading, setFormLoading] = useState(false);
     
     // Member Management States
@@ -110,6 +114,7 @@ export default function AdminDashboard() {
     const storedBranchId = sessionStorage.getItem('branchId');
     const effectiveRole = adminData?.role || sessionStorage.getItem('role');
     const isActuallySuperAdmin = effectiveRole === 'SUPER_ADMIN' || adminEmail === 'benjaminbuckmanjunior@gmail.com';
+    const isMediaTeam = effectiveRole === 'MEDIA_TEAM';
     const isReadOnly = inspectionBranchId !== null;
     const currentBranchIdForData = inspectionBranchId || (isActuallySuperAdmin ? selectedBranchId : (adminData?.branchId || storedBranchId));
 
@@ -125,6 +130,13 @@ export default function AdminDashboard() {
         window.addEventListener('setActiveTab', handleTabChange);
         return () => window.removeEventListener('setActiveTab', handleTabChange);
     }, []);
+
+    // Restrict Media Team to Gallery, Profile, and Password tabs only
+    useEffect(() => {
+        if (isMediaTeam && !['gallery', 'profile', 'password'].includes(activeTab)) {
+            setActiveTab('gallery');
+        }
+    }, [isMediaTeam, activeTab]);
 
     // -- Deletion Confirmation State --
     const [confirmModal, setConfirmModal] = useState({
@@ -465,11 +477,26 @@ export default function AdminDashboard() {
         try {
             await createAdmin({ ...adminForm, createdBy: adminId });
             showToast('New administrator has been granted access.', 'success');
-            setAdminForm({ name: '', email: '', password: '', branchId: '' });
+            setAdminForm({ name: '', email: '', password: '', branchId: '', role: 'BRANCH_ADMIN' });
             setShowAdminForm(false);
             fetchAllData();
         } catch (err) { showToast('Creation failed.', 'error'); }
         finally { setFormLoading(false); }
+    };
+
+    const handleMediaTeamSubmit = async (e) => {
+        e.preventDefault();
+        setFormLoading(true);
+        try {
+            const branchAdminBranchId = adminData?.branchId || storedBranchId;
+            await createAdmin({ ...mediaTeamForm, role: 'MEDIA_TEAM', branchId: branchAdminBranchId, createdBy: adminId });
+            showToast('Media team member added!', 'success');
+            setMediaTeamForm({ name: '', email: '', password: '' });
+            setShowMediaTeamForm(false);
+            fetchAllData();
+        } catch (err) {
+            showToast(err.response?.data?.message || 'Failed to create media team account.', 'error');
+        } finally { setFormLoading(false); }
     };
 
     const handlePromoteToAdmin = async (memberId) => {
@@ -628,7 +655,7 @@ export default function AdminDashboard() {
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
                     <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2">
-                        EcclesiaSys Sanctuary
+                        COP Ayikai Doblo Sanctuary
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
@@ -649,14 +676,14 @@ export default function AdminDashboard() {
                             <button onClick={() => setActiveTab('members')} className="w-full text-left">
                                 <MetricCard label="Members" count={counts.members} icon={faUsers} color="text-mdPrimary" />
                             </button>
-                            <button onClick={() => setActiveTab('events')} className="w-full text-left">
+                            <button onClick={() => { setActiveTab('updates'); setUpdatesSubTab('events'); }} className="w-full text-left">
                                 <MetricCard label="Events" count={counts.events} icon={faCalendarAlt} color="text-mdSecondary" />
                             </button>
-                            <button onClick={() => setActiveTab('announcements')} className="w-full text-left">
+                            <button onClick={() => { setActiveTab('updates'); setUpdatesSubTab('announcements'); }} className="w-full text-left">
                                 <MetricCard label="Broadcasts" count={counts.announcements} icon={faBullhorn} color="text-amber-500" />
                             </button>
-                            <button onClick={() => setActiveTab('sermons')} className="w-full text-left">
-                                <MetricCard label="Messages" count={counts.sermons} icon={faMicrophone} color="text-purple-500" />
+                            <button onClick={() => setActiveTab('gallery')} className="w-full text-left">
+                                <MetricCard label="Gallery" count={counts.sermons} icon={faImages} color="text-pink-500" />
                             </button>
                             {isSuperAdmin && (
                                 <button onClick={() => setActiveTab('branch-management')} className="w-full text-left">
@@ -673,9 +700,9 @@ export default function AdminDashboard() {
                                 </h3>
                                 {(!isActuallySuperAdmin || isReadOnly) ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <QuickAction label="Post News" icon={faPlus} tab="announcements" desc="broadcast to branch" />
-                                        <QuickAction label="Add Event" icon={faCalendarAlt} tab="events" desc="Update calendar" />
-                                        <QuickAction label="Upload Word" icon={faVideo} tab="sermons" desc="Media library" />
+                                        <QuickAction label="Upcoming Events" icon={faBullhorn} tab="updates" desc="Events & Announcements" />
+                                        <QuickAction label="Gallery" icon={faImages} tab="gallery" desc="Photos & Media" />
+                                        {!isActuallySuperAdmin && !isReadOnly && <QuickAction label="Media Team" icon={faUserShield} tab="media-team" desc="Manage your team" />}
                                         <QuickAction label="Member List" icon={faUsers} tab="members" desc="View directory" />
                                     </div>
                                 ) : (
@@ -1000,205 +1027,188 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
-                {/* 3. ANNOUNCEMENTS */}
-                {activeTab === 'announcements' && (
-                    <div className="space-y-10 animate-fade-in mt-4">
-                        <div className="flex justify-between items-center">
-                            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Announcements</h1>
-                            {(!isActuallySuperAdmin && !isReadOnly) && (
+                {/* 3. UPDATES (Announcements + Events combined) */}
+                {activeTab === 'updates' && (
+                    <div className="space-y-8 animate-fade-in mt-4">
+                        {/* Header */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Upcoming Events</h1>
+                                <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Events &amp; Announcements</p>
+                            </div>
+                            {(!isActuallySuperAdmin && !isReadOnly) && updatesSubTab === 'announcements' && (
                                 <button onClick={() => setShowAnnForm(!showAnnForm)} className="btn-premium">
                                     <FontAwesomeIcon icon={showAnnForm ? faTimes : faPlus} />
-                                    {showAnnForm ? 'Cancel' : 'Post New'}
+                                    {showAnnForm ? 'Cancel' : 'Post Announcement'}
+                                </button>
+                            )}
+                            {(!isActuallySuperAdmin && !isReadOnly) && updatesSubTab === 'events' && (
+                                <button onClick={() => setShowEventForm(!showEventForm)} className="btn-premium">
+                                    <FontAwesomeIcon icon={showEventForm ? faTimes : faPlus} />
+                                    {showEventForm ? 'Cancel' : 'Schedule Event'}
                                 </button>
                             )}
                         </div>
 
-                        {showAnnForm && (
-                            <div className="glass-card p-10 animate-slide-up border-l-8 border-l-mdPrimary">
-                                <form onSubmit={handleAnnouncementSubmit} className="space-y-6">
-                                    <input type="text" placeholder="Headline" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl focus:ring-2 focus:ring-mdPrimary font-bold" value={annForm.title} onChange={e => setAnnForm({...annForm, title: e.target.value})} required />
-                                    <textarea placeholder="The message..." className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl focus:ring-2 focus:ring-mdPrimary font-medium h-40" value={annForm.message} onChange={e => setAnnForm({...annForm, message: e.target.value})} required />
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-4">Attach Media (PNG, JPG, PDF)</label>
-                                        <input 
-                                            type="file" 
-                                            className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-mdPrimary/10 file:text-mdPrimary hover:file:bg-mdPrimary/20 transition-all" 
-                                            onChange={e => setAnnFile(e.target.files[0])} 
-                                            accept="image/*,.pdf"
-                                        />
-                                    </div>
-                                    {isSuperAdmin && (
-                                        <div className="flex items-center gap-3 p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
-                                            <input 
-                                                type="checkbox" 
-                                                id="annGlobal" 
-                                                className="w-5 h-5 rounded border-mdOutline accent-mdPrimary"
-                                                checked={annForm.isGlobal}
-                                                onChange={e => setAnnForm({...annForm, isGlobal: e.target.checked})}
-                                            />
-                                            <label htmlFor="annGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">
-                                                Make Global Visibility (All Sanctuary Branches)
-                                            </label>
-                                        </div>
-                                    )}
+                        {/* Sub-tabs */}
+                        <div className="flex p-1.5 bg-mdSurfaceVariant/20 rounded-[2rem] w-max border border-mdOutline/5 shadow-inner">
+                            {[
+                                { id: 'announcements', label: 'Announcements', icon: faBullhorn },
+                                { id: 'events', label: 'Events', icon: faCalendarAlt },
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => { setUpdatesSubTab(tab.id); setShowAnnForm(false); setShowEventForm(false); }}
+                                    className={`flex items-center gap-2 px-8 py-3 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest transition-all duration-500 ${
+                                        updatesSubTab === tab.id
+                                            ? 'bg-mdPrimary text-white shadow-premium'
+                                            : 'text-mdOnSurface hover:bg-mdSurfaceVariant/30'
+                                    }`}
+                                >
+                                    <FontAwesomeIcon icon={tab.icon} />
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
 
-                                    <button type="submit" disabled={formLoading} className="btn-premium w-full sm:w-max">
-                                        {formLoading ? 'Publishing...' : 'Release Post'}
+                        {/* ANNOUNCEMENTS sub-tab */}
+                        {updatesSubTab === 'announcements' && (
+                            <div className="space-y-8 animate-fade-in">
+                                {showAnnForm && (
+                                    <div className="glass-card p-10 animate-slide-up border-l-8 border-l-mdPrimary">
+                                        <form onSubmit={handleAnnouncementSubmit} className="space-y-6">
+                                            <input type="text" placeholder="Headline" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl focus:ring-2 focus:ring-mdPrimary font-bold" value={annForm.title} onChange={e => setAnnForm({...annForm, title: e.target.value})} required />
+                                            <textarea placeholder="The message..." className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl focus:ring-2 focus:ring-mdPrimary font-medium h-40" value={annForm.message} onChange={e => setAnnForm({...annForm, message: e.target.value})} required />
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-4">Attach Media (PNG, JPG, PDF)</label>
+                                                <input type="file" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-mdPrimary/10 file:text-mdPrimary hover:file:bg-mdPrimary/20 transition-all" onChange={e => setAnnFile(e.target.files[0])} accept="image/*,.pdf" />
+                                            </div>
+                                            {isSuperAdmin && (
+                                                <div className="flex items-center gap-3 p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
+                                                    <input type="checkbox" id="annGlobal" className="w-5 h-5 rounded border-mdOutline accent-mdPrimary" checked={annForm.isGlobal} onChange={e => setAnnForm({...annForm, isGlobal: e.target.checked})} />
+                                                    <label htmlFor="annGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">Make Global Visibility (All Sanctuary Branches)</label>
+                                                </div>
+                                            )}
+                                            <button type="submit" disabled={formLoading} className="btn-premium w-full sm:w-max">{formLoading ? 'Publishing...' : 'Release Post'}</button>
+                                        </form>
+                                    </div>
+                                )}
+                                <Announcements embedded={true} branchId={selectedBranchId} />
+                            </div>
+                        )}
+
+                        {/* EVENTS sub-tab */}
+                        {updatesSubTab === 'events' && (
+                            <div className="space-y-8 animate-fade-in">
+                                {showEventForm && (
+                                    <div className="glass-card p-10 animate-slide-up border-l-8 border-l-mdSecondary">
+                                        <form onSubmit={handleEventSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <input type="text" placeholder="Event Name" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-bold" value={eventForm.title} onChange={e => setEventForm({...eventForm, title: e.target.value})} required />
+                                            <textarea placeholder="Description" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-medium h-32" value={eventForm.description} onChange={e => setEventForm({...eventForm, description: e.target.value})} required />
+                                            <input type="datetime-local" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl" value={eventForm.startDate} onChange={e => setEventForm({...eventForm, startDate: e.target.value})} required />
+                                            <input type="text" placeholder="Venue" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl" value={eventForm.location} onChange={e => setEventForm({...eventForm, location: e.target.value})} required />
+                                            <div className="md:col-span-2 space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-4">Event Document (PDF/JPG/PNG)</label>
+                                                <input type="file" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-mdPrimary/10 file:text-mdPrimary" onChange={e => setEventFile(e.target.files[0])} accept="image/*,.pdf" />
+                                            </div>
+                                            {isSuperAdmin && (
+                                                <div className="md:col-span-2 flex items-center gap-3 p-4 bg-mdSecondary/5 rounded-2xl border border-mdSecondary/10">
+                                                    <input type="checkbox" id="eventGlobal" className="w-5 h-5 rounded border-mdOutline accent-mdSecondary" checked={eventForm.isGlobal} onChange={e => setEventForm({...eventForm, isGlobal: e.target.checked})} />
+                                                    <label htmlFor="eventGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">Make Global Visibility (All Sanctuary Branches)</label>
+                                                </div>
+                                            )}
+                                            <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Scheduling...' : 'Save Event'}</button>
+                                        </form>
+                                    </div>
+                                )}
+                                <Events embedded={true} branchId={selectedBranchId} />
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* 5. GALLERY */}
+                {activeTab === 'gallery' && (
+                    <div className="animate-fade-in mt-4">
+                        <Gallery
+                            canUpload={isMediaTeam || (!isActuallySuperAdmin && !isReadOnly)}
+                            branchId={currentBranchIdForData}
+                            currentUserId={adminId}
+                            currentUserName={adminName}
+                        />
+                    </div>
+                )}
+
+                {/* 5.7 CHAT removed */}
+
+                {/* 5.8 MEDIA TEAM — Branch Admins Only */}
+                {!isActuallySuperAdmin && !isReadOnly && activeTab === 'media-team' && (
+                    <div className="space-y-10 animate-fade-in mt-4">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Media Team</h1>
+                                <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Manage your branch media team</p>
+                            </div>
+                            <button onClick={() => setShowMediaTeamForm(!showMediaTeamForm)} className="btn-premium">
+                                <FontAwesomeIcon icon={showMediaTeamForm ? faTimes : faPlus} />
+                                {showMediaTeamForm ? 'Cancel' : 'Add Member'}
+                            </button>
+                        </div>
+
+                        {showMediaTeamForm && (
+                            <div className="glass-card p-10 animate-slide-up border-l-8 border-l-mdPrimary">
+                                <h3 className="text-xl font-black text-mdOnSurface mb-6 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-mdPrimary text-white flex items-center justify-center">
+                                        <FontAwesomeIcon icon={faCamera} />
+                                    </div>
+                                    Create Media Team Account
+                                </h3>
+                                <form onSubmit={handleMediaTeamSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <input type="text" placeholder="Full Name" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={mediaTeamForm.name} onChange={e => setMediaTeamForm({...mediaTeamForm, name: e.target.value})} required />
+                                    <input type="email" placeholder="Email Address" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={mediaTeamForm.email} onChange={e => setMediaTeamForm({...mediaTeamForm, email: e.target.value})} required />
+                                    <input type="password" placeholder="Temporary Password" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={mediaTeamForm.password} onChange={e => setMediaTeamForm({...mediaTeamForm, password: e.target.value})} required />
+                                    <button type="submit" disabled={formLoading} className="btn-premium md:col-span-3">
+                                        {formLoading ? 'Creating...' : 'Create Media Team Account'}
                                     </button>
                                 </form>
                             </div>
                         )}
-                        <Announcements embedded={true} branchId={selectedBranchId} />
-                    </div>
-                )}
 
-                {/* 4. EVENTS */}
-                {activeTab === 'events' && (
-                    <div className="space-y-10 animate-fade-in mt-4">
-                        <div className="flex justify-between items-center">
-                            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Events</h1>
-                            {(!isActuallySuperAdmin && !isReadOnly) && (
-                                <button onClick={() => setShowEventForm(!showEventForm)} className="btn-premium">
-                                    <FontAwesomeIcon icon={showEventForm ? faTimes : faPlus} />
-                                    {showEventForm ? 'Cancel' : 'Schedule New'}
-                                </button>
-                            )}
-                        </div>
-
-                        {showEventForm && (
-                            <div className="glass-card p-10 animate-slide-up border-l-8 border-l-mdSecondary">
-                                <form onSubmit={handleEventSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <input type="text" placeholder="Event Name" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-bold" value={eventForm.title} onChange={e => setEventForm({...eventForm, title: e.target.value})} required />
-                                    <textarea placeholder="Description" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-medium h-32" value={eventForm.description} onChange={e => setEventForm({...eventForm, description: e.target.value})} required />
-                                    <input type="datetime-local" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl" value={eventForm.startDate} onChange={e => setEventForm({...eventForm, startDate: e.target.value})} required />
-                                    <input type="text" placeholder="Venue" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl" value={eventForm.location} onChange={e => setEventForm({...eventForm, location: e.target.value})} required />
-                                    
-                                    <div className="md:col-span-2 space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-4">Event Document (PDF/JPG/PNG)</label>
-                                        <input 
-                                            type="file" 
-                                            className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-mdPrimary/10 file:text-mdPrimary"
-                                            onChange={e => setEventFile(e.target.files[0])}
-                                            accept="image/*,.pdf"
-                                        />
-                                    </div>
-                                    
-                                    {isSuperAdmin && (
-                                        <div className="md:col-span-2 flex items-center gap-3 p-4 bg-mdSecondary/5 rounded-2xl border border-mdSecondary/10">
-                                            <input 
-                                                type="checkbox" 
-                                                id="eventGlobal" 
-                                                className="w-5 h-5 rounded border-mdOutline accent-mdSecondary"
-                                                checked={eventForm.isGlobal}
-                                                onChange={e => setEventForm({...eventForm, isGlobal: e.target.checked})}
-                                            />
-                                            <label htmlFor="eventGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">
-                                                Make Global Visibility (All Sanctuary Branches)
-                                            </label>
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-black text-mdOnSurface">Current Members</h3>
+                            {admins.filter(a => a.role === 'MEDIA_TEAM' && String(a.branchId) === String(adminData?.branchId)).length === 0 ? (
+                                <div className="glass-card p-12 text-center">
+                                    <FontAwesomeIcon icon={faCamera} className="text-5xl text-mdOutline/20 mb-4" />
+                                    <h3 className="text-xl font-black text-mdOnSurface mb-2">No Media Team Yet</h3>
+                                    <p className="text-mdOnSurfaceVariant font-medium">Add your first media team member above.</p>
+                                </div>
+                            ) : admins.filter(a => a.role === 'MEDIA_TEAM' && String(a.branchId) === String(adminData?.branchId)).map(member => (
+                                <div key={member.id} className="glass-card p-6 flex justify-between items-center">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-pink-500/10 flex items-center justify-center text-pink-500 font-black text-xl">
+                                            {member.name?.charAt(0).toUpperCase()}
                                         </div>
-                                    )}
-
-                                    <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Scheduling...' : 'Save Event'}</button>
-                                </form>
-                            </div>
-                        )}
-                        <Events embedded={true} branchId={selectedBranchId} />
-                    </div>
-                )}
-
-                {/* 5. SERMONS */}
-                {activeTab === 'sermons' && (
-                    <div className="space-y-10 animate-fade-in mt-4">
-                        <div className="flex justify-between items-center">
-                            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Sermon Library</h1>
-                            {(!isActuallySuperAdmin && !isReadOnly) && (
-                                <button onClick={() => setShowSermonForm(!showSermonForm)} className="btn-premium">
-                                    <FontAwesomeIcon icon={showSermonForm ? faTimes : faPlus} />
-                                    {showSermonForm ? 'Cancel' : 'Upload Message'}
-                                </button>
-                            )}
-                        </div>
-
-                        {showSermonForm && (
-                            <div className="glass-card p-10 animate-slide-up border-l-8 border-l-purple-500">
-                                <form onSubmit={handleSermonSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <input type="text" placeholder="Sermon Title" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-bold" value={sermonForm.title} onChange={e => setSermonForm({...sermonForm, title: e.target.value})} required />
-                                    <input type="text" placeholder="Speaker" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-bold" value={sermonForm.preacherName} onChange={e => setSermonForm({...sermonForm, preacherName: e.target.value})} required />
-                                    
-                                    <div className="md:col-span-2 flex p-1 bg-mdSurfaceVariant/30 rounded-2xl border border-mdOutline/10">
-                                        <button 
-                                            type="button"
-                                            onClick={() => setSermonForm({...sermonForm, sourceType: 'file'})}
-                                            className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${sermonForm.sourceType === 'file' ? 'bg-mdPrimary text-white shadow-lg' : 'text-mdOnSurface hover:bg-mdSurfaceVariant/20'}`}
+                                        <div>
+                                            <p className="font-black text-mdOnSurface">{member.name}</p>
+                                            <p className="text-mdOnSurfaceVariant text-sm font-medium">{member.email}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className="px-3 py-1 bg-pink-500/10 text-pink-600 text-[10px] font-black uppercase tracking-widest rounded-full flex items-center gap-1">
+                                            <FontAwesomeIcon icon={faCamera} className="text-[9px]" /> Media Team
+                                        </span>
+                                        <button
+                                            onClick={() => openConfirm('Remove Member', `Remove ${member.name} from the media team?`, async () => { try { await fetch(`/api/admins/${member.id}`, { method: 'DELETE' }); fetchAllData(); showToast('Member removed.', 'success'); } catch { showToast('Failed to remove.', 'error'); } })}
+                                            className="w-8 h-8 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"
                                         >
-                                            <FontAwesomeIcon icon={faFileUpload} className="mr-2" />
-                                            Local Upload
-                                        </button>
-                                        <button 
-                                            type="button"
-                                            onClick={() => setSermonForm({...sermonForm, sourceType: 'url'})}
-                                            className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${sermonForm.sourceType === 'url' ? 'bg-mdPrimary text-white shadow-lg' : 'text-mdOnSurface hover:bg-mdSurfaceVariant/20'}`}
-                                        >
-                                            <FontAwesomeIcon icon={faLink} className="mr-2" />
-                                            External URL
+                                            <FontAwesomeIcon icon={faTrash} className="text-xs" />
                                         </button>
                                     </div>
-
-                                    {sermonForm.sourceType === 'file' ? (
-                                        <div className="md:col-span-2 p-6 border-2 border-dashed border-mdOutline/20 rounded-2xl text-center hover:border-mdPrimary transition-colors group">
-                                            <FontAwesomeIcon icon={faVideo} className="text-3xl text-mdOutline/40 mb-3 group-hover:text-mdPrimary transition-colors" />
-                                            <p className="text-[10px] font-black uppercase text-mdOutline mb-4">MP3 Audio or MP4 Video (Max 500MB)</p>
-                                            <input 
-                                                type="file" 
-                                                className="w-full text-xs font-bold text-mdOnSurface"
-                                                accept="audio/mp3,video/mp4"
-                                                onChange={e => setSermonFile(e.target.files[0])}
-                                            />
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <input 
-                                                type="text" 
-                                                placeholder="Video URL (YouTube, Direct Link, etc.)" 
-                                                className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold md:col-span-2" 
-                                                value={sermonForm.videoUrl} 
-                                                onChange={e => setSermonForm({...sermonForm, videoUrl: e.target.value})} 
-                                            />
-                                            <input 
-                                                type="text" 
-                                                placeholder="Audio Mirror URL (Optional)" 
-                                                className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold md:col-span-2" 
-                                                value={sermonForm.audioUrl} 
-                                                onChange={e => setSermonForm({...sermonForm, audioUrl: e.target.value})} 
-                                            />
-                                        </>
-                                    )}
-
-                                    <textarea placeholder="Message highlight..." className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl md:col-span-2 font-medium h-32" value={sermonForm.description} onChange={e => setSermonForm({...sermonForm, description: e.target.value})} required />
-                                    {isSuperAdmin && (
-                                        <div className="md:col-span-2 flex items-center gap-3 p-4 bg-purple-500/5 rounded-2xl border border-purple-500/10">
-                                            <input 
-                                                type="checkbox" 
-                                                id="sermonGlobal" 
-                                                className="w-5 h-5 rounded border-mdOutline accent-purple-500"
-                                                checked={sermonForm.isGlobal}
-                                                onChange={e => setSermonForm({...sermonForm, isGlobal: e.target.checked})}
-                                            />
-                                            <label htmlFor="sermonGlobal" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer">
-                                                Make Global Visibility (All Sanctuary Branches)
-                                            </label>
-                                        </div>
-                                    )}
-
-                                    <button type="submit" disabled={formLoading} className="btn-premium sm:w-max">{formLoading ? 'Publishing...' : 'Add to Library'}</button>
-                                </form>
-                            </div>
-                        )}
-                        <Sermons embedded={true} branchId={selectedBranchId} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
-
-                {/* 5.5 CHAT removed */}
 
                 {/* 6. PRAYER REQUESTS */}
                 {activeTab === 'prayer-requests' && (
@@ -1307,10 +1317,18 @@ export default function AdminDashboard() {
                                         </button>
                                     </div>
                                 ) : (
-                                    <form onSubmit={handleAdminSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <form onSubmit={handleAdminSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         <input type="text" placeholder="Full Name" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.name} onChange={e => setAdminForm({...adminForm, name: e.target.value})} required />
                                         <input type="email" placeholder="Official Email" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.email} onChange={e => setAdminForm({...adminForm, email: e.target.value})} required />
                                         <input type="password" placeholder="Temp Password" className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" value={adminForm.password} onChange={e => setAdminForm({...adminForm, password: e.target.value})} required />
+                                        <select
+                                            className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold"
+                                            value={adminForm.role}
+                                            onChange={e => setAdminForm({...adminForm, role: e.target.value})}
+                                        >
+                                            <option value="BRANCH_ADMIN">Branch Admin</option>
+                                            <option value="MEDIA_TEAM">Media Team</option>
+                                        </select>
                                         <select 
                                             className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" 
                                             value={adminForm.branchId || ''} 
@@ -1322,7 +1340,7 @@ export default function AdminDashboard() {
                                                 <option key={b.id} value={b.id}>{b.name}</option>
                                             ))}
                                         </select>
-                                        <button type="submit" disabled={formLoading} className="btn-premium md:col-span-4">{formLoading ? 'Authorizing...' : 'Create Staff Account'}</button>
+                                        <button type="submit" disabled={formLoading} className="btn-premium lg:col-span-3">{formLoading ? 'Authorizing...' : 'Create Staff Account'}</button>
                                     </form>
                                 )}
                             </div>

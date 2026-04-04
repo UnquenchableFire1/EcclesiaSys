@@ -87,8 +87,6 @@ public class SermonDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             
-            if (conn == null) throw new SQLException("Could not establish database connection.");
-            
             stmt.setString(1, sermon.getTitle());
             stmt.setString(2, sermon.getDescription());
             stmt.setString(3, sermon.getSpeaker());

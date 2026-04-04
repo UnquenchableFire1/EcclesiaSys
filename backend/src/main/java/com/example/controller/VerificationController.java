@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.service.EmailService;
+import com.example.dao.MemberDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class VerificationController {
         otpStorage.put(email, new OtpData(otp, System.currentTimeMillis() + OTP_EXPIRY_MS));
 
         boolean sent = emailService.sendNotificationEmail(email, "Security Verification", 
-            "Your verification code for EcclesiaSys is: " + otp + "\n\nThis code will expire in 10 minutes.");
+            "Your verification code for COP Ayikai Doblo is: " + otp + "\n\nThis code will expire in 10 minutes.");
 
         if (sent) {
             return ResponseEntity.ok(Map.of("success", true, "message", "Verification code sent to " + email));
@@ -64,6 +65,27 @@ public class VerificationController {
             return ResponseEntity.ok(Map.of("success", true, "message", "OTP verified"));
         } else {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Invalid OTP"));
+        }
+    }
+
+    @PostMapping("/verify-registration-otp")
+    public ResponseEntity<?> verifyRegistrationOtp(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+
+        if (email == null || otp == null) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Email and OTP are required"));
+        }
+
+        if (!isValidOtp(email, otp)) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Invalid or expired verification code"));
+        }
+
+        MemberDAO memberDao = new MemberDAO();
+        if (memberDao.updateIsVerified(email, true)) {
+            return ResponseEntity.ok(Map.of("success", true, "message", "Email verified successfully. You can now log in."));
+        } else {
+            return ResponseEntity.status(500).body(Map.of("success", false, "message", "Failed to update verification status"));
         }
     }
 

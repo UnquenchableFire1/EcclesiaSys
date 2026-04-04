@@ -6,6 +6,7 @@ import AdminLogin from "./pages/AdminLogin";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 import MemberDashboard from "./pages/MemberDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import PrayerRequestPage from "./pages/PrayerRequestPage";
@@ -97,6 +98,7 @@ export default function App() {
         <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
         <Route path="/admin-login" element={<PublicOnlyRoute><AdminLogin /></PublicOnlyRoute>} />
         <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+        <Route path="/verify-email" element={<PublicOnlyRoute><VerifyEmail /></PublicOnlyRoute>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/prayer-request" element={<Layout><PrayerRequestPage /></Layout>} />

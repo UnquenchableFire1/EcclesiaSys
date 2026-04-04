@@ -38,7 +38,7 @@ self.addEventListener('push', event => {
   const options = {
     body: data.message || 'New content is available!',
     icon: '/logo.png',
-    badge: '/favicon.svg',
+    badge: '/logo.png',
     data: {
       url: data.url || '/'
     }

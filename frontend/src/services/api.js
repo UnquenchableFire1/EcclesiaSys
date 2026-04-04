@@ -48,6 +48,14 @@ export const register = (data) => {
   return api.post('/register', data);
 };
 
+export const sendOtp = (email) => {
+  return api.post('/verification/send-otp', { email });
+};
+
+export const verifyRegistrationOtp = (email, otp) => {
+  return api.post('/verification/verify-registration-otp', { email, otp });
+};
+
 // Member APIs
 export const getMembers = (branchId) => {
   return api.get('/members', { params: { branchId } });
@@ -323,6 +331,29 @@ export const deleteBranch = (id) => {
 
 export const createBranch = (branchData) => {
   return api.post('/branches', branchData);
+};
+
+// Gallery APIs
+export const getGalleryItems = (branchId, folder, sermonsOnly) => {
+  return api.get('/gallery', { params: { branchId, folder, sermonsOnly } });
+};
+
+export const getGalleryFolders = (branchId) => {
+  return api.get('/gallery/folders', { params: { branchId } });
+};
+
+export const createGalleryItem = (data) => {
+  return api.post('/gallery', data);
+};
+
+export const deleteGalleryItem = (id) => {
+  return api.delete(`/gallery/${id}`);
+};
+
+export const uploadGalleryMedia = (formData) => {
+  return api.post('/upload/gallery', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 };
 
 export default api;

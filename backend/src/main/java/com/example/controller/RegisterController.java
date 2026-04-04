@@ -51,23 +51,20 @@ public class RegisterController {
             
             try {
                 if (memberDao.addMember(member)) {
-                    // fetch the inserted member to obtain generated ID
-                    Member saved = memberDao.getMemberByEmail(email);
+                    // Registration successful - user is not verified yet
                     response.put("success", true);
-                    response.put("message", "Registration successful");
+                    response.put("message", "Registration successful. Please verify your email.");
                     response.put("email", email);
-                    if (saved != null) {
-                        response.put("userId", saved.getId());
-                        try {
-                            com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
-                            String adminMsg = "A new member, " + firstName + " " + lastName + " (" + email + "), has just registered.";
-                            notifDao.notifyAllAdmins("New Member Registration", adminMsg);
-                        } catch (Exception notifEx) {
-                            System.err.println("Failed to send admin notification for registration: " + notifEx.getMessage());
-                        }
+                    response.put("isVerified", false);
+                    
+                    try {
+                        com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
+                        String adminMsg = "A new member, " + firstName + " " + lastName + " (" + email + "), has just registered and requires email verification.";
+                        notifDao.notifyAllAdmins("New Member Registration", adminMsg);
+                    } catch (Exception notifEx) {
+                        System.err.println("Failed to send admin notification for registration: " + notifEx.getMessage());
                     }
                 } else {
-                    // addMember returned false but no exception was thrown
                     response.put("success", false);
                     response.put("message", "Registration failed - database insert returned 0 rows. This may indicate a duplicate email or database constraint violation.");
                     System.err.println("ERROR: addMember returned false for email: " + email + " but no SQL exception was thrown");

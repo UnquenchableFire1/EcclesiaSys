@@ -141,6 +141,22 @@
   .reveal.active {
     @apply opacity-100 translate-y-0;
   }
+
+  .input-premium {
+    @apply w-full bg-mdSurfaceVariant/30 border-none rounded-[1.5rem] py-5 px-8 outline-none transition-all duration-500 font-bold text-sm tracking-tight shadow-inner;
+  }
+  
+  .input-premium:focus {
+    @apply bg-white ring-4 ring-mdPrimary/5 shadow-premium -translate-y-1;
+  }
+  
+  select.input-premium {
+    @apply cursor-pointer appearance-none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231A2F5F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='C19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.5rem center;
+    background-size: 1.25rem;
+  }
 }
 
 /* Custom Scrollbar */

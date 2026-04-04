@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentMemberProfile, updateMemberProfile } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faQuoteLeft, faIdCard, faMapMarkerAlt, faPray, faBriefcase, faCrown, faChevronRight, faStar, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import Lightbox from '../components/Lightbox';
 import { useToast } from '../context/ToastContext';
 
@@ -14,11 +14,65 @@ export default function MemberProfile() {
     const { showToast } = useToast();
     const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
     const [lightboxImg, setLightboxImg] = useState(null);
+    const [activeTab, setActiveTab] = useState('identity');
     const memberId = sessionStorage.getItem('userId');
 
     const [formData, setFormData] = useState({
         phoneNumber: '',
-        bio: ''
+        bio: '',
+        title: '',
+        dateOfBirth: '',
+        placeOfBirth: '',
+        membershipType: '',
+        maritalStatus: '',
+        addressLine1: '',
+        gpsAddress: '',
+        hometown: '',
+        streetName: '',
+        city: '',
+        postalCode: '',
+        nationality: '',
+        countryOfBirth: '',
+        familyMemberName: '',
+        relationship: '',
+        residentialAddress: '',
+        locality: '',
+        landmark: '',
+        holyGhostBaptism: '',
+        dateOfHolySpiritBaptism: '',
+        waterBaptism: '',
+        dateOfWaterBaptism: '',
+        dateOfConversion: '',
+        formerChurch: '',
+        dateOfJoining: '',
+        placeOfBaptism: '',
+        officiatingMinisterAtBaptism: '',
+        officiatingMinisterDistrict: '',
+        communicant: '',
+        positionInChurch: '',
+        otherAppointments: '',
+        ministry: '',
+        zone: '',
+        occupation: '',
+        humStatus: '',
+        levelOfEducation: '',
+        schoolName: '',
+        schoolLocation: '',
+        isEntrepreneur: '',
+        isRetired: '',
+        dateOfRetirement: '',
+        hasDisability: '',
+        natureOfDisability: '',
+        assistiveDevice: '',
+        royalStatus: '',
+        traditionalArea: '',
+        yearAppointed: '',
+        parentGuardianName: '',
+        parentGuardianContact: '',
+        isDedicated: '',
+        dedicationDate: '',
+        officiatingMinisterAtDedication: '',
+        dedicationChurch: ''
     });
 
     useEffect(() => {
@@ -35,10 +89,64 @@ export default function MemberProfile() {
         try {
             const response = await getCurrentMemberProfile();
             if (response.data.success) {
-                setProfile(response.data);
+                const m = response.data.member || response.data;
+                setProfile(m);
                 setFormData({
-                    phoneNumber: response.data.phoneNumber || '',
-                    bio: response.data.bio || ''
+                    phoneNumber: m.phoneNumber || '',
+                    bio: m.bio || '',
+                    title: m.title || '',
+                    dateOfBirth: m.dateOfBirth || '',
+                    placeOfBirth: m.placeOfBirth || '',
+                    membershipType: m.membershipType || '',
+                    maritalStatus: m.maritalStatus || '',
+                    addressLine1: m.addressLine1 || '',
+                    gpsAddress: m.gpsAddress || '',
+                    hometown: m.hometown || '',
+                    streetName: m.streetName || '',
+                    city: m.city || '',
+                    postalCode: m.postalCode || '',
+                    nationality: m.nationality || '',
+                    countryOfBirth: m.countryOfBirth || '',
+                    familyMemberName: m.familyMemberName || '',
+                    relationship: m.relationship || '',
+                    residentialAddress: m.residentialAddress || '',
+                    locality: m.locality || '',
+                    landmark: m.landmark || '',
+                    holyGhostBaptism: m.holyGhostBaptism || '',
+                    dateOfHolySpiritBaptism: m.dateOfHolySpiritBaptism || '',
+                    waterBaptism: m.waterBaptism || '',
+                    dateOfWaterBaptism: m.dateOfWaterBaptism || '',
+                    dateOfConversion: m.dateOfConversion || '',
+                    formerChurch: m.formerChurch || '',
+                    dateOfJoining: m.dateOfJoining || '',
+                    placeOfBaptism: m.placeOfBaptism || '',
+                    officiatingMinisterAtBaptism: m.officiatingMinisterAtBaptism || '',
+                    officiatingMinisterDistrict: m.officiatingMinisterDistrict || '',
+                    communicant: m.communicant || '',
+                    positionInChurch: m.positionInChurch || '',
+                    otherAppointments: m.otherAppointments || '',
+                    ministry: m.ministry || '',
+                    zone: m.zone || '',
+                    occupation: m.occupation || '',
+                    humStatus: m.humStatus || '',
+                    levelOfEducation: m.levelOfEducation || '',
+                    schoolName: m.schoolName || '',
+                    schoolLocation: m.schoolLocation || '',
+                    isEntrepreneur: m.isEntrepreneur || '',
+                    isRetired: m.isRetired || '',
+                    dateOfRetirement: m.dateOfRetirement || '',
+                    hasDisability: m.hasDisability || '',
+                    natureOfDisability: m.natureOfDisability || '',
+                    assistiveDevice: m.assistiveDevice || '',
+                    royalStatus: m.royalStatus || '',
+                    traditionalArea: m.traditionalArea || '',
+                    yearAppointed: m.yearAppointed || '',
+                    parentGuardianName: m.parentGuardianName || '',
+                    parentGuardianContact: m.parentGuardianContact || '',
+                    isDedicated: m.isDedicated || '',
+                    dedicationDate: m.dedicationDate || '',
+                    officiatingMinisterAtDedication: m.officiatingMinisterAtDedication || '',
+                    dedicationChurch: m.dedicationChurch || ''
                 });
                 
                 if (response.data.profilePictureUrl) {
@@ -145,72 +253,436 @@ export default function MemberProfile() {
                         {/* Information Section */}
                         <div className="lg:col-span-2 space-y-8">
                             <div className="glass-card p-12 rounded-[3.5rem] border-none shadow-premium">
-                                <div className="flex justify-between items-center mb-12 pb-8 border-b border-mdOutline/5">
-                                    <h3 className="text-3xl font-black text-mdOnSurface tracking-tighter italic">Personal Sanctuary</h3>
-                                    <button
-                                        onClick={() => setEditing(!editing)}
-                                        className={`px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-sm ${editing ? 'bg-mdError text-white' : 'bg-mdPrimary/5 text-mdPrimary hover:bg-mdPrimary hover:text-white shadow-lifted'}`}
-                                    >
-                                        {editing ? 'CANCEL' : 'MODIFY RECORDS'}
-                                    </button>
-                                </div>
-
                                 {editing ? (
-                                    <div className="space-y-10 animate-slide-up">
-                                        <div className="grid sm:grid-cols-2 gap-10">
-                                            <div className="space-y-4">
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-mdPrimary ml-2">Phone Line</label>
-                                                <input
-                                                    type="text"
-                                                    value={formData.phoneNumber}
-                                                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                                    className="w-full bg-mdSurfaceVariant/30 border-none rounded-[1.5rem] py-5 px-8 focus:ring-4 focus:ring-mdPrimary/20 transition-all font-black text-sm tracking-tight shadow-inner"
-                                                    placeholder="+1 234 567 890"
-                                                />
-                                            </div>
-                                            <div className="space-y-4 opacity-40">
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-mdOutline ml-2">Sanctuary Name</label>
-                                                <div className="w-full bg-mdSurfaceVariant/10 border-none rounded-[1.5rem] py-5 px-8 font-black text-sm text-mdOnSurfaceVariant shadow-inner">
-                                                    {profile.firstName} {profile.lastName}
-                                                </div>
-                                            </div>
+                                    <div className="space-y-12 animate-slide-up">
+                                        {/* Tab Navigation */}
+                                        <div className="flex flex-wrap gap-2 p-2 bg-mdSurfaceVariant/20 rounded-[2rem] border border-white">
+                                            {[
+                                                { id: 'identity', label: 'Identity', icon: faIdCard },
+                                                { id: 'contact', label: 'Contact', icon: faMapMarkerAlt },
+                                                { id: 'spiritual', label: 'Spiritual', icon: faPray },
+                                                { id: 'vocation', label: 'Vocation', icon: faBriefcase },
+                                                { id: 'heritage', label: 'Heritage', icon: faCrown }
+                                            ].map(tab => (
+                                                <button
+                                                    key={tab.id}
+                                                    onClick={() => setActiveTab(tab.id)}
+                                                    className={`flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-mdPrimary text-white shadow-lifted' : 'text-mdOnSurfaceVariant hover:bg-mdPrimary/5'}`}
+                                                >
+                                                    <FontAwesomeIcon icon={tab.icon} />
+                                                    <span className="hidden sm:inline">{tab.label}</span>
+                                                </button>
+                                            ))}
                                         </div>
 
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-mdPrimary ml-2">Divine Bio</label>
-                                            <textarea
-                                                value={formData.bio}
-                                                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                                                className="w-full bg-mdSurfaceVariant/30 border-none rounded-[2.5rem] py-8 px-10 focus:ring-4 focus:ring-mdPrimary/20 transition-all font-black text-sm min-h-[220px] custom-scrollbar leading-relaxed shadow-inner"
-                                                placeholder="Share your spiritual journey..."
-                                            />
+                                        <div className="min-h-[400px] py-4">
+                                            {/* Identity Tab */}
+                                            {activeTab === 'identity' && (
+                                                <div className="grid sm:grid-cols-2 gap-8 animate-fade-in">
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Spiritual Title</label>
+                                                        <select value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="input-premium">
+                                                            <option value="">Select Title</option>
+                                                            <option value="Elder">Elder</option>
+                                                            <option value="Deacon">Deacon</option>
+                                                            <option value="Deaconess">Deaconess</option>
+                                                            <option value="Sister">Sister</option>
+                                                            <option value="Brother">Brother</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Gender</label>
+                                                        <select value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})} className="input-premium">
+                                                            <option value="">Select Gender</option>
+                                                            <option value="Male">Male</option>
+                                                            <option value="Female">Female</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Date of Birth</label>
+                                                        <input type="date" value={formData.dateOfBirth} onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Place of Birth</label>
+                                                        <input type="text" value={formData.placeOfBirth} onChange={(e) => setFormData({...formData, placeOfBirth: e.target.value})} className="input-premium" placeholder="City, Region" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Membership Status</label>
+                                                        <select value={formData.membershipType} onChange={(e) => setFormData({...formData, membershipType: e.target.value})} className="input-premium">
+                                                            <option value="">Select Status</option>
+                                                            <option value="By birth">By Birth</option>
+                                                            <option value="Transfer">Transfer</option>
+                                                            <option value="New Convert">New Convert</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Marital Status</label>
+                                                        <select value={formData.maritalStatus} onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})} className="input-premium">
+                                                            <option value="">Select Status</option>
+                                                            <option value="Single">Single</option>
+                                                            <option value="Married">Married</option>
+                                                            <option value="Divorced">Divorced</option>
+                                                            <option value="Separated">Separated</option>
+                                                            <option value="Widowed">Widowed</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Nationality</label>
+                                                        <input type="text" value={formData.nationality} onChange={(e) => setFormData({...formData, nationality: e.target.value})} className="input-premium" placeholder="Country" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Country of Birth</label>
+                                                        <input type="text" value={formData.countryOfBirth} onChange={(e) => setFormData({...formData, countryOfBirth: e.target.value})} className="input-premium" placeholder="Country" />
+                                                    </div>
+                                                    <div className="col-span-full space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Spiritual Bio</label>
+                                                        <textarea value={formData.bio} onChange={(e) => setFormData({...formData, bio: e.target.value})} className="input-premium min-h-[120px] py-6" placeholder="Share your journey..." />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Contact & Address Tab */}
+                                            {activeTab === 'contact' && (
+                                                <div className="grid sm:grid-cols-2 gap-8 animate-fade-in">
+                                                    <div className="col-span-full space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Digital Signal (Phone)</label>
+                                                        <input type="text" value={formData.phoneNumber} onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})} className="input-premium" placeholder="+123 456 789" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Residential Address</label>
+                                                        <input type="text" value={formData.addressLine1} onChange={(e) => setFormData({...formData, addressLine1: e.target.value})} className="input-premium" placeholder="House No / Street" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">GPS Digital Address</label>
+                                                        <input type="text" value={formData.gpsAddress} onChange={(e) => setFormData({...formData, gpsAddress: e.target.value})} className="input-premium" placeholder="GA-123-4567" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Hometown</label>
+                                                        <input type="text" value={formData.hometown} onChange={(e) => setFormData({...formData, hometown: e.target.value})} className="input-premium" placeholder="Town / Region" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Street Name</label>
+                                                        <input type="text" value={formData.streetName} onChange={(e) => setFormData({...formData, streetName: e.target.value})} className="input-premium" placeholder="Main St" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">City</label>
+                                                        <input type="text" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="input-premium" placeholder="Accra" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Postal Code</label>
+                                                        <input type="text" value={formData.postalCode} onChange={(e) => setFormData({...formData, postalCode: e.target.value})} className="input-premium" placeholder="00233" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Locality</label>
+                                                        <input type="text" value={formData.locality} onChange={(e) => setFormData({...formData, locality: e.target.value})} className="input-premium" placeholder="Neighborhood" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Landmark</label>
+                                                        <input type="text" value={formData.landmark} onChange={(e) => setFormData({...formData, landmark: e.target.value})} className="input-premium" placeholder="Near Blue Station" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Spiritual Tab */}
+                                            {activeTab === 'spiritual' && (
+                                                <div className="grid sm:grid-cols-2 gap-8 animate-fade-in">
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Holy Ghost Baptism</label>
+                                                        <select value={formData.holyGhostBaptism} onChange={(e) => setFormData({...formData, holyGhostBaptism: e.target.value})} className="input-premium">
+                                                            <option value="">Select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                    {formData.holyGhostBaptism === 'Yes' && (
+                                                        <div className="space-y-4 animate-slide-up">
+                                                            <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Baptism Date</label>
+                                                            <input type="date" value={formData.dateOfHolySpiritBaptism} onChange={(e) => setFormData({...formData, dateOfHolySpiritBaptism: e.target.value})} className="input-premium" />
+                                                        </div>
+                                                    )}
+
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Water Baptism</label>
+                                                        <select value={formData.waterBaptism} onChange={(e) => setFormData({...formData, waterBaptism: e.target.value})} className="input-premium">
+                                                            <option value="">Select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                    {formData.waterBaptism === 'Yes' && (
+                                                        <>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Baptism Date</label>
+                                                                <input type="date" value={formData.dateOfWaterBaptism} onChange={(e) => setFormData({...formData, dateOfWaterBaptism: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Place of Baptism</label>
+                                                                <input type="text" value={formData.placeOfBaptism} onChange={(e) => setFormData({...formData, placeOfBaptism: e.target.value})} className="input-premium" placeholder="Town / Region" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Officiating Minister</label>
+                                                                <input type="text" value={formData.officiatingMinisterAtBaptism} onChange={(e) => setFormData({...formData, officiatingMinisterAtBaptism: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Minister's District</label>
+                                                                <input type="text" value={formData.officiatingMinisterDistrict} onChange={(e) => setFormData({...formData, officiatingMinisterDistrict: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Communicant Status</label>
+                                                                <select value={formData.communicant} onChange={(e) => setFormData({...formData, communicant: e.target.value})} className="input-premium">
+                                                                    <option value="">Select</option>
+                                                                    <option value="Yes">Yes</option>
+                                                                    <option value="No">No</option>
+                                                                </select>
+                                                            </div>
+                                                        </>
+                                                    )}
+
+                                                    <div className="border-t border-mdOutline/5 col-span-full my-4"></div>
+
+                                                    {formData.membershipType !== 'By birth' && formData.membershipType !== 'Transfer' && (
+                                                        <div className="space-y-4 animate-slide-up">
+                                                            <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Date of Conversion</label>
+                                                            <input type="date" value={formData.dateOfConversion} onChange={(e) => setFormData({...formData, dateOfConversion: e.target.value})} className="input-premium" />
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {formData.membershipType !== 'By birth' && (
+                                                        <>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Former Church</label>
+                                                                <input type="text" value={formData.formerChurch} onChange={(e) => setFormData({...formData, formerChurch: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Joining Date</label>
+                                                                <input type="date" value={formData.dateOfJoining} onChange={(e) => setFormData({...formData, dateOfJoining: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Life & vocation Tab */}
+                                            {activeTab === 'vocation' && (
+                                                <div className="grid sm:grid-cols-2 gap-8 animate-fade-in">
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Occupation <span className="text-mdError">*</span></label>
+                                                        <input type="text" value={formData.occupation} onChange={(e) => setFormData({...formData, occupation: e.target.value})} className="input-premium border-mdPrimary/20" placeholder="Required" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Church Position</label>
+                                                        <input type="text" value={formData.positionInChurch} onChange={(e) => setFormData({...formData, positionInChurch: e.target.value})} className="input-premium" placeholder="Roles played" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Ministry</label>
+                                                        <select value={formData.ministry} onChange={(e) => setFormData({...formData, ministry: e.target.value})} className="input-premium">
+                                                            <option value="">Select Ministry</option>
+                                                            <option value="Youth">Youth Ministry</option>
+                                                            <option value="Men's Ministry">Men's Ministry</option>
+                                                            <option value="Women's Ministry">Women's Ministry</option>
+                                                            <option value="Children's Ministry">Children's Ministry</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Zone</label>
+                                                        <input type="text" value={formData.zone} onChange={(e) => setFormData({...formData, zone: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Education Level</label>
+                                                        <input type="text" value={formData.levelOfEducation} onChange={(e) => setFormData({...formData, levelOfEducation: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">School / Org Name</label>
+                                                        <input type="text" value={formData.schoolName} onChange={(e) => setFormData({...formData, schoolName: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Work/School Locality</label>
+                                                        <input type="text" value={formData.schoolLocation} onChange={(e) => setFormData({...formData, schoolLocation: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Entrepreneur?</label>
+                                                        <select value={formData.isEntrepreneur} onChange={(e) => setFormData({...formData, isEntrepreneur: e.target.value})} className="input-premium">
+                                                            <option value="">Select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Retired?</label>
+                                                        <select value={formData.isRetired} onChange={(e) => setFormData({...formData, isRetired: e.target.value})} className="input-premium">
+                                                            <option value="">Select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                    {formData.isRetired === 'Yes' && (
+                                                        <div className="space-y-4 animate-slide-up">
+                                                            <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Retirement Date</label>
+                                                            <input type="date" value={formData.dateOfRetirement} onChange={(e) => setFormData({...formData, dateOfRetirement: e.target.value})} className="input-premium" />
+                                                        </div>
+                                                    )}
+                                                    
+                                                    <div className="border-t border-mdOutline/5 col-span-full my-4"></div>
+
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Any Disability?</label>
+                                                        <select value={formData.hasDisability} onChange={(e) => setFormData({...formData, hasDisability: e.target.value})} className="input-premium">
+                                                            <option value="">Select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                    {formData.hasDisability === 'Yes' && (
+                                                        <>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Nature of Disability</label>
+                                                                <input type="text" value={formData.natureOfDisability} onChange={(e) => setFormData({...formData, natureOfDisability: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Assistive Device</label>
+                                                                <input type="text" value={formData.assistiveDevice} onChange={(e) => setFormData({...formData, assistiveDevice: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                    <div className="col-span-full space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Other Appointments (with dates)</label>
+                                                        <textarea value={formData.otherAppointments} onChange={(e) => setFormData({...formData, otherAppointments: e.target.value})} className="input-premium min-h-[100px] py-4" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* heritage Tab */}
+                                            {activeTab === 'heritage' && (
+                                                <div className="grid sm:grid-cols-2 gap-8 animate-fade-in">
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Family Contact Name</label>
+                                                        <input type="text" value={formData.familyMemberName} onChange={(e) => setFormData({...formData, familyMemberName: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Relationship</label>
+                                                        <input type="text" value={formData.relationship} onChange={(e) => setFormData({...formData, relationship: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    <div className="col-span-full space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Residential Address / Landmarks</label>
+                                                        <textarea value={formData.residentialAddress} onChange={(e) => setFormData({...formData, residentialAddress: e.target.value})} className="input-premium py-4" placeholder="Home No / Direction" />
+                                                    </div>
+                                                    
+                                                    <div className="border-t border-mdOutline/5 col-span-full my-4"></div>
+
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Parent / Guardian Name</label>
+                                                        <input type="text" value={formData.parentGuardianName} onChange={(e) => setFormData({...formData, parentGuardianName: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Guardian Contact</label>
+                                                        <input type="text" value={formData.parentGuardianContact} onChange={(e) => setFormData({...formData, parentGuardianContact: e.target.value})} className="input-premium" />
+                                                    </div>
+                                                    
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Dedicated?</label>
+                                                        <select value={formData.isDedicated} onChange={(e) => setFormData({...formData, isDedicated: e.target.value})} className="input-premium">
+                                                            <option value="">Select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                    {formData.isDedicated === 'Yes' && (
+                                                        <>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Dedication Date</label>
+                                                                <input type="date" value={formData.dedicationDate} onChange={(e) => setFormData({...formData, dedicationDate: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Officiating Minister</label>
+                                                                <input type="text" value={formData.officiatingMinisterAtDedication} onChange={(e) => setFormData({...formData, officiatingMinisterAtDedication: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Dedication Church</label>
+                                                                <input type="text" value={formData.dedicationChurch} onChange={(e) => setFormData({...formData, dedicationChurch: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                        </>
+                                                    )}
+
+                                                    <div className="border-t border-mdOutline/5 col-span-full my-4"></div>
+
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Royal Status?</label>
+                                                        <select value={formData.royalStatus} onChange={(e) => setFormData({...formData, royalStatus: e.target.value})} className="input-premium">
+                                                            <option value="">Select</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
+                                                        </select>
+                                                    </div>
+                                                    {formData.royalStatus === 'Yes' && (
+                                                        <>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Traditional Area</label>
+                                                                <input type="text" value={formData.traditionalArea} onChange={(e) => setFormData({...formData, traditionalArea: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                            <div className="space-y-4 animate-slide-up">
+                                                                <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Year Appointed</label>
+                                                                <input type="text" value={formData.yearAppointed} onChange={(e) => setFormData({...formData, yearAppointed: e.target.value})} className="input-premium" />
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <button
                                             onClick={handleUpdateProfile}
                                             disabled={isUpdatingProfile}
-                                            className="w-full bg-mdPrimary text-white py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] transform active:scale-95 transition-all shadow-premium hover:bg-mdSecondary"
+                                            className="w-full bg-mdPrimary text-white py-6 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] transform active:scale-95 transition-all shadow-premium hover:bg-mdSecondary"
                                         >
-                                            {isUpdatingProfile ? 'SYNCHING...' : 'CONFIRM UPDATES'}
+                                            {isUpdatingProfile ? 'SECURELY SAVING...' : 'UPDATE REGISTRY'}
                                         </button>
                                     </div>
                                 ) : (
                                     <div className="space-y-10 animate-fade-in">
-                                        <div className="grid sm:grid-cols-2 gap-8">
-                                            <div className="glass-card bg-mdSurfaceVariant/10 border-none p-8 rounded-[2rem] shadow-inner">
-                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-mdSecondary mb-3">Primary Contact</p>
-                                                <p className="font-black text-xl text-mdOnSurface tracking-tighter">{profile.phoneNumber || 'UNLINKED'}</p>
+                                        {/* Status Cards */}
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div className="glass-card bg-mdPrimary/5 border-none p-10 rounded-[2.5rem] shadow-inner text-center group hover:bg-mdPrimary hover:text-white transition-all duration-700">
+                                                <div className="w-14 h-14 bg-mdPrimary/10 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors">
+                                                    <FontAwesomeIcon icon={faStar} className="text-mdPrimary group-hover:text-white" />
+                                                </div>
+                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Rank</p>
+                                                <p className="font-black text-xs uppercase tracking-widest">{profile.title || 'MEMBER'}</p>
                                             </div>
-                                            <div className="glass-card bg-mdSurfaceVariant/10 border-none p-8 rounded-[2rem] shadow-inner">
-                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-mdPrimary mb-3">Official Email</p>
-                                                <p className="font-black text-xl text-mdOnSurface tracking-tighter truncate">{profile.email}</p>
+                                            <div className="glass-card bg-mdSecondary/5 border-none p-10 rounded-[2.5rem] shadow-inner text-center group hover:bg-mdSecondary hover:text-white transition-all duration-700">
+                                                <div className="w-14 h-14 bg-mdSecondary/10 group-hover:bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors">
+                                                    <FontAwesomeIcon icon={faUserShield} className="text-mdSecondary group-hover:text-white" />
+                                                </div>
+                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Status</p>
+                                                <p className="font-black text-xs uppercase tracking-widest">{profile.membershipType || 'REGISTERED'}</p>
                                             </div>
                                         </div>
 
-                                        <div className="glass-card bg-mdPrimary/5 border-none p-12 rounded-[3.5rem] shadow-inner relative overflow-hidden">
+                                        <div className="space-y-6">
+                                            <div className="flex items-center gap-6 p-8 bg-mdSurfaceVariant/10 rounded-[2rem]">
+                                                <div className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm text-mdPrimary">
+                                                    <FontAwesomeIcon icon={faPhone} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[8px] font-black uppercase tracking-widest text-mdOnSurfaceVariant opacity-50">Signal</p>
+                                                    <p className="font-black text-sm tracking-tight">{profile.phoneNumber || 'NO CONTACT'}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-6 p-8 bg-mdSurfaceVariant/10 rounded-[2rem]">
+                                                <div className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm text-mdSecondary">
+                                                    <FontAwesomeIcon icon={faMapMarkerAlt} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[8px] font-black uppercase tracking-widest text-mdOnSurfaceVariant opacity-50">Base</p>
+                                                    <p className="font-black text-sm tracking-tight">{profile.city || 'GLOBAL SANCTUARY'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="glass-card bg-mdPrimary/5 border-none p-12 rounded-[3.5rem] shadow-inner relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-mdPrimary/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-1000"></div>
                                             <FontAwesomeIcon icon={faQuoteLeft} className="absolute top-8 left-8 text-4xl text-mdPrimary/10" />
                                             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-mdPrimary mb-6 text-center">Spiritual Testimony</p>
-                                            <p className="font-bold text-xl text-mdOnSurfaceVariant leading-loose italic text-center px-6">
+                                            <p className="font-bold text-xl text-mdOnSurfaceVariant leading-[2] italic text-center px-6 relative z-10">
                                                 {profile.bio || "Speak your journey. Update your records to shared a personal testimony that will inspire the sanctuary."}
                                             </p>
                                         </div>

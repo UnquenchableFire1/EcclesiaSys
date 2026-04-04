@@ -1,11 +1,11 @@
 {
-  "short_name": "EcclesiaSys",
-  "name": "EcclesiaSys Church Management",
+  "short_name": "COP Ayikai Doblo",
+  "name": "Church Of Pentecost - Ayikai Doblo District",
   "icons": [
     {
-      "src": "favicon.svg",
+      "src": "logo.png",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
       "src": "logo.png",

@@ -4,7 +4,8 @@ import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faComments, faUsers, faEnvelope, faSearch, faHandsHelping,
-    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight, faCamera, faTrash
+    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight, faCamera, faTrash,
+    faImages, faCheck
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
@@ -20,6 +21,7 @@ import {
 import Announcements from './Announcements';
 import Events from './Events';
 import Sermons from './Sermons';
+import Gallery from './Gallery';
 import DailyVerse from '../components/DailyVerse';
 import ChangePassword from '../components/ChangePassword';
 // Chat removed in favor of WhatsApp support
@@ -31,6 +33,7 @@ export default function MemberDashboard() {
 
     // -- State --
     const [activeTab, setActiveTabInternal] = useState(() => sessionStorage.getItem('memberActiveTab') || 'home');
+    const [updatesSubTab, setUpdatesSubTab] = useState('announcements');
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
     
@@ -194,7 +197,7 @@ export default function MemberDashboard() {
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
                     <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-br from-mdOnSurface to-mdOnSurfaceVariant/60">
-                        EcclesiaSys Sanctuary
+                        COP Ayikai Doblo Sanctuary
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
@@ -242,18 +245,19 @@ export default function MemberDashboard() {
                             {/* Quick Discovery */}
                             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <DiscoveryCard 
-                                    title="Announcements" 
-                                    desc="Stay updated with the latest news and updates from our community." 
+                                    title="Upcoming Events" 
+                                    desc="Announcements and upcoming events from our sanctuary community." 
                                     icon={faBullhorn}
-                                    tab="announcements"
+                                    tab="updates"
                                     color="text-amber-500"
+                                    onClick={() => { setActiveTab('updates'); setUpdatesSubTab('announcements'); }}
                                 />
                                 <DiscoveryCard 
-                                    title="Calendar" 
-                                    desc="Don't miss out on our upcoming fellowship and prayer meetings." 
-                                    icon={faCalendarAlt}
-                                    tab="events"
-                                    color="text-mdPrimary"
+                                    title="Gallery" 
+                                    desc="Moments of faith and fellowship captured by our media team." 
+                                    icon={faImages}
+                                    tab="gallery"
+                                    color="text-pink-500"
                                 />
                                 <DiscoveryCard 
                                     title="Word Room" 
@@ -282,24 +286,64 @@ export default function MemberDashboard() {
                     </div>
                 )}
 
-                {/* 2. ANNOUNCEMENTS */}
-                {activeTab === 'announcements' && (
-                    <div className="space-y-10 animate-fade-in">
-                        <Announcements embedded={true} branchId={memberProfile?.branchId} />
+                {/* 2. UPDATES (Announcements + Events) */}
+                {activeTab === 'updates' && (
+                    <div className="space-y-8 animate-fade-in">
+                        <div>
+                            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Upcoming Events</h1>
+                            <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Events &amp; Announcements</p>
+                        </div>
+
+                        {/* Sub-tabs */}
+                        <div className="flex p-1.5 bg-mdSurfaceVariant/20 rounded-[2rem] w-max border border-mdOutline/5 shadow-inner">
+                            {[
+                                { id: 'announcements', label: 'Announcements', icon: faBullhorn },
+                                { id: 'events', label: 'Events', icon: faCalendarAlt },
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setUpdatesSubTab(tab.id)}
+                                    className={`flex items-center gap-2 px-8 py-3 rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest transition-all duration-500 ${
+                                        updatesSubTab === tab.id
+                                            ? 'bg-mdPrimary text-white shadow-premium'
+                                            : 'text-mdOnSurface hover:bg-mdSurfaceVariant/30'
+                                    }`}
+                                >
+                                    <FontAwesomeIcon icon={tab.icon} />
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {updatesSubTab === 'announcements' && (
+                            <div className="animate-fade-in">
+                                <Announcements embedded={true} branchId={memberProfile?.branchId} />
+                            </div>
+                        )}
+                        {updatesSubTab === 'events' && (
+                            <div className="animate-fade-in">
+                                <Events embedded={true} branchId={memberProfile?.branchId} />
+                            </div>
+                        )}
                     </div>
                 )}
 
-                {/* 3. EVENTS */}
-                {activeTab === 'events' && (
-                    <div className="space-y-10 animate-fade-in">
-                        <Events embedded={true} branchId={memberProfile?.branchId} />
-                    </div>
-                )}
-
-                {/* 4. SERMONS */}
+                {/* 3. SERMONS */}
                 {activeTab === 'sermons' && (
                     <div className="space-y-10 animate-fade-in">
                         <Sermons embedded={true} branchId={memberProfile?.branchId} />
+                    </div>
+                )}
+
+                {/* 4. GALLERY */}
+                {activeTab === 'gallery' && (
+                    <div className="space-y-10 animate-fade-in">
+                        <Gallery
+                            canUpload={false}
+                            branchId={memberProfile?.branchId}
+                            currentUserId={memberId}
+                            currentUserName={memberName}
+                        />
                     </div>
                 )}
 
@@ -308,7 +352,7 @@ export default function MemberDashboard() {
                     <div className="space-y-10 animate-fade-in">
                         <div className="max-w-4xl mx-auto text-center mb-12">
                             <h1 className="text-5xl font-black text-mdOnSurface tracking-tighter mb-4">Member Directory</h1>
-                            <p className="text-lg text-mdOnSurfaceVariant font-medium">Meet the family of faith at EcclesiaSys Sanctuary.</p>
+                            <p className="text-lg text-mdOnSurfaceVariant font-medium">Meet the family of faith at COP Ayikai Doblo Sanctuary.</p>
                             
                             <div className="mt-8 relative max-w-xl mx-auto">
                                 <FontAwesomeIcon icon={faSearch} className="absolute left-6 top-1/2 -translate-y-1/2 text-mdPrimary opacity-50" />

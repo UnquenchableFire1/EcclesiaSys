@@ -31,16 +31,16 @@ public class EmailService {
             logger.info("Attempting to send password reset email via Brevo to: {}", recipientEmail);
             
             String emailBody = "Hello,\n\n" +
-                    "You requested to reset your password for your EcclesiaSys account.\n\n" +
+                    "You requested to reset your password for your COP Ayikai Doblo account.\n\n" +
                     "Please click the link below to reset your password:\n" +
                     resetLink + "\n\n" +
                     "Or use this reset code: " + resetToken + "\n\n" +
                     "This link will expire in 1 hour.\n\n" +
                     "If you did not request a password reset, please ignore this email.\n\n" +
                     "Best regards,\n" +
-                    "EcclesiaSys Team";
+                    "COP Ayikai Doblo Team";
                     
-            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - Password Reset Request", emailBody, false);
+            return sendEmailViaBrevo(recipientEmail, "COP Ayikai Doblo - Password Reset Request", emailBody, false);
         } catch (Exception e) {
             logger.error("Failed to send password reset email to: " + recipientEmail + " | Error: " + e.getMessage());
             return false;
@@ -50,16 +50,16 @@ public class EmailService {
     public boolean sendVerificationEmail(String recipientEmail, String verificationCode, String verificationLink) {
         try {
             String emailBody = "Hello,\n\n" +
-                    "Welcome to EcclesiaSys Church Management System!\n\n" +
+                    "Welcome to Church Of Pentecost - Ayikai Doblo District!\n\n" +
                     "Please verify your email address by clicking the link below:\n" +
                     verificationLink + "\n\n" +
                     "Or use this verification code: " + verificationCode + "\n\n" +
                     "This link will expire in 24 hours.\n\n" +
                     "If you did not create this account, please ignore this email.\n\n" +
                     "Best regards,\n" +
-                    "EcclesiaSys Team";
+                    "COP Ayikai Doblo Team";
                     
-            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - Email Verification", emailBody, false);
+            return sendEmailViaBrevo(recipientEmail, "COP Ayikai Doblo - Email Verification", emailBody, false);
         } catch (Exception e) {
             logger.error("Failed to send verification email to: " + recipientEmail, e);
             return false;
@@ -70,9 +70,9 @@ public class EmailService {
         try {
             String emailBody = message + "\n\n" +
                     "Best regards,\n" +
-                    "EcclesiaSys Team";
+                    "COP Ayikai Doblo Team";
                     
-            return sendEmailViaBrevo(recipientEmail, "EcclesiaSys - " + subject, emailBody, false);
+            return sendEmailViaBrevo(recipientEmail, "COP Ayikai Doblo - " + subject, emailBody, false);
         } catch (Exception e) {
             logger.error("Failed to send notification email to: " + recipientEmail, e);
             return false;
@@ -96,7 +96,7 @@ public class EmailService {
             JSONObject payload = new JSONObject();
             
             JSONObject sender = new JSONObject();
-            sender.put("name", "EcclesiaSys");
+            sender.put("name", "COP Ayikai Doblo");
             sender.put("email", senderEmail);
             payload.put("sender", sender);
             

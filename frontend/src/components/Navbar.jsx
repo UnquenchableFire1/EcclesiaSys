@@ -197,13 +197,10 @@ export default function Navbar({ isMobile }) {
             {userType && (
               <>
                 <Link to="/announcements" className={`px-4 py-3 rounded-2xl transition-all duration-200 ${isActive('/announcements')}`} onClick={() => setIsMobileMenuOpen(false)}>
-                  Announcements
+                  Upcoming Events
                 </Link>
-                <Link to="/events" className={`px-4 py-3 rounded-2xl transition-all duration-200 ${isActive('/events')}`} onClick={() => setIsMobileMenuOpen(false)}>
-                  Events
-                </Link>
-                <Link to="/sermons" className={`px-4 py-3 rounded-2xl transition-all duration-200 ${isActive('/sermons')}`} onClick={() => setIsMobileMenuOpen(false)}>
-                  Sermons
+                <Link to={userType === 'admin' ? '/admin' : '/member'} className={`px-4 py-3 rounded-2xl transition-all duration-200 ${isActive('/gallery')}`} onClick={() => { sessionStorage.setItem('adminActiveTab', 'gallery'); setIsMobileMenuOpen(false); }}>
+                  Gallery
                 </Link>
                 {userType === 'admin' && (
                   <Link to="/admin" className={`px-4 py-3 rounded-2xl transition-all duration-200 ${isActive('/admin')}`} onClick={() => setIsMobileMenuOpen(false)}>

@@ -70,7 +70,7 @@ public class EmailTemplateService {
                 "<a href='" + eventLink + "' style='background-color: #0F766E; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: bold;'>View Event Details</a>" +
                 "</div>" +
                 "<p>Mark your calendar and join us for a wonderful time of fellowship and ministry!</p>" +
-                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
+                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from COP Ayikai Doblo.</small></p>" +
                 "</div></div></body></html>";
 
             emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
@@ -97,7 +97,7 @@ public class EmailTemplateService {
                 "<div style='text-align: center; margin: 30px 0;'>" +
                 "<a href='" + announcementLink + "' style='background-color: #0F4C5C; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: bold;'>Read Full Announcement</a>" +
                 "</div>" +
-                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
+                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from COP Ayikai Doblo.</small></p>" +
                 "</div></div></body></html>";
 
             emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
@@ -128,7 +128,7 @@ public class EmailTemplateService {
                 "<div style='text-align: center; margin: 30px 0;'>" +
                 "<a href='" + sermonLink + "' style='background-color: #0F766E; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: bold;'>Listen / Watch Now</a>" +
                 "</div>" +
-                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from EcclesiaSys.</small></p>" +
+                "<p style='margin-top: 30px; color: #666;'><small>This is an automated notification from COP Ayikai Doblo.</small></p>" +
                 "</div></div></body></html>";
 
             emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
@@ -230,7 +230,7 @@ public class EmailTemplateService {
      */
     public void sendPasswordResetEmail(String recipientEmail, String userName, String resetCode) {
         try {
-            String subject = "Password Reset Request - EcclesiaSys";
+            String subject = "Password Reset Request - COP Ayikai Doblo";
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
                 "<div style='background-color: #0F766E; color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;'>" +
@@ -238,14 +238,14 @@ public class EmailTemplateService {
                 "</div>" +
                 "<div style='background-color: #f9fafb; padding: 40px; border-radius: 0 0 8px 8px;'>" +
                 "<p>Dear <strong>" + userName + "</strong>,</p>" +
-                "<p>We received a request to reset your password for your EcclesiaSys account. Use the code below to complete the process:</p>" +
+                "<p>We received a request to reset your password for your COP Ayikai Doblo account. Use the code below to complete the process:</p>" +
                 "<div style='text-align: center; margin: 30px 0;'>" +
                 "<div style='background-color: white; border: 2px dashed #0F766E; padding: 20px; display: inline-block; border-radius: 12px;'>" +
                 "<h2 style='margin: 0; color: #0F766E; letter-spacing: 5px; font-size: 32px;'>" + resetCode + "</h2>" +
                 "</div>" +
                 "</div>" +
                 "<p>This code will expire in 15 minutes. If you didn't request a password reset, please ignore this email or contact support if you have concerns.</p>" +
-                "<p style='margin-top: 30px;'>In Christ,<br/><strong>EcclesiaSys Team</strong></p>" +
+                "<p style='margin-top: 30px;'>In Christ,<br/><strong>COP Ayikai Doblo Team</strong></p>" +
                 "<p style='margin-top: 30px; color: #999; font-size: 12px; border-top: 1px solid #ddd; pt-4;'>" +
                 "This is an automated security notification. Do not share this code with anyone." +
                 "</p>" +

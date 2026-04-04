@@ -43,7 +43,11 @@ export default function Login() {
           navigate(destination || '/member-dashboard', { replace: true });
         }
       } else {
-        setError('Account does not exist');
+        if (response.data?.requireVerification) {
+            navigate('/verify-email', { state: { email: response.data.email } });
+        } else {
+            setError(response.data?.message || 'Account does not exist');
+        }
       }
     } catch (err) {
       console.error('Login error', err);

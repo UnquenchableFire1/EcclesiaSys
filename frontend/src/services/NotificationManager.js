@@ -33,7 +33,7 @@ class NotificationManager {
       return navigator.serviceWorker.ready.then(registration => {
         registration.showNotification(title, {
           icon: '/logo192.png',
-          badge: '/favicon.svg',
+          badge: '/logo.png',
           ...options
         });
       });

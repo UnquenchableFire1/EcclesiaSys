@@ -93,22 +93,51 @@ public class AdminController {
     public Map<String, Object> createAdmin(@RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String name = (String) request.get("name");
-            String email = (String) request.get("email");
+            String name     = (String) request.get("name");
+            String email    = (String) request.get("email");
             String password = (String) request.get("password");
-            
+
             int requesterId = 0;
             if (request.get("createdBy") != null) {
                 requesterId = Integer.parseInt(request.get("createdBy").toString());
             }
 
-            if (!adminDAO.isSuperAdmin(requesterId)) {
+            Admin requester = adminDAO.getAdminById(requesterId);
+            if (requester == null) {
                 response.put("success", false);
-                response.put("message", "Only the primary administrator can create other admins.");
+                response.put("message", "Requester not found.");
                 return response;
             }
 
-            if (name == null || email == null || password == null || name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            boolean isSuperAdmin = adminDAO.isSuperAdmin(requesterId);
+            boolean isBranchAdmin = "BRANCH_ADMIN".equals(requester.getRole());
+
+            // Only SUPER_ADMIN and BRANCH_ADMIN can create accounts
+            if (!isSuperAdmin && !isBranchAdmin) {
+                response.put("success", false);
+                response.put("message", "You do not have permission to create staff accounts.");
+                return response;
+            }
+
+            // Determine requested role — default to BRANCH_ADMIN
+            String requestedRole = (String) request.getOrDefault("role", "BRANCH_ADMIN");
+
+            // Prevent assigning SUPER_ADMIN via API
+            if ("SUPER_ADMIN".equals(requestedRole)) {
+                response.put("success", false);
+                response.put("message", "Super Admin accounts cannot be created via this endpoint.");
+                return response;
+            }
+
+            // Branch admins can only create MEDIA_TEAM, not other BRANCH_ADMIN accounts
+            if (isBranchAdmin && !isSuperAdmin && "BRANCH_ADMIN".equals(requestedRole)) {
+                response.put("success", false);
+                response.put("message", "Branch Admins can only create Media Team accounts.");
+                return response;
+            }
+
+            if (name == null || email == null || password == null ||
+                name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 response.put("success", false);
                 response.put("message", "Name, email, and password are required.");
                 return response;
@@ -124,29 +153,36 @@ public class AdminController {
             Admin newAdmin = new Admin();
             newAdmin.setName(name);
             newAdmin.setEmail(email);
-            // Hash the password
             newAdmin.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             newAdmin.setCreatedBy(requesterId);
-            
-            // Role is ALWAYS BRANCH_ADMIN when created via API — SUPER_ADMIN cannot be assigned this way
-            newAdmin.setRole("BRANCH_ADMIN");
-            if (request.containsKey("branchId")) {
+            newAdmin.setRole(requestedRole);
+
+            // Assign branch: use request branchId OR fall back to requester's branch
+            if (request.containsKey("branchId") && request.get("branchId") != null
+                    && !request.get("branchId").toString().isBlank()) {
                 Object bIdObj = request.get("branchId");
-                if (bIdObj instanceof Number) newAdmin.setBranchId(((Number) bIdObj).intValue());
+                if (bIdObj instanceof Number) {
+                    newAdmin.setBranchId(((Number) bIdObj).intValue());
+                } else {
+                    try { newAdmin.setBranchId(Integer.parseInt(bIdObj.toString())); } catch (NumberFormatException ignored) {}
+                }
+            } else if (isBranchAdmin && requester.getBranchId() != null) {
+                // Branch admin creating media team: auto-assign their own branch
+                newAdmin.setBranchId(requester.getBranchId());
             }
 
             boolean success = adminDAO.addAdmin(newAdmin);
-            
             if (success) {
                 response.put("success", true);
-                response.put("message", "Admin created successfully");
+                response.put("message", "Staff account created successfully.");
             } else {
                 response.put("success", false);
-                response.put("message", "Failed to create admin");
+                response.put("message", "Failed to create admin account.");
             }
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Server error: " + e.getMessage());
+            e.printStackTrace();
         }
         return response;
     }
