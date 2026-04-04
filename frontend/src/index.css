@@ -143,11 +143,11 @@
   }
 
   .input-premium {
-    @apply w-full bg-mdSurfaceVariant/30 border-none rounded-[1.5rem] py-5 px-8 outline-none transition-all duration-500 font-bold text-sm tracking-tight shadow-inner;
+    @apply w-full bg-[#DAE5E3]/30 border-none rounded-[1.5rem] py-5 px-8 outline-none transition-all duration-500 font-bold text-sm tracking-tight shadow-inner;
   }
   
   .input-premium:focus {
-    @apply bg-white ring-4 ring-mdPrimary/5 shadow-premium -translate-y-1;
+    @apply bg-white ring-4 ring-[#006A6A]/5 shadow-premium -translate-y-1;
   }
   
   select.input-premium {
