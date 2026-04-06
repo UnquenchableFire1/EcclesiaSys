@@ -121,14 +121,8 @@ export default function App() {
             <Route path="/events" element={<Layout><Events /></Layout>} />
             <Route path="/announcements" element={<Layout><Announcements /></Layout>} />
             <Route path="/sermons" element={<Layout><Sermons /></Layout>} />
-            <Route
-              path="/member-dashboard"
-              element={
-                <ProtectedRoute requiredRole="member">
-                  <Layout><MemberDashboard /></Layout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/member-dashboard" element={<ProtectedRoute requiredRole="member"><Layout><MemberDashboard /></Layout></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute requiredRole="member"><Layout><MemberDashboard defaultTab="profile" /></Layout></ProtectedRoute>} />
 
             <Route
               path="/admin"

@@ -8,7 +8,7 @@ import {
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
     faExclamationTriangle, faSignOutAlt, faBuilding, faCamera,
-    faPlay, faLink, faFileUpload, faTimes, faImages 
+    faPlay, faLink, faFileUpload, faTimes, faImages, faIdCard
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
@@ -109,6 +109,7 @@ export default function AdminDashboard() {
     const [assigningBranchMember, setAssigningBranchMember] = useState(null);
     const [alertDialog, setAlertDialog] = useState(null);
     const [lightboxImg, setLightboxImg] = useState(null);
+    const [viewingMember, setViewingMember] = useState(null);
 
     // Derived State
     const storedBranchId = sessionStorage.getItem('branchId');
@@ -992,6 +993,15 @@ export default function AdminDashboard() {
                                                             </button>
                                                         </div>
                                                     )}
+
+                                                    <button 
+                                                        onClick={() => setViewingMember(member)}
+                                                        className="w-full mt-2 py-3 bg-mdPrimary/10 text-mdPrimary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-mdPrimary hover:text-white transition-all flex items-center justify-center gap-2 border border-mdPrimary/20"
+                                                    >
+                                                        <FontAwesomeIcon icon={faIdCard} />
+                                                        View & Edit Records
+                                                    </button>
+
                                                     {(isActuallySuperAdmin && !isReadOnly) && (
                                                         <div className="flex gap-2 mt-2">
                                                             <button 
@@ -1591,6 +1601,51 @@ export default function AdminDashboard() {
                         setSelectedImage(null);
                     }}
                 />
+            )}
+
+            {/* MEMBER PROFILE DOSSIER MODAL */}
+            {viewingMember && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-fade-in">
+                    <div 
+                        className="absolute inset-0 bg-mdOnSurface/40 backdrop-blur-md"
+                        onClick={() => setViewingMember(null)}
+                    ></div>
+                    
+                    <div className="relative glass-card w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col rounded-[3.5rem] shadow-premium-lg border-none animate-slide-up bg-white/95">
+                        {/* Header */}
+                        <div className="p-8 border-b border-mdOutline/10 flex justify-between items-center bg-mdPrimary/5">
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-mdPrimary text-white flex items-center justify-center text-2xl shadow-premium">
+                                    <FontAwesomeIcon icon={faIdCard} />
+                                </div>
+                                <div className="text-left">
+                                    <h2 className="text-2xl font-black text-mdOnSurface tracking-tighter leading-none">
+                                        Registry Archive: {viewingMember.name || `${viewingMember.firstName} ${viewingMember.lastName}`}
+                                    </h2>
+                                    <p className="text-[10px] font-black text-mdPrimary uppercase tracking-[0.3em] mt-2 italic">Official Assembly Record • ID-{viewingMember.id}</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setViewingMember(null)}
+                                className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-mdOnSurfaceVariant hover:bg-mdError hover:text-white transition-all transform hover:rotate-90"
+                            >
+                                <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                            <MemberProfile 
+                                memberIdProp={viewingMember.id} 
+                                autoEdit={false}
+                                onUpdate={fetchAllData}
+                            />
+                        </div>
+
+                        {/* Footer Overlay Shadow */}
+                        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white pointer-events-none"></div>
+                    </div>
+                </div>
             )}
         </div>
     );

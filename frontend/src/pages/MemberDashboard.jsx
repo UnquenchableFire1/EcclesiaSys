@@ -4,43 +4,38 @@ import { useTheme } from '../context/ThemeContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faComments, faUsers, faEnvelope, faSearch, faHandsHelping,
-    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight, faCamera, faTrash,
+    faBullhorn, faCalendarAlt, faMicrophone, faPrayingHands, faArrowRight,
     faImages, faCheck
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
-import ImageCropperModal from '../components/ImageCropperModal';
 import { useToast } from '../context/ToastContext';
 
 import { 
     getMemberProfile, getAnnouncements, getEvents, getSermons,
     createPrayerRequest, getNotifications, markNotificationAsRead,
     markAllNotificationsAsRead, getMembers, getPublicMembers,
-    getMyPrayerRequests, uploadProfilePicture, deleteProfilePicture
+    getMyPrayerRequests
 } from '../services/api';
 
-import Announcements from './Announcements';
-import Events from './Events';
-import Sermons from './Sermons';
 import Gallery from './Gallery';
 import DailyVerse from '../components/DailyVerse';
 import ChangePassword from '../components/ChangePassword';
-// Chat removed in favor of WhatsApp support
+import MemberProfile from './MemberProfile';
 import Lightbox from '../components/Lightbox';
 
-export default function MemberDashboard() {
+export default function MemberDashboard({ defaultTab = 'home' }) {
     const navigate = useNavigate();
     const { theme } = useTheme();
 
     // -- State --
-    const [activeTab, setActiveTabInternal] = useState(() => sessionStorage.getItem('memberActiveTab') || 'home');
+    const [activeTab, setActiveTabInternal] = useState(() => {
+        const stored = sessionStorage.getItem('memberActiveTab');
+        return defaultTab !== 'home' ? defaultTab : (stored || 'home');
+    });
     const [updatesSubTab, setUpdatesSubTab] = useState('announcements');
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
     
-    // Profile Picture State
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [showCropper, setShowCropper] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
     const [lightboxImg, setLightboxImg] = useState(null);
     const [memberProfile, setMemberProfile] = useState(null);
     const [memberId] = useState(parseInt(sessionStorage.getItem('userId')));
@@ -70,75 +65,6 @@ export default function MemberDashboard() {
         window.addEventListener('setActiveTab', handleTabChange);
         return () => window.removeEventListener('setActiveTab', handleTabChange);
     }, []);
-
-    const handleImageSelect = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                setSelectedImage(reader.result);
-                setShowCropper(true);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleCropComplete = async (croppedFile) => {
-        setShowCropper(false);
-        setIsUploading(true);
-        
-        const formData = new FormData();
-        formData.append('file', croppedFile);
-        formData.append('userId', memberId);
-        formData.append('userType', 'member');
-
-        try {
-            const response = await uploadProfilePicture(formData);
-            if (response.data.success) {
-                showToast("Identity portrait updated in the assembly.", "success");
-                setMemberProfile(prev => ({
-                    ...prev,
-                    profilePictureUrl: response.data.profilePictureUrl
-                }));
-                sessionStorage.setItem('profilePictureUrl', response.data.profilePictureUrl);
-                // Trigger a global update for components like Navbar
-                window.dispatchEvent(new Event('storage'));
-            } else {
-                showToast(response.data.message || "Failed to sync portrait.", "error");
-            }
-        } catch (err) {
-            console.error("Upload error:", err);
-            showToast("Server refused portrait sync.", "error");
-        } finally {
-            setIsUploading(false);
-            setSelectedImage(null);
-        }
-    };
-
-    const handleDeleteProfilePicture = async () => {
-        if (!window.confirm("Are you sure you want to remove your assembly portrait?")) return;
-
-        setIsUploading(true);
-        try {
-            const response = await deleteProfilePicture(memberId, 'member');
-            if (response.data.success) {
-                showToast(response.data.message, "success");
-                setMemberProfile(prev => ({
-                    ...prev,
-                    profilePictureUrl: null
-                }));
-                sessionStorage.removeItem('profilePictureUrl');
-                window.dispatchEvent(new Event('storage'));
-            } else {
-                showToast(response.data.message || "Failed to remove portrait.", "error");
-            }
-        } catch (err) {
-            console.error("Delete error:", err);
-            showToast("Server refused portrait removal.", "error");
-        } finally {
-            setIsUploading(false);
-        }
-    };
 
     const fetchMemberData = async () => {
         if (!memberId) { navigate('/login'); return; }
@@ -557,80 +483,19 @@ export default function MemberDashboard() {
                     </div>
                 )}
 
-                {/* 6. PROFILE */}
+                {/* 6. PROFILE EDITOR */}
                 {activeTab === 'profile' && (
-                    <div className="animate-fade-in max-w-4xl mx-auto">
-                        <div className="glass-card p-12 text-center relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-32 bg-mdPrimary/10"></div>
-                            <div className="relative z-10">
-                                <div className="group/avatar relative w-40 h-40 rounded-full mx-auto -mt-20 border-8 border-mdSurface shadow-xl overflow-hidden">
-                                    {memberProfile?.profilePictureUrl ? (
-                                        <img 
-                                            src={memberProfile.profilePictureUrl} 
-                                            alt="Profile" 
-                                            className="w-full h-full object-cover cursor-zoom-in hover:scale-110 transition-transform duration-500"
-                                            onClick={() => setLightboxImg(memberProfile.profilePictureUrl)}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-mdPrimary/5 flex items-center justify-center text-6xl font-black text-mdPrimary">
-                                            {memberProfile?.name?.[0] || 'M'}
-                                        </div>
-                                    )}
-                                    
-                                            {/* Camera Overlay */}
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-white">
-                                                <label className="flex flex-col items-center justify-center cursor-pointer p-4 hover:text-mdPrimary transition-colors">
-                                                    <FontAwesomeIcon icon={faCamera} className="text-xl mb-1" />
-                                                    <span className="text-[8px] font-black uppercase tracking-widest">Update</span>
-                                                    <input 
-                                                        type="file" 
-                                                        className="hidden" 
-                                                        accept="image/*" 
-                                                        onChange={handleImageSelect}
-                                                        disabled={isUploading}
-                                                    />
-                                                </label>
-                                                
-                                                {memberProfile?.profilePictureUrl && (
-                                                    <button 
-                                                        onClick={handleDeleteProfilePicture}
-                                                        disabled={isUploading}
-                                                        className="flex flex-col items-center justify-center p-4 hover:text-mdError transition-colors"
-                                                        title="Remove Portrait"
-                                                    >
-                                                        <FontAwesomeIcon icon={faTrash} className="text-xl mb-1" />
-                                                        <span className="text-[8px] font-black uppercase tracking-widest">Remove</span>
-                                                    </button>
-                                                )}
-                                            </div>
-
-                                    {isUploading && (
-                                        <div className="absolute inset-0 bg-mdPrimary/20 backdrop-blur-sm flex items-center justify-center">
-                                            <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        </div>
-                                    )}
-                                </div>
-                                <h2 className="text-4xl font-black text-mdOnSurface mt-8">{memberProfile?.name || 'Member'}</h2>
-                                <p className="text-mdPrimary font-black text-sm uppercase tracking-widest mt-2">{memberProfile?.role || 'Valued Member'}</p>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12 text-left">
-                                    <div className="p-6 bg-mdSurfaceVariant/10 rounded-2xl">
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-mdOutline mb-2">Primary Email</p>
-                                        <p className="font-black text-mdOnSurface">{memberProfile?.email}</p>
-                                    </div>
-                                    <div className="p-6 bg-mdSurfaceVariant/10 rounded-2xl">
-                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-mdOutline mb-2">Member Strength</p>
-                                        <p className="font-black text-mdOnSurface">Active Communitarian</p>
-                                    </div>
-                                </div>
-
-                                <button onClick={() => setActiveTab('password')} className="mt-10 text-sm font-black text-mdPrimary hover:underline uppercase tracking-widest">
-                                    Update Security Credentials
-                                </button>
-                            </div>
-                        </div>
+                    <div className="animate-fade-in shadow-premium-lg rounded-[3rem] overflow-hidden">
+                        <MemberProfile onUpdate={() => fetchMemberData()} />
                     </div>
                 )}
+
+
+                                    
+
+
+
+
 
                 {/* 7. PASSWORD */}
                 {activeTab === 'password' && (
@@ -640,17 +505,6 @@ export default function MemberDashboard() {
                 )}
             </div>
 
-            {/* MODALS */}
-            {showCropper && (
-                <ImageCropperModal 
-                    image={selectedImage}
-                    onCropComplete={handleCropComplete}
-                    onCancel={() => {
-                        setShowCropper(false);
-                        setSelectedImage(null);
-                    }}
-                />
-            )}
             {lightboxImg && (
                 <Lightbox 
                     src={lightboxImg} 

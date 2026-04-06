@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getCurrentMemberProfile, updateMemberProfile } from '../services/api';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCalendarAlt, faPhone, faEnvelope, faInfoCircle, faCheck, faQuoteLeft, faIdCard, faMapMarkerAlt, faPray, faBriefcase, faCrown, faChevronRight, faStar, faUserShield } from '@fortawesome/free-solid-svg-icons';
-import Lightbox from '../components/Lightbox';
 import { useToast } from '../context/ToastContext';
+import { uploadProfilePicture, deleteProfilePicture, getMemberProfile } from '../services/api';
+import ImageCropperModal from '../components/ImageCropperModal';
+import { faCamera, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-export default function MemberProfile() {
+export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp = null }) {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [editing, setEditing] = useState(false);
+    const [editing, setEditing] = useState(autoEdit);
     const { showToast } = useToast();
-    const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-    const [lightboxImg, setLightboxImg] = useState(null);
     const [activeTab, setActiveTab] = useState('identity');
-    const memberId = sessionStorage.getItem('userId');
+    const memberId = memberIdProp || sessionStorage.getItem('userId');
+    const isAdminViewing = !!memberIdProp;
+
+    // Avatar state
+    const [isUploading, setIsUploading] = useState(false);
+    const [showCropper, setShowCropper] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     const [formData, setFormData] = useState({
         phoneNumber: '',
@@ -89,9 +90,9 @@ export default function MemberProfile() {
 
     const fetchProfile = async () => {
         try {
-            const response = await getCurrentMemberProfile();
-            if (response.data.success) {
-                const m = response.data.member || response.data;
+            const response = await getMemberProfile(memberId);
+            const m = response.data?.data || response.data;
+            if (m) {
                 setProfile(m);
                 setFormData({
                     phoneNumber: m.phoneNumber || '',
@@ -171,14 +172,74 @@ export default function MemberProfile() {
         }
     };
 
+    const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setSelectedImage(reader.result);
+                setShowCropper(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = async (croppedFile) => {
+        setShowCropper(false);
+        setIsUploading(true);
+        
+        const formData = new FormData();
+        formData.append('file', croppedFile);
+        formData.append('userId', memberId);
+        formData.append('userType', 'member');
+
+        try {
+            const response = await uploadProfilePicture(formData);
+            if (response.data.success) {
+                showToast("Identity portrait updated.", "success");
+                setProfile(prev => ({ ...prev, profilePictureUrl: response.data.profilePictureUrl }));
+                sessionStorage.setItem('profilePictureUrl', response.data.profilePictureUrl);
+                window.dispatchEvent(new Event('storage'));
+                if (onUpdate) onUpdate();
+            } else {
+                showToast(response.data.message || "Upload failed.", "error");
+            }
+        } catch (err) {
+            showToast("Server error during upload.", "error");
+        } finally {
+            setIsUploading(false);
+            setSelectedImage(null);
+        }
+    };
+
+    const handleDeleteProfilePicture = async () => {
+        if (!window.confirm("Remove your assembly portrait?")) return;
+        setIsUploading(true);
+        try {
+            const response = await deleteProfilePicture(memberId, 'member');
+            if (response.data.success) {
+                showToast("Portrait removed.", "success");
+                setProfile(prev => ({ ...prev, profilePictureUrl: null }));
+                sessionStorage.removeItem('profilePictureUrl');
+                window.dispatchEvent(new Event('storage'));
+                if (onUpdate) onUpdate();
+            }
+        } catch (err) {
+            showToast("Delete error.", "error");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleUpdateProfile = async () => {
         try {
             setIsUpdatingProfile(true);
             const response = await updateMemberProfile(memberId, formData);
             if (response.data.success) {
-                showToast('Assembly records updated!', 'success');
+                showToast(isAdminViewing ? 'Member records updated successfully!' : 'Assembly records updated!', 'success');
                 setEditing(false);
                 fetchProfile();
+                if (onUpdate) onUpdate();
             } else {
                 showToast(response.data.message || 'Failed to update profile', 'error');
             }
@@ -201,7 +262,7 @@ export default function MemberProfile() {
     }
 
     return (
-        <div className="animate-fade-in space-y-6">
+        <div className={`animate-fade-in space-y-6 ${isAdminViewing ? 'p-0 pb-12' : ''}`}>
 
 
             {profile && (
@@ -224,6 +285,40 @@ export default function MemberProfile() {
                                         </div>
                                     )}
 
+                                    {/* Camera Overlay */}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-white">
+                                        <div className="flex flex-col items-center gap-2">
+                                            <label className="flex flex-col items-center justify-center cursor-pointer p-2 hover:text-mdPrimary transition-colors">
+                                                <FontAwesomeIcon icon={faCamera} className="text-xl" />
+                                                <span className="text-[8px] font-black uppercase tracking-widest mt-1">Update</span>
+                                                <input 
+                                                    type="file" 
+                                                    className="hidden" 
+                                                    accept="image/*" 
+                                                    onChange={handleImageSelect}
+                                                    disabled={isUploading}
+                                                />
+                                            </label>
+                                            
+                                            {profile.profilePictureUrl && (
+                                                <button 
+                                                    onClick={handleDeleteProfilePicture}
+                                                    disabled={isUploading}
+                                                    className="flex flex-col items-center justify-center p-2 hover:text-mdError transition-colors"
+                                                    title="Remove Portrait"
+                                                >
+                                                    <FontAwesomeIcon icon={faTrash} className="text-xl" />
+                                                    <span className="text-[8px] font-black uppercase tracking-widest mt-1">Remove</span>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {isUploading && (
+                                        <div className="absolute inset-0 bg-mdPrimary/20 backdrop-blur-sm flex items-center justify-center">
+                                            <FontAwesomeIcon icon={faSpinner} className="text-3xl text-white animate-spin" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -252,6 +347,18 @@ export default function MemberProfile() {
                             </div>
                         </div>
                     </div>
+
+                    {!editing && (
+                        <div className="flex justify-center -mt-8 mb-4">
+                            <button 
+                                onClick={() => setEditing(true)}
+                                className="bg-mdPrimary text-white px-10 py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-premium hover:bg-mdSecondary transition-all flex items-center gap-4 animate-bounce-subtle"
+                            >
+                                <FontAwesomeIcon icon={faIdCard} />
+                                {isAdminViewing ? 'INSPECT & EDIT FULL RECORDS' : 'OPEN ASSEMBLY REGISTRY & COMPLETE RECORDS'}
+                            </button>
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Information Section */}
@@ -646,7 +753,7 @@ export default function MemberProfile() {
                                             disabled={isUpdatingProfile}
                                             className="w-full bg-mdPrimary text-white py-6 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] transform active:scale-95 transition-all shadow-premium hover:bg-mdSecondary"
                                         >
-                                            {isUpdatingProfile ? 'SECURELY SAVING...' : 'UPDATE REGISTRY'}
+                                            {isUpdatingProfile ? 'SECURELY SAVING...' : (isAdminViewing ? 'OVERWRITE MEMBER RECORDS' : 'UPDATE REGISTRY')}
                                         </button>
                                     </div>
                                 ) : (
@@ -731,6 +838,17 @@ export default function MemberProfile() {
                 <Lightbox 
                     src={lightboxImg} 
                     onClose={() => setLightboxImg(null)} 
+                />
+            )}
+
+            {showCropper && (
+                <ImageCropperModal 
+                    image={selectedImage}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => {
+                        setShowCropper(false);
+                        setSelectedImage(null);
+                    }}
                 />
             )}
         </div>
