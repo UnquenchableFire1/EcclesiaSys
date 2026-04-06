@@ -63,14 +63,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Use allowedOrigins or allowedOriginPatterns for production.
-        // For development, we allow the specific frontend URL.
-        configuration.setAllowedOriginPatterns(List.of(
-            "http://localhost:5173", 
-            "http://127.0.0.1:5173",
-            "https://ecclesiasys-94po.onrender.com",
-            "https://ecclesiasys-bequ.onrender.com"
-        ));
+        
+        // Use configured ALLOWED_ORIGINS from environment, fallback to defaults for local development
+        String allowedOrigins = System.getenv("ALLOWED_ORIGINS");
+        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
+            configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        } else {
+            configuration.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173", 
+                "http://127.0.0.1:5173",
+                "https://cop-aydoblo.onrender.com"
+            ));
+        }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
