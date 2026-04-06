@@ -24,11 +24,6 @@ public class EmailService {
     @Value("${brevo.sender-email:admin@ecclesiasys.com}")
     private String brevoSenderEmail;
 
-    @Value("${brevo.api-key:null}")
-    private String brevoApiKey;
-    
-    @Value("${brevo.sender-email:admin@ecclesiasys.com}")
-    private String brevoSenderEmail;
 
     @Value("${app.frontend.url:https://yourbbjdigitalapp.onrender.com}")
     private String frontendUrl;
