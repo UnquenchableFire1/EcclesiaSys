@@ -1,13 +1,19 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
-import { uploadProfilePicture, deleteProfilePicture, getMemberProfile } from '../services/api';
+import { uploadProfilePicture, deleteProfilePicture, getMemberProfile, updateMemberProfile } from '../services/api';
 import ImageCropperModal from '../components/ImageCropperModal';
-import { faCamera, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faTrash, faSpinner, faIdCard, faMapMarkerAlt, faPray, faBriefcase, faCrown, faEnvelope, faCalendarAlt, faStar, faUserShield, faPhone, faQuoteLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp = null }) {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(autoEdit);
+    const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+    const [lightboxImg, setLightboxImg] = useState(null);
+    const [showMandatoryModal, setShowMandatoryModal] = useState(false);
     const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState('identity');
     const memberId = memberIdProp || sessionStorage.getItem('userId');
@@ -92,6 +98,13 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
         try {
             const response = await getMemberProfile(memberId);
             const m = response.data?.data || response.data;
+            
+            // Check for mandatory completion
+            const isCompleted = m?.phoneNumber && m?.gender && m?.title && m?.membershipType;
+            if (!isCompleted) {
+                setShowMandatoryModal(true);
+            }
+
             if (m) {
                 setProfile(m);
                 setFormData({
@@ -238,6 +251,7 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
             if (response.data.success) {
                 showToast(isAdminViewing ? 'Member records updated successfully!' : 'Assembly records updated!', 'success');
                 setEditing(false);
+                setShowMandatoryModal(false);
                 fetchProfile();
                 if (onUpdate) onUpdate();
             } else {
@@ -264,6 +278,30 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
     return (
         <div className={`animate-fade-in space-y-6 ${isAdminViewing ? 'p-0 pb-12' : ''}`}>
 
+            {/* MANDATORY PROFILE POPUP */}
+            {showMandatoryModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-fade-in backdrop-blur-xl bg-mdPrimary/40">
+                    <div className="relative glass-card w-full max-w-lg p-12 text-center rounded-[3rem] shadow-premium-lg bg-white border-none animate-bounce-subtle">
+                        <div className="w-24 h-24 bg-mdSecondary/10 text-mdSecondary rounded-full flex items-center justify-center mx-auto mb-8 text-4xl">
+                            <FontAwesomeIcon icon={faIdCard} />
+                        </div>
+                        <h2 className="text-3xl font-black text-mdOnSurface tracking-tighter mb-4">Official Records Required</h2>
+                        <p className="text-mdOnSurfaceVariant font-bold leading-relaxed opacity-80 mb-10">
+                            Peace be with you. To maintain the digital assembly registry, all members must complete their spiritual and personal records before proceeding.
+                        </p>
+                        <button 
+                            onClick={() => {
+                                setEditing(true);
+                                setShowMandatoryModal(false);
+                            }}
+                            className="w-full bg-mdPrimary text-white py-6 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-premium hover:bg-mdSecondary transition-all flex items-center justify-center gap-3"
+                        >
+                            <FontAwesomeIcon icon={faArrowRight} />
+                            COMPLETE RECORDS NOW
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {profile && (
                 <>
@@ -281,7 +319,7 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-6xl font-black text-mdPrimary bg-mdPrimary/5 italic">
-                                            {profile.firstName.charAt(0)}
+                                            {profile.firstName?.charAt(0)}
                                         </div>
                                     )}
 
@@ -342,7 +380,7 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
                                 </div>
                                 <div className="glass-card px-6 py-4 border-none flex items-center gap-3 bg-mdSecondary/10 rounded-2xl">
                                     <FontAwesomeIcon icon={faCalendarAlt} className="text-mdSecondary" />
-                                    <span className="text-xs font-black text-mdOnSurfaceVariant uppercase tracking-tighter">EST. {new Date(profile.joinedDate).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span>
+                                    <span className="text-xs font-black text-mdOnSurfaceVariant uppercase tracking-tighter">EST. {new Date(profile.joinedDate || Date.now()).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span>
                                 </div>
                             </div>
                         </div>
@@ -812,8 +850,6 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
 
                         {/* Sidebar Sections */}
                         <div className="space-y-8">
-
-                            
                             <div className="glass-card p-10 bg-mdPrimary text-white border-none rounded-[3rem] shadow-premium group overflow-hidden relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-6 text-white/60">Community Status</h4>
@@ -832,7 +868,6 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
                     </div>
                 </>
             )}
-
 
             {lightboxImg && (
                 <Lightbox 

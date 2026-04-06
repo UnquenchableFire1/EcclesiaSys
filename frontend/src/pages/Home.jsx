@@ -85,11 +85,14 @@ export default function Home() {
               <div className="image-overlay-dark"></div>
               <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
                 <div className="text-3xl mb-6 bg-white text-mdPrimary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium">
-                  <FontAwesomeIcon icon={faMapMarkerAlt} />
+                    <FontAwesomeIcon icon={faMapMarkerAlt} />
                 </div>
-                <h3 className="text-3xl font-black mb-2">Visit Us</h3>
-                <p className="text-mdSecondary font-black text-xl mb-4">UMaT SRID</p>
-                <p className="text-white/80 leading-relaxed font-medium line-clamp-2">Essikado, Sekondi Takoradi.</p>
+                <div className="flex flex-col items-start text-left gap-4">
+                    <h4 className="text-xl font-bold">Visit Us</h4>
+                    <div className="flex flex-col gap-2 opacity-80 font-medium">
+                        <p>Ayikai Doblo, Amasaman.</p>
+                    </div>
+                </div>
               </div>
             </div>
         </div>

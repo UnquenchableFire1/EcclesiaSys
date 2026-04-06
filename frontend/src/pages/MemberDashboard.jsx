@@ -48,6 +48,7 @@ export default function MemberDashboard({ defaultTab = 'home' }) {
     const [memberSearchQuery, setMemberSearchQuery] = useState('');
     const [myPrayerRequests, setMyPrayerRequests] = useState([]);
     const [bannerDismissed, setBannerDismissed] = useState(() => sessionStorage.getItem('profileBannerDismissed') === 'true');
+    const [showMandatoryModal, setShowMandatoryModal] = useState(false);
 
     // -- Handlers --
     const setActiveTab = (tab) => {
@@ -76,6 +77,13 @@ export default function MemberDashboard({ defaultTab = 'home' }) {
             ]);
             setMemberProfile(profileRes.data?.data || profileRes.data || {});
             setMembers(membersRes.data?.data || membersRes.data || []);
+
+            // Check for profile completion
+            const profile = profileRes.data?.data || profileRes.data || {};
+            const isCompleted = profile.phoneNumber && profile.gender && profile.title && profile.membershipType;
+            if (!isCompleted) {
+                setShowMandatoryModal(true);
+            }
 
             // Fetch personal prayer requests
             const email = sessionStorage.getItem('userEmail');
@@ -486,7 +494,32 @@ export default function MemberDashboard({ defaultTab = 'home' }) {
                 {/* 6. PROFILE EDITOR */}
                 {activeTab === 'profile' && (
                     <div className="animate-fade-in shadow-premium-lg rounded-[3rem] overflow-hidden">
-                        <MemberProfile onUpdate={() => fetchMemberData()} />
+                        <MemberProfile onUpdate={() => { fetchMemberData(); setShowMandatoryModal(false); }} autoEdit={showMandatoryModal} />
+                    </div>
+                )}
+
+
+                {/* MANDATORY PROFILE POPUP */}
+                {showMandatoryModal && activeTab !== 'profile' && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-fade-in backdrop-blur-xl bg-mdPrimary/40">
+                        <div className="relative glass-card w-full max-w-lg p-12 text-center rounded-[3rem] shadow-premium-lg bg-white border-none animate-bounce-subtle">
+                            <div className="w-24 h-24 bg-mdSecondary/10 text-mdSecondary rounded-full flex items-center justify-center mx-auto mb-8 text-4xl">
+                                <FontAwesomeIcon icon={faIdCard} />
+                            </div>
+                            <h2 className="text-3xl font-black text-mdOnSurface tracking-tighter mb-4">Official Records Required</h2>
+                            <p className="text-mdOnSurfaceVariant font-bold leading-relaxed opacity-80 mb-10">
+                                Peace be with you. To maintain the digital assembly registry, all members must complete their spiritual and personal records before proceeding.
+                            </p>
+                            <button 
+                                onClick={() => {
+                                    setActiveTab('profile');
+                                }}
+                                className="w-full bg-mdPrimary text-white py-6 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-premium hover:bg-mdSecondary transition-all flex items-center justify-center gap-3"
+                            >
+                                <FontAwesomeIcon icon={faArrowRight} />
+                                COMPLETE RECORDS NOW
+                            </button>
+                        </div>
                     </div>
                 )}
 
