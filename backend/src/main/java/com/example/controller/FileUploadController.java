@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.dao.MemberDAO;
 import com.example.model.Member;
 import com.example.service.CloudinaryFileUploadService;
+import com.example.service.B2FileUploadService;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -208,14 +209,14 @@ public class FileUploadController {
             // Upload to B2
             String fileUrl = null;
             try {
-                System.out.println("Uploading to Cloudinary...");
-                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
-                System.out.println("Cloudinary upload successful: " + fileUrl);
+                System.out.println("Uploading to Backblaze B2...");
+                fileUrl = B2FileUploadService.uploadFile(tempFile);
+                System.out.println("B2 upload successful: " + fileUrl);
             } catch (Exception uploadError) {
-                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
+                System.err.println("B2 upload failed: " + uploadError.getMessage());
                 uploadError.printStackTrace();
                 response.put("success", false);
-                response.put("message", "File upload to storage failed: " + uploadError.getMessage());
+                response.put("message", "File upload to Backblaze storage failed: " + uploadError.getMessage());
                 return response;
             }
 
@@ -280,16 +281,16 @@ public class FileUploadController {
             // Upload to B2
             String fileUrl = null;
             try {
-                System.out.println("Uploading document to Cloudinary...");
-                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
+                System.out.println("Uploading document to Backblaze B2...");
+                fileUrl = B2FileUploadService.uploadFile(tempFile);
                 response.put("success", true);
                 response.put("message", "Document uploaded successfully");
                 response.put("fileUrl", fileUrl);
             } catch (Exception uploadError) {
-                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
+                System.err.println("B2 upload failed: " + uploadError.getMessage());
                 uploadError.printStackTrace();
                 response.put("success", false);
-                response.put("message", "File upload to storage failed: " + uploadError.getMessage());
+                response.put("message", "File upload to Backblaze storage failed: " + uploadError.getMessage());
                 return response;
             }
 
@@ -343,14 +344,14 @@ public class FileUploadController {
             // Upload to B2
             String fileUrl = null;
             try {
-                System.out.println("Uploading announcement to Cloudinary...");
-                fileUrl = CloudinaryFileUploadService.uploadFile(tempFile);
-                System.out.println("Cloudinary upload successful: " + fileUrl);
+                System.out.println("Uploading announcement to Backblaze B2...");
+                fileUrl = B2FileUploadService.uploadFile(tempFile);
+                System.out.println("B2 content upload successful: " + fileUrl);
             } catch (Exception uploadError) {
-                System.err.println("Cloudinary upload failed: " + uploadError.getMessage());
+                System.err.println("B2 upload failed: " + uploadError.getMessage());
                 uploadError.printStackTrace();
                 response.put("success", false);
-                response.put("message", "File upload to storage failed: " + uploadError.getMessage());
+                response.put("message", "File upload to Backblaze storage failed: " + uploadError.getMessage());
                 return response;
             }
 
@@ -418,8 +419,9 @@ public class FileUploadController {
 
             String mediaUrl;
             try {
-                mediaUrl = CloudinaryFileUploadService.uploadFile(tempFile);
-                System.out.println("Gallery media uploaded: " + mediaUrl);
+                System.out.println("Uploading gallery media to Backblaze B2...");
+                mediaUrl = B2FileUploadService.uploadFile(tempFile);
+                System.out.println("Gallery media uploaded to B2: " + mediaUrl);
             } catch (Exception uploadError) {
                 System.err.println("Gallery upload failed: " + uploadError.getMessage());
                 response.put("success", false);
