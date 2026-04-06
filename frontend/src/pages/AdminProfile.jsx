@@ -258,7 +258,7 @@ export default function AdminProfile() {
                                 </div>
                                 <div className="glass-card px-6 py-3 border-none flex items-center gap-3">
                                     <FontAwesomeIcon icon={faCalendarAlt} className="text-mdPrimary/60" />
-                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">COP Ayikai Doblo Assembly Access</span>
+                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">COP Ayikai Doblo Access</span>
                                 </div>
                             </div>
                         </div>

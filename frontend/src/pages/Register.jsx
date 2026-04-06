@@ -74,11 +74,21 @@ export default function Register() {
             setIsSubmitting(true);
             const response = await register(formData);
             if (response.data?.success) {
-                // Email verification is disabled, navigate directly to login
+                const { token, userId, userType, name, branchId } = response.data;
+                
+                // Store auth details for automatic login
+                if (token) {
+                    sessionStorage.setItem('authToken', token);
+                    sessionStorage.setItem('userId', userId);
+                    sessionStorage.setItem('userType', userType);
+                    sessionStorage.setItem('userName', name);
+                    if (branchId) sessionStorage.setItem('branchId', branchId);
+                }
+
                 setAlertDialog({
                     title: 'Welcome to Fellowship',
-                    message: `Your account has been created successfully! You can now sign in to your digital assembly.`,
-                    onConfirm: () => navigate('/login')
+                    message: `Your account has been created successfully! Welcome to your digital assembly, ${name}.`,
+                    onConfirm: () => navigate('/member-dashboard')
                 });
             } else {
                 setError(response.data?.message || 'Registration failed');

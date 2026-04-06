@@ -52,6 +52,7 @@ export default function MemberDashboard() {
     const [members, setMembers] = useState([]);
     const [memberSearchQuery, setMemberSearchQuery] = useState('');
     const [myPrayerRequests, setMyPrayerRequests] = useState([]);
+    const [bannerDismissed, setBannerDismissed] = useState(() => sessionStorage.getItem('profileBannerDismissed') === 'true');
 
     // -- Handlers --
     const setActiveTab = (tab) => {
@@ -172,6 +173,29 @@ export default function MemberDashboard() {
         fetchMemberData();
     }, [memberId]);
 
+    // -- Profile Completion Logic --
+    const getProfileCompletion = (p) => {
+        if (!p) return { percent: 0, missing: [] };
+        const checks = [
+            { key: 'phoneNumber', label: 'Phone Number' },
+            { key: 'bio', label: 'Spiritual Bio' },
+            { key: 'hometown', label: 'Hometown' },
+            { key: 'occupation', label: 'Occupation' },
+            { key: 'dateOfBirth', label: 'Date of Birth' },
+            { key: 'profilePictureUrl', label: 'Profile Portrait' },
+            { key: 'membershipType', label: 'Membership Type' },
+            { key: 'maritalStatus', label: 'Marital Status' },
+        ];
+        const filled = checks.filter(c => p[c.key] && p[c.key].toString().trim() !== '');
+        const missing = checks.filter(c => !p[c.key] || p[c.key].toString().trim() === '').map(c => c.label);
+        return { percent: Math.round((filled.length / checks.length) * 100), missing };
+    };
+
+    const handleDismissBanner = () => {
+        setBannerDismissed(true);
+        sessionStorage.setItem('profileBannerDismissed', 'true');
+    };
+
     // -- Sub-Components --
     const DiscoveryCard = ({ title, desc, icon, tab, color, onClick }) => (
         <button 
@@ -197,7 +221,7 @@ export default function MemberDashboard() {
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
                     <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-br from-mdOnSurface to-mdOnSurfaceVariant/60">
-                        COP Ayikai Doblo Assembly
+                        COP Ayikai Doblo
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
@@ -212,6 +236,66 @@ export default function MemberDashboard() {
                 {/* 1. HOME / OVERVIEW */}
                 {activeTab === 'home' && (
                     <div className="space-y-12">
+
+                        {/* Profile Completion Banner */}
+                        {!bannerDismissed && memberProfile && (() => {
+                            const { percent, missing } = getProfileCompletion(memberProfile);
+                            if (percent >= 100) return null;
+                            return (
+                                <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-mdPrimary via-mdPrimary/90 to-indigo-700 p-8 md:p-10 shadow-premium animate-slide-up">
+                                    {/* Decorative circles */}
+                                    <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/5 rounded-full" />
+                                    <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-white/5 rounded-full" />
+
+                                    <button
+                                        onClick={handleDismissBanner}
+                                        className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs transition-all"
+                                        aria-label="Dismiss"
+                                    >✕</button>
+
+                                    <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-8">
+                                        <div className="flex-1">
+                                            <span className="inline-block px-4 py-1.5 rounded-full bg-white/15 text-white text-[9px] font-black uppercase tracking-[0.3em] mb-4 border border-white/10">
+                                                Registry Incomplete
+                                            </span>
+                                            <h3 className="text-2xl md:text-3xl font-black text-white tracking-tighter mb-2">
+                                                Complete Your Fellowship Record
+                                            </h3>
+                                            <p className="text-white/70 text-sm font-medium mb-6 max-w-lg">
+                                                Your assembly record is <strong className="text-white">{percent}% complete</strong>. Missing: {missing.slice(0, 3).join(', ')}{missing.length > 3 ? ` +${missing.length - 3} more` : ''}.
+                                            </p>
+
+                                            {/* Progress Bar */}
+                                            <div className="mb-6">
+                                                <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-white/50 mb-2">
+                                                    <span>Completion</span><span>{percent}%</span>
+                                                </div>
+                                                <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-white rounded-full transition-all duration-1000"
+                                                        style={{ width: `${percent}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={() => navigate('/profile')}
+                                                className="flex items-center gap-3 px-8 py-4 bg-white text-mdPrimary rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-premium hover:shadow-lifted hover:-translate-y-0.5 transition-all active:scale-95"
+                                            >
+                                                Complete Now
+                                                <span className="text-[10px]">→</span>
+                                            </button>
+                                        </div>
+
+                                        {/* Icon display */}
+                                        <div className="hidden md:flex w-28 h-28 rounded-[2rem] bg-white/10 border border-white/10 items-center justify-center text-5xl text-white/30 font-black italic shrink-0">
+                                            {(memberProfile?.firstName || '?').charAt(0)}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
                         {/* Hero Section */}
                         <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
                             <img src="/assets/images/church/church_8.jpg" alt="Assembly" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
@@ -245,26 +329,26 @@ export default function MemberDashboard() {
                             {/* Quick Discovery */}
                             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <DiscoveryCard 
-                                    title="Upcoming Events" 
-                                    desc="Announcements and upcoming events from our assembly community." 
+                                    title="Upcoming Insights" 
+                                    desc="Announcements and upcoming gatherings from our assembly community." 
                                     icon={faBullhorn}
                                     tab="updates"
                                     color="text-amber-500"
                                     onClick={() => { setActiveTab('updates'); setUpdatesSubTab('announcements'); }}
                                 />
                                 <DiscoveryCard 
-                                    title="Gallery" 
-                                    desc="Moments of faith and fellowship captured by our media team." 
+                                    title="Gallery & The Word" 
+                                    desc="Explore moments of faith, sermons, videos, and music from our assembly." 
                                     icon={faImages}
                                     tab="gallery"
                                     color="text-pink-500"
                                 />
                                 <DiscoveryCard 
-                                    title="Word Room" 
-                                    desc="Access our collection of sermons and spiritual resources anywhere." 
-                                    icon={faMicrophone}
-                                    tab="sermons"
-                                    color="text-indigo-500"
+                                    title="Member Directory" 
+                                    desc="Connect with your brothers and sisters in the assembly." 
+                                    icon={faUsers} 
+                                    tab="members" 
+                                    color="text-mdPrimary" 
                                 />
                                 <DiscoveryCard 
                                     title="Prayer Wall" 
@@ -274,31 +358,24 @@ export default function MemberDashboard() {
                                     onClick={() => navigate('/prayer-request')}
                                     color="text-emerald-500"
                                 />
-                                <DiscoveryCard 
-                                    title="Member Directory" 
-                                    desc="Connect with your brothers and sisters in the assembly." 
-                                    icon={faUsers} 
-                                    tab="members" 
-                                    color="text-mdPrimary" 
-                                />
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* 2. UPDATES (Announcements + Events) */}
+                {/* 2. INSIGHTS (Announcements + Events) */}
                 {activeTab === 'updates' && (
                     <div className="space-y-8 animate-fade-in">
                         <div>
-                            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Upcoming Events</h1>
-                            <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Events &amp; Announcements</p>
+                            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Insights & Gatherings</h1>
+                            <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Updates & Announcements</p>
                         </div>
 
                         {/* Sub-tabs */}
                         <div className="flex p-1.5 bg-mdSurfaceVariant/20 rounded-[2rem] w-max border border-mdOutline/5 shadow-inner">
                             {[
                                 { id: 'announcements', label: 'Announcements', icon: faBullhorn },
-                                { id: 'events', label: 'Events', icon: faCalendarAlt },
+                                { id: 'events', label: 'Gatherings', icon: faCalendarAlt },
                             ].map(tab => (
                                 <button
                                     key={tab.id}
@@ -328,14 +405,7 @@ export default function MemberDashboard() {
                     </div>
                 )}
 
-                {/* 3. SERMONS */}
-                {activeTab === 'sermons' && (
-                    <div className="space-y-10 animate-fade-in">
-                        <Sermons embedded={true} branchId={memberProfile?.branchId} />
-                    </div>
-                )}
-
-                {/* 4. GALLERY */}
+                {/* 3. GALLERY (Unified Media) */}
                 {activeTab === 'gallery' && (
                     <div className="space-y-10 animate-fade-in">
                         <Gallery
@@ -352,7 +422,7 @@ export default function MemberDashboard() {
                     <div className="space-y-10 animate-fade-in">
                         <div className="max-w-4xl mx-auto text-center mb-12">
                             <h1 className="text-5xl font-black text-mdOnSurface tracking-tighter mb-4">Member Directory</h1>
-                            <p className="text-lg text-mdOnSurfaceVariant font-medium">Meet the family of faith at COP Ayikai Doblo Assembly.</p>
+                            <p className="text-lg text-mdOnSurfaceVariant font-medium">Meet the family of faith at COP Ayikai Doblo.</p>
                             
                             <div className="mt-8 relative max-w-xl mx-auto">
                                 <FontAwesomeIcon icon={faSearch} className="absolute left-6 top-1/2 -translate-y-1/2 text-mdPrimary opacity-50" />

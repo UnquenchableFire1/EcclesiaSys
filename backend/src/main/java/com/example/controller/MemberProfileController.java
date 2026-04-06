@@ -68,6 +68,7 @@ public class MemberProfileController {
             
             if (member != null) {
                 // Update allowed fields
+                if (updates.containsKey("gender")) member.setGender((String) updates.get("gender"));
                 if (updates.containsKey("phoneNumber")) member.setPhoneNumber((String) updates.get("phoneNumber"));
                 if (updates.containsKey("bio")) member.setBio((String) updates.get("bio"));
                 if (updates.containsKey("isProfilePublic")) member.setIsProfilePublic((Boolean) updates.get("isProfilePublic"));

@@ -90,7 +90,7 @@ export default function AuthNavbar({
               <div className="fixed inset-0 z-[-1]" onClick={() => setShowProfileMenu(false)}></div>
               <div className="absolute top-16 right-0 w-64 bg-white rounded-[2.5rem] shadow-premium border border-mdOutline/10 p-5 animate-scale-in origin-top-right">
                 <div className="px-4 py-2 mb-4 border-b border-mdOutline/5 pb-4">
-                    <p className="text-[9px] font-black text-mdOnSurfaceVariant uppercase tracking-[0.2em] mb-1">Authenticed Account</p>
+                    <p className="text-[9px] font-black text-mdOnSurfaceVariant uppercase tracking-[0.2em] mb-1">Authenticated Account</p>
                     <p className="text-sm font-black text-mdPrimary truncate uppercase tracking-tight">{userName}</p>
                 </div>
 

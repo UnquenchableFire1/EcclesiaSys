@@ -92,20 +92,18 @@ export default function Layout({ children }) {
 
     const adminTabs = [
         { id: 'home', label: 'Overview', icon: faHome, path: '/admin' },
-        { id: 'members', label: 'Members', icon: faUsers },
-        { id: 'announcements', label: 'News', icon: faBullhorn },
-        { id: 'events', label: 'Events', icon: faCalendarAlt },
-        { id: 'sermons', label: 'Sermons', icon: faMicrophone },
+        { id: 'members', label: 'Fellowship', icon: faUsers },
+        { id: 'updates', label: 'Insights', icon: faBullhorn },
+        { id: 'gallery', label: 'Gallery', icon: faImages },
         { id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands },
         ...(isSuperAdmin && !isInspecting ? [{ id: 'admins', label: 'Commanders', icon: faUserShield }] : []),
     ];
 
     const memberTabs = [
         { id: 'home', label: 'Overview', icon: faHome, path: '/member-dashboard' },
-        { id: 'announcements', label: 'Announcements', icon: faBullhorn },
-        { id: 'members', label: 'Members', icon: faUsers },
-        { id: 'events', label: 'Events', icon: faCalendarAlt },
-        { id: 'sermons', label: 'Sermons', icon: faMicrophone },
+        { id: 'updates', label: 'Insights', icon: faBullhorn },
+        { id: 'members', label: 'Fellowship', icon: faUsers },
+        { id: 'gallery', label: 'Gallery', icon: faImages },
         { id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands },
     ];
 
@@ -139,21 +137,18 @@ export default function Layout({ children }) {
             // Navigate based on type
             if (notif.type === 'member' || notif.type === 'members') {
                 handleTabChange('members');
-            } else if (notif.type === 'event' || notif.type === 'events') {
-                handleTabChange('events');
+            } else if (notif.type === 'event' || notif.type === 'events' || notif.type === 'announcement' || notif.type === 'announcements') {
+                handleTabChange('updates');
             } else if (notif.type === 'sermon' || notif.type === 'sermons') {
-                handleTabChange('sermons');
-            } else if (notif.type === 'announcement' || notif.type === 'announcements') {
-                handleTabChange('announcements');
+                handleTabChange('gallery');
             } else if (notif.type === 'prayer' || notif.type === 'prayer-requests') {
                 handleTabChange('prayer-requests');
             } else {
                 // Fallback to substring matching if type is generic or missing
                 const content = (notif.title + ' ' + notif.message).toLowerCase();
                 if (content.includes('member')) handleTabChange('members');
-                else if (content.includes('event')) handleTabChange('events');
-                else if (content.includes('sermon')) handleTabChange('sermons');
-                else if (content.includes('announcement')) handleTabChange('announcements');
+                else if (content.includes('event') || content.includes('announcement')) handleTabChange('updates');
+                else if (content.includes('sermon')) handleTabChange('gallery');
                 else if (content.includes('prayer')) handleTabChange('prayer-requests');
             }
             setShowNotifications(false);
@@ -282,7 +277,7 @@ export default function Layout({ children }) {
                             {!isSuperAdmin && (
                                 <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
                                     <div className="flex flex-col items-center md:items-start text-center md:text-left">
-                                        <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">COP Ayikai Doblo Assembly Support</h3>
+                                        <h3 className="text-2xl font-black text-mdPrimary tracking-tighter mb-2 italic">COP Ayikai Doblo Support</h3>
                                         <p className="text-sm font-medium text-mdOnSurfaceVariant max-w-sm opacity-70 leading-relaxed">
                                             Need instant assistance or spiritual guidance? <br className="hidden md:block"/> Our support team is available 24/7 on WhatsApp.
                                         </p>
@@ -299,7 +294,7 @@ export default function Layout({ children }) {
                                 </div>
                             )}
                             <div className={`mt-12 pt-8 border-t border-mdOutline/5 text-center text-[10px] font-black uppercase tracking-[0.3em] text-mdOnSurfaceVariant/40 ${isSuperAdmin ? 'mt-0 border-t-0' : ''}`}>
-                                © 2026 COP Ayikai Doblo Assembly. All Rights Reserved.
+                                © 2026 COP Ayikai Doblo. All Rights Reserved.
                             </div>
                         </footer>
                     )}

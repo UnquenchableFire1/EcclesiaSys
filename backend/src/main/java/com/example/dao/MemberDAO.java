@@ -135,7 +135,7 @@ public class MemberDAO {
     public boolean addMember(Member member) {
         String query = "INSERT INTO members (first_name, last_name, phone_number, email, password, status, is_profile_public, profile_picture_url, gender, bio, branch_id, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, member.getFirstName());
             stmt.setString(2, member.getLastName());
             stmt.setString(3, member.getPhoneNumber());
@@ -149,7 +149,17 @@ public class MemberDAO {
             if (member.getBranchId() != null) stmt.setInt(11, member.getBranchId()); else stmt.setNull(11, Types.INTEGER);
             stmt.setBoolean(12, true); // is_verified (set to true by default)
             
-            return stmt.executeUpdate() > 0;
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) return false;
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    member.setId(generatedKeys.getInt(1));
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

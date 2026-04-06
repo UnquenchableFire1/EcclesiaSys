@@ -16,6 +16,9 @@ public class RegisterController {
     @Autowired
     private EmailTemplateService emailTemplateService;
 
+    @Autowired
+    private com.example.security.JwtUtil jwtUtil;
+
     @PostMapping("/register")
     public Map<String, Object> register(@RequestBody Map<String, String> request) {
         Map<String, Object> response = new HashMap<>();
@@ -67,9 +70,17 @@ public class RegisterController {
                         System.err.println("Failed to send welcome email or admin notification: " + notifEx.getMessage());
                     }
                     
+                    // Generate JWT token for automatic login
+                    String token = jwtUtil.generateToken(member.getEmail(), member.getId(), "member", member.getBranchId(), "MEMBER");
+                    
                     response.put("success", true);
                     response.put("message", "Registration successful! Welcome to the assembly.");
-                    response.put("email", email);
+                    response.put("token", token);
+                    response.put("userId", member.getId());
+                    response.put("userType", "member");
+                    response.put("name", member.getName());
+                    response.put("email", member.getEmail());
+                    response.put("branchId", member.getBranchId());
                     response.put("isVerified", true);
                 } else {
                     response.put("success", false);

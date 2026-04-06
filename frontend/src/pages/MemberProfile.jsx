@@ -19,6 +19,8 @@ export default function MemberProfile() {
 
     const [formData, setFormData] = useState({
         phoneNumber: '',
+        email: '',
+        gender: '',
         bio: '',
         title: '',
         dateOfBirth: '',
@@ -93,6 +95,8 @@ export default function MemberProfile() {
                 setProfile(m);
                 setFormData({
                     phoneNumber: m.phoneNumber || '',
+                    email: m.email || '',
+                    gender: m.gender || '',
                     bio: m.bio || '',
                     title: m.title || '',
                     dateOfBirth: m.dateOfBirth || '',
@@ -299,6 +303,10 @@ export default function MemberProfile() {
                                                         </select>
                                                     </div>
                                                     <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Email Address <span className="text-[8px] text-mdOnSurfaceVariant/50 font-medium normal-case tracking-normal">(read-only)</span></label>
+                                                        <input type="email" value={formData.email} readOnly className="input-premium opacity-60 cursor-not-allowed" placeholder="Your email" />
+                                                    </div>
+                                                    <div className="space-y-4">
                                                         <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Date of Birth</label>
                                                         <input type="date" value={formData.dateOfBirth} onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})} className="input-premium" />
                                                     </div>
@@ -468,6 +476,10 @@ export default function MemberProfile() {
                                                     <div className="space-y-4">
                                                         <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Occupation <span className="text-mdError">*</span></label>
                                                         <input type="text" value={formData.occupation} onChange={(e) => setFormData({...formData, occupation: e.target.value})} className="input-premium border-mdPrimary/20" placeholder="Required" />
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Hum Status <span className="text-mdOnSurfaceVariant/50 font-medium normal-case text-[8px] tracking-normal">(optional)</span></label>
+                                                        <input type="text" value={formData.humStatus} onChange={(e) => setFormData({...formData, humStatus: e.target.value})} className="input-premium" placeholder="e.g. Active" />
                                                     </div>
                                                     <div className="space-y-4">
                                                         <label className="text-[9px] font-black uppercase tracking-widest text-mdPrimary ml-2">Church Position</label>

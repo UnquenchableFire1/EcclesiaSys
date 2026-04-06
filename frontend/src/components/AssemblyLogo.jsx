@@ -58,16 +58,28 @@ export default function AssemblyLogo({
                         className="opacity-20"
                     />
 
-                    {/* Sacred Geometric Dove - Symbol of Peace & Holy Spirit */}
+                    {/* Sacred Stylized Dove - Symbol of the Holy Spirit */}
                     <path
-                        d="M50 32 
-                           C65 32, 82 42, 82 58 
-                           C82 72, 65 78, 50 88 
-                           C35 78, 18 72, 18 58 
-                           C18 42, 35 32, 50 32 Z"
+                        d="M50 30
+                           C53 30, 55 32, 55 35
+                           C55 38, 53 40, 50 40
+                           C65 40, 85 50, 85 65
+                           C85 80, 65 82, 50 92
+                           C35 82, 15 80, 15 65
+                           C15 50, 35 40, 50 40
+                           Z"
                         fill="url(#assemblyGold)"
                         filter="url(#logoGlow)"
                         className="opacity-90"
+                    />
+                    
+                    {/* Head/Beak Detail */}
+                    <path
+                        d="M50 30 L52 28 L54 30"
+                        stroke={gold}
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        className="opacity-80"
                     />
                     
                     {/* Divinity Wings Detail */}

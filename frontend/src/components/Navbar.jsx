@@ -197,7 +197,7 @@ export default function Navbar({ isMobile }) {
             {userType && (
               <>
                 <Link to="/announcements" className={`px-4 py-3 rounded-2xl transition-all duration-200 ${isActive('/announcements')}`} onClick={() => setIsMobileMenuOpen(false)}>
-                  Upcoming Events
+                  Insights
                 </Link>
                 <Link to={userType === 'admin' ? '/admin' : '/member'} className={`px-4 py-3 rounded-2xl transition-all duration-200 ${isActive('/gallery')}`} onClick={() => { sessionStorage.setItem('adminActiveTab', 'gallery'); setIsMobileMenuOpen(false); }}>
                   Gallery

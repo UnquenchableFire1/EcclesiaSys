@@ -15,13 +15,14 @@ import { useToast } from '../context/ToastContext';
  * canUpload: true for media team and branch admins
  */
 export default function Gallery({ canUpload = false, branchId = null, currentUserId, currentUserName }) {
-    const [viewMode, setViewMode] = useState('all'); // all | photos | sermons | albums
+    const [viewMode, setViewMode] = useState('all'); // all | photos | videos | sermons | music | albums
     const [activeFolder, setActiveFolder] = useState(null);
     const [galleryItems, setGalleryItems] = useState([]);
     const [folders, setFolders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [lightboxSrc, setLightboxSrc] = useState(null);
     const [videoModal, setVideoModal] = useState(null);
+    const [audioModal, setAudioModal] = useState(null);
     const [showUploadForm, setShowUploadForm] = useState(false);
     const [uploadForm, setUploadForm] = useState({
         title: '', caption: '', mediaType: 'PHOTO', isSermon: false, folderName: '',
@@ -53,11 +54,13 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
     // ---- Filtering ----
     const visibleItems = galleryItems.filter(item => {
         const matchFolder = activeFolder ? item.folderName === activeFolder : true;
-        const matchMode = viewMode === 'photos'
-            ? item.mediaType === 'PHOTO'
-            : viewMode === 'sermons'
-            ? item.isSermon === true
-            : true;
+        
+        let matchMode = true;
+        if (viewMode === 'photos') matchMode = item.mediaType === 'PHOTO';
+        else if (viewMode === 'videos') matchMode = item.mediaType === 'VIDEO';
+        else if (viewMode === 'sermons') matchMode = (item.mediaType === 'AUDIO' || item.mediaType === 'VIDEO') && item.isSermon;
+        else if (viewMode === 'music') matchMode = item.mediaType === 'AUDIO' && !item.isSermon;
+        
         const matchSearch = !searchQuery ||
             (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             (item.caption || '').toLowerCase().includes(searchQuery.toLowerCase());
@@ -155,10 +158,11 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
         const isPhoto = item.mediaType === 'PHOTO';
         const isVideo = item.mediaType === 'VIDEO';
         const isAudio = item.mediaType === 'AUDIO';
+        const isMusic = isAudio && !item.isSermon;
 
         return (
             <div className="relative group rounded-3xl overflow-hidden shadow-premium bg-mdSurface border border-mdOutline/5 break-inside-avoid">
-                {/* Thumbnail */}
+                {/* Thumbnail / Preview */}
                 {isPhoto && (
                     <div className="cursor-zoom-in" onClick={() => setLightboxSrc(item.mediaUrl)}>
                         <img src={item.mediaUrl} alt={item.title} className="w-full object-cover transition-transform duration-[2s] group-hover:scale-105" loading="lazy" />
@@ -166,35 +170,50 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
                 )}
                 {isVideo && (
                     <div
-                        className="relative h-48 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center cursor-pointer group/play"
+                        className="relative h-48 bg-gradient-to-br from-slate-900 to-indigo-950 flex items-center justify-center cursor-pointer group/play"
                         onClick={() => setVideoModal(item)}
                     >
-                        <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white text-2xl group-hover/play:scale-110 group-hover/play:bg-white/20 transition-all">
+                        <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white text-2xl group-hover/play:scale-110 group-hover/play:bg-white/20 transition-all shadow-xl z-10 border border-white/5">
                             <FontAwesomeIcon icon={faPlay} />
                         </div>
                         {item.isSermon && (
-                            <span className="absolute top-3 left-3 px-2 py-1 bg-mdPrimary text-white text-[9px] font-black uppercase tracking-widest rounded-full flex items-center gap-1">
+                            <span className="absolute top-3 left-3 px-2 py-1 bg-mdPrimary text-white text-[9px] font-black uppercase tracking-widest rounded-full flex items-center gap-1 z-10">
                                 <FontAwesomeIcon icon={faBookOpen} /> Sermon
                             </span>
                         )}
+                        {!item.isSermon && (
+                            <span className="absolute top-3 left-3 px-2 py-1 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full flex items-center gap-1 z-10">
+                                <FontAwesomeIcon icon={faFilm} /> Video
+                            </span>
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                            <FontAwesomeIcon icon={faVideo} className="text-7xl text-white/10" />
+                        </div>
                     </div>
                 )}
                 {isAudio && (
-                    <div className="p-5 bg-gradient-to-br from-indigo-900/40 to-purple-900/40">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl">
-                                <FontAwesomeIcon icon={faHeadphones} />
+                    <div 
+                        className={`p-6 cursor-pointer group/audio relative overflow-hidden ${isMusic ? 'bg-gradient-to-br from-pink-900/60 to-rose-950/60' : 'bg-gradient-to-br from-indigo-900/60 to-blue-950/60'}`}
+                        onClick={() => setAudioModal(item)}
+                    >
+                        <div className="flex items-center gap-4 relative z-10">
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg transition-transform group-hover/audio:scale-110 ${isMusic ? 'bg-pink-500/20 text-pink-300' : 'bg-indigo-500/20 text-indigo-300'}`}>
+                                <FontAwesomeIcon icon={isMusic ? faHeadphones : faMicrophone} />
                             </div>
-                            {item.isSermon && (
-                                <span className="px-2 py-1 bg-mdPrimary text-white text-[9px] font-black uppercase tracking-widest rounded-full flex items-center gap-1">
-                                    <FontAwesomeIcon icon={faBookOpen} /> Sermon
-                                </span>
-                            )}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-full ${isMusic ? 'bg-pink-500 text-white' : 'bg-mdPrimary text-white'}`}>
+                                        {isMusic ? 'Music' : 'Sermon'}
+                                    </span>
+                                </div>
+                                <p className="font-black text-white text-sm truncate">{item.title}</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover/audio:opacity-100 transition-all">
+                                <FontAwesomeIcon icon={faPlay} className="text-xs" />
+                            </div>
                         </div>
-                        <audio controls className="w-full h-8 rounded-xl" style={{ accentColor: 'var(--md-primary)' }}>
-                            <source src={item.mediaUrl} />
-                            Your browser does not support audio.
-                        </audio>
+                        {/* Decorative background icon */}
+                        <FontAwesomeIcon icon={isMusic ? faHeadphones : faMicrophone} className="absolute -bottom-4 -right-4 text-7xl text-white/5 rotate-12" />
                     </div>
                 )}
 
@@ -259,7 +278,9 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
                 {[
                     { id: 'all', label: 'All', icon: faImages },
                     { id: 'photos', label: 'Photos', icon: faCamera },
-                    { id: 'sermons', label: 'Sermons', icon: faBookOpen },
+                    { id: 'videos', label: 'Videos', icon: faFilm },
+                    { id: 'sermons', label: 'The Word', icon: faMicrophone },
+                    { id: 'music', label: 'Music', icon: faHeadphones },
                     { id: 'albums', label: 'Albums', icon: faFolder },
                 ].map(m => (
                     <button
@@ -360,18 +381,26 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
 
                         {/* Sermon classification (video/audio only) */}
                         {(uploadForm.mediaType === 'VIDEO' || uploadForm.mediaType === 'AUDIO') && (
-                            <div className="flex items-center gap-3 p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
-                                <input
-                                    type="checkbox"
-                                    id="isSermon"
-                                    className="w-5 h-5 rounded border-mdOutline accent-mdPrimary"
-                                    checked={uploadForm.isSermon}
-                                    onChange={e => setUploadForm({ ...uploadForm, isSermon: e.target.checked })}
-                                />
-                                <label htmlFor="isSermon" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer flex items-center gap-2">
-                                    <FontAwesomeIcon icon={faBookOpen} className="text-mdPrimary" />
-                                    Classify as a Sermon (will appear in Sermons section)
-                                </label>
+                            <div className="flex flex-col gap-3 p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="isSermon"
+                                        className="w-5 h-5 rounded border-mdOutline accent-mdPrimary"
+                                        checked={uploadForm.isSermon}
+                                        onChange={e => setUploadForm({ ...uploadForm, isSermon: e.target.checked })}
+                                    />
+                                    <label htmlFor="isSermon" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faMicrophone} className="text-mdPrimary" />
+                                        Classify as a Sermon / Teaching
+                                    </label>
+                                </div>
+                                {!uploadForm.isSermon && uploadForm.mediaType === 'AUDIO' && (
+                                    <p className="text-[10px] text-pink-500 font-black uppercase tracking-widest ml-8 flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faHeadphones} />
+                                        Will be listed under "Music"
+                                    </p>
+                                )}
                             </div>
                         )}
 
@@ -513,6 +542,53 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
                             <p className="text-white font-black text-xl">{videoModal.title}</p>
                             {videoModal.caption && <p className="text-white/60 font-medium mt-1">{videoModal.caption}</p>}
                             {videoModal.isSermon && <span className="mt-2 inline-block px-3 py-1 bg-mdPrimary text-white text-[10px] font-black uppercase tracking-widest rounded-full">Sermon</span>}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Audio Modal Player */}
+            {audioModal && (
+                <div
+                    className="fixed inset-0 bg-black/60 backdrop-blur-md z-[300] flex items-center justify-center p-4"
+                    onClick={() => setAudioModal(null)}
+                >
+                    <div className="relative w-full max-w-md animate-slide-up" onClick={e => e.stopPropagation()}>
+                        <div className={`glass-card p-10 rounded-[3rem] text-center border-t-8 ${audioModal.isSermon ? 'border-t-mdPrimary' : 'border-t-pink-500'}`}>
+                            <button
+                                onClick={() => setAudioModal(null)}
+                                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-mdSurfaceVariant/20 text-mdOnSurface flex items-center justify-center hover:bg-mdSurfaceVariant/40 transition-all"
+                            >
+                                <FontAwesomeIcon icon={faTimes} />
+                            </button>
+
+                            <div className={`w-24 h-24 rounded-[2.5rem] mx-auto mb-8 flex items-center justify-center text-4xl shadow-2xl ${audioModal.isSermon ? 'bg-mdPrimary/10 text-mdPrimary' : 'bg-pink-500/10 text-pink-500'}`}>
+                                <FontAwesomeIcon icon={audioModal.isSermon ? faMicrophone : faHeadphones} />
+                            </div>
+
+                            <h3 className="text-2xl font-black text-mdOnSurface mb-2 truncate px-4">{audioModal.title}</h3>
+                            <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mb-8">{audioModal.isSermon ? 'Sermon / Teaching' : 'Gospel Music'}</p>
+
+                            <div className="bg-mdSurfaceVariant/10 p-6 rounded-3xl mb-4 border border-mdOutline/5">
+                                <audio controls autoPlay className="w-full" style={{ accentColor: 'var(--md-primary)' }}>
+                                    <source src={audioModal.mediaUrl} />
+                                    Your browser does not support audio.
+                                </audio>
+                            </div>
+
+                            {audioModal.caption && (
+                                <p className="text-sm font-medium text-mdOnSurfaceVariant italic">"{audioModal.caption}"</p>
+                            )}
+
+                            <div className="mt-8 flex justify-center gap-4">
+                                <a
+                                    href={audioModal.mediaUrl}
+                                    download={audioModal.title}
+                                    className="px-6 py-2 bg-mdSurfaceVariant/20 text-mdOnSurface rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-mdSurfaceVariant/40 transition-all"
+                                >
+                                    <FontAwesomeIcon icon={faDownload} className="mr-2" /> Download
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

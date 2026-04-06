@@ -655,7 +655,7 @@ export default function AdminDashboard() {
                 <div className="relative group inline-block">
                     <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-mdPrimary rounded-full scale-y-100 transition-transform duration-700 origin-center hidden md:block"></div>
                     <h1 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tighter mb-2">
-                        COP Ayikai Doblo Assembly
+                        COP Ayikai Doblo
                     </h1>
                     <p className="text-mdOnSurfaceVariant font-bold text-lg opacity-80 flex items-center gap-3">
                         <span className="w-8 h-px bg-mdPrimary/30"></span>
@@ -1027,14 +1027,14 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
-                {/* 3. UPDATES (Announcements + Events combined) */}
+                {/* 3. INSIGHTS (Announcements + Events combined) */}
                 {activeTab === 'updates' && (
                     <div className="space-y-8 animate-fade-in mt-4">
                         {/* Header */}
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Upcoming Events</h1>
-                                <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Events &amp; Announcements</p>
+                                <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Assembly Insights</h1>
+                                <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Insights & Gatherings</p>
                             </div>
                             {(!isActuallySuperAdmin && !isReadOnly) && updatesSubTab === 'announcements' && (
                                 <button onClick={() => setShowAnnForm(!showAnnForm)} className="btn-premium">
@@ -1053,8 +1053,8 @@ export default function AdminDashboard() {
                         {/* Sub-tabs */}
                         <div className="flex p-1.5 bg-mdSurfaceVariant/20 rounded-[2rem] w-max border border-mdOutline/5 shadow-inner">
                             {[
-                                { id: 'announcements', label: 'Announcements', icon: faBullhorn },
-                                { id: 'events', label: 'Events', icon: faCalendarAlt },
+                                { id: 'announcements', label: 'Insights', icon: faBullhorn },
+                                { id: 'events', label: 'Gatherings', icon: faCalendarAlt },
                             ].map(tab => (
                                 <button
                                     key={tab.id}
