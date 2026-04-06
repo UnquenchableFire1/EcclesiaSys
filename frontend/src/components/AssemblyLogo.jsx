@@ -58,23 +58,29 @@ export default function AssemblyLogo({
                         className="opacity-20"
                     />
 
-                    {/* Core Sacred Cross - Vertical */}
-                    <rect
-                        x="46" y="22"
-                        width="8" height="56"
-                        rx="4"
-                        fill="url(#assemblyGold)" 
-                        filter="url(#logoGlow)"
-                    />
-
-                    {/* Core Sacred Cross - Horizontal */}
-                    <rect
-                        x="24" y="44"
-                        width="52" height="8"
-                        rx="4"
+                    {/* Sacred Geometric Dove - Symbol of Peace & Holy Spirit */}
+                    <path
+                        d="M50 32 
+                           C65 32, 82 42, 82 58 
+                           C82 72, 65 78, 50 88 
+                           C35 78, 18 72, 18 58 
+                           C18 42, 35 32, 50 32 Z"
                         fill="url(#assemblyGold)"
                         filter="url(#logoGlow)"
+                        className="opacity-90"
                     />
+                    
+                    {/* Divinity Wings Detail */}
+                    <path
+                        d="M30 48 Q50 40 70 48"
+                        stroke="white"
+                        strokeWidth="0.5"
+                        fill="none"
+                        className="opacity-40"
+                    />
+                    
+                    {/* Sacred Heart Point */}
+                    <circle cx="50" cy="52" r="3" fill="white" className="opacity-60 blur-[1px]" />
 
                     {/* Focal Divinity Point */}
                     <circle cx="50" cy="48" r="10" fill="white" className="divinity-pulse opacity-10" />
@@ -94,12 +100,12 @@ export default function AssemblyLogo({
             {showText && (
                 <div className="flex flex-col">
                     <span className={`text-2xl font-black tracking-tighter leading-none transition-colors duration-500 ${isDark ? 'text-white' : 'text-mdPrimary'} group-hover:text-mdSecondary`}>
-                        The Church of <span className="text-mdSecondary group-hover:text-mdPrimary transition-colors duration-500">PENTECOST</span>
+                        The Church of <span className="text-mdSecondary group-hover:text-mdPrimary transition-colors duration-500">PENTECOST.</span>
                     </span>
                     <div className="flex items-center gap-2">
                         <div className="h-[1px] w-4 bg-mdSecondary/40 group-hover:w-8 transition-all duration-500"></div>
                         <span className={`text-[8px] font-black uppercase tracking-[0.4em] opacity-60 italic ${isDark ? 'text-white/60' : 'text-mdOnSurfaceVariant'}`}>
-                            Ayikai Doblo District Assembly
+                            Ayikai Doblo District
                         </span>
                     </div>
                 </div>

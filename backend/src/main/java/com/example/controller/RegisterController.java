@@ -4,12 +4,17 @@ import org.springframework.web.bind.annotation.*;
 import com.example.dao.MemberDAO;
 import com.example.model.Member;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.example.service.EmailTemplateService;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 public class RegisterController {
+    
+    @Autowired
+    private EmailTemplateService emailTemplateService;
 
     @PostMapping("/register")
     public Map<String, Object> register(@RequestBody Map<String, String> request) {
@@ -51,19 +56,21 @@ public class RegisterController {
             
             try {
                 if (memberDao.addMember(member)) {
-                    // Registration successful - user is not verified yet
-                    response.put("success", true);
-                    response.put("message", "Registration successful. Please verify your email.");
-                    response.put("email", email);
-                    response.put("isVerified", false);
-                    
                     try {
+                        // Verification is now removed, send a welcome email instead
+                        emailTemplateService.sendWelcomeEmail(email, firstName + " " + lastName, "COP Ayikai Doblo");
+                        
                         com.example.dao.NotificationDAO notifDao = new com.example.dao.NotificationDAO();
-                        String adminMsg = "A new member, " + firstName + " " + lastName + " (" + email + "), has just registered and requires email verification.";
-                        notifDao.notifyAllAdmins("New Member Registration", adminMsg);
+                        String adminMsg = "A new member, " + firstName + " " + lastName + " (" + email + "), has just registered and joined the assembly.";
+                        notifDao.notifyAllAdmins("New Member Integration", adminMsg);
                     } catch (Exception notifEx) {
-                        System.err.println("Failed to send admin notification for registration: " + notifEx.getMessage());
+                        System.err.println("Failed to send welcome email or admin notification: " + notifEx.getMessage());
                     }
+                    
+                    response.put("success", true);
+                    response.put("message", "Registration successful! Welcome to the assembly.");
+                    response.put("email", email);
+                    response.put("isVerified", true);
                 } else {
                     response.put("success", false);
                     response.put("message", "Registration failed - database insert returned 0 rows. This may indicate a duplicate email or database constraint violation.");

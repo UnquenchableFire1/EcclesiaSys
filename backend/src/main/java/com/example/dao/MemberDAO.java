@@ -147,7 +147,7 @@ public class MemberDAO {
             stmt.setString(9, member.getGender());
             stmt.setString(10, member.getBio());
             if (member.getBranchId() != null) stmt.setInt(11, member.getBranchId()); else stmt.setNull(11, Types.INTEGER);
-            stmt.setBoolean(12, false);
+            stmt.setBoolean(12, true); // is_verified (set to true by default)
             
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {

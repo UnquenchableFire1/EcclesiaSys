@@ -7,20 +7,29 @@ import org.slf4j.LoggerFactory;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class EmailService {
     
     @Value("${brevo.api-key:null}")
-    private String apiKey;
+    private String brevoApiKey;
     
-    @Value("${brevo.sender-email:onboarding@resend.dev}")
-    private String senderEmail;
+    @Value("${brevo.sender-email:admin@ecclesiasys.com}")
+    private String brevoSenderEmail;
+
+    @Value("${brevo.api-key:null}")
+    private String brevoApiKey;
     
+    @Value("${brevo.sender-email:admin@ecclesiasys.com}")
+    private String brevoSenderEmail;
+
     @Value("${app.frontend.url:https://yourbbjdigitalapp.onrender.com}")
     private String frontendUrl;
     
@@ -28,7 +37,7 @@ public class EmailService {
     
     public boolean sendPasswordResetEmail(String recipientEmail, String resetToken, String resetLink) {
         try {
-            logger.info("Attempting to send password reset email via Brevo to: {}", recipientEmail);
+            logger.info("Attempting to send password reset email via BREVO to: {}", recipientEmail);
             
             String emailBody = "Hello,\n\n" +
                     "You requested to reset your password for your COP Ayikai Doblo account.\n\n" +
@@ -39,29 +48,28 @@ public class EmailService {
                     "If you did not request a password reset, please ignore this email.\n\n" +
                     "Best regards,\n" +
                     "COP Ayikai Doblo Team";
-                    
-            return sendEmailViaBrevo(recipientEmail, "COP Ayikai Doblo - Password Reset Request", emailBody, false);
+            
+            // Explicitly use Brevo for password resets as per request
+            return sendEmailViaBrevo(recipientEmail, "Password Reset Request", emailBody, false);
         } catch (Exception e) {
-            logger.error("Failed to send password reset email to: " + recipientEmail + " | Error: " + e.getMessage());
+            logger.error("Failed to send password reset email via Brevo to: " + recipientEmail + " | Error: " + e.getMessage());
             return false;
         }
     }
     
     public boolean sendVerificationEmail(String recipientEmail, String verificationCode, String verificationLink) {
         try {
+            logger.info("Attempting to send WELCOME email via BREVO to: {}", recipientEmail);
             String emailBody = "Hello,\n\n" +
                     "Welcome to Church Of Pentecost - Ayikai Doblo District!\n\n" +
-                    "Please verify your email address by clicking the link below:\n" +
-                    verificationLink + "\n\n" +
-                    "Or use this verification code: " + verificationCode + "\n\n" +
-                    "This link will expire in 24 hours.\n\n" +
-                    "If you did not create this account, please ignore this email.\n\n" +
+                    "We are thrilled to have you join our community of faith.\n\n" +
+                    "Your account is now active. You can log in at: " + frontendUrl + "/login\n\n" +
                     "Best regards,\n" +
                     "COP Ayikai Doblo Team";
                     
-            return sendEmailViaBrevo(recipientEmail, "COP Ayikai Doblo - Email Verification", emailBody, false);
+            return sendEmailViaBrevo(recipientEmail, "Welcome to COP Ayikai Doblo", emailBody, false);
         } catch (Exception e) {
-            logger.error("Failed to send verification email to: " + recipientEmail, e);
+            logger.error("Failed to send welcome email via Brevo to: " + recipientEmail, e);
             return false;
         }
     }
@@ -71,7 +79,7 @@ public class EmailService {
             String emailBody = message + "\n\n" +
                     "Best regards,\n" +
                     "COP Ayikai Doblo Team";
-                    
+            
             return sendEmailViaBrevo(recipientEmail, "COP Ayikai Doblo - " + subject, emailBody, false);
         } catch (Exception e) {
             logger.error("Failed to send notification email to: " + recipientEmail, e);
@@ -83,21 +91,22 @@ public class EmailService {
         return sendEmailViaBrevo(recipientEmail, subject, htmlContent, true);
     }
     
+    // EmailJS methods removed as per request
+
     private boolean sendEmailViaBrevo(String to, String subject, String content, boolean isHtml) {
-        if ("null".equals(apiKey) || apiKey == null || apiKey.trim().isEmpty()) {
-            logger.warn("Brevo API key is not configured. Email to {} was not sent.", to);
+        if ("null".equals(brevoApiKey) || brevoApiKey == null || brevoApiKey.trim().isEmpty()) {
+            logger.warn("Brevo API key is not configured. Falling back (or failing email to {})", to);
             return false; 
         }
 
-        logger.info("=== BREVO ATTEMPT === To: {} | Subject: {} | Sender: {}", to, subject, senderEmail);
-        logger.debug("API Key Prefix: {}", (apiKey.length() > 10) ? apiKey.substring(0, 10) : "short-key");
+        logger.info("=== BREVO ATTEMPT === To: {} | Subject: {}", to, subject);
 
         try {
             JSONObject payload = new JSONObject();
             
             JSONObject sender = new JSONObject();
             sender.put("name", "COP Ayikai Doblo");
-            sender.put("email", senderEmail);
+            sender.put("email", brevoSenderEmail);
             payload.put("sender", sender);
             
             JSONArray toArray = new JSONArray();
@@ -116,7 +125,7 @@ public class EmailService {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
-                    .header("api-key", apiKey)
+                    .header("api-key", brevoApiKey)
                     .header("accept", "application/json")
                     .header("content-type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
@@ -127,12 +136,12 @@ public class EmailService {
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 logger.info("Brevo Success: Status {}, MessageId: {}", response.statusCode(), response.body());
                 return true;
+            } else if (response.statusCode() == 403) {
+                logger.error("!!! BREVO 403 FORBIDDEN !!! Response: {}", response.body());
+                logger.error("CRITICAL: Ensure '{}' is a VERIFIED SENDER in your Brevo dashboard at App -> Senders & Domain.", brevoSenderEmail);
+                return false;
             } else {
                 logger.error("Brevo Failure: Status {}, Response: {}", response.statusCode(), response.body());
-                // Provide hint for unverified sender
-                if (response.body().contains("unauthorized") || response.body().contains("sender")) {
-                    logger.warn("HINT: Ensure '{}' is a VERIFIED SENDER in your Brevo dashboard.", senderEmail);
-                }
                 return false;
             }
         } catch (Exception e) {

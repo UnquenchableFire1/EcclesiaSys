@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 public class EmailTemplateService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailTemplateService.class);
-
+    
     @Autowired
     private EmailService emailService;
 
@@ -20,6 +20,7 @@ public class EmailTemplateService {
      */
     public void sendWelcomeEmail(String recipientEmail, String userName, String churchName) {
         try {
+
             String subject = "Welcome to " + churchName + " - Let's Get Started!";
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
@@ -230,6 +231,7 @@ public class EmailTemplateService {
      */
     public void sendPasswordResetEmail(String recipientEmail, String userName, String resetCode) {
         try {
+
             String subject = "Password Reset Request - COP Ayikai Doblo";
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +

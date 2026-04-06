@@ -58,13 +58,7 @@ public class LoginController {
                 if (memberDao.verifyMemberLogin(email, password)) {
                     Member member = memberDao.getMemberByEmail(email);
                     
-                    if (!member.getIsVerified()) {
-                        response.put("success", false);
-                        response.put("requireVerification", true);
-                        response.put("email", email);
-                        response.put("message", "Your email is not verified. Please verify your email to continue.");
-                        return response;
-                    }
+                    // Email verification check removed as per customer request
                     
                     String token = jwtUtil.generateToken(member.getEmail(), member.getId(), "member", member.getBranchId(), "MEMBER");
                     

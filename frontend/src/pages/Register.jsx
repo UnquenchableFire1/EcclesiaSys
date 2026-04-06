@@ -74,20 +74,11 @@ export default function Register() {
             setIsSubmitting(true);
             const response = await register(formData);
             if (response.data?.success) {
-                // Auto-trigger OTP send
-                try {
-                    await sendOtp(formData.email);
-                } catch (otpErr) {
-                    console.error("Failed to auto-send OTP", otpErr);
-                }
-                
-                // Save email to session for fallback
-                sessionStorage.setItem('memberEmail', formData.email);
-                
+                // Email verification is disabled, navigate directly to login
                 setAlertDialog({
-                    title: 'Welcome to Assembly',
-                    message: `Your account has been created. We've sent a verification code to ${formData.email}. Please verify your email to continue.`,
-                    onConfirm: () => navigate('/verify-email', { state: { email: formData.email } })
+                    title: 'Welcome to Fellowship',
+                    message: `Your account has been created successfully! You can now sign in to your digital assembly.`,
+                    onConfirm: () => navigate('/login')
                 });
             } else {
                 setError(response.data?.message || 'Registration failed');

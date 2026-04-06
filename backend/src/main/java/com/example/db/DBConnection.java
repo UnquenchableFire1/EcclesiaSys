@@ -72,8 +72,16 @@ public class DBConnection {
                 "ALTER TABLE admins ADD COLUMN gender VARCHAR(20)",
                 "ALTER TABLE admins ADD COLUMN bio TEXT",
                 "ALTER TABLE admins ADD COLUMN phone_number VARCHAR(20)",
-                // Seed initial branch if none exists
-                "INSERT IGNORE INTO branches (id, name, location) VALUES (1, 'Main Assembly', 'Central')"
+                // Branch seeding removed as per request
+                // One-time cleanup: Verify all existing members
+                "UPDATE members SET is_verified = 1",
+                // One-time cleanup: Remove 'Main Assembly' (ID 1)
+                "UPDATE members SET branch_id = NULL WHERE branch_id = 1",
+                "UPDATE admins SET branch_id = NULL WHERE branch_id = 1",
+                "UPDATE sermons SET branch_id = NULL WHERE branch_id = 1",
+                "UPDATE announcements SET branch_id = NULL WHERE branch_id = 1",
+                "UPDATE events SET branch_id = NULL WHERE branch_id = 1",
+                "DELETE FROM branches WHERE id = 1"
             };
             
             for (String query : queries) {
