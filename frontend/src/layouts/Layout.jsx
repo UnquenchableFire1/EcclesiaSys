@@ -265,9 +265,10 @@ export default function Layout({ children }) {
             <div className={`flex flex-1 flex-col ${shouldShowNav && !isMobile ? 'pt-20' : shouldShowNav && isMobile ? 'pt-16' : ''}`}>
                 <main className="flex-1 relative">
                     <div className="grain"></div>
-                    {/* Global Assembly Background Accents */}
-                    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-[0.03] select-none">
-                        <img src="/assets/images/church/church_10.jpg" alt="" className="w-full h-full object-cover scale-110 blur-3xl saturate-0" />
+                    {/* Global Assembly Background Accents - Optimized for Performance */}
+                    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-40 select-none bg-gradient-to-br from-mdSurface via-mdSurface to-mdPrimary/5">
+                        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-mdPrimary/10 blur-[120px] rounded-full animate-pulse-slow"></div>
+                        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-mdSecondary/10 blur-[120px] rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
                     </div>
                     <div className={`relative z-10 p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto min-h-[calc(100vh-80px)] ${isMobile && userId ? 'pb-32' : 'pb-12'}`}>
                         {children}

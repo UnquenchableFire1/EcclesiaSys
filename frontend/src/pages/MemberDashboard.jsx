@@ -279,7 +279,7 @@ export default function MemberDashboard() {
                                             </div>
 
                                             <button
-                                                onClick={() => navigate('/profile')}
+                                                onClick={() => setActiveTab('profile')}
                                                 className="flex items-center gap-3 px-8 py-4 bg-white text-mdPrimary rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-premium hover:shadow-lifted hover:-translate-y-0.5 transition-all active:scale-95"
                                             >
                                                 Complete Now

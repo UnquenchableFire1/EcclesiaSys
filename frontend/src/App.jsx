@@ -1,22 +1,39 @@
-import React, { Component } from "react";
+import React, { Component, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import AdminLogin from "./pages/AdminLogin";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import VerifyEmail from "./pages/VerifyEmail";
-import MemberDashboard from "./pages/MemberDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import PrayerRequestPage from "./pages/PrayerRequestPage";
 import Layout from "./layouts/Layout";
-import Events from "./pages/Events";
-import Announcements from "./pages/Announcements";
-import Sermons from "./pages/Sermons";
 import SessionTimer from "./components/SessionTimer";
+import { ToastProvider } from "./context/ToastContext";
+
+// Lazy-loaded pages for performance (Code Splitting)
+const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/Login"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const MemberDashboard = lazy(() => import("./pages/MemberDashboard"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const PrayerRequestPage = lazy(() => import("./pages/PrayerRequestPage"));
+const Events = lazy(() => import("./pages/Events"));
+const Announcements = lazy(() => import("./pages/Announcements"));
+const Sermons = lazy(() => import("./pages/Sermons"));
+
+// Premium Loading Spinner for Suspense
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-mdSurface relative overflow-hidden">
+    <div className="absolute inset-0 bg-mdPrimary/5 animate-pulse"></div>
+    <div className="relative z-10 flex flex-col items-center">
+      <div className="w-16 h-16 border-4 border-mdPrimary/10 border-t-mdPrimary rounded-full animate-spin mb-4"></div>
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-mdPrimary animate-pulse">
+        Entering Assembly...
+      </p>
+    </div>
+  </div>
+);
 
 class ErrorBoundary extends Component {
+  // ... (keep ErrorBoundary exactly as it is)
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -85,44 +102,44 @@ function PublicOnlyRoute({ children }) {
   return children;
 }
 
-import { ToastProvider } from "./context/ToastContext";
-
 export default function App() {
   return (
     <ToastProvider>
       <ErrorBoundary>
         <SessionTimer />
-      <Routes>
-        <Route path="/" element={<PublicOnlyRoute><Layout><Home /></Layout></PublicOnlyRoute>} />
-        <Route path="/home" element={<PublicOnlyRoute><Layout><Home /></Layout></PublicOnlyRoute>} />
-        <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
-        <Route path="/admin-login" element={<PublicOnlyRoute><AdminLogin /></PublicOnlyRoute>} />
-        <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
-        <Route path="/verify-email" element={<PublicOnlyRoute><VerifyEmail /></PublicOnlyRoute>} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/prayer-request" element={<Layout><PrayerRequestPage /></Layout>} />
-        <Route path="/events" element={<Layout><Events /></Layout>} />
-        <Route path="/announcements" element={<Layout><Announcements /></Layout>} />
-        <Route path="/sermons" element={<Layout><Sermons /></Layout>} />
-        <Route
-          path="/member-dashboard"
-          element={
-            <ProtectedRoute requiredRole="member">
-              <Layout><MemberDashboard /></Layout>
-            </ProtectedRoute>
-          }
-        />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<PublicOnlyRoute><Layout><Home /></Layout></PublicOnlyRoute>} />
+            <Route path="/home" element={<PublicOnlyRoute><Layout><Home /></Layout></PublicOnlyRoute>} />
+            <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+            <Route path="/admin-login" element={<PublicOnlyRoute><AdminLogin /></PublicOnlyRoute>} />
+            <Route path="/register" element={<PublicOnlyRoute><Register /></PublicOnlyRoute>} />
+            <Route path="/verify-email" element={<PublicOnlyRoute><VerifyEmail /></PublicOnlyRoute>} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/prayer-request" element={<Layout><PrayerRequestPage /></Layout>} />
+            <Route path="/events" element={<Layout><Events /></Layout>} />
+            <Route path="/announcements" element={<Layout><Announcements /></Layout>} />
+            <Route path="/sermons" element={<Layout><Sermons /></Layout>} />
+            <Route
+              path="/member-dashboard"
+              element={
+                <ProtectedRoute requiredRole="member">
+                  <Layout><MemberDashboard /></Layout>
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <Layout><AdminDashboard /></Layout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <Layout><AdminDashboard /></Layout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Suspense>
       </ErrorBoundary>
     </ToastProvider>
   );
