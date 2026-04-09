@@ -55,6 +55,14 @@ public class AdminDAO {
     }
 
     public boolean addAdmin(Admin admin) {
+        // Enforce role limits for Super level
+        if ("SUPER_SECRETARY".equals(admin.getRole())) {
+            if (getRoleCount("SUPER_SECRETARY") >= 1) return false;
+        }
+        if ("SUPER_MEDIA".equals(admin.getRole())) {
+            if (getRoleCount("SUPER_MEDIA") >= 8) return false;
+        }
+
         String query = "INSERT INTO admins (name, email, password, role, branch_id, created_by, profile_picture_url, gender, bio, phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -73,6 +81,19 @@ public class AdminDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private int getRoleCount(String role) {
+        String query = "SELECT COUNT(*) FROM admins WHERE role = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, role);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public Admin getAdminById(int id) {

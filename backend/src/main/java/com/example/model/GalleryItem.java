@@ -9,6 +9,9 @@ public class GalleryItem {
     private String mediaUrl;       // image, video, or audio URL
     private String mediaType;      // PHOTO | VIDEO | AUDIO
     private boolean isSermon;      // true if VIDEO/AUDIO is classified as a sermon
+    private boolean isThemeSong;   // true if AUDIO is an official theme song
+    private String speaker;        // For sermons
+    private LocalDateTime sermonDate; // For sermons
     private String folderName;     // album/folder this item belongs to (optional)
     private Integer branchId;      // null = visible to all branches (global)
     private int uploadedBy;
@@ -34,6 +37,15 @@ public class GalleryItem {
 
     public boolean isSermon() { return isSermon; }
     public void setSermon(boolean sermon) { isSermon = sermon; }
+
+    public boolean isThemeSong() { return isThemeSong; }
+    public void setThemeSong(boolean themeSong) { isThemeSong = themeSong; }
+
+    public String getSpeaker() { return speaker; }
+    public void setSpeaker(String speaker) { this.speaker = speaker; }
+
+    public LocalDateTime getSermonDate() { return sermonDate; }
+    public void setSermonDate(LocalDateTime sermonDate) { this.sermonDate = sermonDate; }
 
     public String getFolderName() { return folderName; }
     public void setFolderName(String folderName) { this.folderName = folderName; }

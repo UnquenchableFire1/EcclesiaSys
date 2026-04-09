@@ -5,8 +5,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faBullhorn, faCalendarAlt, faMicrophone, faBolt, faEye, 
   faClock, faMapMarkerAlt, faEnvelope, faUsers, faCheckCircle,
-  faStar, faQuoteLeft, faHeart, faPlusCircle
+  faStar, faQuoteLeft, faHeart, faPlusCircle, faCross
 } from '@fortawesome/free-solid-svg-icons';
+import TenetsSlideshow from '../components/TenetsSlideshow';
+import ExecutiveCouncil from '../components/ExecutiveCouncil';
+import { getMeetingsForDate } from '../utils/scheduleUtils';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -40,59 +43,106 @@ export default function Home() {
   return (
     <div className="space-y-16 animate-fade-in pb-16">
       {/* Hero Section */}
-      <Hero 
-        title={<>Experience Higher <br/><span className="text-mdSecondary">Connection</span> with God</>}
-        subtitle="A modern digital home for your spiritual journey. Join a vibrant community of faith where growth has no limits."
-        ctaText="Start Your Journey"
-        ctaLink="/register"
-        backgroundImage="/assets/images/church/church_1.jpg"
-      />
+      {/* 2026 Theme Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden rounded-[4rem] group reveal mx-4 mt-4">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/assets/images/church/theme_bg_2026.jpg" 
+            alt="Theme 2026" 
+            className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110"
+            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=2073&auto=format&fit=crop"; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-mdPrimary via-mdPrimary/40 to-transparent"></div>
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
+        </div>
 
-      {/* Service Times & Location Section */}
-      <section className="py-12 px-2 reveal">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Sunday Service */}
-            <div className="img-card group h-[450px]">
-              <img src="/assets/images/church/church_9.jpg" alt="Sunday Worship" />
-              <div className="image-overlay group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
-                <div className="text-3xl mb-6 bg-mdSecondary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium">
-                  <FontAwesomeIcon icon={faClock} />
-                </div>
-                <h3 className="text-3xl font-black mb-2">Sunday Worship</h3>
-                <p className="text-mdSecondary font-black text-xl mb-4">10:00 AM — 12:00 PM</p>
-                <p className="text-white/80 leading-relaxed font-medium line-clamp-2">Join us for a dynamic experience of multi-cultural worship and a life-transforming message.</p>
-              </div>
-            </div>
+        <div className="relative z-10 text-center px-6 max-w-6xl mx-auto space-y-10">
+          <div className="inline-flex items-center gap-4 bg-mdSecondary/20 backdrop-blur-xl border border-mdSecondary/30 px-8 py-3 rounded-full text-mdSecondary font-black uppercase tracking-[0.5em] text-xs animate-float">
+            Theme of the Year 2026
+          </div>
+          
+          <h1 className="text-5xl md:text-8xl lg:text-9xl font-black text-white leading-[0.9] tracking-tighter italic drop-shadow-2xl">
+            THE CHURCH <br/>
+            <span className="text-mdSecondary not-italic font-black">UNLEASHED</span>
+          </h1>
 
-            {/* Midweek Study */}
-            <div className="img-card group h-[450px]">
-              <img src="/assets/images/church/church_10.jpg" alt="Midweek Study" />
-              <div className="image-overlay group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
-                <div className="text-3xl mb-6 bg-mdPrimary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium">
-                  <FontAwesomeIcon icon={faQuoteLeft} />
-                </div>
-                <h3 className="text-3xl font-black mb-2">Midweek Study</h3>
-                <p className="text-mdSecondary font-black text-xl mb-4">Wednesdays @ 7:00 PM</p>
-                <p className="text-white/80 leading-relaxed font-medium line-clamp-2">Deep dive into the Word of God in a relaxed environment. Grow in understanding and faith.</p>
-              </div>
-            </div>
+          <p className="text-xl md:text-3xl text-white/90 font-medium max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
+            "To Transform Society Through the Gospel and the Power of the Holy Spirit"
+          </p>
 
-            {/* Location */}
-            <div className="img-card group h-[450px]">
-              <img src="/assets/images/church/church_11.jpg" alt="Visit Us" />
-              <div className="image-overlay-dark"></div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10">
+            <Link to="/register" className="btn-premium py-6 px-16 text-lg w-full sm:w-auto">
+              Engage with the Vision
+            </Link>
+          </div>
+        </div>
+
+        {/* Floating Scripture */}
+        <div className="absolute bottom-12 right-12 text-right hidden lg:block opacity-60">
+          <p className="text-white font-black italic text-xl">"Go into all the world..."</p>
+          <p className="text-mdSecondary font-bold text-xs uppercase tracking-widest mt-1">Mark 16:15</p>
+        </div>
+      </section>
+
+      {/* Tenets Slideshow */}
+      <div className="px-4 reveal">
+        <TenetsSlideshow />
+      </div>
+
+      {/* Dynamic Meeting Schedule Section */}
+      <section className="py-12 px-4 reveal">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 text-center md:text-left">
+           <div>
+              <h2 className="text-4xl md:text-6xl font-black text-mdOnSurface tracking-tight">Happening <span className="text-mdPrimary">This Week</span></h2>
+              <p className="text-xl text-mdOnSurfaceVariant font-medium mt-4">Stay synchronized with the assembly calendar.</p>
+           </div>
+           <div className="bg-mdPrimary text-white px-8 py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-premium flex items-center gap-3">
+              <FontAwesomeIcon icon={faCalendarAlt} className="text-mdSecondary" />
+              {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Logic: Generate next meaningful days */}
+            {(() => {
+              const scheduleItems = [];
+              for (let i = 0; i < 7; i++) {
+                const dayDate = new Date();
+                dayDate.setDate(dayDate.getDate() + i);
+                const meetings = getMeetingsForDate(dayDate);
+                meetings.forEach(m => {
+                  scheduleItems.push({ date: new Date(dayDate), ...m });
+                });
+              }
+              return scheduleItems.slice(0, 3).map((item, idx) => (
+                 <div key={idx} className="glass-card group p-10 border-l-8 border-l-mdSecondary transition-all duration-500">
+                    <div className="flex justify-between items-start mb-8">
+                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-mdPrimary">
+                          {item.date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })}
+                       </p>
+                       <div className="text-mdSecondary text-xl group-hover:scale-110 transition-transform">
+                          <FontAwesomeIcon icon={faClock} />
+                       </div>
+                    </div>
+                    <h3 className="text-2xl font-black text-mdOnSurface mb-2">{item.name}</h3>
+                    <p className="text-mdPrimary font-black text-lg mb-6">{item.time}</p>
+                    <p className="text-mdOnSurfaceVariant font-medium text-sm border-t border-mdOutline/10 pt-6">
+                       {item.description}
+                    </p>
+                 </div>
+              ));
+            })()}
+
+            {/* Always show Location as a fallback/extra card if needed, or just standard card */}
+            <div className="img-card group h-full min-h-[350px]">
+              <img src="https://images.unsplash.com/photo-1445006844190-6da56b30c115?q=80&w=2070&auto=format&fit=crop" alt="Visit Us" />
+              <div className="image-overlay-dark opacity-60"></div>
               <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
                 <div className="text-3xl mb-6 bg-white text-mdPrimary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium">
                     <FontAwesomeIcon icon={faMapMarkerAlt} />
                 </div>
-                <div className="flex flex-col items-start text-left gap-4">
-                    <h4 className="text-xl font-bold">Visit Us</h4>
-                    <div className="flex flex-col gap-2 opacity-80 font-medium">
-                        <p>Ayikai Doblo, Amasaman.</p>
-                    </div>
-                </div>
+                <h4 className="text-2xl font-black mb-1">Our Location</h4>
+                <p className="text-white/70 font-bold">Ayikai Doblo, Amasaman.</p>
               </div>
             </div>
         </div>
@@ -161,70 +211,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Mission & Vision Section */}
-      <section className="py-16 reveal">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="img-card h-[600px] rounded-[4rem]">
-            <img src="/assets/images/church/church_2.jpg" alt="Our Mission" className="hover:scale-105" />
-            <div className="image-overlay-dark opacity-40"></div>
-            <div className="absolute top-10 left-10 z-10">
-              <div className="bg-mdPrimary text-white px-8 py-3 rounded-full font-black uppercase tracking-widest text-sm shadow-premium">
-                Since 1999
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-10">
-            <div>
-              <h2 className="text-5xl font-black text-mdSecondary mb-8 flex items-center gap-4">
-                <FontAwesomeIcon icon={faHeart} className="text-mdPrimary" />
-                Our Mission
-              </h2>
-              <p className="text-2xl text-mdOnSurfaceVariant leading-relaxed font-medium italic">
-                "We are committed to building lives, restoring hope, and spreading the love of Christ through authentic community."
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {[
-                { text: 'Impactful Worship', icon: faStar, img: 'church_13.jpg' },
-                { text: 'Community Outreach', icon: faHeart, img: 'church_14.jpg' },
-                { text: 'Spiritual Growth', icon: faPlusCircle, img: 'church_15.jpg' },
-                { text: 'Dynamic Fellowship', icon: faUsers, img: 'church_12.jpg' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-4 p-4 rounded-3xl bg-mdSurfaceVariant/30 border border-mdOutline/5 hover:border-mdPrimary/20 transition-all group">
-                   <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-sm">
-                      <img src={`/assets/images/church/${item.img}`} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                   </div>
-                   <span className="font-black text-mdOnSurface">{item.text}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-8 border-t border-mdOutline/10">
-              <h2 className="text-4xl font-black text-mdPrimary mb-6 flex items-center gap-4">
-                <FontAwesomeIcon icon={faEye} />
-                Our Vision
-              </h2>
-              <p className="text-lg text-mdOnSurfaceVariant leading-relaxed font-medium">
-                Our vision extends beyond our walls. We believe in the transformative power of faith and the endless possibilities when we put God first in our community.
-              </p>
-              <div className="mt-10 flex gap-6">
-                 <div className="flex -space-x-4">
-                    {[1,2,3,4].map(i => (
-                      <div key={i} className={`w-14 h-14 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center font-bold overflow-hidden shadow-lifted ${i === 4 ? 'bg-mdPrimary text-white' : ''}`}>
-                         {i === 4 ? '+5K' : <img src={`/assets/images/church/church_${i+1}.jpg`} className="w-full h-full object-cover" />}
-                      </div>
-                    ))}
-                 </div>
-                 <p className="text-base font-bold text-mdOnSurfaceVariant self-center leading-tight">
-                   Join <span className="text-mdPrimary">5,000+ members</span> <br/>making a global impact
-                 </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Executive Council Section */}
+      <div className="reveal">
+        <ExecutiveCouncil />
+      </div>
 
       {/* Stats Section with Background Image */}
       <section className="relative h-[400px] rounded-[4rem] overflow-hidden flex items-center justify-center shadow-premium group reveal">

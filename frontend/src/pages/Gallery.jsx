@@ -14,7 +14,7 @@ import { useToast } from '../context/ToastContext';
  * Gallery — photos, video, audio, albums, and sermon classification
  * canUpload: true for media team and branch admins
  */
-export default function Gallery({ canUpload = false, branchId = null, currentUserId, currentUserName }) {
+export default function Gallery({ canUpload = false, branchId = null, currentUserId, currentUserName, userRole }) {
     const [viewMode, setViewMode] = useState('all'); // all | photos | videos | sermons | music | albums
     const [activeFolder, setActiveFolder] = useState(null);
     const [galleryItems, setGalleryItems] = useState([]);
@@ -25,7 +25,8 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
     const [audioModal, setAudioModal] = useState(null);
     const [showUploadForm, setShowUploadForm] = useState(false);
     const [uploadForm, setUploadForm] = useState({
-        title: '', caption: '', mediaType: 'PHOTO', isSermon: false, folderName: '',
+        title: '', caption: '', mediaType: 'PHOTO', isSermon: false, isThemeSong: false, 
+        speaker: '', sermonDate: new Date().toISOString().slice(0, 16), folderName: '',
     });
     const [uploadFile, setUploadFile] = useState(null);
     const [uploadPreview, setUploadPreview] = useState(null);
@@ -57,9 +58,9 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
         
         let matchMode = true;
         if (viewMode === 'photos') matchMode = item.mediaType === 'PHOTO';
-        else if (viewMode === 'videos') matchMode = item.mediaType === 'VIDEO';
-        else if (viewMode === 'sermons') matchMode = (item.mediaType === 'AUDIO' || item.mediaType === 'VIDEO') && item.isSermon;
-        else if (viewMode === 'music') matchMode = item.mediaType === 'AUDIO' && !item.isSermon;
+        else if (viewMode === 'videos') matchMode = item.mediaType === 'VIDEO' && !item.isSermon;
+        else if (viewMode === 'sermons') matchMode = item.isSermon;
+        else if (viewMode === 'music') matchMode = item.isThemeSong || (item.mediaType === 'AUDIO' && !item.isSermon);
         
         const matchSearch = !searchQuery ||
             (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -95,7 +96,10 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
     };
 
     const resetForm = () => {
-        setUploadForm({ title: '', caption: '', mediaType: 'PHOTO', isSermon: false, folderName: '' });
+        setUploadForm({ 
+            title: '', caption: '', mediaType: 'PHOTO', isSermon: false, isThemeSong: false, 
+            speaker: '', sermonDate: new Date().toISOString().slice(0, 16), folderName: '' 
+        });
         setUploadFile(null);
         setUploadPreview(null);
         setShowUploadForm(false);
@@ -124,7 +128,10 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
                 caption: uploadForm.caption,
                 mediaUrl,
                 mediaType: resolvedType || uploadForm.mediaType,
-                isSermon: (resolvedType === 'VIDEO' || resolvedType === 'AUDIO') && uploadForm.isSermon,
+                isSermon: uploadForm.isSermon,
+                isThemeSong: uploadForm.isThemeSong,
+                speaker: uploadForm.speaker,
+                sermonDate: uploadForm.sermonDate,
                 folderName: uploadForm.folderName.trim() || null,
                 branchId,
                 uploadedBy: currentUserId,
@@ -221,12 +228,32 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
                 <div className={`${isPhoto ? 'absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-4' : 'p-4'}`}>
                     <p className={`font-black text-sm leading-tight mb-1 ${isPhoto ? 'text-white' : 'text-mdOnSurface'}`}>{item.title}</p>
                     {item.caption && <p className={`text-[10px] font-medium line-clamp-2 mb-2 ${isPhoto ? 'text-white/70' : 'text-mdOnSurfaceVariant'}`}>{item.caption}</p>}
+                    
+                    {item.speaker && (
+                        <p className={`text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2 ${isPhoto ? 'text-white' : 'text-mdPrimary'}`}>
+                            <FontAwesomeIcon icon={faMicrophone} className="text-[8px]" />
+                            {item.speaker}
+                        </p>
+                    )}
+
                     <div className="flex items-center justify-between">
-                        {item.folderName && (
-                            <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${isPhoto ? 'text-white/50' : 'text-mdOutline'}`}>
-                                <FontAwesomeIcon icon={faFolder} /> {item.folderName}
-                            </span>
-                        )}
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${!item.branchId ? 'bg-mdPrimary/10 text-mdPrimary border border-mdPrimary/30' : 'bg-amber-500/10 text-amber-600 border border-amber-500/30'}`}>
+                                    {!item.branchId ? 'District Hub' : 'Local Assembly'}
+                                </span>
+                                {item.folderName && (
+                                    <span className={`text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${isPhoto ? 'text-white/50' : 'text-mdOutline'}`}>
+                                        <FontAwesomeIcon icon={faFolder} /> {item.folderName}
+                                    </span>
+                                )}
+                            </div>
+                            {item.sermonDate && (
+                                <span className={`text-[8px] font-bold uppercase tracking-widest mt-0.5 ${isPhoto ? 'text-white/40' : 'text-mdOnSurfaceVariant/60'}`}>
+                                    {new Date(item.sermonDate).toLocaleDateString()}
+                                </span>
+                            )}
+                        </div>
                         <div className="flex items-center gap-2 ml-auto">
                             <a
                                 href={item.mediaUrl}
@@ -242,7 +269,7 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
                             {canUpload && (
                                 <button
                                     onClick={e => { e.stopPropagation(); handleDelete(item.id); }}
-                                    className="w-7 h-7 rounded-xl bg-red-500/80 text-white flex items-center justify-center hover:bg-red-500 transition-all"
+                                    className="w-7 h-7 rounded-xl bg-red-500/80 text-white flex items-center justify-center hover:bg-red-500 transition-all opacity-0 group-hover:opacity-100"
                                 >
                                     <FontAwesomeIcon icon={faTrash} className="text-[10px]" />
                                 </button>
@@ -381,25 +408,63 @@ export default function Gallery({ canUpload = false, branchId = null, currentUse
 
                         {/* Sermon classification (video/audio only) */}
                         {(uploadForm.mediaType === 'VIDEO' || uploadForm.mediaType === 'AUDIO') && (
-                            <div className="flex flex-col gap-3 p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="checkbox"
-                                        id="isSermon"
-                                        className="w-5 h-5 rounded border-mdOutline accent-mdPrimary"
-                                        checked={uploadForm.isSermon}
-                                        onChange={e => setUploadForm({ ...uploadForm, isSermon: e.target.checked })}
-                                    />
-                                    <label htmlFor="isSermon" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer flex items-center gap-2">
-                                        <FontAwesomeIcon icon={faMicrophone} className="text-mdPrimary" />
-                                        Classify as a Sermon / Teaching
-                                    </label>
+                            <div className="flex flex-col gap-4 p-6 bg-mdPrimary/5 rounded-3xl border border-mdPrimary/10">
+                                <div className="flex flex-col sm:flex-row gap-6">
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="checkbox"
+                                            id="isSermon"
+                                            className="w-5 h-5 rounded border-mdOutline accent-mdPrimary"
+                                            checked={uploadForm.isSermon}
+                                            onChange={e => setUploadForm({ ...uploadForm, isSermon: e.target.checked, isThemeSong: false })}
+                                        />
+                                        <label htmlFor="isSermon" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer flex items-center gap-2">
+                                            <FontAwesomeIcon icon={faMicrophone} className="text-mdPrimary" />
+                                            Classify as a Sermon
+                                        </label>
+                                    </div>
+
+                                    {(uploadForm.mediaType === 'AUDIO' && (userRole === 'SUPER_ADMIN' || userRole === 'SUPER_MEDIA')) && (
+                                        <div className="flex items-center gap-3">
+                                            <input
+                                                type="checkbox"
+                                                id="isThemeSong"
+                                                className="w-5 h-5 rounded border-mdOutline accent-pink-500"
+                                                checked={uploadForm.isThemeSong}
+                                                onChange={e => setUploadForm({ ...uploadForm, isThemeSong: e.target.checked, isSermon: false })}
+                                            />
+                                            <label htmlFor="isThemeSong" className="text-sm font-bold text-mdOnSurface select-none cursor-pointer flex items-center gap-2">
+                                                <FontAwesomeIcon icon={faHeadphones} className="text-pink-500" />
+                                                Classify as Official Theme Song
+                                            </label>
+                                        </div>
+                                    )}
                                 </div>
-                                {!uploadForm.isSermon && uploadForm.mediaType === 'AUDIO' && (
-                                    <p className="text-[10px] text-pink-500 font-black uppercase tracking-widest ml-8 flex items-center gap-2">
-                                        <FontAwesomeIcon icon={faHeadphones} />
-                                        Will be listed under "Music"
-                                    </p>
+
+                                {uploadForm.isSermon && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 animate-slide-down">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-mdPrimary ml-1">Speaker / Preacher</label>
+                                            <input
+                                                type="text"
+                                                placeholder="e.g. Pastor Benjamin Buckman"
+                                                className="w-full p-4 bg-white border border-mdOutline/10 rounded-2xl font-bold focus:ring-2 focus:ring-mdPrimary outline-none text-sm"
+                                                value={uploadForm.speaker}
+                                                onChange={e => setUploadForm({ ...uploadForm, speaker: e.target.value })}
+                                                required={uploadForm.isSermon}
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-mdPrimary ml-1">Sermon Date</label>
+                                            <input
+                                                type="datetime-local"
+                                                className="w-full p-4 bg-white border border-mdOutline/10 rounded-2xl font-bold focus:ring-2 focus:ring-mdPrimary outline-none text-sm"
+                                                value={uploadForm.sermonDate}
+                                                onChange={e => setUploadForm({ ...uploadForm, sermonDate: e.target.value })}
+                                                required={uploadForm.isSermon}
+                                            />
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         )}

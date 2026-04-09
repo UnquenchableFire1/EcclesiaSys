@@ -88,16 +88,36 @@ export default function Layout({ children }) {
     const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
     const shouldShowNav = userId && !isAuthPage;
 
-    const isSuperAdmin = (sessionStorage.getItem('userEmail') || '').toLowerCase() === 'benjaminbuckmanjunior@gmail.com';
-    const isInspecting = !!sessionStorage.getItem('inspectionBranchId');
+    const adminRole = sessionStorage.getItem('role');
+    const isSuperAdmin = adminRole === 'SUPER_ADMIN';
+    const isInspecting = sessionStorage.getItem('isInspecting') === 'true';
+
+    const branchTabs = [
+        { id: 'attendance', label: 'Attendance', icon: faCalendarAlt },
+    ];
 
     const adminTabs = [
         { id: 'home', label: 'Overview', icon: faHome, path: '/admin' },
-        { id: 'members', label: 'Fellowship', icon: faUsers },
-        { id: 'updates', label: 'Insights', icon: faBullhorn },
-        { id: 'gallery', label: 'Gallery', icon: faImages },
-        { id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands },
+        // Fellowship (Members) - Only for Admins
+        ...((adminRole === 'SUPER_ADMIN' || adminRole === 'BRANCH_ADMIN') ? [{ id: 'members', label: 'Fellowship', icon: faUsers }] : []),
+        
+        // Insights (Announcements/Events) - For Admins and Secretaries
+        ...((adminRole === 'SUPER_ADMIN' || adminRole === 'BRANCH_ADMIN' || adminRole === 'SUPER_SECRETARY' || adminRole === 'BRANCH_SECRETARY') ? [{ id: 'updates', label: 'Insights', icon: faBullhorn }] : []),
+        
+        // Gallery & Sermons - For Admins and Media Teams
+        ...((adminRole === 'SUPER_ADMIN' || adminRole === 'BRANCH_ADMIN' || adminRole === 'SUPER_MEDIA' || adminRole === 'BRANCH_MEDIA') ? [{ id: 'gallery', label: 'Gallery', icon: faImages }] : []),
+        
+        // Prayers - Only for Admins
+        ...((adminRole === 'SUPER_ADMIN' || adminRole === 'BRANCH_ADMIN') ? [{ id: 'prayer-requests', label: 'Prayers', icon: faPrayingHands }] : []),
+        
+        // Attendance - Only for Branch Admin and Branch Secretary
+        ...((adminRole === 'BRANCH_ADMIN' || adminRole === 'BRANCH_SECRETARY') ? [{ id: 'attendance', label: 'Attendance', icon: faCalendarAlt }] : []),
+        
+        // Commanders (Sub-Admins) - Only for Super Admin
         ...(isSuperAdmin && !isInspecting ? [{ id: 'admins', label: 'Commanders', icon: faUserShield }] : []),
+        
+        // Messages - Shared by all roles for paired communication
+        { id: 'messages', label: 'Messages', icon: faEnvelope },
     ];
 
     const memberTabs = [

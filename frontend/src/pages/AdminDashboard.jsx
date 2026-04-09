@@ -37,6 +37,8 @@ import ChangePassword from '../components/ChangePassword';
 // Chat removed in favor of WhatsApp support
 import { downloadMembersAsExcel } from '../services/excelExport';
 import ConfirmModal from '../components/ConfirmModal';
+import AttendanceManager from '../components/AttendanceManager';
+import MessageCenter from '../components/MessageCenter';
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -110,13 +112,21 @@ export default function AdminDashboard() {
     const [alertDialog, setAlertDialog] = useState(null);
     const [lightboxImg, setLightboxImg] = useState(null);
     const [viewingMember, setViewingMember] = useState(null);
+    const [latestAttendance, setLatestAttendance] = useState(null);
 
     // Derived State
     const storedBranchId = sessionStorage.getItem('branchId');
     const effectiveRole = adminData?.role || sessionStorage.getItem('role');
     const isActuallySuperAdmin = effectiveRole === 'SUPER_ADMIN' || adminEmail === 'benjaminbuckmanjunior@gmail.com';
-    const isMediaTeam = effectiveRole === 'MEDIA_TEAM';
     const isReadOnly = inspectionBranchId !== null;
+    
+    // Role-specific flags
+    const isSecretary = effectiveRole === 'SUPER_SECRETARY' || effectiveRole === 'BRANCH_SECRETARY';
+    const isMediaTeam = effectiveRole === 'SUPER_MEDIA' || effectiveRole === 'BRANCH_MEDIA' || effectiveRole === 'MEDIA_TEAM';
+    const isAnyAdmin = effectiveRole === 'SUPER_ADMIN' || effectiveRole === 'BRANCH_ADMIN';
+    const isDistrictOfficial = effectiveRole?.startsWith('SUPER_');
+    const isBranchOfficial = effectiveRole?.startsWith('BRANCH_');
+
     const currentBranchIdForData = inspectionBranchId || (isActuallySuperAdmin ? selectedBranchId : (adminData?.branchId || storedBranchId));
 
     // -- Handlers --
@@ -328,9 +338,20 @@ export default function AdminDashboard() {
         if (!adminId) { navigate('/login'); return; }
         fetchAllData();
         fetchNotifications();
+        if (currentBranchIdForData) fetchLatestAttendance();
         const interval = setInterval(fetchNotifications, 30000);
         return () => clearInterval(interval);
-    }, [adminId, fetchAllData, navigate]);
+    }, [adminId, fetchAllData, navigate, currentBranchIdForData]);
+
+    const fetchLatestAttendance = async () => {
+        try {
+            const res = await fetch(`/api/attendance/branch/${currentBranchIdForData}`);
+            const data = await res.json();
+            if (data.success && data.data.length > 0) {
+                setLatestAttendance(data.data[0]); // Most recent
+            }
+        } catch (err) { console.error("Stats Fetch Error:", err); }
+    };
 
     // Management Handlers
     const handleAnnouncementSubmit = async (e) => {
@@ -701,23 +722,17 @@ export default function AdminDashboard() {
                                 </h3>
                                 {(!isActuallySuperAdmin || isReadOnly) ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <QuickAction label="Upcoming Events" icon={faBullhorn} tab="updates" desc="Events & Announcements" />
-                                        <QuickAction label="Gallery" icon={faImages} tab="gallery" desc="Photos & Media" />
-                                        {!isActuallySuperAdmin && !isReadOnly && <QuickAction label="Media Team" icon={faUserShield} tab="media-team" desc="Manage your team" />}
-                                        <QuickAction label="Member List" icon={faUsers} tab="members" desc="View directory" />
+                                        {(isAnyAdmin || isSecretary) && <QuickAction label="Post Insight" icon={faBullhorn} tab="updates" desc="Broadcast to Assembly" />}
+                                        {(isAnyAdmin || isMediaTeam) && <QuickAction label="Upload Media" icon={faImages} tab="gallery" desc="Photos & Sermons" />}
+                                        {(isBranchOfficial && isSecretary) && <QuickAction label="Sunday Stats" icon={faCalendarAlt} tab="attendance" desc="Fill Attendance Form" />}
+                                        <QuickAction label="Registry" icon={faUsers} tab="members" desc="View Directory" />
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {(!isActuallySuperAdmin && !isReadOnly) && (
-                                            <QuickAction label="Manage Admins" icon={faUserShield} tab="admins" desc="Oversee Staff" />
-                                        )}
-                                        {(!isActuallySuperAdmin && !isReadOnly) && (
-                                            <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network oversight" />
-                                        )}
+                                        <QuickAction label="Manage Staff" icon={faUserShield} tab="admins" desc="Oversee Officials" />
+                                        <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network Oversight" />
                                         <QuickAction label="Congregation" icon={faUsers} tab="members" desc="Universal Registry" />
-                                        {(!isActuallySuperAdmin && !isReadOnly) && (
-                                            <QuickAction label="Assembly Help" icon={faWhatsapp} tab="support" desc="WhatsApp Support" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
-                                        )}
+                                        <QuickAction label="Support" icon={faWhatsapp} tab="support" desc="WhatsApp Help" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
                                     </div>
                                 )}
                             </div>
@@ -803,42 +818,53 @@ export default function AdminDashboard() {
                                             <span className="text-[10px] font-black opacity-50 uppercase tracking-widest">Live Integration</span>
                                         </div>
                                     </div>
-                                    <p className="text-sm font-medium text-mdOnSurfaceVariant mb-8 opacity-70">Interactive oversight of assembly growth across all branches.</p>
                                     
-                                    {/* Simulated Growth Chart (SVG) */}
-                                    <div className="relative h-24 w-full mb-6">
-                                        <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
-                                            <defs>
-                                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="0%" stopColor="var(--color-md-secondary)" stopOpacity="0.4" />
-                                                    <stop offset="100%" stopColor="var(--color-md-secondary)" stopOpacity="0" />
-                                                </linearGradient>
-                                            </defs>
-                                            <path 
-                                                d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,10 T100,5" 
-                                                fill="none" 
-                                                stroke="var(--color-md-secondary)" 
-                                                strokeWidth="2" 
-                                                strokeLinecap="round"
-                                            />
-                                            <path 
-                                                d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,10 T100,5 V40 H0 Z" 
-                                                fill="url(#chartGradient)"
-                                            />
-                                            <circle cx="20" cy="32" r="1.5" fill="var(--color-md-primary)" />
-                                            <circle cx="60" cy="25" r="1.5" fill="var(--color-md-primary)" />
-                                            <circle cx="100" cy="5" r="2" fill="var(--color-md-secondary)" className="animate-pulse" />
-                                        </svg>
-                                    </div>
+                                    {latestAttendance ? (
+                                        <div className="space-y-4 animate-fade-in">
+                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Last Sabbath Report</p>
+                                            <div className="p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">Total Souls</span>
+                                                    <span className="text-lg font-black text-mdPrimary">{Number(latestAttendance.menCount) + Number(latestAttendance.womenCount) + Number(latestAttendance.childrenCount)}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs font-bold text-mdOnSurfaceVariant">Officers</span>
+                                                    <span className="text-lg font-black text-mdSecondary">{latestAttendance.totalOfficers}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2 pt-2 text-[10px] font-black text-emerald-600">
+                                                <FontAwesomeIcon icon={faIdCard} />
+                                                <span>{latestAttendance.visitorsCount} Newcomers Registered</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <p className="text-sm font-medium text-mdOnSurfaceVariant mb-8 opacity-70">Interactive oversight of assembly growth across all branches.</p>
+                                            <div className="relative h-24 w-full mb-6">
+                                                <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-md">
+                                                    <defs>
+                                                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="0%" stopColor="var(--color-md-secondary)" stopOpacity="0.4" />
+                                                            <stop offset="100%" stopColor="var(--color-md-secondary)" stopOpacity="0" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <path d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,10 T100,5" fill="none" stroke="var(--color-md-secondary)" strokeWidth="2" strokeLinecap="round" />
+                                                    <path d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,10 T100,5 V40 H0 Z" fill="url(#chartGradient)" />
+                                                    <circle cx="20" cy="32" r="1.5" fill="var(--color-md-primary)" />
+                                                    <circle cx="100" cy="5" r="2" fill="var(--color-md-secondary)" className="animate-pulse" />
+                                                </svg>
+                                            </div>
+                                        </>
+                                    )}
                                     
-                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-mdOutline/5">
+                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-mdOutline/5 mt-auto">
                                         <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Total Impact</p>
-                                            <p className="text-xl font-black text-mdOnSurface">4.8K</p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Impact Level</p>
+                                            <p className="text-xl font-black text-mdOnSurface">High</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Growth Rate</p>
-                                            <p className="text-xl font-black text-mdSecondary">+12%</p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Status</p>
+                                            <p className="text-xl font-black text-mdSecondary">Active</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1046,13 +1072,13 @@ export default function AdminDashboard() {
                                 <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter">Assembly Insights</h1>
                                 <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Insights & Gatherings</p>
                             </div>
-                            {(!isActuallySuperAdmin && !isReadOnly) && updatesSubTab === 'announcements' && (
+                            {(isAnyAdmin || isSecretary) && !isReadOnly && updatesSubTab === 'announcements' && (
                                 <button onClick={() => setShowAnnForm(!showAnnForm)} className="btn-premium">
                                     <FontAwesomeIcon icon={showAnnForm ? faTimes : faPlus} />
                                     {showAnnForm ? 'Cancel' : 'Post Announcement'}
                                 </button>
                             )}
-                            {(!isActuallySuperAdmin && !isReadOnly) && updatesSubTab === 'events' && (
+                            {(isAnyAdmin || isSecretary) && !isReadOnly && updatesSubTab === 'events' && (
                                 <button onClick={() => setShowEventForm(!showEventForm)} className="btn-premium">
                                     <FontAwesomeIcon icon={showEventForm ? faTimes : faPlus} />
                                     {showEventForm ? 'Cancel' : 'Schedule Event'}
@@ -1141,15 +1167,32 @@ export default function AdminDashboard() {
                 {activeTab === 'gallery' && (
                     <div className="animate-fade-in mt-4">
                         <Gallery
-                            canUpload={isMediaTeam || (!isActuallySuperAdmin && !isReadOnly)}
+                            canUpload={(isAnyAdmin || isMediaTeam) && !isReadOnly}
                             branchId={currentBranchIdForData}
                             currentUserId={adminId}
                             currentUserName={adminName}
+                            userRole={effectiveRole}
                         />
                     </div>
                 )}
 
-                {/* 5.7 CHAT removed */}
+                {/* 5.5 ATTENDANCE */}
+                {activeTab === 'attendance' && (
+                    <div className="animate-fade-in mt-4">
+                        <AttendanceManager branchId={currentBranchIdForData} />
+                    </div>
+                )}
+
+                {/* 5.6 MESSAGES */}
+                {activeTab === 'messages' && (
+                    <div className="animate-fade-in mt-4">
+                        <MessageCenter 
+                            currentUserId={adminId} 
+                            currentUserRole={effectiveRole}
+                            adminName={adminName}
+                        />
+                    </div>
+                )}
 
                 {/* 5.8 MEDIA TEAM — Branch Admins Only */}
                 {!isActuallySuperAdmin && !isReadOnly && activeTab === 'media-team' && (
@@ -1336,8 +1379,20 @@ export default function AdminDashboard() {
                                             value={adminForm.role}
                                             onChange={e => setAdminForm({...adminForm, role: e.target.value})}
                                         >
-                                            <option value="BRANCH_ADMIN">Branch Admin</option>
-                                            <option value="MEDIA_TEAM">Media Team</option>
+                                            {isActuallySuperAdmin ? (
+                                                <>
+                                                    <option value="BRANCH_ADMIN">Branch Admin</option>
+                                                    <option value="BRANCH_SECRETARY">Branch Secretary</option>
+                                                    <option value="BRANCH_MEDIA">Branch Media Team</option>
+                                                    <option value="SUPER_SECRETARY">District Secretary (Super)</option>
+                                                    <option value="SUPER_MEDIA">District Media Team (Super)</option>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <option value="BRANCH_SECRETARY">Branch Secretary</option>
+                                                    <option value="BRANCH_MEDIA">Branch Media Team</option>
+                                                </>
+                                            )}
                                         </select>
                                         <select 
                                             className="w-full p-4 bg-mdSurfaceVariant/20 border-none rounded-2xl font-bold" 

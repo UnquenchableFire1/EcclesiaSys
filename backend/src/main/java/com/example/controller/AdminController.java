@@ -129,11 +129,13 @@ public class AdminController {
                 return response;
             }
 
-            // Branch admins can only create MEDIA_TEAM, not other BRANCH_ADMIN accounts
-            if (isBranchAdmin && !isSuperAdmin && "BRANCH_ADMIN".equals(requestedRole)) {
-                response.put("success", false);
-                response.put("message", "Branch Admins can only create Media Team accounts.");
-                return response;
+            // Branch admins can only create their own branch staff
+            if (isBranchAdmin && !isSuperAdmin) {
+                if (!"BRANCH_SECRETARY".equals(requestedRole) && !"BRANCH_MEDIA".equals(requestedRole)) {
+                    response.put("success", false);
+                    response.put("message", "Branch Admins can only create Branch Secretary and Media Team accounts.");
+                    return response;
+                }
             }
 
             if (name == null || email == null || password == null ||

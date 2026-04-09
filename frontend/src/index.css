@@ -7,16 +7,18 @@
 
 @layer base {
   :root {
-    /* Church of Pentecost Official Branding */
-    --color-md-primary: #1A2F5F;        /* Ultramarine Blue */
+    /* Church of Pentecost Official Branding - Finalized */
+    --color-md-primary: #1A2F5F;        /* COP Royal Blue */
     --color-md-on-primary: #FFFFFF;
     --color-md-primary-container: #E8EDF8;
     --color-md-on-primary-container: #1A2F5F;
     
-    --color-md-secondary: #C9AF1E;      /* Branded Gold */
+    --color-md-secondary: #C9AF1E;      /* COP Gold */
     --color-md-on-secondary: #000000;
     --color-md-secondary-container: #FFF7D1;
     --color-md-on-secondary-container: #4D4100;
+    
+    --color-md-tertiary: #0D1B3E;       /* Deep Navy for extreme contrast */
     
     --color-md-surface: #FDFDFD;
     --color-md-on-surface: #001D35;

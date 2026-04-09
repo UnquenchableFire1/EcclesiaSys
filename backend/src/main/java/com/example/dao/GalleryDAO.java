@@ -20,6 +20,9 @@ public class GalleryDAO {
                 "media_url VARCHAR(2000) NOT NULL, " +
                 "media_type VARCHAR(20) NOT NULL DEFAULT 'PHOTO', " +
                 "is_sermon TINYINT(1) NOT NULL DEFAULT 0, " +
+                "is_theme_song TINYINT(1) NOT NULL DEFAULT 0, " +
+                "speaker VARCHAR(255), " +
+                "sermon_date DATETIME, " +
                 "folder_name VARCHAR(150), " +
                 "branch_id INT, " +
                 "uploaded_by INT NOT NULL, " +
@@ -30,6 +33,9 @@ public class GalleryDAO {
         String[] columnsToAdd = {
             "ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS media_type VARCHAR(20) NOT NULL DEFAULT 'PHOTO'",
             "ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS is_sermon TINYINT(1) NOT NULL DEFAULT 0",
+            "ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS is_theme_song TINYINT(1) NOT NULL DEFAULT 0",
+            "ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS speaker VARCHAR(255)",
+            "ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS sermon_date DATETIME",
             "ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS folder_name VARCHAR(150)",
             "ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS uploader_name VARCHAR(255)",
             // Rename image_url -> media_url if old table existed
@@ -59,8 +65,8 @@ public class GalleryDAO {
 
     /** Insert a new gallery item */
     public boolean addGalleryItem(GalleryItem item) {
-        String query = "INSERT INTO gallery_items (title, caption, media_url, media_type, is_sermon, folder_name, branch_id, uploaded_by, uploader_name) " +
-                       "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO gallery_items (title, caption, media_url, media_type, is_sermon, is_theme_song, speaker, sermon_date, folder_name, branch_id, uploaded_by, uploader_name) " +
+                       "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, item.getTitle());
@@ -68,10 +74,13 @@ public class GalleryDAO {
             stmt.setString(3, item.getMediaUrl());
             stmt.setString(4, item.getMediaType() != null ? item.getMediaType() : "PHOTO");
             stmt.setBoolean(5, item.isSermon());
-            stmt.setString(6, item.getFolderName());
-            if (item.getBranchId() != null) stmt.setInt(7, item.getBranchId()); else stmt.setNull(7, Types.INTEGER);
-            stmt.setInt(8, item.getUploadedBy());
-            stmt.setString(9, item.getUploaderName());
+            stmt.setBoolean(6, item.isThemeSong());
+            stmt.setString(7, item.getSpeaker());
+            stmt.setTimestamp(8, item.getSermonDate() != null ? Timestamp.valueOf(item.getSermonDate()) : null);
+            stmt.setString(9, item.getFolderName());
+            if (item.getBranchId() != null) stmt.setInt(10, item.getBranchId()); else stmt.setNull(10, Types.INTEGER);
+            stmt.setInt(11, item.getUploadedBy());
+            stmt.setString(12, item.getUploaderName());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -149,6 +158,10 @@ public class GalleryDAO {
         item.setMediaUrl(rs.getString("media_url"));
         item.setMediaType(rs.getString("media_type"));
         item.setSermon(rs.getBoolean("is_sermon"));
+        item.setThemeSong(rs.getBoolean("is_theme_song"));
+        item.setSpeaker(rs.getString("speaker"));
+        Timestamp sermonTs = rs.getTimestamp("sermon_date");
+        if (sermonTs != null) item.setSermonDate(sermonTs.toLocalDateTime());
         item.setFolderName(rs.getString("folder_name"));
         int bId = rs.getInt("branch_id");
         item.setBranchId(rs.wasNull() ? null : bId);

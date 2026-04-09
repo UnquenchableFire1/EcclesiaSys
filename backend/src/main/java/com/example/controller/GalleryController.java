@@ -62,6 +62,13 @@ public class GalleryController {
             item.setMediaUrl((String) body.get("mediaUrl"));
             item.setMediaType((String) body.getOrDefault("mediaType", "PHOTO"));
             item.setSermon(Boolean.TRUE.equals(body.get("isSermon")));
+            item.setThemeSong(Boolean.TRUE.equals(body.get("isThemeSong")));
+            item.setSpeaker((String) body.get("speaker"));
+            
+            String sermonDateStr = (String) body.get("sermonDate");
+            if (sermonDateStr != null && !sermonDateStr.isBlank()) {
+                item.setSermonDate(java.time.LocalDateTime.parse(sermonDateStr));
+            }
 
             String folderName = (String) body.get("folderName");
             item.setFolderName((folderName != null && !folderName.isBlank()) ? folderName.trim() : null);

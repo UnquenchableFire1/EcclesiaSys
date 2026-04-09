@@ -14,7 +14,7 @@ public class Admin {
     private String gender;
     private String bio;
     private String phoneNumber;
-    private String role; // 'SUPER_ADMIN' or 'BRANCH_ADMIN'
+    private String role; // 'SUPER_ADMIN', 'SUPER_SECRETARY', 'SUPER_MEDIA', 'BRANCH_ADMIN', 'BRANCH_SECRETARY', 'BRANCH_MEDIA'
     private Integer branchId;
     private int createdBy;
     private LocalDateTime createdDate;
