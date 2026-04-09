@@ -10,8 +10,8 @@ WORKDIR /frontend
 # Copy package files
 COPY frontend/package*.json ./
 
-# Install dependencies with legacy peer deps support
-RUN npm install --legacy-peer-deps --prefer-offline --no-audit --verbose || npm install --legacy-peer-deps --force --prefer-offline
+# Install dependencies with legacy peer deps support, deleting the Windows lockfile first so Linux can pull correct native binaries
+RUN rm -f package-lock.json && npm install --legacy-peer-deps --no-audit || npm install --legacy-peer-deps --force
 
 
 # Copy source code
