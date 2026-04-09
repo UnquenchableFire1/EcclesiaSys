@@ -104,6 +104,11 @@ export default function AttendanceManager({ branchId }) {
             }
         } catch (err) {
             showToast("Server refused archives.", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleFollowUpToggle = async (visitorId, currentStatus) => {
         const newStatus = currentStatus === 'PENDING' ? 'COMPLETED' : 'PENDING';
         try {
