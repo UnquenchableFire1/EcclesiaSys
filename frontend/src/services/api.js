@@ -307,6 +307,18 @@ export const getConversations = (userId) => {
   return api.get('/chat/conversations', { params: { userId } });
 };
 
+export const getMessagesByCategory = (category) => {
+  return api.get(`/messages/category/${category}`);
+};
+
+export const getMessagesByUser = (userId) => {
+  return api.get(`/messages/user/${userId}`);
+};
+
+export const sendFormalMessage = (data) => {
+  return api.post('/messages/send', data);
+};
+
 export const markChatMessageAsRead = (messageId) => {
   return api.put('/chat/read', null, { params: { messageId } });
 };

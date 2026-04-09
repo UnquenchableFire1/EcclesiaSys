@@ -132,7 +132,7 @@ export default function AttendanceManager({ branchId }) {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter italic">Attendance Ledger</h1>
-                    <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Sabbath Numerical Reporting & Resident Newcomers</p>
+                    <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Sunday Numerical Reporting & Resident Newcomers</p>
                 </div>
                 <div className="flex bg-mdSurfaceVariant/20 p-1 rounded-2xl">
                     <button 
@@ -295,7 +295,7 @@ export default function AttendanceManager({ branchId }) {
                             disabled={loading}
                             className="btn-premium w-full py-6 text-lg"
                         >
-                            {loading ? 'Committing to Archives...' : 'Submit Sabbath Statistical Report'}
+                            {loading ? 'Committing to Archives...' : 'Submit Statistical Report'}
                         </button>
                     </div>
                 </form>

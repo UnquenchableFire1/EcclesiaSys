@@ -45,15 +45,8 @@ export default function Home() {
       {/* Hero Section */}
       {/* 2026 Theme Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden rounded-[4rem] group reveal mx-4 mt-4">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="/assets/images/church/theme_bg_2026.jpg" 
-            alt="Theme 2026" 
-            className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110"
-            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=2073&auto=format&fit=crop"; }}
-          />
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-mdPrimary to-mdTertiary">
           <div className="absolute inset-0 bg-gradient-to-t from-mdPrimary via-mdPrimary/40 to-transparent"></div>
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
         </div>
 
         <div className="relative z-10 text-center px-6 max-w-6xl mx-auto space-y-10">
@@ -134,9 +127,7 @@ export default function Home() {
             })()}
 
             {/* Always show Location as a fallback/extra card if needed, or just standard card */}
-            <div className="img-card group h-full min-h-[350px]">
-              <img src="https://images.unsplash.com/photo-1445006844190-6da56b30c115?q=80&w=2070&auto=format&fit=crop" alt="Visit Us" />
-              <div className="image-overlay-dark opacity-60"></div>
+            <div className="img-card group h-full min-h-[350px] bg-gradient-to-br from-mdPrimary to-mdTertiary">
               <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end text-white">
                 <div className="text-3xl mb-6 bg-white text-mdPrimary w-16 h-16 flex items-center justify-center rounded-2xl shadow-premium">
                     <FontAwesomeIcon icon={faMapMarkerAlt} />
@@ -157,10 +148,8 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Link 
             to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/announcements'} 
-            className="img-card group min-h-[500px]"
+            className="img-card group min-h-[500px] bg-gradient-to-br from-mdPrimary to-mdTertiary"
           >
-            <img src="/assets/images/church/church_4.jpg" alt="Announcements" />
-            <div className="image-overlay group-hover:bg-mdPrimary/60 transition-all duration-500"></div>
             <div className="absolute inset-0 z-10 p-12 flex flex-col justify-end text-white">
               <div className="text-4xl mb-8 bg-mdPrimary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium">
                   <FontAwesomeIcon icon={faBullhorn} />
@@ -175,10 +164,8 @@ export default function Home() {
 
           <Link 
             to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/events'} 
-            className="img-card group min-h-[500px]"
+            className="img-card group min-h-[500px] bg-gradient-to-br from-mdSecondaryContainer to-mdSecondary"
           >
-            <img src="/assets/images/church/church_5.jpg" alt="Events" />
-            <div className="image-overlay group-hover:bg-mdSecondary/60 transition-all duration-500"></div>
             <div className="absolute inset-0 z-10 p-12 flex flex-col justify-end text-white">
               <div className="text-4xl mb-8 bg-mdSecondary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium">
                   <FontAwesomeIcon icon={faCalendarAlt} />
@@ -193,10 +180,8 @@ export default function Home() {
 
           <Link 
             to={userType ? (userType === 'admin' ? '/admin' : '/member-dashboard') : '/sermons'} 
-            className="img-card group min-h-[500px]"
+            className="img-card group min-h-[500px] bg-gradient-to-br from-mdPrimary to-mdTertiary"
           >
-            <img src="/assets/images/church/church_6.jpg" alt="Sermons" />
-            <div className="image-overlay group-hover:bg-mdPrimary/60 transition-all duration-500"></div>
             <div className="absolute inset-0 z-10 p-12 flex flex-col justify-end text-white">
               <div className="text-4xl mb-8 bg-mdPrimary w-20 h-20 flex items-center justify-center rounded-3xl group-hover:scale-110 transition-transform duration-500 shadow-premium">
                   <FontAwesomeIcon icon={faMicrophone} />
@@ -217,9 +202,7 @@ export default function Home() {
       </div>
 
       {/* Stats Section with Background Image */}
-      <section className="relative h-[400px] rounded-[4rem] overflow-hidden flex items-center justify-center shadow-premium group reveal">
-        <img src="/assets/images/church/church_7.jpg" alt="Stats Background" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
-        <div className="image-overlay-dark opacity-80 backdrop-blur-sm"></div>
+      <section className="relative h-[400px] rounded-[4rem] overflow-hidden flex items-center justify-center shadow-premium group reveal bg-gradient-to-br from-mdPrimary to-mdTertiary">
         <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 text-center text-white">
           {[
             { label: 'Years Serving', value: '25+', icon: faStar },

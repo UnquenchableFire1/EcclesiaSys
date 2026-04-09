@@ -75,7 +75,6 @@ export default function Sermons({ embedded = false, branchId = null }) {
                      <Hero 
                         title="Heavenly Revelations"
                         subtitle="Explore our archive of life-transforming messages and divine teachings from the anointed leaders of our assembly."
-                        backgroundImage="/assets/images/church/church_9.jpg"
                         small={true}
                     />
                 </div>
@@ -116,13 +115,8 @@ export default function Sermons({ embedded = false, branchId = null }) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {filteredSermons.map((sermon, idx) => (
-                        <div key={sermon.id} className="img-card group h-[450px] rounded-[2.5rem] hover:shadow-premium transition-all duration-700">
-                             <img 
-                                src={`/assets/images/church/church_${(idx % 10) + 4}.jpg`} 
-                                alt={sermon.title} 
-                                className="transition-transform duration-[2s] group-hover:scale-110"
-                             />
-                             <div className="image-overlay group-hover:bg-mdPrimary/40 transition-all duration-700"></div>
+                        <div key={sermon.id} className="img-card group h-[450px] rounded-[2.5rem] hover:shadow-premium transition-all duration-700 bg-gradient-to-br from-mdPrimary to-mdTertiary">
+                             <div className="absolute inset-0 bg-black/10 group-hover:bg-mdPrimary/40 transition-all duration-700"></div>
                              
                              {isAdmin && (
                                 <div className="absolute top-6 right-6 z-20">
@@ -190,9 +184,8 @@ export default function Sermons({ embedded = false, branchId = null }) {
                         </button>
 
                         {/* Visual Section */}
-                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full">
-                            <img src="/assets/images/church/church_12.jpg" alt="Sermon Detail" className="absolute inset-0 w-full h-full object-cover" />
-                            <div className="image-overlay-dark opacity-70"></div>
+                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full bg-gradient-to-br from-mdPrimary to-mdTertiary">
+                            <div className="absolute inset-0 bg-black/40"></div>
                             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-12 text-white">
                                 <div className="w-24 h-24 rounded-[2rem] bg-mdSecondary flex items-center justify-center mb-8 shadow-premium animate-float">
                                     <FontAwesomeIcon icon={faMicrophone} className="text-4xl" />

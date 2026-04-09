@@ -113,7 +113,6 @@ export default function Events({ embedded = false, branchId = null }) {
                     <Hero 
                         title="Sacred Gatherings"
                         subtitle="Join our vibrant community as we fellowship together, grow in grace, and manifest the assembly's vision in our world."
-                        backgroundImage="/assets/images/church/church_11.jpg"
                         small={true}
                     />
                 </div>
@@ -154,13 +153,8 @@ export default function Events({ embedded = false, branchId = null }) {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {filteredEvents.map((event, idx) => (
-                        <div key={event.id} className="img-card group min-h-[550px] rounded-[3rem] hover:shadow-premium transition-all duration-700 flex flex-col">
-                             <img 
-                                src={`/assets/images/church/church_${(idx % 10) + 6}.jpg`} 
-                                alt={event.title} 
-                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110"
-                             />
-                             <div className="image-overlay group-hover:bg-mdSecondary/40 transition-all duration-700"></div>
+                        <div key={event.id} className="img-card group min-h-[550px] rounded-[3rem] hover:shadow-premium transition-all duration-700 flex flex-col bg-gradient-to-br from-mdSecondaryContainer to-mdSecondary">
+                             <div className="absolute inset-0 bg-black/10 group-hover:bg-mdSecondary/40 transition-all duration-700"></div>
                              
                              {isAdmin && (
                                 <div className="absolute top-8 right-8 z-20">
@@ -238,9 +232,8 @@ export default function Events({ embedded = false, branchId = null }) {
                         </button>
 
                         {/* Visual Header */}
-                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full">
-                            <img src="/assets/images/church/church_14.jpg" alt="Event Detail" className="absolute inset-0 w-full h-full object-cover" />
-                            <div className="image-overlay-dark opacity-70"></div>
+                        <div className="w-full md:w-5/12 relative min-h-[300px] md:min-h-full bg-gradient-to-br from-mdSecondaryContainer to-mdSecondary">
+                            <div className="absolute inset-0 bg-black/40"></div>
                             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-12 text-white">
                                 <div className="w-24 h-24 rounded-[2rem] bg-mdPrimary flex items-center justify-center mb-8 shadow-premium animate-float ring-8 ring-white/5">
                                     <FontAwesomeIcon icon={faCalendarAlt} className="text-4xl" />

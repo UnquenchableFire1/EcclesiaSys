@@ -22,6 +22,8 @@ import DailyVerse from '../components/DailyVerse';
 import ChangePassword from '../components/ChangePassword';
 import MemberProfile from './MemberProfile';
 import Lightbox from '../components/Lightbox';
+import Announcements from './Announcements';
+import Events from './Events';
 
 export default function MemberDashboard({ defaultTab = 'home' }) {
     const navigate = useNavigate();
@@ -231,9 +233,7 @@ export default function MemberDashboard({ defaultTab = 'home' }) {
                         })()}
 
                         {/* Hero Section */}
-                        <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
-                            <img src="/assets/images/church/church_8.jpg" alt="Assembly" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
-                            <div className="image-overlay-dark opacity-70"></div>
+                        <div className="relative h-[450px] rounded-[3rem] overflow-hidden shadow-premium bg-gradient-to-br from-mdPrimary to-mdTertiary group mb-12">
                             <div className="relative z-10 h-full p-10 md:p-16 flex flex-col justify-center max-w-2xl text-white">
                                 <span className="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.4em] mb-8 inline-block border border-white/10 w-max">Member Assembly</span>
                                 <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-[0.9]">

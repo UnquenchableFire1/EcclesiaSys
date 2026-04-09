@@ -37,13 +37,8 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden bg-mdSurface">
       {/* Left Side: Structural Assembly */}
-      <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
-        <img 
-          src="/assets/images/church/church_1.jpg" 
-          alt="Admin Foundation" 
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
-        />
-        <div className="image-overlay-dark opacity-70"></div>
+      <div className="hidden md:flex md:w-1/2 relative overflow-hidden group bg-gradient-to-br from-mdSecondaryContainer to-mdSecondary">
+        <div className="absolute inset-0 bg-black/40 mix-blend-overlay"></div>
         <div className="relative z-10 flex flex-col justify-center items-center h-full p-20 text-white text-center">
         <div className="mb-12">
             <AssemblyLogo size={120} showText={false} isDark={true} className="animate-float" />
@@ -60,8 +55,7 @@ export default function AdminLogin() {
   {/* Right Side: Admin Authentication */}
   <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 relative">
     {/* Mobile Background Image */}
-    <div className="md:hidden absolute inset-0 z-0">
-        <img src="/assets/images/church/church_1.jpg" alt="" className="w-full h-full object-cover opacity-10" />
+    <div className="md:hidden absolute inset-0 z-0 bg-mdSecondary/5">
         <div className="absolute inset-0 bg-mdSurface/80"></div>
     </div>
 

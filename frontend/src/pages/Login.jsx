@@ -60,13 +60,8 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row animate-fade-in overflow-hidden">
       {/* Left Side: Visual Assembly */}
-      <div className="hidden md:flex md:w-1/2 relative overflow-hidden group">
-        <img 
-          src="/assets/images/church/church_7.jpg" 
-          alt="Assembly Entrance" 
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110"
-        />
-        <div className="image-overlay-dark opacity-60"></div>
+      <div className="hidden md:flex md:w-1/2 relative overflow-hidden group bg-gradient-to-br from-mdPrimary to-mdTertiary">
+        <div className="absolute inset-0 bg-black/40 mix-blend-overlay"></div>
         <div className="relative z-10 flex flex-col justify-center items-center h-full p-20 text-white text-center">
             <div className="mb-12">
                 <AssemblyLogo size={120} showText={false} isDark={true} className="animate-float" />
@@ -88,8 +83,7 @@ export default function Login() {
       {/* Right Side: Authentication */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-20 bg-mdSurface relative">
         {/* Mobile Background Image (Low opacity) */}
-        <div className="md:hidden absolute inset-0 z-0">
-            <img src="/assets/images/church/church_7.jpg" alt="" className="w-full h-full object-cover opacity-20" />
+        <div className="md:hidden absolute inset-0 z-0 bg-mdPrimary/5">
             <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white"></div>
         </div>
 

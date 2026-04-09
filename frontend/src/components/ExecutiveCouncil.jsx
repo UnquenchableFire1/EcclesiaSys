@@ -26,7 +26,7 @@ export default function ExecutiveCouncil() {
             <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-mdPrimary/10 to-transparent"></div>
             
             <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-20 reveal">
+                <div className="text-center mb-20 animate-fade-in">
                     <h2 className="text-5xl md:text-7xl font-black text-mdOnSurface tracking-tight mb-6">
                         Executive <span className="text-mdPrimary">Council</span>
                     </h2>
@@ -39,18 +39,20 @@ export default function ExecutiveCouncil() {
                     {council.map((leader, i) => (
                         <div 
                             key={i} 
-                            className="reveal group bg-white rounded-[2.5rem] border border-mdOutline/5 shadow-premium hover:shadow-lifted hover:-translate-y-3 transition-all duration-700 flex flex-col items-center p-8 overflow-hidden relative"
+                            className="animate-fade-in group bg-white rounded-[2.5rem] border border-mdOutline/5 shadow-premium hover:shadow-lifted hover:-translate-y-3 transition-all duration-700 flex flex-col items-center p-8 overflow-hidden relative"
                         >
                             <div className="absolute top-0 right-0 w-24 h-24 bg-mdPrimary/5 rounded-bl-[4rem] -translate-y-2 translate-x-2 transition-transform group-hover:scale-110"></div>
                             
-                            <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden mb-6 shadow-inner ring-4 ring-offset-4 ring-mdPrimary/5">
+                            <div className="relative w-32 h-32 rounded-[2.5rem] overflow-hidden mb-6 shadow-inner ring-4 ring-offset-4 ring-mdPrimary/5 bg-gradient-to-br from-mdPrimary/10 to-mdTertiary/10 flex items-center justify-center">
+                                <span className="absolute text-xl font-black text-mdPrimary opacity-50 z-0">
+                                    {leader.name.split(' ').filter(n => n.length > 2).slice(0,2).map(n => n[0]).join('')}
+                                </span>
                                 <img
                                     src={leader.img}
                                     alt={leader.name}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover relative z-10"
                                     onError={(e) => {
                                         e.target.style.display = 'none';
-                                        e.target.parentNode.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.5rem;font-weight:900;color:#1A2F5F;background:linear-gradient(135deg,rgba(26,47,95,0.1),rgba(201,175,30,0.1))">${leader.name.split(' ').filter(n => n.length > 2).slice(0,2).map(n => n[0]).join('')}</div>`;
                                     }}
                                 />
                             </div>

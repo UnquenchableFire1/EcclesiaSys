@@ -68,10 +68,7 @@ export default function VerifyEmail() {
     return (
         <div className="min-h-screen flex items-center justify-center p-6 bg-mdSurface relative overflow-hidden animate-fade-in">
             {/* Background Map/Image Details */}
-            <div className="absolute inset-0 z-0">
-                <img src="/assets/images/church/church_5.jpg" alt="" className="w-full h-full object-cover opacity-15" />
-                <div className="absolute inset-0 bg-gradient-to-b from-mdSurface/50 via-mdSurface/80 to-mdSurface"></div>
-            </div>
+            <div className="absolute inset-0 z-0 bg-gradient-to-t from-mdSurface via-mdPrimary/5 to-mdSurface"></div>
 
             <div className="glass-card relative z-10 w-full max-w-md p-10 md:p-14 border border-white/20 shadow-premium rounded-[3rem] text-center">
                 <div className="mb-8 flex justify-center">

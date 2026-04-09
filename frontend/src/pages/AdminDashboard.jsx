@@ -32,6 +32,7 @@ import Announcements from './Announcements';
 import Events from './Events';
 import Sermons from './Sermons';
 import AdminProfile from './AdminProfile';
+import MemberProfile from './MemberProfile';
 import Gallery from './Gallery';
 import ChangePassword from '../components/ChangePassword';
 // Chat removed in favor of WhatsApp support
@@ -732,14 +733,12 @@ export default function AdminDashboard() {
                                         <QuickAction label="Manage Staff" icon={faUserShield} tab="admins" desc="Oversee Officials" />
                                         <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network Oversight" />
                                         <QuickAction label="Congregation" icon={faUsers} tab="members" desc="Universal Registry" />
-                                        <QuickAction label="Support" icon={faWhatsapp} tab="support" desc="WhatsApp Help" onClick={() => window.open('https://wa.me/message/DMJE5W7QXC2MF1', '_blank')} />
+                                        <QuickAction label="Dispatches" icon={faEnvelopeOpenText} tab="messages" desc="Official Communication" />
                                     </div>
                                 )}
                             </div>
                             
-                            <div className="relative h-[400px] rounded-[3rem] overflow-hidden shadow-premium group mb-12">
-                                <img src="/assets/images/church/church_13.jpg" alt="Assembly Administration" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
-                                <div className="image-overlay-dark opacity-80 backdrop-blur-[2px]"></div>
+                            <div className="relative h-[400px] rounded-[3rem] overflow-hidden shadow-premium bg-gradient-to-br from-mdPrimary to-mdTertiary group mb-12">
                                 <div className="relative z-10 h-full p-12 flex flex-col justify-center text-white">
                                     <div className="flex items-center gap-4 mb-6">
                                         <div className="w-12 h-12 rounded-2xl bg-mdPrimary/20 backdrop-blur-md flex items-center justify-center text-white border border-white/10">
@@ -821,7 +820,7 @@ export default function AdminDashboard() {
                                     
                                     {latestAttendance ? (
                                         <div className="space-y-4 animate-fade-in">
-                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Last Sabbath Report</p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Last Sunday Report</p>
                                             <div className="p-4 bg-mdPrimary/5 rounded-2xl border border-mdPrimary/10">
                                                 <div className="flex justify-between items-center mb-2">
                                                     <span className="text-xs font-bold text-mdOnSurfaceVariant">Total Souls</span>

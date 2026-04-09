@@ -6,6 +6,7 @@ import {
     faChevronRight, faClock
 } from '@fortawesome/free-solid-svg-icons';
 import { useToast } from '../context/ToastContext';
+import api, { getAdmins } from '../services/api';
 
 export default function MessageCenter({ currentUserId, currentUserRole, adminName }) {
     const [messages, setMessages] = useState([]);
@@ -21,23 +22,40 @@ export default function MessageCenter({ currentUserId, currentUserRole, adminNam
     });
 
     const [replyTo, setReplyTo] = useState(null);
+    const [branchAdmins, setBranchAdmins] = useState([]);
+    const [selectedReceiverId, setSelectedReceiverId] = useState('');
 
     useEffect(() => {
         fetchMessages();
+        if (currentUserRole === 'SUPER_ADMIN' || currentUserRole === 'SUPER_SECRETARY' || currentUserRole === 'SUPER_MEDIA') {
+            fetchAdmins();
+        }
     }, [currentUserId, currentUserRole]);
+
+    const fetchAdmins = async () => {
+        try {
+            const res = await getAdmins();
+            if (res.data?.success) {
+                // Filter to only branch admins
+                setBranchAdmins(res.data.data.filter(a => a.role === 'BRANCH_ADMIN' || a.role === 'BRANCH_SECRETARY' || a.role === 'BRANCH_MEDIA'));
+            }
+        } catch (err) {
+            console.error("Failed to load admins:", err);
+        }
+    };
 
     const fetchMessages = async () => {
         setLoading(true);
         try {
-            let url = `/api/messages/user/${currentUserId}`;
+            let url = `/messages/user/${currentUserId}`;
             
             // Super officials fetch by category to see all branch dispatches
-            if (currentUserRole === 'SUPER_ADMIN') url = `/api/messages/category/DISTRICT_OFFICE`;
-            else if (currentUserRole === 'SUPER_SECRETARY') url = `/api/messages/category/SECRETARIAT`;
-            else if (currentUserRole === 'SUPER_MEDIA') url = `/api/messages/category/MEDIA_HUB`;
+            if (currentUserRole === 'SUPER_ADMIN') url = `/messages/category/DISTRICT_OFFICE`;
+            else if (currentUserRole === 'SUPER_SECRETARY') url = `/messages/category/SECRETARIAT`;
+            else if (currentUserRole === 'SUPER_MEDIA') url = `/messages/category/MEDIA_HUB`;
 
-            const res = await fetch(url);
-            const data = await res.json();
+            const res = await api.get(url);
+            const data = res.data;
             if (data.success) setMessages(data.data);
         } catch (err) {
             console.error("Inbox load failure:", err);
@@ -48,32 +66,43 @@ export default function MessageCenter({ currentUserId, currentUserRole, adminNam
 
     const handleSend = async (e) => {
         e.preventDefault();
+        
+        if ((currentUserRole.startsWith('SUPER_') && !replyTo) && !selectedReceiverId) {
+            showToast("Please select a recipient.", "error");
+            return;
+        }
+
         setLoading(true);
 
         let targetCategory = 'DISTRICT_OFFICE'; 
         if (currentUserRole === 'BRANCH_SECRETARY' || currentUserRole === 'SUPER_SECRETARY') targetCategory = 'SECRETARIAT';
         if (currentUserRole === 'BRANCH_MEDIA' || currentUserRole === 'SUPER_MEDIA') targetCategory = 'MEDIA_HUB';
 
+        const isSuper = currentUserRole.startsWith('SUPER_');
+        const finalContent = isSuper ? composeForm.content : `[From: ${adminName}]\n\n${composeForm.content}`;
+
+        let finalReceiverId = replyTo ? replyTo.senderId : null;
+        if (isSuper && !replyTo) {
+            finalReceiverId = selectedReceiverId;
+        }
+
         const payload = {
             senderId: currentUserId,
             subject: composeForm.subject,
-            content: composeForm.content,
+            content: finalContent,
             category: targetCategory,
-            receiverId: replyTo ? replyTo.senderId : null, // If reply, send back to sender
+            receiverId: finalReceiverId, 
             parentMessageId: replyTo ? replyTo.id : null
         };
 
         try {
-            const res = await fetch('/api/messages/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
+            const res = await api.post('/messages/send', payload);
+            const data = res.data;
             if (data.success) {
                 showToast("Formal dispatch sent successfully.", "success");
                 setComposeForm({ subject: '', content: '', category: 'FORMAL' });
                 setReplyTo(null);
+                setSelectedReceiverId('');
                 setActiveTab('inbox');
                 fetchMessages();
             } else {
@@ -146,6 +175,24 @@ export default function MessageCenter({ currentUserId, currentUserRole, adminNam
                                         required
                                     />
                                 </div>
+                                {currentUserRole.startsWith('SUPER_') && !replyTo && (
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-4">Select Recipient Official</label>
+                                        <select
+                                            className="w-full p-5 bg-mdSurfaceVariant/10 border-none rounded-2xl font-bold text-mdOnSurface appearance-none"
+                                            value={selectedReceiverId}
+                                            onChange={e => setSelectedReceiverId(e.target.value)}
+                                            required
+                                        >
+                                            <option value="">-- Choose Branch Admin --</option>
+                                            {branchAdmins.map(admin => (
+                                                <option key={admin.id} value={admin.userId}>
+                                                    {admin.name} ({admin.role.replace('_', ' ')})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-mdOutline ml-4">Detailed Content</label>
                                     <textarea 

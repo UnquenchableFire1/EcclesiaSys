@@ -72,7 +72,6 @@ export default function Announcements({ embedded = false, branchId = null }) {
                      <Hero 
                         title="Assembly Insights"
                         subtitle="Stay updated with the latest news, events, and announcements from our community."
-                        backgroundImage="/assets/images/church/church_4.jpg"
                         small={true}
                     />
                 </div>

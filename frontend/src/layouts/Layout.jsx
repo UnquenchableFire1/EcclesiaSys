@@ -324,7 +324,7 @@ export default function Layout({ children }) {
             </div>
 
             {/* Global Floating WhatsApp Support Button */}
-            {userId && !isSuperAdmin && (
+            {userId && userType === 'member' && (
                 <div className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-[2000] animate-fade-in group">
                     <div className="absolute inset-0 bg-mdSecondary rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
                     <a 
