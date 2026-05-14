@@ -1,6 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import crypto from 'node:crypto';
+
+// Polyfill for environments where globalThis.crypto is missing (e.g. some Node versions)
+if (!globalThis.crypto) {
+  globalThis.crypto = crypto;
+}
+
 
 export default defineConfig({
   plugins: [
@@ -35,5 +42,17 @@ export default defineConfig({
         ]
       }
     })
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-icons': ['@fortawesome/react-fontawesome', '@fortawesome/free-solid-svg-icons'],
+          'utils': ['axios', 'xlsx', 'recharts']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 });
