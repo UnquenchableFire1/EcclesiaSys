@@ -64,7 +64,7 @@ export default function QRScanner({ onScanSuccess, onScanError, onClose }) {
 
                 <div className="px-8 pb-8 flex flex-col items-center">
                     <div className="text-[10px] font-black uppercase tracking-[0.4em] text-mdOnSurfaceVariant/40">
-                        Powered by EcclesiaSys Secure Scan
+                        Powered by COP Ayikai Doblo Secure Scan
                     </div>
                 </div>
             </div>

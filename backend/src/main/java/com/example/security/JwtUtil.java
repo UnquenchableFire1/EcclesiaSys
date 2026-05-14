@@ -20,7 +20,7 @@ public class JwtUtil {
     private static Key createKey() {
         String secret = System.getenv("JWT_SECRET");
         if (secret == null || secret.trim().isEmpty()) {
-            secret = "ecclesiasys-default-secret-key-for-development-only-1234567890";
+            secret = "cop-ayikai-doblo-default-secret-key-1234567890";
         }
         // JJWT requires at least 256 bits (32 bytes) for HMAC-SHA256 algorithms.
         // If the user provides a short secret, pad it gracefully to prevent startup crashes.

@@ -1,5 +1,5 @@
 -- ============================================================
--- EcclesiaSys Database Cleanup Script
+-- COP Ayikai Doblo District Database Cleanup Script
 -- Keeps:
 --   Admin:  benjaminbuckmanjunior@gmail.com  (SUPER_ADMIN)
 --   Member: bbuckmanjunior@gmail.com          (member account)

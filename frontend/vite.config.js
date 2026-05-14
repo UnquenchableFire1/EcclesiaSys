@@ -10,7 +10,7 @@ export default defineConfig({
       includeAssets: ['logo.png'],
       manifest: {
         name: 'COP Ayikai Doblo District',
-        short_name: 'EcclesiaSys',
+        short_name: 'COP Ayikai',
         description: 'Church of Pentecost Ayikai Doblo District portal.',
         theme_color: '#1A2F5F',
         background_color: '#ffffff',

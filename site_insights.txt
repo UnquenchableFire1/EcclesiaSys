@@ -1,11 +1,11 @@
 ========================================================================
-                      ECCLESIASYS - SITE INSIGHTS
+                      COP AYIKAI DOBLO - SITE INSIGHTS
                    "The Church of Pentecost - Ayikai Doblo"
 ========================================================================
 
 1. PROJECT OVERVIEW
 ------------------------------------------------------------------------
-EcclesiaSys (branded as "COP Ayikai Doblo District") is a modern, full-stack 
+COP Ayikai Doblo District is a modern, full-stack 
 church and district management portal. It is designed to handle hierarchical 
 church administration (District Level vs. Branch Level), member registries, 
 internal communication, media distribution, and event planning.
@@ -66,10 +66,10 @@ F. Premium Aesthetics
 - PWA Integration: The portal is now a Progressive Web App, installable on Android, iOS, and Desktop as a standalone application.
 - Analytics Engine: Integrated Recharts-based demographic visualization for Branch Distribution and Gender metrics.
 - Digital ID System: High-resolution ID Card generation engine with integrated dynamic QR Codes for instant verification.
-- Audit Trail System: Enterprise-grade logging for administrative transparency; tracks all critical member, admin, and branch actions (Exclusive to Super Admins).
-- QR Attendance Tracking: Camera-based scanning engine for individual member check-ins, integrated with the global Attendance Ledger.
-- Enhanced Reporting: Advanced CSV export for the entire membership registry, tailored by administrative role and branch affiliation.
-- Automated Tracker: Background scheduler enabled to track daily assembly celebrations (Birthdays & Anniversaries).
+- Audit Trail System: Enterprise-grade logging for administrative transparency; tracks all critical actions with CSV export capabilities for Super Admins.
+- QR Attendance Tracking: Camera-based scanning engine for check-ins, featuring a "Presence History" view for individual members.
+- Enhanced Reporting: Advanced CSV export for the entire membership registry and system audit logs, tailored by administrative role.
+- Automated Celebration Engine: Background scheduler that dispatches personalized email blessings for birthdays and church anniversaries.
 - Authentication: Session and JWT timeouts standardized to 48 hours for UX stability.
 - Media Infrastructure: Hybrid B2/Cloudinary model fully operational.
 

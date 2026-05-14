@@ -53,7 +53,7 @@ public class EmailTemplateService {
     public void sendEventNotificationEmail(String recipientEmail, String eventName, 
                                            String eventDate, String eventDescription, String eventLocation, String eventId) {
         try {
-            String eventLink = "https://ecclesiasys-bequ.onrender.com/events?id=" + eventId;
+            String eventLink = "https://cop-ayikai-doblo.onrender.com/events?id=" + eventId;
             String subject = "Upcoming Event: " + eventName;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
@@ -85,7 +85,7 @@ public class EmailTemplateService {
      */
     public void sendAnnouncementNotificationEmail(String recipientEmail, String announcementTitle, String announcementContent, String announcementId) {
         try {
-            String announcementLink = "https://ecclesiasys-bequ.onrender.com/announcements?id=" + announcementId;
+            String announcementLink = "https://cop-ayikai-doblo.onrender.com/announcements?id=" + announcementId;
             String subject = "Church Announcement: " + announcementTitle;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
@@ -112,7 +112,7 @@ public class EmailTemplateService {
      */
     public void sendSermonNotificationEmail(String recipientEmail, String sermonTitle, String speaker, String description, String sermonId) {
         try {
-            String sermonLink = "https://ecclesiasys-bequ.onrender.com/sermons?id=" + sermonId;
+            String sermonLink = "https://cop-ayikai-doblo.onrender.com/sermons?id=" + sermonId;
             String subject = "New Sermon Posted: " + sermonTitle;
             String htmlContent = "<html><body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +

@@ -1,5 +1,5 @@
 /**
- * Notification Manager for EcclesiaSys
+ * Notification Manager for COP Ayikai Doblo District
  * Handles permission requests and sending notifications
  */
 

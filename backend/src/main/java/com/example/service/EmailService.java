@@ -18,7 +18,7 @@ public class EmailService {
     @Value("${brevo.api-key:null}")
     private String brevoApiKey;
     
-    @Value("${brevo.sender-email:admin@ecclesiasys.com}")
+    @Value("${brevo.sender-email:admin@copayikaidoblo.com}")
     private String brevoSenderEmail;
 
 

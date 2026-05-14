@@ -198,6 +198,7 @@ export default function AttendanceManager({ branchId }) {
                     >
                         History
                     </button>
+                    </div>
                 </div>
             </div>
 

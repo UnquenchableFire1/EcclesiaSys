@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ecclesiasys-v2';
+const CACHE_NAME = 'cop-ayikai-doblo-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -34,7 +34,7 @@ self.addEventListener('fetch', event => {
 
 self.addEventListener('push', event => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'EcclesiaSys Notification';
+  const title = data.title || 'COP Ayikai Doblo Notification';
   const options = {
     body: data.message || 'New content is available!',
     icon: '/logo.png',

@@ -154,7 +154,7 @@ export default function MessageCenter({ currentUserId, currentUserRole, adminNam
                             <FontAwesomeIcon icon={faShieldAlt} /> Protocols
                         </h4>
                         <p className="text-[10px] font-medium text-mdOnSurfaceVariant leading-loose opacity-70 italic">
-                            All communication within the EcclesiaSys framework is archived and monitored for administrative integrity. Dispatches are paired by role.
+                            All communication within the COP Ayikai Doblo District framework is archived and monitored for administrative integrity. Dispatches are paired by role.
                         </p>
                     </div>
                 </div>

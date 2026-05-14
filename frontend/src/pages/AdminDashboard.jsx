@@ -1610,7 +1610,7 @@ export default function AdminDashboard() {
                                     const a = document.createElement('a');
                                     a.setAttribute('hidden', '');
                                     a.setAttribute('href', url);
-                                    a.setAttribute('download', `EcclesiaSys_Audit_Logs_${new Date().toISOString().split('T')[0]}.csv`);
+                                    a.setAttribute('download', `COP_Ayikai_Doblo_Audit_Logs_${new Date().toISOString().split('T')[0]}.csv`);
                                     document.body.appendChild(a);
                                     a.click();
                                     document.body.removeChild(a);

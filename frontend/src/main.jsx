@@ -17,13 +17,13 @@ window.onunhandledrejection = function(event) {
   console.error("Unhandled Promise Rejection:", event.reason);
 };
 
-console.log("EcclesiaSys: Initializing application...");
+console.log("COP Ayikai Doblo: Initializing application...");
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
-  console.error("EcclesiaSys Error: Root element not found!");
+  console.error("COP Ayikai Doblo Error: Root element not found!");
 } else {
-  console.log("EcclesiaSys: Root element found, rendering app...");
+  console.log("COP Ayikai Doblo: Root element found, rendering app...");
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
       <ThemeProvider>
@@ -36,5 +36,5 @@ if (!rootElement) {
 }
 
 // Register Service Worker for PWA installability and background notifications
-console.log("EcclesiaSys: Registering Service Worker...");
+console.log("COP Ayikai Doblo: Registering Service Worker...");
 NotificationManager.registerServiceWorker();
