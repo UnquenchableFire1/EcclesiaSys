@@ -4,9 +4,19 @@ import { VitePWA } from 'vite-plugin-pwa';
 import crypto from 'node:crypto';
 
 // Polyfill for environments where globalThis.crypto is missing (e.g. some Node versions)
-if (!globalThis.crypto) {
-  globalThis.crypto = crypto;
+try {
+  if (typeof globalThis.crypto === 'undefined') {
+    Object.defineProperty(globalThis, 'crypto', {
+      value: crypto.webcrypto || crypto,
+      writable: true,
+      configurable: true
+    });
+  }
+} catch (e) {
+  console.warn('Could not polyfill globalThis.crypto:', e);
 }
+
+
 
 
 export default defineConfig({
