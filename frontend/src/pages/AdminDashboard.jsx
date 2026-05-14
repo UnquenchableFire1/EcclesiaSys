@@ -8,7 +8,8 @@ import {
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
     faExclamationTriangle, faSignOutAlt, faBuilding, faCamera,
-    faPlay, faLink, faFileUpload, faTimes, faImages, faIdCard, faEnvelopeOpenText, faChartPie
+    faPlay, faLink, faFileUpload, faTimes, faImages, faIdCard, faEnvelopeOpenText, faChartPie,
+    faHistory, faFileDownload, faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
