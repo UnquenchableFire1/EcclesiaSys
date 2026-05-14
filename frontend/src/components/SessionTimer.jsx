@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 /**
  * SessionTimer component tracks user activity and automatically logs out
- * the user after 5 minutes (default) of inactivity.
+ * the user after 48 hours (default) of inactivity.
  */
-const SessionTimer = ({ timeoutInMinutes = 5 }) => {
+const SessionTimer = ({ timeoutInMinutes = 2880 }) => {
   const navigate = useNavigate();
   const TIMEOUT_MS = timeoutInMinutes * 60 * 1000;
 

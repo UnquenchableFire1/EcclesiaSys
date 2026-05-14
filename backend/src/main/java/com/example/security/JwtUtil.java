@@ -30,8 +30,8 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
     
-    // 24 hours in milliseconds
-    private static final long EXPIRATION_TIME = 86400000;
+    // 48 hours in milliseconds
+    private static final long EXPIRATION_TIME = 172800000L;
 
     public String generateToken(String email, int userId, String userType, Integer branchId, String role) {
         Map<String, Object> claims = new HashMap<>();
