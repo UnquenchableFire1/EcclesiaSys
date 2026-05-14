@@ -7,10 +7,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.service.AuditService;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/branches")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class BranchController {
+
+    @Autowired
+    private AuditService auditService;
 
     @GetMapping
     public Map<String, Object> getAllBranches() {
@@ -48,11 +55,12 @@ public class BranchController {
     }
 
     @PostMapping
-    public Map<String, Object> createBranch(@RequestBody Branch branch) {
+    public Map<String, Object> createBranch(@RequestBody Branch branch, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             BranchDAO dao = new BranchDAO();
             if (dao.addBranch(branch)) {
+                auditService.log(request, "CREATE_BRANCH", "BRANCH", branch.getName(), "Created new branch: " + branch.getName());
                 response.put("success", true);
                 response.put("message", "Branch created successfully");
             } else {
@@ -67,12 +75,13 @@ public class BranchController {
     }
 
     @DeleteMapping("/{id}")
-    public Map<String, Object> deleteBranch(@PathVariable int id) {
+    public Map<String, Object> deleteBranch(@PathVariable int id, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             BranchDAO dao = new BranchDAO();
             int affected = dao.deleteBranch(id);
             if (affected > 0) {
+                auditService.log(request, "DELETE_BRANCH", "BRANCH", String.valueOf(id), "Deleted branch ID: " + id);
                 response.put("success", true);
                 response.put("message", "Branch deleted successfully");
             } else {

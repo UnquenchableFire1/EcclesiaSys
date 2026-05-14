@@ -9,10 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.service.AuditService;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/members")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class MemberController {
+
+    @Autowired
+    private AuditService auditService;
 
     @GetMapping
     public Map<String, Object> getAllMembers(@RequestParam(required = false) Integer branchId) {
@@ -51,11 +58,15 @@ public class MemberController {
     }
 
     @DeleteMapping("/{id}")
-    public Map<String, Object> deleteMember(@PathVariable int id) {
+    public Map<String, Object> deleteMember(@PathVariable int id, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             MemberDAO dao = new MemberDAO();
+            Member member = dao.getMemberById(id);
+            String memberName = (member != null) ? member.getFirstName() + " " + member.getLastName() : "Unknown";
+
             if (dao.deleteMember(id)) {
+                auditService.log(request, "DELETE_MEMBER", "MEMBER", String.valueOf(id), "Deleted member: " + memberName);
                 response.put("success", true);
                 response.put("message", "Member deleted");
             } else {
@@ -100,11 +111,15 @@ public class MemberController {
     }
 
     @PutMapping("/{id}/toggle-status")
-    public Map<String, Object> toggleMemberStatus(@PathVariable int id) {
+    public Map<String, Object> toggleMemberStatus(@PathVariable int id, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             MemberDAO dao = new MemberDAO();
+            Member member = dao.getMemberById(id);
+            String newStatus = (member != null && "active".equals(member.getStatus())) ? "disabled" : "active";
+
             if (dao.toggleMemberStatus(id)) {
+                auditService.log(request, "TOGGLE_STATUS", "MEMBER", String.valueOf(id), "Changed status to: " + newStatus);
                 response.put("success", true);
                 response.put("message", "Member status toggled");
             } else {

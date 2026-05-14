@@ -104,4 +104,41 @@ public class AttendanceController {
         }
         return response;
     }
+
+    @PostMapping("/scan")
+    public Map<String, Object> scanCheckIn(@RequestBody Map<String, Object> body) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            int memberId = (Integer) body.get("memberId");
+            int branchId = (Integer) body.get("branchId");
+            LocalDate date = LocalDate.now();
+
+            com.example.dao.MemberAttendanceDAO memberAttendanceDAO = new com.example.dao.MemberAttendanceDAO();
+            if (memberAttendanceDAO.recordCheckIn(memberId, branchId, date)) {
+                response.put("success", true);
+                response.put("message", "Member successfully checked in!");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to record check-in.");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error during scan: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @GetMapping("/member/{memberId}")
+    public Map<String, Object> getMemberAttendance(@PathVariable int memberId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            com.example.dao.MemberAttendanceDAO dao = new com.example.dao.MemberAttendanceDAO();
+            response.put("success", true);
+            response.put("data", dao.getAttendanceByMemberId(memberId));
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error: " + e.getMessage());
+        }
+        return response;
+    }
 }

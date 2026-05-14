@@ -9,8 +9,10 @@ import org.springframework.http.MediaType;
 import java.util.Base64;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 @ComponentScan(basePackages = {"com.example"})
 public class Application {
 

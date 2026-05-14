@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import { QRCodeCanvas } from 'qrcode.react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { uploadProfilePicture, deleteProfilePicture, getMemberProfile, updateMemberProfile } from '../services/api';
 import ImageCropperModal from '../components/ImageCropperModal';
-import { faCamera, faTrash, faSpinner, faIdCard, faMapMarkerAlt, faPray, faBriefcase, faCrown, faEnvelope, faCalendarAlt, faStar, faUserShield, faPhone, faQuoteLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faTrash, faSpinner, faIdCard, faMapMarkerAlt, faPray, faBriefcase, faCrown, faEnvelope, faCalendarAlt, faStar, faUserShield, faPhone, faQuoteLeft, faArrowRight, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp = null }) {
@@ -23,6 +25,8 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
     const [isUploading, setIsUploading] = useState(false);
     const [showCropper, setShowCropper] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [isGeneratingId, setIsGeneratingId] = useState(false);
+    const idCardRef = useRef(null);
 
     const [formData, setFormData] = useState({
         phoneNumber: '',
@@ -264,6 +268,29 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
         }
     };
 
+    const handleGenerateIdCard = async () => {
+        if (!idCardRef.current) return;
+        try {
+            setIsGeneratingId(true);
+            const canvas = await html2canvas(idCardRef.current, {
+                scale: 3, // High resolution
+                useCORS: true,
+                backgroundColor: null, // transparent background for the wrapper
+            });
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `COP_ID_${profile.firstName}_${profile.lastName}.png`;
+            link.href = dataUrl;
+            link.click();
+            showToast('ID Card generated successfully!', 'success');
+        } catch (err) {
+            console.error(err);
+            showToast('Failed to generate ID card', 'error');
+        } finally {
+            setIsGeneratingId(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center p-12">
@@ -387,13 +414,21 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
                     </div>
 
                     {!editing && (
-                        <div className="flex justify-center -mt-8 mb-4">
+                        <div className="flex flex-col sm:flex-row justify-center items-center -mt-8 mb-4 gap-4">
                             <button 
                                 onClick={() => setEditing(true)}
-                                className="bg-mdPrimary text-white px-10 py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-premium hover:bg-mdSecondary transition-all flex items-center gap-4 animate-bounce-subtle"
+                                className="bg-mdPrimary text-white px-10 py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-premium hover:bg-mdSecondary transition-all flex items-center justify-center gap-4 animate-bounce-subtle w-full sm:w-auto"
                             >
                                 <FontAwesomeIcon icon={faIdCard} />
-                                {isAdminViewing ? 'INSPECT & EDIT FULL RECORDS' : 'OPEN ASSEMBLY REGISTRY & COMPLETE RECORDS'}
+                                {isAdminViewing ? 'INSPECT & EDIT FULL RECORDS' : 'OPEN ASSEMBLY REGISTRY'}
+                            </button>
+                            <button 
+                                onClick={handleGenerateIdCard}
+                                disabled={isGeneratingId}
+                                className="bg-white text-mdOnSurface px-10 py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-premium hover:bg-mdSurfaceVariant transition-all flex items-center justify-center gap-4 border-2 border-mdPrimary/10 w-full sm:w-auto disabled:opacity-50"
+                            >
+                                <FontAwesomeIcon icon={isGeneratingId ? faSpinner : faDownload} className={isGeneratingId ? "animate-spin" : ""} />
+                                DIGITAL ID CARD
                             </button>
                         </div>
                     )}
@@ -885,6 +920,90 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
                         setSelectedImage(null);
                     }}
                 />
+            )}
+            
+            {/* Hidden ID Card Template for Generation */}
+            {profile && (
+                <div className="fixed" style={{ left: '-9999px', top: '-9999px' }}>
+                    <div 
+                        ref={idCardRef}
+                        className="w-[500px] h-[800px] rounded-[3rem] overflow-hidden relative flex flex-col bg-white shadow-2xl"
+                        style={{ fontFamily: "'Inter', sans-serif" }}
+                    >
+                        {/* Background Elements */}
+                        <div className="absolute top-0 w-full h-[350px] bg-gradient-to-b from-mdPrimary to-[#1A2F5F]"></div>
+                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4"></div>
+                        <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-r from-mdPrimary via-mdSecondary to-mdPrimary"></div>
+                        
+                        {/* Header */}
+                        <div className="relative z-10 pt-10 px-8 text-center text-white flex flex-col items-center">
+                            <img src="/logo.png" alt="Logo" className="w-20 h-20 mb-4 drop-shadow-lg" crossOrigin="anonymous" />
+                            <h2 className="text-2xl font-black uppercase tracking-widest leading-none mb-1 text-[#facc15]">Church of Pentecost</h2>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Ayikai Doblo District</p>
+                        </div>
+
+                        {/* Profile Image & Identification */}
+                        <div className="relative z-10 mt-6 flex flex-col items-center">
+                            <div className="w-52 h-52 rounded-[2rem] bg-white p-2 shadow-2xl rotate-3">
+                                <div className="w-full h-full rounded-[1.6rem] overflow-hidden bg-mdSurfaceVariant">
+                                    {profile.profilePictureUrl ? (
+                                        <img src={profile.profilePictureUrl} alt="Portrait" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-5xl font-black text-mdPrimary">
+                                            {profile.firstName?.charAt(0)}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            <div className="bg-mdPrimary text-white px-8 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-lg -mt-6 z-20 border-4 border-white">
+                                {profile.title || 'Member'}
+                            </div>
+                        </div>
+
+                        {/* Details */}
+                        <div className="relative z-10 mt-10 px-10 flex-1 flex flex-col text-center">
+                            <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter leading-none mb-2">
+                                {profile.firstName} {profile.lastName}
+                            </h1>
+                            <div className="text-mdPrimary font-black text-xs uppercase tracking-[0.3em] mb-8">
+                                ID: {profile.id.toString().padStart(6, '0')}
+                            </div>
+
+                            <div className="w-full h-px bg-mdOutline/10 mb-8"></div>
+
+                            <div className="grid grid-cols-2 gap-y-6 text-left w-full max-w-[350px] mx-auto">
+                                <div>
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-mdOnSurfaceVariant/50 mb-1">Status</p>
+                                    <p className="text-xs font-black uppercase tracking-wider text-mdOnSurface">{profile.status}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-mdOnSurfaceVariant/50 mb-1">Gender</p>
+                                    <p className="text-xs font-black uppercase tracking-wider text-mdOnSurface">{profile.gender || 'N/A'}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-mdOnSurfaceVariant/50 mb-1">Branch Affiliation</p>
+                                    <p className="text-sm font-black uppercase tracking-wider text-mdPrimary truncate">
+                                        {profile.branchId ? `Branch #${profile.branchId}` : 'Central Assembly'}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            {/* QR Code Integration */}
+                            <div className="mt-auto mb-10 mx-auto flex flex-col items-center">
+                                <div className="p-2 bg-white rounded-2xl shadow-premium border border-mdOutline/5">
+                                    <QRCodeCanvas 
+                                        value={`MEMBER:${profile.id}:${profile.firstName}:${profile.lastName}`}
+                                        size={120}
+                                        level={"H"}
+                                        includeMargin={false}
+                                    />
+                                </div>
+                                <span className="text-[8px] font-black uppercase tracking-[0.4em] mt-4 text-mdOnSurfaceVariant/60">Digital ID Verification</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

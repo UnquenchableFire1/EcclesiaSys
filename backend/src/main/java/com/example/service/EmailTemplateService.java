@@ -196,6 +196,29 @@ public class EmailTemplateService {
     }
 
     /**
+     * Church Joining Anniversary greeting email
+     */
+    public void sendAnniversaryGreetingEmail(String recipientEmail, String userName, int years, String churchName) {
+        try {
+            String subject = "Congratulations on Your Church Anniversary! " + userName;
+            String htmlContent = "<html><body>" +
+                "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
+                "<div style='background-color: #0F766E; color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0;'>" +
+                "<h1 style='margin: 0;'>🌟 Happy Anniversary, " + userName + "!</h1>" +
+                "</div>" +
+                "<div style='background-color: #f9fafb; padding: 40px; border-radius: 0 0 8px 8px; text-align: center;'>" +
+                "<p style='font-size: 18px; margin: 20px 0;'>Today marks <strong>" + years + " years</strong> since you joined the " + churchName + " family!</p>" +
+                "<p>We are so grateful for your presence, your service, and your commitment to the body of Christ. Your journey with us is a blessing.</p>" +
+                "<p style='font-size: 14px; margin-top: 30px; color: #666;'>Thank you for being such a vital part of our district. Here's to many more years of faith and fellowship!</p>" +
+                "</div></div></body></html>";
+
+            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
+        } catch (Exception e) {
+            logger.error("Failed to send anniversary greeting email to: {}", recipientEmail, e);
+        }
+    }
+
+    /**
      * Volunteer opportunity email
      */
     public void sendVolunteerOpportunityEmail(String recipientEmail, String opportunityTitle, 

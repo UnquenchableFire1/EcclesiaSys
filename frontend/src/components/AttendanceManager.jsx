@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faUsers, faUserTie, faChild, faFemale, faMale, faPlus, 
-    faTrash, faCheckCircle, faHistory, faWalking 
+    faTrash, faCheckCircle, faHistory, faWalking, faQrcode, faCamera
 } from '@fortawesome/free-solid-svg-icons';
 import { useToast } from '../context/ToastContext';
+import QRScanner from './QRScanner';
 
 export default function AttendanceManager({ branchId }) {
     const { showToast } = useToast();
@@ -12,6 +13,7 @@ export default function AttendanceManager({ branchId }) {
     const [history, setHistory] = useState([]);
     const [visitorsList, setVisitorsList] = useState([]);
     const [activeView, setActiveView] = useState('new'); // 'new', 'history', or 'followup'
+    const [showScanner, setShowScanner] = useState(false);
 
     // Form State
     const [stats, setStats] = useState({
@@ -127,14 +129,57 @@ export default function AttendanceManager({ branchId }) {
         }
     };
 
+    const handleScanSuccess = async (decodedText) => {
+        setShowScanner(false);
+        // Format: MEMBER:ID:FirstName:LastName
+        const parts = decodedText.split(':');
+        if (parts[0] !== 'MEMBER' || parts.length < 2) {
+            showToast("Invalid QR Code format.", "error");
+            return;
+        }
+
+        const memberId = parseInt(parts[1]);
+        const memberName = `${parts[2] || ''} ${parts[3] || ''}`.trim();
+
+        try {
+            const res = await fetch('/api/attendance/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memberId, branchId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`Success: ${memberName} checked in!`, "success");
+            } else {
+                showToast(data.message, "error");
+            }
+        } catch (err) {
+            showToast("Failed to process scan.", "error");
+        }
+    };
+
     return (
         <div className="space-y-8 animate-fade-in">
+            {showScanner && (
+                <QRScanner 
+                    onScanSuccess={handleScanSuccess} 
+                    onClose={() => setShowScanner(false)} 
+                />
+            )}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter italic">Attendance Ledger</h1>
                     <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Sunday Numerical Reporting & Resident Newcomers</p>
                 </div>
-                <div className="flex bg-mdSurfaceVariant/20 p-1 rounded-2xl">
+                <div className="flex gap-4">
+                    <button 
+                        onClick={() => setShowScanner(true)}
+                        className="px-6 py-3 bg-mdSecondary text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-premium hover:scale-105 transition-all"
+                    >
+                        <FontAwesomeIcon icon={faCamera} />
+                        Scan ID
+                    </button>
+                    <div className="flex bg-mdSurfaceVariant/20 p-1 rounded-2xl">
                     <button 
                         onClick={() => setActiveView('new')}
                         className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeView === 'new' ? 'bg-mdPrimary text-white shadow-lifted' : 'text-mdOnSurfaceVariant hover:text-mdPrimary'}`}

@@ -8,7 +8,7 @@ import {
     faPlus, faHome, faPrayingHands, faCheckCircle, faUserShield, 
     faUser, faSearch, faUserPlus, faBell, faCheck, faCheckDouble,
     faExclamationTriangle, faSignOutAlt, faBuilding, faCamera,
-    faPlay, faLink, faFileUpload, faTimes, faImages, faIdCard, faEnvelopeOpenText
+    faPlay, faLink, faFileUpload, faTimes, faImages, faIdCard, faEnvelopeOpenText, faChartPie
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import ImageCropperModal from '../components/ImageCropperModal';
@@ -35,6 +35,8 @@ import AdminProfile from './AdminProfile';
 import MemberProfile from './MemberProfile';
 import Gallery from './Gallery';
 import ChangePassword from '../components/ChangePassword';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import CelebrationsWidget from '../components/CelebrationsWidget';
 // Chat removed in favor of WhatsApp support
 import { downloadMembersAsExcel } from '../services/excelExport';
 import ConfirmModal from '../components/ConfirmModal';
@@ -111,6 +113,9 @@ export default function AdminDashboard() {
     const [targetBranchId, setTargetBranchId] = useState('');
     const [assigningBranchMember, setAssigningBranchMember] = useState(null);
     const [alertDialog, setAlertDialog] = useState(null);
+    const [auditLogs, setAuditLogs] = useState([]);
+    const [isFetchingAudit, setIsFetchingAudit] = useState(false);
+    const [auditLimit, setAuditLimit] = useState(100);
     const [lightboxImg, setLightboxImg] = useState(null);
     const [viewingMember, setViewingMember] = useState(null);
     const [latestAttendance, setLatestAttendance] = useState(null);
@@ -334,6 +339,30 @@ export default function AdminDashboard() {
     useEffect(() => {
         fetchProfile();
     }, [fetchProfile]);
+
+    const fetchAuditLogs = useCallback(async () => {
+        if (!isActuallySuperAdmin || !adminId) return;
+        setIsFetchingAudit(true);
+        try {
+            const res = await fetch(`/api/audit?adminId=${adminId}&limit=${auditLimit}`, {
+                headers: { 'Authorization': `Bearer ${sessionStorage.getItem('authToken')}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAuditLogs(data.data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch audit logs", err);
+        } finally {
+            setIsFetchingAudit(false);
+        }
+    }, [isActuallySuperAdmin, adminId, auditLimit]);
+
+    useEffect(() => {
+        if (activeTab === 'audit') {
+            fetchAuditLogs();
+        }
+    }, [activeTab, fetchAuditLogs]);
 
     useEffect(() => {
         if (!adminId) { navigate('/login'); return; }
@@ -727,13 +756,16 @@ export default function AdminDashboard() {
                                         {(isAnyAdmin || isMediaTeam) && <QuickAction label="Upload Media" icon={faImages} tab="gallery" desc="Photos & Sermons" />}
                                         {(isBranchOfficial && isSecretary) && <QuickAction label="Sunday Stats" icon={faCalendarAlt} tab="attendance" desc="Fill Attendance Form" />}
                                         <QuickAction label="Registry" icon={faUsers} tab="members" desc="View Directory" />
+                                        {isAnyAdmin && <QuickAction label="Analytics" icon={faChartPie} tab="analytics" desc="View Demographics" />}
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <QuickAction label="Manage Staff" icon={faUserShield} tab="admins" desc="Oversee Officials" />
                                         <QuickAction label="Branches" icon={faBuilding} tab="branch-management" desc="Network Oversight" />
                                         <QuickAction label="Congregation" icon={faUsers} tab="members" desc="Universal Registry" />
+                                        <QuickAction label="Analytics" icon={faChartPie} tab="analytics" desc="Visual Demographics" />
                                         <QuickAction label="Dispatches" icon={faEnvelopeOpenText} tab="messages" desc="Official Communication" />
+                                        <QuickAction label="System Logs" icon={faHistory} tab="audit" desc="Audit Trail Monitoring" />
                                     </div>
                                 )}
                             </div>
@@ -895,6 +927,9 @@ export default function AdminDashboard() {
                                 ))}
                             </div>
                         </div>
+                        
+                        {/* 1.5 CELEBRATIONS WIDGET */}
+                        <CelebrationsWidget members={members} />
                     </div>
                 )}
 
@@ -1528,6 +1563,122 @@ export default function AdminDashboard() {
                 {activeTab === 'password' && (
                     <div className="animate-fade-in mt-4">
                         <ChangePassword userType="admin" userId={adminId} />
+                    </div>
+                )}
+
+                {/* 10. ANALYTICS */}
+                {activeTab === 'analytics' && (
+                    <div className="animate-fade-in mt-4">
+                        <AnalyticsDashboard members={members} branches={branches} />
+                    </div>
+                )}
+                {/* 11. AUDIT TRAIL (Super Admin Only) */}
+                {(activeTab === 'audit' && isActuallySuperAdmin) && (
+                    <div className="space-y-10 animate-fade-in">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter italic flex items-center gap-4">
+                                    System Audit
+                                    <span className="text-[10px] bg-mdPrimary/10 text-mdPrimary px-3 py-1 rounded-full uppercase tracking-widest">District Logs</span>
+                                </h1>
+                                <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Transparency & Accountability Trail</p>
+                            </div>
+                            <button 
+                                onClick={fetchAuditLogs}
+                                disabled={isFetchingAudit}
+                                className="w-12 h-12 rounded-2xl bg-mdPrimary/10 text-mdPrimary flex items-center justify-center hover:bg-mdPrimary hover:text-white transition-all shadow-sm"
+                            >
+                                <FontAwesomeIcon icon={isFetchingAudit ? faSpinner : faHistory} className={isFetchingAudit ? 'animate-spin' : ''} />
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    if (!auditLogs.length) return;
+                                    const headers = ["Timestamp", "Admin", "Action", "Target", "Details"];
+                                    const csvRows = [headers.join(',')];
+                                    auditLogs.forEach(log => {
+                                        const row = [
+                                            `"${new Date(log.timestamp).toLocaleString()}"`,
+                                            `"${log.adminName || 'Admin #' + log.adminId}"`,
+                                            `"${log.action}"`,
+                                            `"${log.targetType} (${log.targetId})"`,
+                                            `"${(log.details || '').replace(/"/g, '""')}"`
+                                        ];
+                                        csvRows.push(row.join(','));
+                                    });
+                                    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.setAttribute('hidden', '');
+                                    a.setAttribute('href', url);
+                                    a.setAttribute('download', `EcclesiaSys_Audit_Logs_${new Date().toISOString().split('T')[0]}.csv`);
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                }}
+                                className="px-6 h-12 rounded-2xl bg-mdPrimary text-white flex items-center justify-center gap-2 font-black text-xs uppercase tracking-widest hover:bg-mdSecondary transition-all shadow-premium"
+                            >
+                                <FontAwesomeIcon icon={faFileDownload} />
+                                Export Logs
+                            </button>
+                        </div>
+
+                        <div className="glass-card overflow-hidden rounded-[3rem] border-none shadow-premium bg-white mb-20">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="bg-mdPrimary/5">
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant">Timestamp</th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant">Administrator</th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant">Action</th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant">Target</th>
+                                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-mdOnSurfaceVariant">Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-mdOutline/5">
+                                        {auditLogs.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" className="px-8 py-20 text-center text-mdOnSurfaceVariant font-bold italic opacity-40">
+                                                    {isFetchingAudit ? 'Accessing encrypted logs...' : 'No system activities recorded yet.'}
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            auditLogs.map(log => (
+                                                <tr key={log.id} className="hover:bg-mdSurfaceVariant/20 transition-colors group">
+                                                    <td className="px-8 py-5">
+                                                        <div className="text-xs font-black text-mdOnSurface">
+                                                            {new Date(log.timestamp).toLocaleDateString()}
+                                                        </div>
+                                                        <div className="text-[10px] font-bold text-mdOnSurfaceVariant">
+                                                            {new Date(log.timestamp).toLocaleTimeString()}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-mdPrimary/10 text-mdPrimary flex items-center justify-center text-[10px] font-black">
+                                                                {log.adminName?.charAt(0)}
+                                                            </div>
+                                                            <span className="text-sm font-black text-mdOnSurface">{log.adminName}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <span className="px-3 py-1 rounded-full bg-mdSecondary/10 text-mdSecondary text-[9px] font-black uppercase tracking-widest">
+                                                            {log.action?.replace('_', ' ')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <div className="text-xs font-bold text-mdOnSurfaceVariant uppercase tracking-widest">{log.targetType}</div>
+                                                        <div className="text-[10px] font-black text-mdPrimary">#{log.targetId}</div>
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <p className="text-sm font-medium text-mdOnSurface leading-relaxed">{log.details}</p>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

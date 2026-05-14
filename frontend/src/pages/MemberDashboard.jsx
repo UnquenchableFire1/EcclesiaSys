@@ -51,6 +51,8 @@ export default function MemberDashboard({ defaultTab = 'home' }) {
     const [myPrayerRequests, setMyPrayerRequests] = useState([]);
     const [bannerDismissed, setBannerDismissed] = useState(() => sessionStorage.getItem('profileBannerDismissed') === 'true');
     const [showMandatoryModal, setShowMandatoryModal] = useState(false);
+    const [attendanceHistory, setAttendanceHistory] = useState([]);
+    const [isFetchingAttendance, setIsFetchingAttendance] = useState(false);
 
     // -- Handlers --
     const setActiveTab = (tab) => {
@@ -103,6 +105,30 @@ export default function MemberDashboard({ defaultTab = 'home' }) {
             setLoading(false);
         }
     };
+
+    const fetchAttendanceHistory = async () => {
+        if (!memberId) return;
+        setIsFetchingAttendance(true);
+        try {
+            const res = await fetch(`/api/attendance/member/${memberId}`, {
+                headers: { 'Authorization': `Bearer ${sessionStorage.getItem('authToken')}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAttendanceHistory(data.data);
+            }
+        } catch (err) {
+            console.error("Attendance history error:", err);
+        } finally {
+            setIsFetchingAttendance(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'attendance') {
+            fetchAttendanceHistory();
+        }
+    }, [activeTab]);
 
     useEffect(() => {
         if (!memberId) { navigate('/login'); return; }
@@ -291,6 +317,13 @@ export default function MemberDashboard({ defaultTab = 'home' }) {
                                     tab="prayer-requests"
                                     onClick={() => navigate('/prayer-request')}
                                     color="text-emerald-500"
+                                />
+                                <DiscoveryCard 
+                                    title="Check-in History" 
+                                    desc="View your spiritual attendance records and assembly presence." 
+                                    icon={faCheck}
+                                    tab="attendance"
+                                    color="text-indigo-500"
                                 />
                             </div>
                         </div>
@@ -534,6 +567,59 @@ export default function MemberDashboard({ defaultTab = 'home' }) {
                 {activeTab === 'password' && (
                     <div className="animate-fade-in max-w-2xl mx-auto">
                         <ChangePassword userType="member" userId={memberId} />
+                    </div>
+                )}
+
+                {/* 8. ATTENDANCE HISTORY */}
+                {activeTab === 'attendance' && (
+                    <div className="space-y-10 animate-fade-in">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h1 className="text-4xl font-black text-mdOnSurface tracking-tighter italic flex items-center gap-4">
+                                    Assembly Presence
+                                    <span className="text-[10px] bg-mdPrimary/10 text-mdPrimary px-3 py-1 rounded-full uppercase tracking-widest">Digital Records</span>
+                                </h1>
+                                <p className="text-mdPrimary font-black text-xs uppercase tracking-widest mt-1">Your Personal Attendance History</p>
+                            </div>
+                            <div className="w-12 h-12 rounded-2xl bg-mdPrimary/10 text-mdPrimary flex items-center justify-center text-xl">
+                                <FontAwesomeIcon icon={faCheck} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {attendanceHistory.length === 0 ? (
+                                <div className="lg:col-span-3 glass-card p-20 text-center">
+                                    <div className="w-16 h-16 bg-mdSurfaceVariant/30 rounded-full flex items-center justify-center mx-auto mb-6 opacity-40">
+                                        <FontAwesomeIcon icon={faCalendarAlt} className="text-2xl" />
+                                    </div>
+                                    <p className="text-xl font-black text-mdOnSurface mb-2">No check-ins recorded yet.</p>
+                                    <p className="text-sm font-medium text-mdOnSurfaceVariant opacity-60 max-w-sm mx-auto">
+                                        Scan your ID card at the assembly entrance to automatically log your attendance.
+                                    </p>
+                                </div>
+                            ) : (
+                                attendanceHistory.map(record => (
+                                    <div key={record.id} className="glass-card p-8 border-l-8 border-l-mdPrimary group hover:shadow-premium transition-all">
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div className="w-12 h-12 rounded-xl bg-mdPrimary text-white flex items-center justify-center text-xl shadow-md2">
+                                                <FontAwesomeIcon icon={faCalendarAlt} />
+                                            </div>
+                                            <span className="text-[10px] font-black text-mdPrimary bg-mdPrimary/5 px-3 py-1 rounded-full uppercase tracking-widest">Verified</span>
+                                        </div>
+                                        <h4 className="text-2xl font-black text-mdOnSurface mb-1">
+                                            {new Date(record.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                                        </h4>
+                                        <p className="text-[10px] font-black text-mdOnSurfaceVariant uppercase tracking-[0.2em] mb-4">
+                                            Checked in at {new Date(record.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                        <div className="pt-4 border-t border-mdOutline/5 flex items-center gap-2 text-[9px] font-black text-mdPrimary uppercase tracking-widest">
+                                            <FontAwesomeIcon icon={faCheck} className="text-[10px]" />
+                                            Record Synchronized
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

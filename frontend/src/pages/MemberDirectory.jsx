@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getPublicMembers, getMembers } from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faPhone, faEnvelope, faInfoCircle, faSearch, faUserShield } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faPhone, faEnvelope, faInfoCircle, faSearch, faUserShield, faFileDownload } from '@fortawesome/free-solid-svg-icons';
 
 export default function MemberDirectory() {
     const [members, setMembers] = useState([]);
@@ -46,6 +46,47 @@ export default function MemberDirectory() {
         }
     };
 
+    const handleExport = () => {
+        if (!members.length) return;
+        
+        // Define headers for "full info"
+        const headers = [
+            "ID", "First Name", "Last Name", "Email", "Phone", "Gender", "DOB", 
+            "Membership Type", "Marital Status", "Occupation", "Branch ID", "Status", "Bio"
+        ];
+        
+        const csvRows = [headers.join(',')];
+        
+        members.forEach(m => {
+            const row = [
+                m.id,
+                `"${m.firstName || ''}"`,
+                `"${m.lastName || ''}"`,
+                `"${m.email || ''}"`,
+                `"${m.phoneNumber || ''}"`,
+                `"${m.gender || ''}"`,
+                `"${m.dateOfBirth || ''}"`,
+                `"${m.membershipType || ''}"`,
+                `"${m.maritalStatus || ''}"`,
+                `"${m.occupation || ''}"`,
+                m.branchId || 'Central',
+                `"${m.status || ''}"`,
+                `"${(m.bio || '').replace(/"/g, '""')}"`
+            ];
+            csvRows.push(row.join(','));
+        });
+        
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `EcclesiaSys_Members_Export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center p-12">
@@ -74,15 +115,27 @@ export default function MemberDirectory() {
                     </div>
                 </div>
                 
-                <div className="md:ml-auto relative w-full max-w-md group">
-                    <FontAwesomeIcon icon={faSearch} className="absolute left-6 top-1/2 -translate-y-1/2 text-mdOutline group-focus-within:text-mdPrimary transition-colors" />
-                    <input
-                        type="text"
-                        placeholder="Search by name, email or phone..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-white dark:bg-mdSurfaceVariant/20 border-none rounded-[2rem] py-5 pl-16 pr-8 focus:ring-2 focus:ring-mdPrimary transition-all shadow-premium font-bold text-sm"
-                    />
+                <div className="md:ml-auto flex items-center gap-4 w-full max-w-2xl">
+                    <div className="relative flex-1 group">
+                        <FontAwesomeIcon icon={faSearch} className="absolute left-6 top-1/2 -translate-y-1/2 text-mdOutline group-focus-within:text-mdPrimary transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Search registry..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full bg-white dark:bg-mdSurfaceVariant/20 border-none rounded-[2rem] py-5 pl-16 pr-8 focus:ring-2 focus:ring-mdPrimary transition-all shadow-premium font-bold text-sm"
+                        />
+                    </div>
+                    {isAdmin && (
+                        <button 
+                            onClick={handleExport}
+                            className="bg-mdPrimary text-white h-[60px] px-8 rounded-[2rem] font-black text-xs uppercase tracking-widest flex items-center gap-3 shadow-premium hover:bg-mdSecondary transition-all"
+                            title="Export Full Member Data"
+                        >
+                            <FontAwesomeIcon icon={faFileDownload} className="text-base" />
+                            <span className="hidden sm:inline">Export CSV</span>
+                        </button>
+                    )}
                 </div>
             </div>
 

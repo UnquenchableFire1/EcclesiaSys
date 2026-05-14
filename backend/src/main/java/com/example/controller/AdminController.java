@@ -8,12 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.service.AuditService;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/admins")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AdminController {
 
     private final AdminDAO adminDAO = new AdminDAO();
+    
+    @Autowired
+    private AuditService auditService;
 
     @GetMapping
     public Map<String, Object> getAllAdmins(@RequestParam(required = false) Integer branchId) {
@@ -90,7 +97,7 @@ public class AdminController {
     }
 
     @PostMapping
-    public Map<String, Object> createAdmin(@RequestBody Map<String, Object> request) {
+    public Map<String, Object> createAdmin(@RequestBody Map<String, Object> request, HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
         try {
             String name     = (String) request.get("name");
@@ -175,6 +182,7 @@ public class AdminController {
 
             boolean success = adminDAO.addAdmin(newAdmin);
             if (success) {
+                auditService.log(httpRequest, "CREATE_ADMIN", "ADMIN", email, "Created staff account for: " + name + " (" + requestedRole + ")");
                 response.put("success", true);
                 response.put("message", "Staff account created successfully.");
             } else {
@@ -190,7 +198,7 @@ public class AdminController {
     }
 
     @PostMapping("/promote/{memberId}")
-    public Map<String, Object> promoteMemberToAdmin(@PathVariable int memberId, @RequestBody Map<String, Object> request) {
+    public Map<String, Object> promoteMemberToAdmin(@PathVariable int memberId, @RequestBody Map<String, Object> request, HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
         try {
             int requesterId = 0;
@@ -211,6 +219,7 @@ public class AdminController {
             }
 
             if (adminDAO.promoteMemberToAdmin(memberId, requesterId, branchId)) {
+                auditService.log(httpRequest, "PROMOTE_MEMBER", "MEMBER", String.valueOf(memberId), "Promoted member to Admin role");
                 response.put("success", true);
                 response.put("message", "Member successfully promoted to Admin.");
             } else {
@@ -225,11 +234,12 @@ public class AdminController {
     }
 
     @DeleteMapping("/{id}")
-    public Map<String, Object> deleteAdmin(@PathVariable int id) {
+    public Map<String, Object> deleteAdmin(@PathVariable int id, HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
         try {
             boolean success = adminDAO.deleteAdmin(id);
             if (success) {
+                auditService.log(httpRequest, "DELETE_ADMIN", "ADMIN", String.valueOf(id), "Deleted staff account ID: " + id);
                 response.put("success", true);
                 response.put("message", "Admin deleted successfully");
             } else {
