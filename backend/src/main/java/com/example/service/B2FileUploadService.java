@@ -15,6 +15,7 @@ public class B2FileUploadService {
     private static String apiUrl = null;
     private static String uploadUrl = null;
     private static String bucketId = null;
+    private static String downloadUrl = null;
     
     private static final String B2_API_URL = "https://api.backblazeb2.com/b2api/v2";
     
@@ -64,6 +65,7 @@ public class B2FileUploadService {
             
             authToken = json.getString("authorizationToken");
             apiUrl = json.getString("apiUrl");
+            downloadUrl = json.getString("downloadUrl");
             
             // Get bucket info
             getBucketInfo();
@@ -179,7 +181,7 @@ public class B2FileUploadService {
             int uploadStatus = uploadConn.getResponseCode();
             if (uploadStatus == 200) {
                 System.out.println("✓ File uploaded successfully to B2");
-                String fileUrl = "https://f000.backblazeb2.com/file/" + ConfigManager.getB2BucketName() + "/" + fileName;
+                String fileUrl = downloadUrl + "/file/" + ConfigManager.getB2BucketName() + "/" + fileName;
                 return fileUrl;
             } else {
                 String errorBody = new String(uploadConn.getErrorStream().readAllBytes());

@@ -86,13 +86,13 @@ export default function MemberProfile({ onUpdate, autoEdit = false, memberIdProp
 
     useEffect(() => {
         const userType = sessionStorage.getItem('userType');
-        if (userType !== 'member') {
+        if (userType !== 'member' && !isAdminViewing) {
             navigate('/login');
             return;
         }
 
         fetchProfile();
-    }, [navigate]);
+    }, [navigate, isAdminViewing]);
 
     const fetchProfile = async () => {
         try {

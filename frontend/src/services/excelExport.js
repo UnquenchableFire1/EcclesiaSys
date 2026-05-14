@@ -14,7 +14,25 @@ export function downloadMembersAsExcel(members, branches = []) {
 
     try {
         // Prepare data for Excel
-        const headers = ['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Status', 'Branch', 'Joined Date'];
+        const headers = [
+            'ID', 'Title', 'First Name', 'Last Name', 'Email', 'Phone', 'Gender', 
+            'Branch', 'Status', 'Joined Date', 'Membership Type', 
+            'Date of Birth', 'Place of Birth', 'Marital Status', 
+            'Nationality', 'Country of Birth', 'Hometown', 
+            'Residential Address', 'GPS Address', 'Street Name', 'City', 
+            'Postal Code', 'Locality', 'Landmark', 
+            'Family Contact Name', 'Relationship', 'Parent/Guardian Name', 'Parent/Guardian Contact',
+            'Holy Ghost Baptism', 'Holy Spirit Baptism Date', 'Water Baptism', 'Water Baptism Date',
+            'Place of Baptism', 'Officiating Minister (Baptism)', 'Minister District',
+            'Date of Conversion', 'Former Church', 'Communicant', 
+            'Position in Church', 'Ministry', 'Zone', 'Occupation', 'HUM Status',
+            'Education Level', 'School Name', 'School/Work Locality',
+            'Is Entrepreneur', 'Is Retired', 'Date of Retirement',
+            'Has Disability', 'Nature of Disability', 'Assistive Device',
+            'Royal Status', 'Traditional Area', 'Year Appointed',
+            'Is Dedicated', 'Dedication Date', 'Officiating Minister (Dedication)', 'Dedication Church',
+            'Bio', 'Other Appointments'
+        ];
         
         // Map branch ID to name for sorting/display
         const getBranchName = (id) => branches.find(b => b.id === id)?.name || 'Central / No Branch';
@@ -28,31 +46,72 @@ export function downloadMembersAsExcel(members, branches = []) {
         });
 
         const rows = sortedMembers.map(m => [
-            m.id,
-            m.firstName,
-            m.lastName,
-            m.email,
-            m.phoneNumber,
-            m.status,
+            m.id || '',
+            m.title || '',
+            m.firstName || '',
+            m.lastName || '',
+            m.email || '',
+            m.phoneNumber || '',
+            m.gender || '',
             getBranchName(m.branchId),
-            m.joinedDate ? new Date(m.joinedDate).toLocaleDateString() : ''
+            m.status || '',
+            m.joinedDate ? new Date(m.joinedDate).toLocaleDateString() : '',
+            m.membershipType || '',
+            m.dateOfBirth || '',
+            m.placeOfBirth || '',
+            m.maritalStatus || '',
+            m.nationality || '',
+            m.countryOfBirth || '',
+            m.hometown || '',
+            m.residentialAddress || '',
+            m.gpsAddress || '',
+            m.streetName || '',
+            m.city || '',
+            m.postalCode || '',
+            m.locality || '',
+            m.landmark || '',
+            m.familyMemberName || '',
+            m.relationship || '',
+            m.parentGuardianName || '',
+            m.parentGuardianContact || '',
+            m.holyGhostBaptism || '',
+            m.dateOfHolySpiritBaptism || '',
+            m.waterBaptism || '',
+            m.dateOfWaterBaptism || '',
+            m.placeOfBaptism || '',
+            m.officiatingMinisterAtBaptism || '',
+            m.officiatingMinisterDistrict || '',
+            m.dateOfConversion || '',
+            m.formerChurch || '',
+            m.communicant || '',
+            m.positionInChurch || '',
+            m.ministry || '',
+            m.zone || '',
+            m.occupation || '',
+            m.humStatus || '',
+            m.levelOfEducation || '',
+            m.schoolName || '',
+            m.schoolLocation || '',
+            m.isEntrepreneur || '',
+            m.isRetired || '',
+            m.dateOfRetirement || '',
+            m.hasDisability || '',
+            m.natureOfDisability || '',
+            m.assistiveDevice || '',
+            m.royalStatus || '',
+            m.traditionalArea || '',
+            m.yearAppointed || '',
+            m.isDedicated || '',
+            m.dedicationDate || '',
+            m.officiatingMinisterAtDedication || '',
+            m.dedicationChurch || '',
+            m.bio || '',
+            m.otherAppointments || ''
         ]);
 
         // Create worksheet with headers and data
         const worksheetData = [headers, ...rows];
         const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-        // Set column widths for better readability
-        worksheet['!cols'] = [
-            { wch: 8 },   // ID
-            { wch: 15 },  // First Name
-            { wch: 15 },  // Last Name
-            { wch: 25 },  // Email
-            { wch: 15 },  // Phone
-            { wch: 12 },  // Status
-            { wch: 20 },  // Branch
-            { wch: 15 }   // Joined Date
-        ];
 
         // Create workbook and add worksheet
         const workbook = XLSX.utils.book_new();

@@ -1,0 +1,73 @@
+========================================================================
+                      ECCLESIASYS - SITE INSIGHTS
+                   "The Church of Pentecost - Ayikai Doblo"
+========================================================================
+
+1. PROJECT OVERVIEW
+------------------------------------------------------------------------
+EcclesiaSys (branded as "COP Ayikai Doblo District") is a modern, full-stack 
+church and district management portal. It is designed to handle hierarchical 
+church administration (District Level vs. Branch Level), member registries, 
+internal communication, media distribution, and event planning.
+
+2. TECHNOLOGY STACK
+------------------------------------------------------------------------
+[Backend Infrastructure]
+- Framework: Java 17 + Spring Boot 3.2.0
+- Security: Spring Security with stateless JWT Authentication (48hr timeouts)
+- Database: MySQL with Spring Data JPA & Hibernate (auto-schema generation)
+- File Storage: Hybrid cloud approach using Backblaze B2 & Cloudinary API
+- Email Delivery: Brevo API integration
+- Build Tool: Maven
+
+[Frontend Architecture]
+- Framework: React 18
+- Build Tool: Vite (Migrated from Create React App/React Scripts)
+- Styling: Tailwind CSS & Premium Glassmorphism UI (CSS Gradients)
+- Routing: React Router DOM v6
+- State Management: React Context API & Session Storage
+- Icons & UI: FontAwesome Icons, React Easy Crop
+- Data Export: XLSX library for Excel generation
+
+3. CORE FEATURES & CAPABILITIES
+------------------------------------------------------------------------
+A. Member & Registry Management
+   - Comprehensive member profiling (personal info, branch, join date).
+   - Super Admins can assign and transfer members across branches.
+   - Excel Export functionality for generating member reports.
+   - Mandatory member profile completion logic.
+
+B. Multi-Branch Hierarchy
+   - Supports Central/District overview alongside specific branch data.
+   - "Inspection Mode" allows Super Admins to view the dashboard strictly 
+     from the perspective of a specific branch.
+
+C. Role-Based Access Control (RBAC)
+   - SUPER_ADMIN: District-level oversight, manages branches, global announcements, and district staff.
+   - BRANCH_ADMIN: Local assembly oversight.
+   - SUPER_SECRETARY / BRANCH_SECRETARY: Focused on attendance, stats, and records.
+   - SUPER_MEDIA / BRANCH_MEDIA / MEDIA_TEAM: Restricted to Gallery, Sermons, and Media uploads.
+   - MEMBER: End-user view, can access dashboard, prayer requests, and update their profile.
+
+D. Communication Hub
+   - Message Center: A formal dispatch system built directly into the portal for administrative communication.
+   - Global & Local Announcements: Admins can broadcast messages to specific branches or globally.
+   - Prayer Requests: Members can submit requests; Admins can forward or update their status.
+
+E. Media & Content Management
+   - Sermons & Events: Track upcoming events, upload event documents, and post video/audio sermons.
+   - Gallery: Managed image uploading using cropped image data sent to the cloud.
+
+F. Premium Aesthetics
+   - "Glassmorphism" styling, fluid gradient backgrounds, and micro-animations to create a visually striking experience.
+
+4. RECENT SYSTEM UPDATES
+------------------------------------------------------------------------
+- Authentication: Session and JWT timeouts have been standardized to 48 hours to prevent sudden logouts.
+- Codebase Stability: All recent build and import errors (like missing FontAwesome icons and hidden character syntax errors) have been resolved.
+- Media Infrastructure: Migrated to a hybrid model using Backblaze B2 for general media and Cloudinary for profile pictures.
+- Build System: The frontend is fully optimized and migrated to Vite for extremely fast compilation.
+
+========================================================================
+                 Document Generated for Admin Insight
+========================================================================
